@@ -75,6 +75,7 @@ def check_inline_for_admin_url(obj, inline, parent, inline_check=True):
                         args=[field_value]
                     )
 
+    return None
 
 def get_admin_url(obj):
     '''
@@ -89,7 +90,7 @@ def get_admin_url(obj):
     (with page_admin.register_content_inline).
     '''
     # Import here to avoid circular imports
-    from cms.apps.pages.admin import page_admin
+    from cms.apps.pages.admin import page_admin  # pylint:disable=import-outside-toplevel
 
     # We first of all just try and get an admin URL for the object that has
     # been passed to us.

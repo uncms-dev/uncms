@@ -38,24 +38,6 @@ class RequestPageManager:
 
         return None
 
-    def alternate_page_version(self, page):
-        # Save ourselves a DB query if we are not using localisation.
-        if not self.country:
-            return page
-
-        try:
-            # See if the page has any alternate versions for the current country
-            alternate_version = Page.objects.get(
-                is_content_object=True,
-                owner=page,
-                country_group=self.request_country_group()
-            )
-
-            return alternate_version
-
-        except:
-            return page
-
     @cached_property
     def homepage(self):
         '''Returns the site homepage.'''
@@ -92,8 +74,7 @@ class RequestPageManager:
     def section(self):
         '''The current primary level section, or None.'''
         try:
-            page = self.breadcrumbs[1]
-            return self.alternate_page_version(page)
+            return self.breadcrumbs[1]
         except IndexError:
             return None
 
@@ -101,8 +82,7 @@ class RequestPageManager:
     def subsection(self):
         '''The current secondary level section, or None.'''
         try:
-            page = self.breadcrumbs[2]
-            return self.alternate_page_version(page)
+            return self.breadcrumbs[2]
         except IndexError:
             return None
 
@@ -110,8 +90,7 @@ class RequestPageManager:
     def current(self):
         '''The current best-matched page.'''
         try:
-            page = self.breadcrumbs[-1]
-            return self.alternate_page_version(page)
+            return self.breadcrumbs[-1]
         except IndexError:
             return None
 
@@ -144,12 +123,6 @@ class PageMiddleware(MiddlewareMixin):
         if request.path.startswith('/media/'):
             return response
 
-        if hasattr(request, 'country') and request.country is not None:
-            script_name = '/{}{}'.format(
-                request.country.code.lower(),
-                script_name
-            )
-
         # Dispatch to the content.
         try:
             try:
@@ -166,7 +139,7 @@ class PageMiddleware(MiddlewareMixin):
                     else:
                         return redirect(script_name + new_path_info, permanent=True)
                 return response
-            response = callback(request, *callback_args, **callback_kwargs)
+            response = callback(request, *callback_args, **callback_kwargs)  # pylint:disable=not-callable
             # Validate the response.
             if not response:
                 raise ValueError("The view {0!r} didn't return an HttpResponse object.".format(
@@ -189,5 +162,5 @@ class PageMiddleware(MiddlewareMixin):
                 return technical_404_response(request, ex)
             # Let the normal 404 mechanisms render an error page.
             return response
-        except:
+        except:  # pylint:disable=bare-except
             return handle_uncaught_exception(request, urls.get_resolver(None), sys.exc_info())

@@ -40,7 +40,7 @@ def resolve(permalink):
     except (urls.Resolver404, TypeError):
         raise PermalinkError("'{}' is not a valid permalink.".format(permalink))
     # Check if the URL refers to a permalink.
-    if callback != shortcut:
+    if callback != shortcut:  # pylint:disable=comparison-with-callable
         raise PermalinkError("'{}' is not a valid permalink.".format(permalink))
     # Get the permalink attributes.
     try:

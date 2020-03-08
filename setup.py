@@ -44,11 +44,11 @@ setup(
     extras_require={
         'usertools': ['django-usertools'],
         'testing': [
+            'pylint==2.4.4',
             'pytest>=3.6',
             'pytest-cov',
             'pytest-django',
             'pytest-xdist',
-            # / Project template
             'coveralls',
             'geoip2',
         ],

@@ -5,7 +5,6 @@ This is an enhanced version of the Django admin area, providing a more
 user-friendly appearance and providing additional functionality over the
 standard implementation.
 '''
-import json
 from copy import deepcopy
 from functools import cmp_to_key
 
@@ -22,7 +21,7 @@ from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import models, transaction
 from django.db.models import F, Q
 from django.http import (Http404, HttpResponse, HttpResponseForbidden,
-                         HttpResponseRedirect)
+                         HttpResponseRedirect, JsonResponse)
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.defaultfilters import capfirst
 from django.template.response import TemplateResponse
@@ -167,7 +166,7 @@ class PageAdmin(PageBaseAdmin):
             # pass
             try:
                 instances.extend(inline.model._default_manager.filter(page=obj))
-            except:
+            except:  # pylint:disable=bare-except
                 pass
         return instances
 
@@ -476,9 +475,9 @@ class PageAdmin(PageBaseAdmin):
             }
 
             return render(request, 'admin/pages/page/select_page_type.html', context)
-        else:
-            if not self.has_add_content_permission(request, ContentType.objects.get_for_id(request.GET[PAGE_TYPE_PARAMETER]).model_class()):
-                raise PermissionDenied('You are not allowed to add pages of that content type.')
+
+        if not self.has_add_content_permission(request, ContentType.objects.get_for_id(request.GET[PAGE_TYPE_PARAMETER]).model_class()):
+            raise PermissionDenied('You are not allowed to add pages of that content type.')
         return super().add_view(request, form_url, extra_context)
 
     def get_preserved_filters(self, request):
@@ -551,10 +550,7 @@ class PageAdmin(PageBaseAdmin):
             data['entries'] = [sitemap_entry(homepage)]
         else:
             data['entries'] = []
-        # Render the JSON.
-        response = HttpResponse(content_type='application/json; charset=utf-8')
-        json.dump(data, response)
-        return response
+        return JsonResponse(data)
 
     @transaction.atomic
     def move_page_view(self, request):

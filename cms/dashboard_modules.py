@@ -1,3 +1,4 @@
+# pylint:skip-file
 from jet.dashboard.modules import DashboardModule
 
 

@@ -21,7 +21,7 @@ def _navigation_entries(context, pages, section=None, is_json=False):
     def page_entry(page):
         # Do nothing if the page is to be hidden from not logged in users
         if page.hide_from_anonymous and not request.user.is_authenticated():
-            return
+            return None
 
         url = page.get_absolute_url()
 
@@ -72,7 +72,7 @@ def render_navigation(context, pages, section=None):
 
 # Page linking.
 @library.global_function
-def get_page_url(page, view_func=None, *args, **kwargs):
+def get_page_url(page, view_func=None, *args, **kwargs):  # pylint:disable=keyword-arg-before-vararg
     '''Renders the URL of the given view func in the given page.'''
     url = None
     if isinstance(page, int):
@@ -117,7 +117,6 @@ def get_meta_description(context, description=None):
     if description is None:
         description = context.get('meta_description')
 
-    # TODO: Check in the context for objects for every templatetag like this
     if description is None:
         request = context['request']
         page = request.pages.current

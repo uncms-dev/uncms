@@ -69,7 +69,7 @@ def register(model, sitemap_cls=None):
 
     # These imports need to be here to avoid raising an exception when models
     # are registered in the module containing an AppConfig.
-    from cms.models import OnlineBase, PageBase, PublishedBase, SearchMetaBase
+    from cms.models import OnlineBase, PageBase, PublishedBase, SearchMetaBase  # pylint:disable=import-outside-toplevel
 
     # Generate the registration key.
     registration_key = '{app_label}-{model_name}'.format(

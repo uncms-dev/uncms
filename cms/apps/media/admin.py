@@ -2,21 +2,16 @@
 from functools import partial
 
 import requests
-
-from django.apps import apps
 from django.conf.urls import url
 from django.contrib import admin, messages
 from django.contrib.admin.views.main import IS_POPUP_VAR
 from django.core.files import File as DjangoFile
 from django.core.files.temp import NamedTemporaryFile
-from django.db.models.deletion import get_candidate_relations_to_delete
-from django.db.utils import DEFAULT_DB_ALIAS
 from django.http import (Http404, HttpResponse, HttpResponseForbidden,
                          HttpResponseNotAllowed)
 from django.shortcuts import get_object_or_404, render
 from django.template.defaultfilters import filesizeformat
 from django.template.loader import render_to_string
-from django.urls import NoReverseMatch, reverse
 from django.utils.html import format_html
 from django.utils.text import Truncator
 from reversion.admin import VersionAdmin
@@ -26,8 +21,6 @@ from watson.admin import SearchAdmin
 from cms import permalinks
 from cms.apps.media.forms import ImageChangeForm, FileForm
 from cms.apps.media.models import File, Label, Video
-from cms.apps.pages.admin import page_admin
-from cms.apps.pages.models import Page
 from cms.admin import get_related_objects_admin_urls
 
 
@@ -211,7 +204,6 @@ class FileAdmin(VersionAdmin, SearchAdmin):
 
         return super().changelist_view(request, context)
 
-    # Create a URL route and a view for saving the Adobe SDK callback URL.
     def get_urls(self):
         urls = super().get_urls()
 

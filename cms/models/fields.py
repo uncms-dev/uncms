@@ -12,7 +12,7 @@ class HtmlField(models.TextField):
 
     def formfield(self, **kwargs):
         '''Returns a HtmlWidget.'''
-        from cms.forms import HtmlWidget
+        from cms.forms import HtmlWidget  # pylint:disable=import-outside-toplevel
 
         kwargs['widget'] = HtmlWidget
         return super().formfield(**kwargs)
@@ -36,7 +36,7 @@ def resolve_link(value):
             if path.startswith('/'):
                 # This is a local absolute URL.
                 return value
-            elif path.startswith('www.'):
+            if path.startswith('www.'):
                 # This link was given without a scheme.
                 scheme = 'http'
                 path_parts = path.split('/', 1)

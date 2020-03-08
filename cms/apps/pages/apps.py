@@ -6,6 +6,6 @@ class PagesAppConfig(AppConfig):
     name = 'cms.apps.pages'
 
     def ready(self):
-        from cms.apps.pages.models import PageSearchAdapter
+        from cms.apps.pages.models import PageSearchAdapter  # pylint:disable=import-outside-toplevel
         Page = self.get_model('Page')
         watson.register(Page, PageSearchAdapter)

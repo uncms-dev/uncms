@@ -34,6 +34,11 @@ jobs:
             . .venv/bin/activate
             pytest --cov=cms -n auto --create-db --nomigrations
       - run:
+          name: pylint
+          command: |
+            . .venv/bin/activate
+            pylint cms
+      - run:
           name: pytest-1.11
           command: |
             . .venv/bin/activate

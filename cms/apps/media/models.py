@@ -137,11 +137,11 @@ class File(models.Model):
                     image = Image.open(f)
                     image.verify()
                 except IOError:
-                    return
+                    return (0, 0)
 
             return image.size
         except IOError:
-            return 0
+            return (0, 0)
 
 
 class FileRefField(models.ForeignKey):
@@ -236,11 +236,11 @@ def get_video_info(url):
     '''
 
     if not url or (not url.startswith('http://') and not url.startswith('https://')):
-        return
+        return None
 
     oembed_url = get_oembed_info_url(url)
     if not oembed_url:
-        return
+        return None
 
     try:
         req = requests.get(oembed_url)
@@ -375,7 +375,8 @@ class Video(models.Model):
                     'muted': int(mute),
                     'extra_parameters': ('&amp;' + '&amp;'.join('{}={}'.format(parameter, youtube_parameters[parameter]) for parameter in youtube_parameters)) if youtube_parameters else '',
                 })
-            elif self.external_video_service == 'vimeo':
+
+            if self.external_video_service == 'vimeo':
                 return render_to_string('videos/vimeo.html', {
                     'src': self.external_video_iframe_url,
                     'autoplay': int(autoplay),
@@ -383,9 +384,11 @@ class Video(models.Model):
                     'loop': int(loop),
                     'muted': int(mute),
                 })
+
             return render_to_string('videos/default.html', {
                 'src': self.external_video_iframe_url,
             })
+
         if self.high_resolution_mp4 or self.low_resolution_mp4:
             return render_to_string('videos/local.html', {
                 'preload': 'auto' if autoplay else 'metadata',
@@ -395,6 +398,8 @@ class Video(models.Model):
                 'muted': ' muted' if mute else '',
                 'src': self.high_resolution_mp4.file.url if self.high_resolution_mp4 else self.low_resolution_mp4.file.url,
             })
+
+        return None
 
     class Meta:
         ordering = ('title',)

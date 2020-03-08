@@ -9,7 +9,7 @@ class ImageThumbnailWidget(ForeignKeyRawIdWidget):
 
     def get_context(self, name, value, attrs):
         # Import here to avoid circular dependencies
-        from .models import File
+        from .models import File  # pylint:disable=import-outside-toplevel
 
         context = super().get_context(name, value, attrs)
         if value:
