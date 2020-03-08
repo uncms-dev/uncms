@@ -490,12 +490,6 @@ class TestPageAdmin(TestCase):
 
         response = self.page_admin.change_view(request, str(self.homepage.pk))
 
-        with self.settings(MIDDLEWARE=['cms.middleware.LocalisationMiddleware']):
-            request = self._build_request()
-            response = self.page_admin.change_view(request, str(self.homepage.pk))
-            self.assertEqual(response.status_code, 200)
-            self.assertTrue(response.context_data['display_language_options'])
-
     def test_pageadmin_revision_view(self):
         request = self._build_request()
 

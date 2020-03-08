@@ -424,8 +424,6 @@ class PageAdmin(PageBaseAdmin):
             ).order_by('-country_group')
 
         extra_context['display_language_options'] = False
-        if 'cms.middleware.LocalisationMiddleware' in settings.MIDDLEWARE:
-            extra_context['display_language_options'] = True
 
         # Call the change view.
         return super().change_view(request, object_id, form_url=form_url, extra_context=extra_context)
@@ -700,9 +698,4 @@ class CountryAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Page, PageAdmin)
-
-if 'cms.middleware.LocalisationMiddleware' in settings.MIDDLEWARE:
-    admin.site.register(Country, CountryAdmin)
-    admin.site.register(CountryGroup, CountryGroupAdmin)
-
 page_admin = admin.site._registry[Page]
