@@ -19,7 +19,7 @@ class PageManager(OnlineBaseManager):
 
     '''Manager for Page objects.'''
 
-    def select_published(self, queryset, page_alias=None):
+    def select_published(self, queryset, page_alias=None):  # pylint:disable=arguments-differ
         '''Selects only published pages.'''
         queryset = super().select_published(queryset)
         now = timezone.now().replace(second=0, microsecond=0)
@@ -247,7 +247,7 @@ class Page(PageBase):
         )
 
     @transaction.atomic
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs):  # pylint:disable=arguments-differ
         '''Saves the page.'''
 
         if self.is_content_object is False:
@@ -271,10 +271,10 @@ class Page(PageBase):
                 if self.left is None or self.right is None:
                     # This page is being inserted.
                     if existing_pages:
-                        if not self.parent_id:
+                        if not self.parent_id:  # pylint:disable=access-member-before-definition
                             # There is no parent - we're updating the homepage.
                             # Set the parent to be the homepage by default
-                            self.parent_id = Page.objects.get_homepage().pk
+                            self.parent_id = Page.objects.get_homepage().pk  # pylint:disable=attribute-defined-outside-init
 
                         parent_right = existing_pages[self.parent_id]['right']
                         # Set the model left and right.
@@ -333,7 +333,7 @@ class Page(PageBase):
         super().save(*args, **kwargs)
 
     @transaction.atomic
-    def delete(self, *args, **kwargs):
+    def delete(self, *args, **kwargs):  # pylint:disable=arguments-differ
         '''Deletes the page.'''
         list(Page.objects.all().select_for_update().values_list(
             'left',

@@ -5,13 +5,11 @@ This is an enhanced version of the Django admin area, providing a more
 user-friendly appearance and providing additional functionality over the
 standard implementation.
 '''
-from copy import deepcopy
 from functools import cmp_to_key
 
 from django import forms
-from django.conf import settings
 from django.conf.urls import url
-from django.contrib import admin, messages
+from django.contrib import admin
 from django.contrib.admin.options import IS_POPUP_VAR
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.contrib.auth import get_permission_codename
@@ -24,14 +22,12 @@ from django.http import (Http404, HttpResponse, HttpResponseForbidden,
                          HttpResponseRedirect, JsonResponse)
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.defaultfilters import capfirst
-from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils import six
-from watson.search import update_index
 
 from cms.admin import PageBaseAdmin
-from cms.apps.pages.models import (Country, CountryGroup, Page,
-                                   PageSearchAdapter, get_registered_content)
+from cms.apps.pages.models import (Page, PageSearchAdapter,
+                                   get_registered_content)
 
 # Used to track references to and from the JS sitemap.
 PAGE_FROM_KEY = 'from'
@@ -642,60 +638,6 @@ class PageAdmin(PageBaseAdmin):
 
         # Report back.
         return HttpResponse('Page #%s was moved %s.' % (page['id'], direction))
-
-    @staticmethod
-    def duplicate_for_country_group(request, *args, **kwargs):
-        # Get the current page
-        original_page = get_object_or_404(Page, pk=kwargs.get('page', None))
-        original_content = original_page.content
-
-        if request.method == 'POST':
-
-            with update_index():
-                page = deepcopy(original_page)
-                page.pk = None
-                page.is_content_object = True
-                page.owner = original_page
-                page.country_group = CountryGroup.objects.get(pk=request.POST.get('country_group'))
-                page.save()
-
-                content = deepcopy(original_content)
-                content.pk = None
-                content.page = page
-                content.save()
-
-                for link in dir(original_page):
-                    if link.endswith('_set') and getattr(original_page, link).__class__.__name__ == 'RelatedManager' and link not in ['child_set', 'owner_set', 'link_to_page']:
-                        objects = getattr(original_page, link).all()
-                        for page_object in objects:
-                            new_object = deepcopy(page_object)
-                            new_object.pk = None
-                            new_object.page = page
-                            new_object.save()
-
-            return redirect('/admin/pages/page/{}'.format(page.pk))
-
-        country_groups = CountryGroup.objects.all()
-
-        if not country_groups:
-            messages.add_message(request, messages.ERROR, 'You need to add at least one country group first before you can add a copy of this page')
-            return redirect('/admin/pages/page/{}'.format(original_page.pk))
-
-        context = dict(
-            original_page=original_page,
-            country_groups=country_groups
-        )
-
-        return TemplateResponse(request, 'admin/pages/page/language_duplicate.html', context)
-
-
-class CountryGroupAdmin(admin.ModelAdmin):
-    pass
-
-
-class CountryAdmin(admin.ModelAdmin):
-    list_display = ('name', 'group')
-
 
 admin.site.register(Page, PageAdmin)
 page_admin = admin.site._registry[Page]
