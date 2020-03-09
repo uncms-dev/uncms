@@ -7,7 +7,32 @@ jobs=0
 score=no
 
 [MESSAGES CONTROL]
-disable=W0403,W0232,E1101,C0111,R0201,R0904,R0912,C0103,R0914,C0301,C1001,E1120,E0202,W0613,W0212,W0142
+disable=
+  # You'll have a hard time making Django things with these enabled.
+  invalid-name,
+  no-self-use,
+  unused-argument,
+  # I like keeping it within 78 characters, but I am also not going to make
+  # code uglier for the sake of fitting on a 1970s glass teletype.
+  line-too-long,
+  # django-watson forces us into this.
+  method-hidden,
+  # These options more often than not just force people to write docstrings
+  # for the sake of writing docstrings. Write them when they are necessary.
+  # Don't write them when it's self-explanatory.
+  missing-module-docstring,
+  missing-function-docstring,
+  missing-class-docstring,
+  # "Class 'Page' has no 'id' member" * math.inf
+  no-member,
+  # Use of _meta, _base_manager, etc is common in Django code.
+  protected-access,
+  # too-many-public-methods, which I think is annoying and arbitrary.
+  too-many-public-methods,
+  # See above.
+  too-many-branches,
+  # Also: see above.
+  too-many-locals,
 
 [REPORTS]
 output-format=text
@@ -24,8 +49,6 @@ indent-string='    '
 
 [TYPECHECK]
 ignore-mixin-members=yes
-ignored-classes=SQLObject
-zope=no
 generated-members=REQUEST,acl_users,aq_parent,objects
 
 [MISCELLANEOUS]
