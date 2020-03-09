@@ -571,7 +571,7 @@ class TestPageAdmin(TestCase):
         sitemap = '{"createHomepageUrl": "/admin/pages/page/add/?from=sitemap", "addUrl": "/admin/pages/page/add/?from=sitemap&parent=__id__", "canAdd": true, "changeUrl": "/admin/pages/page/__id__/change/?from=sitemap", "entries": [{"isOnline": true, "canDelete": true, "title": "Homepage", "canChange": true, "id": ' + str(self.homepage.pk) + ', "children": []}], "deleteUrl": "/admin/pages/page/__id__/delete/?from=sitemap", "moveUrl": "/admin/pages/page/move-page/"}'
 
         self.assertDictEqual(json.loads(response.content.decode()), json.loads(sitemap))
-        self.assertEqual(response['Content-Type'], "application/json; charset=utf-8")
+        self.assertEqual(response['Content-Type'], "application/json")
 
         # Add a child page.
         with search.update_index():
@@ -592,13 +592,13 @@ class TestPageAdmin(TestCase):
         response = self.page_admin.sitemap_json_view(request)
         sitemap = '{"createHomepageUrl": "/admin/pages/page/add/?from=sitemap", "addUrl": "/admin/pages/page/add/?from=sitemap&parent=__id__", "canAdd": true, "changeUrl": "/admin/pages/page/__id__/change/?from=sitemap", "entries": [{"isOnline": true, "canDelete": true, "title": "Homepage", "canChange": true, "id": ' + str(self.homepage.pk) + ', "children": [{"isOnline": true, "canDelete": true, "title": "Content page", "canChange": true, "id": ' + str(self.content_page.pk) + ', "children": []}]}], "deleteUrl": "/admin/pages/page/__id__/delete/?from=sitemap", "moveUrl": "/admin/pages/page/move-page/"}'
         self.assertDictEqual(json.loads(response.content.decode()), json.loads(sitemap))
-        self.assertEqual(response['Content-Type'], "application/json; charset=utf-8")
+        self.assertEqual(response['Content-Type'], "application/json")
 
         request.pages.homepage = None
         response = self.page_admin.sitemap_json_view(request)
         sitemap = '{"createHomepageUrl": "/admin/pages/page/add/?from=sitemap", "addUrl": "/admin/pages/page/add/?from=sitemap&parent=__id__", "canAdd": true, "changeUrl": "/admin/pages/page/__id__/change/?from=sitemap", "entries": [], "deleteUrl": "/admin/pages/page/__id__/delete/?from=sitemap", "moveUrl": "/admin/pages/page/move-page/"}'
         self.assertDictEqual(json.loads(response.content.decode()), json.loads(sitemap))
-        self.assertEqual(response['Content-Type'], "application/json; charset=utf-8")
+        self.assertEqual(response['Content-Type'], "application/json")
 
     def test_pageadmin_move_page_view(self):
         request = self._build_request()
