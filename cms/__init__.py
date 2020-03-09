@@ -6,5 +6,4 @@ Originally developed by Dave Hall <http://etianen.com/> and maintained by
 Onespacemedia.
 '''
 
-# Always use 3 parts, not 1, 2, or 4.
 VERSION = (4, 4, 4)
