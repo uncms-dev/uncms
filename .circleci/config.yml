@@ -38,6 +38,7 @@ jobs:
           command: |
             . .venv/bin/activate
             pylint cms
+            isort --check-only --diff
       - run:
           name: pytest-1.11
           command: |
