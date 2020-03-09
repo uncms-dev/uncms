@@ -52,7 +52,7 @@ class PublicationManager(threading.local):
         self.begin(select_published)
         try:
             yield
-        except: # pylint:disable=try-except-raise
+        except:  # pylint:disable=try-except-raise
             raise
         finally:
             self.end()

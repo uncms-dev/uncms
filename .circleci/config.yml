@@ -44,6 +44,11 @@ jobs:
             . .venv/bin/activate
             isort --check-only --diff
       - run:
+          name: flake8
+          command: |
+            . .venv/bin/activate
+            flake8 cms/
+      - run:
           name: pytest-1.11
           command: |
             . .venv/bin/activate

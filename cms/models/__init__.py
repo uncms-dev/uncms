@@ -1,3 +1,4 @@
+# flake8:noqa
 from cms.models.base import (OnlineBase, OnlineBaseSearchAdapter, PageBase,
                              PageBaseSearchAdapter, PublishedBase,
                              PublishedBaseSearchAdapter, SearchMetaBase,

@@ -77,6 +77,7 @@ def check_inline_for_admin_url(obj, inline, parent, inline_check=True):
 
     return None
 
+
 def get_admin_url(obj):
     '''
     Guesses the admin URL for an object.
@@ -157,6 +158,7 @@ def get_related_objects_admin_urls(obj):
             'admin_url': get_admin_url(obj),
         } for obj in related_objs
     ]
+
 
 class PublishedBaseAdmin(admin.ModelAdmin):
     '''Base admin class for models with publication controls.'''

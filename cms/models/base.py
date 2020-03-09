@@ -29,6 +29,7 @@ class PathTokenGenerator:
             salted_hmac(self.key_salt, path).hexdigest()[::2]
         )
 
+
 path_token_generator = PathTokenGenerator()
 
 

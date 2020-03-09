@@ -638,5 +638,6 @@ class PageAdmin(PageBaseAdmin):
         # Report back.
         return HttpResponse('Page #%s was moved %s.' % (page['id'], direction))
 
+
 admin.site.register(Page, PageAdmin)
 page_admin = admin.site._registry[Page]

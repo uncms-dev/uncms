@@ -1,7 +1,7 @@
 # Test-only models.
 from django.db import models
 
-from cms.apps.media.models import File, FileRefField, VideoRefField, VideoFileRefField
+from cms.apps.media.models import FileRefField, VideoRefField, VideoFileRefField
 from cms.apps.pages.models import ContentBase
 from cms.models import OnlineBase, PageBase, PublishedBase, SearchMetaBase
 from cms.models.base import \
@@ -65,6 +65,7 @@ class PageBaseModel(PageBase):
     def get_absolute_url(self):
         return '/'
 
+
 class SearchMetaBaseModel(SearchMetaBase):
     pass
 
@@ -92,7 +93,6 @@ class PermalinksModel(models.Model):
 
     def get_absolute_url(self):
         return '/foo/'
-
 
 
 class HTMLModel(models.Model):
@@ -135,9 +135,9 @@ class TemplateTagTestPage(ContentBase):
     urlconf = 'cms.apps.pages.tests.urls'
 
 
-
 class MiddlewareTestPage(ContentBase):
     pass
+
 
 class MiddlewareURLsTestPage(ContentBase):
     urlconf = 'cms.apps.pages.tests.urls'
