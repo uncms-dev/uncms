@@ -108,7 +108,7 @@ class PageMiddleware(MiddlewareMixin):
         '''Annotates the request with a page manager.'''
         request.pages = RequestPageManager(request)
 
-    def process_response(self, request, response):
+    def process_response(self, request, response):  # pylint:disable=too-many-return-statements
         '''If the response was a 404, attempt to serve up a page.'''
         if response.status_code != 404:
             return response

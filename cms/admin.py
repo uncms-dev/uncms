@@ -178,8 +178,8 @@ class OnlineBaseAdmin(PublishedBaseAdmin):
         'classes': ('collapse',),
     })
 
-    def get_form(self, request, obj=None, **kwargs):
-        form = super().get_form(request, obj, **kwargs)
+    def get_form(self, request, obj=None, change=False, **kwargs):
+        form = super().get_form(request, obj=obj, change=change **kwargs)
         form.base_fields['is_online'].initial = getattr(settings, 'ONLINE_DEFAULT', True)
         return form
 

@@ -66,12 +66,12 @@ class FileAdmin(VersionAdmin, SearchAdmin):
     readonly_fields = ['used_on']
     search_fields = ['title']
 
-    def get_form(self, request, obj=None, **kwargs):
+    def get_form(self, request, obj=None, change=False, **kwargs):
         if obj and obj.is_image():
             kwargs['form'] = ImageChangeForm
         else:
             kwargs['form'] = FileForm
-        return super().get_form(request, obj, **kwargs)
+        return super().get_form(request, obj=obj, change=change, **kwargs)
 
     def get_number(self, obj):
         return obj.pk

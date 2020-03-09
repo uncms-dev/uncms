@@ -153,7 +153,7 @@ class FileRefField(models.ForeignKey):
         kwargs.setdefault('on_delete', models.PROTECT)
         super().__init__(**kwargs)
 
-    def formfield(self, **kwargs):
+    def formfield(self, **kwargs):  # pylint:disable=arguments-differ
         kwargs.setdefault('widget', ForeignKeyRawIdWidget(self.remote_field, admin.site))
         return super().formfield(**kwargs)
 
@@ -170,7 +170,7 @@ class ImageRefField(FileRefField):
         kwargs['limit_choices_to'] = IMAGE_FILTER
         super().__init__(**kwargs)
 
-    def formfield(self, **kwargs):
+    def formfield(self, **kwargs):  # pylint:disable=arguments-differ
         kwargs.setdefault('widget', ImageThumbnailWidget(self.remote_field, admin.site))
         return super().formfield(**kwargs)
 
@@ -414,7 +414,7 @@ class VideoRefField(models.ForeignKey):
         kwargs.setdefault('on_delete', models.PROTECT)
         super().__init__(**kwargs)
 
-    def formfield(self, **kwargs):
+    def formfield(self, **kwargs):  # pylint:disable=arguments-differ
         defaults = {
             'widget': ForeignKeyRawIdWidget(self.remote_field, admin.site),
         }

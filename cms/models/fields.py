@@ -70,9 +70,9 @@ class LinkField(models.CharField):
         super().__init__(*args, **kwargs)
         self.validators.append(link_validator)
 
-    def contribute_to_class(self, cls, name):
+    def contribute_to_class(self, cls, name, private_only=False):
         '''Adds in an accessor for the resolved link.'''
-        super().contribute_to_class(cls, name)
+        super().contribute_to_class(cls, name, private_only=private_only)
 
         def get_XXX_resolved(self):
             link = getattr(self, name, '')
