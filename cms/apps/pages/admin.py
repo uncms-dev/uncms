@@ -511,7 +511,6 @@ class PageAdmin(PageBaseAdmin):
         return [
             url(r'^sitemap.json$', admin_view(self.sitemap_json_view), name='pages_page_sitemap_json'),
             url(r'^move-page/$', admin_view(self.move_page_view), name='pages_page_move_page'),
-            url(r'^(?P<page>\d+)/duplicate/$', admin_view(self.duplicate_for_country_group), name='pages_page_duplicate_page'),
         ] + super().get_urls()
 
     def sitemap_json_view(self, request):

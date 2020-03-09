@@ -180,54 +180,6 @@ class TestRequestPageManager(TestCase):
         self.page_manager = RequestPageManager(self.request)
         self.assertEqual(self.page_manager.country, 'GB')
 
-    def test_alternate_page_version(self):
-        _generate_pages(self)
-
-        # Create a country group.
-        group = CountryGroup.objects.create(
-            name='Foo',
-        )
-
-        group2 = CountryGroup.objects.create(
-            name='Bar',
-        )
-
-        # Create a country.
-        Country.objects.create(
-            code='GB',
-            group=group,
-        )
-
-        country2 = Country.objects.create(
-            code='FR',
-            group=group2,
-            default=False,
-        )
-
-        # Create an alternate version of the page with the country.
-        with search.update_index():
-            content_type = ContentType.objects.get_for_model(TestMiddlewarePage)
-
-            alternate_page = Page.objects.create(
-                is_content_object=True,
-                owner=self.homepage,
-                country_group=group2,
-                left=self.homepage.left,
-                right=self.homepage.right,
-                content_type=content_type,
-            )
-
-            TestMiddlewarePage.objects.create(
-                page=alternate_page,
-            )
-
-        self.request = self.factory.get('/')
-        self.request.country = country2
-        self.page_manager = RequestPageManager(self.request)
-        alternate_check = self.page_manager.alternate_page_version(self.homepage)
-
-        self.assertEqual(alternate_check, alternate_page)
-
 
 class MockUser:
 
