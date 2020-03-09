@@ -23,6 +23,7 @@ disable=
   missing-module-docstring,
   missing-function-docstring,
   missing-class-docstring,
+
   # "Class 'Page' has no 'id' member" * math.inf
   no-member,
   # Use of _meta, _base_manager, etc is common in Django code.
@@ -49,7 +50,7 @@ indent-string='    '
 
 [TYPECHECK]
 ignore-mixin-members=yes
-generated-members=REQUEST,acl_users,aq_parent,objects
+generated-members=objects
 
 [MISCELLANEOUS]
 notes=FIXME,XXX,TODO
@@ -95,5 +96,4 @@ min-public-methods=0
 max-public-methods=20
 
 [CLASSES]
-ignore-iface-methods=isImplementedBy,deferred,extends,names,namesAndDescriptions,queryDescriptionFor,getBases,getDescriptionFor,getDoc,getName,getTaggedValue,getTaggedValueTags,isEqualOrExtendedBy,setTaggedValue,isImplementedByInstancesOf,adaptWith,is_implemented_by
 defining-attr-methods=__init__,__new__,setUp
