@@ -2,8 +2,8 @@
 
 import sys
 
-from django.conf import settings
 from django import urls
+from django.conf import settings
 from django.core.handlers.exception import handle_uncaught_exception
 from django.http import Http404
 from django.shortcuts import redirect

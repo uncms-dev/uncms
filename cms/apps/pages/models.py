@@ -1,7 +1,7 @@
 '''Core models used by the CMS.'''
+from django import urls
 from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
-from django import urls
 from django.db import connection, models, transaction
 from django.db.models import F, Q
 from django.utils import timezone

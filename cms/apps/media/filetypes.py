@@ -2,7 +2,6 @@ import os.path
 
 from django.contrib.staticfiles.storage import staticfiles_storage
 
-
 # Different types of file.
 AUDIO_FILE_ICON = staticfiles_storage.url('media/img/audio-x-generic.png')
 DOCUMENT_FILE_ICON = staticfiles_storage.url('media/img/x-office-document.png')

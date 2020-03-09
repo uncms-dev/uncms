@@ -1,6 +1,6 @@
 '''Base classes for the CMS admin interface.'''
-from django.contrib import admin
 from django.conf import settings
+from django.contrib import admin
 from django.db.models.deletion import get_candidate_relations_to_delete
 from django.db.utils import DEFAULT_DB_ALIAS
 from django.urls import NoReverseMatch, reverse

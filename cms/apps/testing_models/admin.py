@@ -1,6 +1,7 @@
 from django.contrib import admin
 
-from cms.apps.testing_models.models import TestInlineModelNoPage, TestInlineModel
+from cms.apps.testing_models.models import (TestInlineModel,
+                                            TestInlineModelNoPage)
 
 
 # Test-only model admins

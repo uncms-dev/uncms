@@ -2,7 +2,6 @@ from django.db import models
 
 from cms.models.managers import PublishedBaseManager
 
-
 DRAFT = 1
 SUBMITTED = 2
 APPROVED = 3

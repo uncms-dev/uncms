@@ -1,10 +1,14 @@
 # Test-only models.
 from django.db import models
+
 from cms.apps.pages.models import ContentBase
 from cms.models import OnlineBase, PageBase, PublishedBase, SearchMetaBase
 
-from ...models.base import PublishedBaseSearchAdapter as CMSPublishedBaseSearchAdapter
-from ...models.base import SearchMetaBaseSearchAdapter as CMSSearchMetaBaseSearchAdapter
+from ...models.base import \
+    PublishedBaseSearchAdapter as CMSPublishedBaseSearchAdapter
+from ...models.base import \
+    SearchMetaBaseSearchAdapter as CMSSearchMetaBaseSearchAdapter
+
 
 class TestPageContent(ContentBase):
     urlconf = 'cms.apps.pages.tests.urls'

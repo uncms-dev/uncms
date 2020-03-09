@@ -3,8 +3,8 @@ import os
 from io import BytesIO
 
 import magic
-from django.core.files.base import ContentFile
 from django import forms
+from django.core.files.base import ContentFile
 from PIL import Image
 
 from cms.apps.media.models import File

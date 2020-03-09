@@ -19,9 +19,9 @@ from sorl.thumbnail import get_thumbnail
 from watson.admin import SearchAdmin
 
 from cms import permalinks
-from cms.apps.media.forms import ImageChangeForm, FileForm
-from cms.apps.media.models import File, Label, Video
 from cms.admin import get_related_objects_admin_urls
+from cms.apps.media.forms import FileForm, ImageChangeForm
+from cms.apps.media.models import File, Label, Video
 
 
 @admin.register(Label)

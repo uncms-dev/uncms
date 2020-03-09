@@ -3,7 +3,6 @@ import os
 import urllib
 
 import requests
-
 from bs4 import BeautifulSoup
 from django.conf import settings
 from django.contrib import admin
