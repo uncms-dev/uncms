@@ -50,9 +50,7 @@ setup(
             'pytest-django',
             'pytest-xdist',
             'coveralls',
-            'geoip2',
         ],
-        'geoip': ['geoip2']
     },
     classifiers=[
         'Development Status :: 5 - Production/Stable',
