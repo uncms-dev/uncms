@@ -44,6 +44,7 @@ setup(
     extras_require={
         'usertools': ['django-usertools'],
         'testing': [
+            'isort==4.3.21',
             'pylint==2.4.4',
             'pytest>=3.6',
             'pytest-cov',
