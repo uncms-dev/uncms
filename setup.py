@@ -42,7 +42,6 @@ setup(
     description='CMS used by Onespacemedia',
     install_requires=DEPENDENCIES,
     extras_require={
-        'usertools': ['django-usertools'],
         'testing': [
             'isort==4.3.21',
             'pylint==2.4.4',
