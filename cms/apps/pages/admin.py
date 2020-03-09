@@ -236,7 +236,7 @@ class PageAdmin(PageBaseAdmin):
         breadcrumbs.reverse()
         return breadcrumbs
 
-    def get_form(self, request, obj=None, change=False, **kwargs):
+    def get_form(self, request, obj=None, **kwargs):  # pylint:disable-arguments-differ
         '''Adds the template area fields to the form.'''
         content_cls = self.get_page_content_cls(request, obj)
         form_attrs = {}
@@ -273,7 +273,7 @@ class PageAdmin(PageBaseAdmin):
             self.prepopulated_fields = {'slug': ('title',), }
             self.fieldsets[0][1]['fields'] = ('title', 'slug', 'parent')
 
-        PageForm = super().get_form(request, obj=obj, change=change, **defaults)
+        PageForm = super().get_form(request, obj=obj, **defaults)
 
         # HACK: Need to limit parents field based on object. This should be
         # done in formfield_for_foreignkey, but that method does not know

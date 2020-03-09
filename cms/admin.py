@@ -178,8 +178,9 @@ class OnlineBaseAdmin(PublishedBaseAdmin):
         'classes': ('collapse',),
     })
 
-    def get_form(self, request, obj=None, change=False, **kwargs):
-        form = super().get_form(request, obj=obj, change=change, **kwargs)
+    # The pylint-disable is here for compatibility with both 1.11 and 2.x.
+    def get_form(self, request, obj=None, **kwargs):  # pylint:disable=arguments-differ
+        form = super().get_form(request, obj=obj, **kwargs)
         form.base_fields['is_online'].initial = getattr(settings, 'ONLINE_DEFAULT', True)
         return form
 
