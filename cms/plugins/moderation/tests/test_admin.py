@@ -1,7 +1,7 @@
 from django.contrib.admin.sites import AdminSite
 from django.test import RequestFactory, TestCase
 
-from cms.tests.models import TestModerationAdminModel
+from cms.apps.testing_models.models import ModerationModel
 
 from ..admin import ModerationAdminBase
 
@@ -20,9 +20,9 @@ class TestModerationAdmin(TestCase):
 
     def setUp(self):
         self.site = AdminSite()
-        self.moderation_admin = ModerationAdminBase(TestModerationAdminModel, self.site)
+        self.moderation_admin = ModerationAdminBase(ModerationModel, self.site)
 
-        self.object = TestModerationAdminModel.objects.create()
+        self.object = ModerationModel.objects.create()
 
         self.factory = RequestFactory()
         self.request = self.factory.get('/')

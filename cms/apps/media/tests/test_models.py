@@ -9,27 +9,10 @@ from django.test import TestCase, TransactionTestCase
 from django.utils import six
 from django.utils.timezone import now
 
-from ..models import (File, FileRefField, Label, Video, VideoFileRefField,
-                      VideoRefField)
 
-
-class TestModel(models.Model):
-
-    file = FileRefField(
-        blank=True,
-        null=True,
-        on_delete=models.CASCADE,
-    )
-
-    video_file = VideoFileRefField(
-        blank=True,
-        null=True,
-    )
-
-    video = VideoRefField(
-        blank=True,
-        null=True,
-    )
+from cms.apps.media.models import (File, FileRefField, Label, Video,
+                                   VideoFileRefField, VideoRefField)
+from cms.apps.testing_models.models import MediaTestModel
 
 
 class TestLabel(TestCase):
@@ -125,7 +108,7 @@ class TestFile(TransactionTestCase):
         self.assertEqual(self.obj_4.height, 0)
 
     def test_filereffield_formfield(self):
-        obj = TestModel.objects.create(
+        obj = MediaTestModel.objects.create(
             file=self.obj_1
         )
 
@@ -139,7 +122,7 @@ class TestFile(TransactionTestCase):
 
     def test_file_init(self):
         field = FileRefField(
-            to=TestModel,
+            to=MediaTestModel,
         )
 
         self.assertEqual(field.remote_field.model, 'media.File')
@@ -164,7 +147,7 @@ class TestVideo(TransactionTestCase):
         self.obj_1.delete()
 
     def test_videofilereffield_init(self):
-        obj = TestModel.objects.create(
+        obj = MediaTestModel.objects.create(
             video_file=self.obj_1
         )
 
@@ -181,7 +164,7 @@ class TestVideo(TransactionTestCase):
             high_resolution_mp4=self.obj_1
         )
 
-        obj = TestModel.objects.create(
+        obj = MediaTestModel.objects.create(
             video=video
         )
 

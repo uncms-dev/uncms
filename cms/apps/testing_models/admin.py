@@ -1,13 +1,12 @@
 from django.contrib import admin
 
-from cms.apps.testing_models.models import (TestInlineModel,
-                                            TestInlineModelNoPage)
+from cms.apps.testing_models.models import InlineModel, InlineModelNoPage
 
 
 # Test-only model admins
-class TestInlineModelNoPageInline(admin.StackedInline):
-    model = TestInlineModelNoPage
+class InlineModelNoPageInline(admin.StackedInline):
+    model = InlineModelNoPage
 
 
-class TestInlineModelInline(admin.StackedInline):
-    model = TestInlineModel
+class InlineModelInline(admin.StackedInline):
+    model = InlineModel

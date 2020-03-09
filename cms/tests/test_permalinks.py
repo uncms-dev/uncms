@@ -3,25 +3,17 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.test import TestCase
 
-from ..permalinks import PermalinkError, expand, resolve
-
-
-class TestPermalinkModel(models.Model):
-
-    def __str__(self):
-        return 'Foo'
-
-    def get_absolute_url(self):
-        return '/foo/'
+from cms.permalinks import PermalinkError, expand, resolve
+from cms.apps.testing_models.models import PermalinksModel
 
 
 class PermalinksTest(TestCase):
 
     def test_resolve(self):
-        obj = TestPermalinkModel.objects.create()
+        obj = PermalinksModel.objects.create()
 
         url = resolve('/r/{}-{}/'.format(
-            ContentType.objects.get_for_model(TestPermalinkModel).pk,
+            ContentType.objects.get_for_model(PermalinksModel).pk,
             obj.pk
         ))
 
@@ -39,12 +31,12 @@ class PermalinksTest(TestCase):
         urls.set_urlconf(original_urlconf)
 
     def test_expand(self):
-        obj = TestPermalinkModel.objects.create()
+        obj = PermalinksModel.objects.create()
 
         self.assertEqual(obj.__str__(), 'Foo')
 
         url = expand('/r/{}-{}/'.format(
-            ContentType.objects.get_for_model(TestPermalinkModel).pk,
+            ContentType.objects.get_for_model(PermalinksModel).pk,
             obj.pk
         ))
 

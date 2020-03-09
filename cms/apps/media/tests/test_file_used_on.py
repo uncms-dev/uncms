@@ -18,7 +18,7 @@ from cms.apps.media.models import File, ImageRefField
 from cms.admin import get_related_objects_admin_urls
 
 
-class TestModelBase(models.Model):
+class ModelBase(models.Model):
     image = ImageRefField(
         blank=True,
         null=True,
@@ -29,15 +29,15 @@ class TestModelBase(models.Model):
         abstract = True
 
 
-class TestModelOne(TestModelBase):
+class ModelOne(ModelBase):
     pass
 
 
-class TestModelTwo(TestModelBase):
+class ModelTwo(ModelBase):
     pass
 
 
-class TestContentBase(TestModelBase, ContentBase):
+class ContentBaseModel(ModelBase, ContentBase):
     page = models.OneToOneField(
         Page,
         primary_key=True,
@@ -47,38 +47,38 @@ class TestContentBase(TestModelBase, ContentBase):
     )
 
 
-class TestContentBaseInline(TestModelBase):
+class ContentBaseModelInline(ModelBase):
     page = models.ForeignKey(
         Page,
         on_delete=models.CASCADE,
     )
 
 
-class TestModelOneInline(TestModelBase):
+class ModelOneInline(ModelBase):
     parent = models.ForeignKey(
-        TestModelOne,
+        ModelOne,
         on_delete=models.CASCADE,
     )
 
 
-class TestContentBaseInlineAdmin(admin.StackedInline):
-    model = TestContentBaseInline
+class ContentBaseModelInlineAdmin(admin.StackedInline):
+    model = ContentBaseModelInline
 
 
-class TestModelOneInlineAdmin(admin.StackedInline):
-    model = TestModelOneInline
+class ModelOneInlineAdmin(admin.StackedInline):
+    model = ModelOneInline
 
 
-@admin.register(TestModelOne)
-class TestModelOneAdmin(admin.ModelAdmin):
-    inlines = [TestModelOneInlineAdmin]
+@admin.register(ModelOne)
+class ModelOneAdmin(admin.ModelAdmin):
+    inlines = [ModelOneInlineAdmin]
 
 
-@admin.register(TestModelTwo)
-class TestModelTwoAdmin(admin.ModelAdmin):
+@admin.register(ModelTwo)
+class ModelTwoAdmin(admin.ModelAdmin):
     pass
 
-page_admin.register_content_inline(TestContentBaseInline, TestContentBaseInlineAdmin)
+page_admin.register_content_inline(ContentBaseModelInline, ContentBaseModelInlineAdmin)
 
 
 class TestFileUsedOn(TestCase):
@@ -113,23 +113,23 @@ class TestFileUsedOn(TestCase):
             )
         )
 
-        self.test_model_1a = TestModelOne.objects.create(
+        self.test_model_1a = ModelOne.objects.create(
             image=self.test_file,
         )
 
-        self.test_model_1b = TestModelOne.objects.create(
+        self.test_model_1b = ModelOne.objects.create(
             image=self.test_file,
         )
 
-        self.test_model_1a_other = TestModelOne.objects.create(
+        self.test_model_1a_other = ModelOne.objects.create(
             image=self.other_test_file
         )
 
-        self.test_model_2a_other = TestModelTwo.objects.create(
+        self.test_model_2a_other = ModelTwo.objects.create(
             image=self.other_test_file
         )
 
-        self.test_model_2a = TestModelTwo.objects.create(
+        self.test_model_2a = ModelTwo.objects.create(
             image=self.test_file,
         )
 
@@ -183,10 +183,10 @@ class TestFileUsedOn(TestCase):
         with search.update_index():
             self.test_page_model = Page.objects.create(
                 title='Test page',
-                content_type=ContentType.objects.get_for_model(TestContentBase),
+                content_type=ContentType.objects.get_for_model(ContentBaseModel),
             )
 
-            self.test_content_base = TestContentBase.objects.create(
+            self.test_content_base = ContentBaseModel.objects.create(
                 page=self.test_page_model,
                 image=self.test_file,
             )
@@ -211,14 +211,14 @@ class TestFileUsedOn(TestCase):
         with search.update_index():
             self.test_page_model = Page.objects.create(
                 title='Test page',
-                content_type=ContentType.objects.get_for_model(TestContentBase),
+                content_type=ContentType.objects.get_for_model(ContentBaseModel),
             )
 
-            self.test_content_base = TestContentBase.objects.create(
+            self.test_content_base = ContentBaseModel.objects.create(
                 page=self.test_page_model,
             )
 
-        self.test_content_base_inline = TestContentBaseInline.objects.create(
+        self.test_content_base_inline = ContentBaseModelInline.objects.create(
             page=self.test_page_model,
             image=self.test_file,
         )
@@ -243,14 +243,14 @@ class TestFileUsedOn(TestCase):
         with search.update_index():
             self.test_page_model = Page.objects.create(
                 title='Test page',
-                content_type=ContentType.objects.get_for_model(TestContentBase),
+                content_type=ContentType.objects.get_for_model(ContentBaseModel),
             )
 
-            self.test_content_base = TestContentBase.objects.create(
+            self.test_content_base = ContentBaseModel.objects.create(
                 page=self.test_page_model,
             )
 
-        test_model_1a_inline = TestModelOneInline.objects.create(
+        test_model_1a_inline = ModelOneInline.objects.create(
             parent=self.test_model_1a,
             image=self.test_file
         )

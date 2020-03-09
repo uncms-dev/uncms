@@ -1,27 +1,29 @@
 # Test-only models.
 from django.db import models
 
+from cms.apps.media.models import File, FileRefField, VideoRefField, VideoFileRefField
 from cms.apps.pages.models import ContentBase
 from cms.models import OnlineBase, PageBase, PublishedBase, SearchMetaBase
-
-from ...models.base import \
+from cms.models.base import \
     PublishedBaseSearchAdapter as CMSPublishedBaseSearchAdapter
-from ...models.base import \
+from cms.models.base import \
     SearchMetaBaseSearchAdapter as CMSSearchMetaBaseSearchAdapter
+from cms.models.fields import LinkField
+from cms.plugins.moderation.models import ModerationBase
 
 
-class TestPageContent(ContentBase):
+class PageContent(ContentBase):
     urlconf = 'cms.apps.pages.tests.urls'
 
 
-class TestPageContentWithSections(ContentBase):
+class PageContentWithSections(ContentBase):
     testing = models.CharField(
         max_length=20,
         default='testing',
     )
 
 
-class TestSection(models.Model):
+class Section(models.Model):
 
     page = models.ForeignKey(
         'pages.Page',
@@ -33,51 +35,109 @@ class TestSection(models.Model):
     )
 
 
-class TestInlineModel(models.Model):
+class InlineModel(models.Model):
     page = models.ForeignKey(
         'pages.Page',
         on_delete=models.CASCADE,
     )
 
 
-class TestInlineModelNoPage(models.Model):
+class InlineModelNoPage(models.Model):
     pass
 
 
-class TestPageContentWithFields(ContentBase):
+class PageContentWithFields(ContentBase):
     description = models.TextField(
         blank=True,
     )
 
     inline_model = models.ManyToManyField(
-        TestInlineModelNoPage,
+        InlineModelNoPage,
         blank=True,
     )
 
 
-class TestSitemapModel(models.Model):
+class SitemapModel(models.Model):
     pass
 
 
-class TestPageBaseModel(PageBase):
+class PageBaseModel(PageBase):
     def get_absolute_url(self):
         return '/'
 
-class TestSearchMetaBaseModel(SearchMetaBase):
+class SearchMetaBaseModel(SearchMetaBase):
     pass
 
 
-class TestOnlineBaseModel(OnlineBase):
+class OnlineBaseModel(OnlineBase):
     pass
 
 
-class TestPublishedBaseModel(PublishedBase):
+class PublishedBaseModel(PublishedBase):
     pass
 
 
-class TestPublishedBaseSearchAdapter(CMSPublishedBaseSearchAdapter):
+class PublishedBaseSearchAdapter(CMSPublishedBaseSearchAdapter):
     pass
 
 
-class TestSearchMetaBaseSearchAdapter(CMSSearchMetaBaseSearchAdapter):
+class SearchMetaBaseSearchAdapter(CMSSearchMetaBaseSearchAdapter):
     pass
+
+
+class PermalinksModel(models.Model):
+
+    def __str__(self):
+        return 'Foo'
+
+    def get_absolute_url(self):
+        return '/foo/'
+
+
+
+class HTMLModel(models.Model):
+    def __str__(self):
+        return 'Foo'
+
+    def get_absolute_url(self):
+        return '/foo/'
+
+
+class LinkFieldModel(models.Model):
+
+    link = LinkField()
+
+
+class ModerationModel(ModerationBase):
+    pass
+
+
+class MediaTestModel(models.Model):
+
+    file = FileRefField(
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+    )
+
+    video_file = VideoFileRefField(
+        blank=True,
+        null=True,
+    )
+
+    video = VideoRefField(
+        blank=True,
+        null=True,
+    )
+
+
+class TemplateTagTestPage(ContentBase):
+    urlconf = 'cms.apps.pages.tests.urls'
+
+
+
+class MiddlewareTestPage(ContentBase):
+    pass
+
+class MiddlewareURLsTestPage(ContentBase):
+    urlconf = 'cms.apps.pages.tests.urls'

@@ -2,13 +2,9 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.test import TestCase
 
-from ..models.fields import (LinkField, LinkResolutionError, link_validator,
+from cms.apps.testing_models.models import LinkFieldModel
+from cms.models.fields import (LinkResolutionError, link_validator,
                              resolve_link)
-
-
-class TestFieldsModel(models.Model):
-
-    link = LinkField()
 
 
 class TestFields(TestCase):
@@ -28,7 +24,7 @@ class TestFields(TestCase):
             link_validator('http://[a')
 
     def test_linkfield_get_xxx_resolved(self):
-        obj = TestFieldsModel.objects.create(
+        obj = LinkFieldModel.objects.create(
             link='http://[a'
         )
 

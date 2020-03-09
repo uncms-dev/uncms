@@ -2,16 +2,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.test import TestCase
 
-from ..templatetags.html import html, truncate_paragraphs
-
-
-class TestHTMLModel(models.Model):
-
-    def __str__(self):
-        return 'Foo'
-
-    def get_absolute_url(self):
-        return '/foo/'
+from cms.templatetags.html import html, truncate_paragraphs
+from cms.apps.testing_models.models import HTMLModel, PermalinksModel
 
 
 class HTMLTest(TestCase):
@@ -22,9 +14,9 @@ class HTMLTest(TestCase):
         self.assertEqual(html('Hello'), 'Hello')
         self.assertEqual(html('<span>Hello</span>'), '<span>Hello</span>')
 
-        obj = TestHTMLModel.objects.create()
+        obj = HTMLModel.objects.create()
         self.assertEqual(html('<a href="/r/{}-{}/">Hello</a>'.format(
-            ContentType.objects.get_for_model(TestHTMLModel).pk,
+            ContentType.objects.get_for_model(HTMLModel).pk,
             obj.pk
         )), '<a href="/foo/" title="Foo">Hello</a>')
 

@@ -9,11 +9,11 @@ from django.utils.timezone import now
 from reversion import create_revision
 from watson import search
 
-from ....models.managers import publication_manager
-from ...testing_models.models import (TestSection, TestPageContent,
-                                      TestPageContentWithSections)
-from ..models import (ContentBase, Page, PageSearchAdapter, PageSitemap,
+from cms.models.managers import publication_manager
+from cms.apps.pages.models import (ContentBase, Page, PageSearchAdapter, PageSitemap,
                       filter_indexable_pages)
+from cms.apps.testing_models.models import (Section, PageContent,
+                                            PageContentWithSections)
 
 
 class TestPage(TestCase):
@@ -22,7 +22,7 @@ class TestPage(TestCase):
         call_command('installwatson')
 
         with search.update_index():
-            content_type = ContentType.objects.get_for_model(TestPageContent)
+            content_type = ContentType.objects.get_for_model(PageContent)
 
             self.homepage = Page.objects.create(
                 title='Homepage',
@@ -30,7 +30,7 @@ class TestPage(TestCase):
                 content_type=content_type,
             )
 
-            TestPageContent.objects.create(
+            PageContent.objects.create(
                 page=self.homepage,
             )
 
@@ -40,7 +40,7 @@ class TestPage(TestCase):
                 content_type=content_type,
             )
 
-            TestPageContent.objects.create(
+            PageContent.objects.create(
                 page=self.section,
             )
 
@@ -50,7 +50,7 @@ class TestPage(TestCase):
                 content_type=content_type,
             )
 
-            TestPageContent.objects.create(
+            PageContent.objects.create(
                 page=self.subsection,
             )
 
@@ -60,7 +60,7 @@ class TestPage(TestCase):
                 content_type=content_type,
             )
 
-            TestPageContent.objects.create(
+            PageContent.objects.create(
                 page=self.subsubsection,
             )
 
@@ -131,7 +131,7 @@ class TestPage(TestCase):
         with search.update_index():
             Page.objects.all().delete()
 
-            content_type = ContentType.objects.get_for_model(TestPageContent)
+            content_type = ContentType.objects.get_for_model(PageContent)
 
             new_page = Page(
                 content_type=content_type,
@@ -142,7 +142,7 @@ class TestPage(TestCase):
 
             new_page.save()
 
-            TestPageContent.objects.create(
+            PageContent.objects.create(
                 page=new_page,
             )
 
@@ -192,7 +192,7 @@ class TestSectionPage(TestCase):
 
     def setUp(self):
         with search.update_index():
-            content_type = ContentType.objects.get_for_model(TestPageContentWithSections)
+            content_type = ContentType.objects.get_for_model(PageContentWithSections)
 
             self.homepage = Page.objects.create(
                 title='Homepage',
@@ -200,7 +200,7 @@ class TestSectionPage(TestCase):
                 content_type=content_type,
             )
 
-            TestPageContentWithSections.objects.create(
+            PageContentWithSections.objects.create(
                 page=self.homepage,
             )
 
@@ -272,7 +272,7 @@ class TestPageComplex(TestCase):
             ]
         }
 
-        content_type = ContentType.objects.get_for_model(TestPageContent)
+        content_type = ContentType.objects.get_for_model(PageContent)
         self.page_ids = {}
         self.pages = {}
 
@@ -286,7 +286,7 @@ class TestPageComplex(TestCase):
                 parent=parent,
             )
 
-            TestPageContent.objects.create(
+            PageContent.objects.create(
                 page=page_obj,
             )
 
@@ -357,7 +357,7 @@ class TestPageComplex(TestCase):
 
     def test_page_save__create_with_sides(self):
         with search.update_index():
-            content_type = ContentType.objects.get_for_model(TestPageContent)
+            content_type = ContentType.objects.get_for_model(PageContent)
 
             # Create a page with a manual left and right defined.
             page_obj = Page.objects.create(
@@ -368,7 +368,7 @@ class TestPageComplex(TestCase):
                 right=8,
             )
 
-            TestPageContent.objects.create(
+            PageContent.objects.create(
                 page=page_obj,
             )
 

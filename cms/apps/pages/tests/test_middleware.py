@@ -3,14 +3,15 @@ from django.http import HttpResponse, HttpResponseNotFound
 from django.test import RequestFactory, TestCase
 from watson import search
 
+from cms.apps.testing_models.models import MiddlewareTestPage, MiddlewareURLsTestPage
+
 from ..middleware import PageMiddleware, RequestPageManager
-from ..models import Country, CountryGroup, Page
-from .models import TestMiddlewarePage, TestMiddlewarePageURLs
+from ..models import Page
 
 
 def _generate_pages(self):
     with search.update_index():
-        content_type = ContentType.objects.get_for_model(TestMiddlewarePage)
+        content_type = ContentType.objects.get_for_model(MiddlewareTestPage)
 
         self.homepage = Page.objects.create(
             title="Homepage",
@@ -18,7 +19,7 @@ def _generate_pages(self):
             content_type=content_type,
         )
 
-        TestMiddlewarePage.objects.create(
+        MiddlewareTestPage.objects.create(
             page=self.homepage,
         )
 
@@ -29,7 +30,7 @@ def _generate_pages(self):
             content_type=content_type,
         )
 
-        TestMiddlewarePage.objects.create(
+        MiddlewareTestPage.objects.create(
             page=self.page_1,
         )
 
@@ -40,38 +41,8 @@ def _generate_pages(self):
             content_type=content_type,
         )
 
-        TestMiddlewarePage.objects.create(
+        MiddlewareTestPage.objects.create(
             page=self.page_2,
-        )
-
-        self.country_group = CountryGroup.objects.create(
-            name="United States of America"
-        )
-
-        self.country = Country.objects.create(
-            name="United States of America",
-            code="US",
-            group=self.country_group
-        )
-
-        self.country_gb = Country.objects.create(
-            name="United Kingdom",
-            code="GB"
-        )
-
-        self.homepage_alt = Page.objects.create(
-            title="Homepage",
-            slug='homepage',
-            owner=self.homepage,
-            is_content_object=True,
-            country_group=self.country_group,
-            content_type=content_type,
-            left=0,
-            right=0,
-        )
-
-        TestMiddlewarePage.objects.create(
-            page=self.homepage_alt,
         )
 
         self.auth_page = Page.objects.create(
@@ -82,7 +53,7 @@ def _generate_pages(self):
             requires_authentication=True,
         )
 
-        TestMiddlewarePage.objects.create(
+        MiddlewareTestPage.objects.create(
             page=self.auth_page,
         )
 
@@ -162,24 +133,6 @@ class TestRequestPageManager(TestCase):
         self.page_manager = RequestPageManager(self.request)
         self.assertTrue(self.page_manager.is_exact)
 
-    def test_localisation(self):
-        _generate_pages(self)
-
-        self.assertEqual(self.country_group.__str__(), "United States of America")
-        self.assertEqual(self.country.__str__(), "United States of America")
-
-    def test_country(self):
-        _generate_pages(self)
-
-        self.request = self.factory.get('/')
-        self.page_manager = RequestPageManager(self.request)
-        self.assertIsNone(self.page_manager.country)
-
-        self.request = self.factory.get('/')
-        self.request.country = 'GB'
-        self.page_manager = RequestPageManager(self.request)
-        self.assertEqual(self.page_manager.country, 'GB')
-
 
 class MockUser:
 
@@ -215,8 +168,8 @@ class TestPageMiddleware(TestCase):
 
         self.assertEqual(processed_response.status_code, 200)
         self.assertEqual(processed_response.template_name, (
-            'pages/testmiddlewarepage.html',
-            'pages/base.html',
+            'testing_models/middlewaretestpage.html',
+            'testing_models/base.html',
             'base.html'
         ))
 
@@ -235,7 +188,7 @@ class TestPageMiddleware(TestCase):
         self.assertEqual(processed_response.status_code, 404)
 
         with search.update_index():
-            content_type = ContentType.objects.get_for_model(TestMiddlewarePageURLs)
+            content_type = ContentType.objects.get_for_model(MiddlewareURLsTestPage)
 
             self.content_url = Page.objects.create(
                 title="Foo",
@@ -244,7 +197,7 @@ class TestPageMiddleware(TestCase):
                 content_type=content_type,
             )
 
-            TestMiddlewarePageURLs.objects.create(
+            MiddlewareURLsTestPage.objects.create(
                 page=self.content_url,
             )
 
@@ -254,7 +207,7 @@ class TestPageMiddleware(TestCase):
         self.assertEqual(processed_response.status_code, 200)
         self.assertEqual(processed_response.content, b'Hello!')
         with search.update_index():
-            content_type = ContentType.objects.get_for_model(TestMiddlewarePageURLs)
+            content_type = ContentType.objects.get_for_model(MiddlewareURLsTestPage)
 
             self.content_url = Page.objects.create(
                 title="Foo",
@@ -263,7 +216,7 @@ class TestPageMiddleware(TestCase):
                 content_type=content_type,
             )
 
-            TestMiddlewarePageURLs.objects.create(
+            MiddlewareURLsTestPage.objects.create(
                 page=self.content_url,
             )
 
@@ -295,11 +248,3 @@ class TestPageMiddleware(TestCase):
         request.pages = RequestPageManager(request)
         processed_response = middleware.process_response(request, response)
         self.assertEqual(processed_response, response)
-
-        request = self.factory.get('/foo/')
-        request.country = Country.objects.create(
-            code='GB',
-        )
-        request.pages = RequestPageManager(request)
-        processed_response = middleware.process_response(request, response)
-        self.assertEqual(processed_response.status_code, 200)

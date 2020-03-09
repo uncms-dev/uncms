@@ -9,6 +9,7 @@ from django.utils.timezone import now
 from watson import search
 
 from cms.apps.media.models import File
+from cms.apps.testing_models.models import TemplateTagTestPage
 
 from ..middleware import RequestPageManager
 from ..models import ContentBase, Country, Page
@@ -27,10 +28,6 @@ class MockUser:
 
     def is_authenticated(self):
         return self.authenticated
-
-
-class TestTemplatetagPage(ContentBase):
-    urlconf = 'cms.apps.pages.tests.urls'
 
 
 class TestTemplatetags(TestCase):
@@ -54,7 +51,7 @@ class TestTemplatetags(TestCase):
         )
 
         with search.update_index():
-            content_type = ContentType.objects.get_for_model(TestTemplatetagPage)
+            content_type = ContentType.objects.get_for_model(TemplateTagTestPage)
 
             self.homepage = Page.objects.create(
                 title="Homepage",
@@ -62,7 +59,7 @@ class TestTemplatetags(TestCase):
                 content_type=content_type,
             )
 
-            TestTemplatetagPage.objects.create(
+            TemplateTagTestPage.objects.create(
                 page=self.homepage,
             )
 
@@ -74,7 +71,7 @@ class TestTemplatetags(TestCase):
                 hide_from_anonymous=True
             )
 
-            TestTemplatetagPage.objects.create(
+            TemplateTagTestPage.objects.create(
                 page=self.section,
             )
 
@@ -85,7 +82,7 @@ class TestTemplatetags(TestCase):
                 content_type=content_type,
             )
 
-            TestTemplatetagPage.objects.create(
+            TemplateTagTestPage.objects.create(
                 page=self.subsection,
             )
 
@@ -96,7 +93,7 @@ class TestTemplatetags(TestCase):
                 content_type=content_type,
             )
 
-            TestTemplatetagPage.objects.create(
+            TemplateTagTestPage.objects.create(
                 page=self.subsubsection,
             )
 

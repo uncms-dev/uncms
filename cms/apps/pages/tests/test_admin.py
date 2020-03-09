@@ -21,14 +21,12 @@ from django.utils.text import slugify
 from reversion.models import Version
 from watson import search
 
-from cms.apps.testing_models.admin import (TestInlineModelInline, TestInlineModelNoPageInline)
-from cms.apps.testing_models.models import (TestInlineModel, TestInlineModelNoPage,
-                                            TestPageContent, TestPageContentWithFields)
-
-from ..admin import (PAGE_FROM_KEY, PAGE_FROM_SITEMAP_VALUE,
+from cms.apps.pages.admin import (PAGE_FROM_KEY, PAGE_FROM_SITEMAP_VALUE,
                      PAGE_TYPE_PARAMETER, PageAdmin, PageContentTypeFilter)
-from ..models import (ContentBase, Country, CountryGroup, Page,
-                      get_registered_content)
+from cms.apps.pages.models import ContentBase,Page, get_registered_content
+from cms.apps.testing_models.admin import (InlineModelInline, InlineModelNoPageInline)
+from cms.apps.testing_models.models import (InlineModel, InlineModelNoPage,
+                                            PageContent, PageContentWithFields)
 
 
 class MockRequest:
@@ -53,7 +51,7 @@ class TestPageAdmin(TestCase):
         self.page_admin = PageAdmin(Page, self.site)
 
         with search.update_index():
-            content_type = ContentType.objects.get_for_model(TestPageContent)
+            content_type = ContentType.objects.get_for_model(PageContent)
 
             self.homepage = Page.objects.create(
                 title="Homepage",
@@ -61,7 +59,7 @@ class TestPageAdmin(TestCase):
                 content_type=content_type,
             )
 
-            TestPageContent.objects.create(
+            PageContent.objects.create(
                 page=self.homepage,
             )
 
@@ -104,28 +102,28 @@ class TestPageAdmin(TestCase):
         self.assertEqual(self.page_admin.get_object(request, -1), None)
 
     def test_pageadmin_register_page_inline(self):
-        self.page_admin._register_page_inline(TestInlineModelNoPage)
+        self.page_admin._register_page_inline(InlineModelNoPage)
 
     def test_pageadmin_register_content_inline(self):
         self.assertListEqual(self.page_admin.content_inlines, [])
 
-        self.page_admin.register_content_inline(TestPageContent, TestInlineModelInline)
+        self.page_admin.register_content_inline(PageContent, InlineModelInline)
 
-        self.assertListEqual(self.page_admin.content_inlines, [(TestPageContent, TestInlineModelInline), ])
+        self.assertListEqual(self.page_admin.content_inlines, [(PageContent, InlineModelInline), ])
 
     def test_pageadmin_get_inline_instances(self):
         request = self._build_request(
-            page_type=ContentType.objects.get_for_model(TestPageContent).pk
+            page_type=ContentType.objects.get_for_model(PageContent).pk
         )
 
         self.assertListEqual(self.page_admin.get_inline_instances(request), [])
         self.assertListEqual(self.page_admin.get_inline_instances(request, obj=self.homepage), [])
-        self.page_admin.register_content_inline(TestPageContent, TestInlineModelInline)
+        self.page_admin.register_content_inline(PageContent, InlineModelInline)
         self.assertEqual(len(self.page_admin.get_inline_instances(request, obj=self.homepage)), 1)
 
     def test_pageadmin_get_revision_instances(self):
         request = self._build_request(
-            page_type=ContentType.objects.get_for_model(TestPageContent).pk
+            page_type=ContentType.objects.get_for_model(PageContent).pk
         )
 
         instances = self.page_admin.get_revision_instances(request, self.homepage)
@@ -133,14 +131,14 @@ class TestPageAdmin(TestCase):
 
         # Register a content type which doesn't have a `page` attribute to
         # trigger the exception in `get_revision_instances`.
-        self.page_admin.register_content_inline(TestPageContent, TestInlineModelNoPageInline)
+        self.page_admin.register_content_inline(PageContent, InlineModelNoPageInline)
 
         instances = self.page_admin.get_revision_instances(request, self.homepage)
         self.assertListEqual(instances, [self.homepage, self.homepage.content])
 
     def test_pageadmin_get_revision_form_data(self):
         request = self._build_request(
-            page_type=ContentType.objects.get_for_model(TestPageContent).pk
+            page_type=ContentType.objects.get_for_model(PageContent).pk
         )
 
         # Create an initial revision.
@@ -154,28 +152,28 @@ class TestPageAdmin(TestCase):
 
     def test_pageadmin_get_page_content_cls(self):
         request = self._build_request(
-            page_type=ContentType.objects.get_for_model(TestPageContent).pk
+            page_type=ContentType.objects.get_for_model(PageContent).pk
         )
 
         request2 = self._build_request()
 
-        self.assertEqual(self.page_admin.get_page_content_cls(request), TestPageContent)
+        self.assertEqual(self.page_admin.get_page_content_cls(request), PageContent)
 
         with self.assertRaises(Http404):
             self.page_admin.get_page_content_cls(request2)
 
-        self.assertEqual(self.page_admin.get_page_content_cls(request2, self.homepage), TestPageContent)
+        self.assertEqual(self.page_admin.get_page_content_cls(request2, self.homepage), PageContent)
 
     def test_pageadmin_get_fieldsets(self):
         request = self._build_request(
-            page_type=ContentType.objects.get_for_model(TestPageContent).pk
+            page_type=ContentType.objects.get_for_model(PageContent).pk
         )
         request2 = self._build_request(
-            page_type=ContentType.objects.get_for_model(TestPageContentWithFields).pk
+            page_type=ContentType.objects.get_for_model(PageContentWithFields).pk
         )
 
         with search.update_index():
-            content_type = ContentType.objects.get_for_model(TestPageContentWithFields)
+            content_type = ContentType.objects.get_for_model(PageContentWithFields)
 
             self.content_page = Page.objects.create(
                 title="Content page",
@@ -184,7 +182,7 @@ class TestPageAdmin(TestCase):
                 content_type=content_type,
             )
 
-            TestPageContentWithFields.objects.create(
+            PageContentWithFields.objects.create(
                 page=self.content_page,
             )
 
@@ -257,7 +255,7 @@ class TestPageAdmin(TestCase):
 
         # Add a child page.
         with search.update_index():
-            content_type = ContentType.objects.get_for_model(TestPageContentWithFields)
+            content_type = ContentType.objects.get_for_model(PageContentWithFields)
 
             self.content_page = Page.objects.create(
                 title="Content page",
@@ -266,7 +264,7 @@ class TestPageAdmin(TestCase):
                 content_type=content_type,
             )
 
-            TestPageContentWithFields.objects.create(
+            PageContentWithFields.objects.create(
                 page=self.content_page,
             )
 
@@ -280,7 +278,7 @@ class TestPageAdmin(TestCase):
 
     def test_pageadmin_get_form(self):
         request = self._build_request(
-            page_type=ContentType.objects.get_for_model(TestPageContent).pk
+            page_type=ContentType.objects.get_for_model(PageContent).pk
         )
 
         form = self.page_admin.get_form(request)
@@ -299,7 +297,7 @@ class TestPageAdmin(TestCase):
 
         # Test a page with a content model with fields.
         with search.update_index():
-            content_type = ContentType.objects.get_for_model(TestPageContentWithFields)
+            content_type = ContentType.objects.get_for_model(PageContentWithFields)
 
             self.content_page = Page.objects.create(
                 title="Content page",
@@ -308,7 +306,7 @@ class TestPageAdmin(TestCase):
                 content_type=content_type,
             )
 
-            TestPageContentWithFields.objects.create(
+            PageContentWithFields.objects.create(
                 page=self.content_page,
             )
 
@@ -326,7 +324,7 @@ class TestPageAdmin(TestCase):
 
         self.assertIsInstance(form.base_fields['inline_model'].widget, RelatedFieldWidgetWrapper)
 
-        setattr(TestPageContentWithFields, 'filter_horizontal', ['inline_model'])
+        setattr(PageContentWithFields, 'filter_horizontal', ['inline_model'])
         form = self.page_admin.get_form(request, obj=self.content_page)
         self.assertIsInstance(form.base_fields['inline_model'].widget, FilteredSelectMultiple)
 
@@ -376,7 +374,7 @@ class TestPageAdmin(TestCase):
         # NOTE: This page type is different to the one used by the homepage.
         # This is intentional to test certain conditional routes in the method.
         request = self._build_request(
-            page_type=ContentType.objects.get_for_model(TestPageContentWithFields).pk
+            page_type=ContentType.objects.get_for_model(PageContentWithFields).pk
         )
 
         form = self.page_admin.get_form(request)(data={
@@ -386,7 +384,7 @@ class TestPageAdmin(TestCase):
         })
         form.is_valid()
 
-        self.assertEqual(self.homepage.content_type_id, ContentType.objects.get_for_model(TestPageContent).pk)
+        self.assertEqual(self.homepage.content_type_id, ContentType.objects.get_for_model(PageContent).pk)
 
         with self.assertRaises(AttributeError):
             self.homepage.content.description
@@ -394,11 +392,11 @@ class TestPageAdmin(TestCase):
         # Save the model
         self.page_admin.save_model(request, self.homepage, form, True)
 
-        self.assertEqual(self.homepage.content_type_id, ContentType.objects.get_for_model(TestPageContentWithFields).pk)
+        self.assertEqual(self.homepage.content_type_id, ContentType.objects.get_for_model(PageContentWithFields).pk)
         self.assertEqual(self.homepage.content.description, 'Foo')
 
         self.page_admin.save_model(request, self.homepage, form, False)
-        self.assertEqual(self.homepage.content_type_id, ContentType.objects.get_for_model(TestPageContentWithFields).pk)
+        self.assertEqual(self.homepage.content_type_id, ContentType.objects.get_for_model(PageContentWithFields).pk)
         self.assertEqual(self.homepage.content.description, 'Foo')
 
     def test_pageadmin_has_add_content_permissions(self):
@@ -509,7 +507,7 @@ class TestPageAdmin(TestCase):
 
         models = get_registered_content()
         for content in get_registered_content():
-            if content != TestPageContent:
+            if content != PageContent:
                 content._meta.abstract = True
 
         response = self.page_admin.add_view(request)
@@ -518,12 +516,12 @@ class TestPageAdmin(TestCase):
         for model in models:
             model._meta.abstract = False
 
-        request.GET[PAGE_TYPE_PARAMETER] = ContentType.objects.get_for_model(TestPageContent).pk
+        request.GET[PAGE_TYPE_PARAMETER] = ContentType.objects.get_for_model(PageContent).pk
         response = self.page_admin.add_view(request)
         self.assertEqual(response.status_code, 200)
 
         request.user.has_perm = lambda x: False
-        request.GET[PAGE_TYPE_PARAMETER] = ContentType.objects.get_for_model(TestPageContent).pk
+        request.GET[PAGE_TYPE_PARAMETER] = ContentType.objects.get_for_model(PageContent).pk
 
         with self.assertRaises(PermissionDenied):
             response = self.page_admin.add_view(request)
@@ -577,7 +575,7 @@ class TestPageAdmin(TestCase):
 
         # Add a child page.
         with search.update_index():
-            content_type = ContentType.objects.get_for_model(TestPageContentWithFields)
+            content_type = ContentType.objects.get_for_model(PageContentWithFields)
 
             self.content_page = Page.objects.create(
                 title="Content page",
@@ -586,7 +584,7 @@ class TestPageAdmin(TestCase):
                 content_type=content_type,
             )
 
-            TestPageContentWithFields.objects.create(
+            PageContentWithFields.objects.create(
                 page=self.content_page,
             )
 
@@ -629,7 +627,7 @@ class TestPageAdmin(TestCase):
 
         # Add some child pages.
         with search.update_index():
-            content_type = ContentType.objects.get_for_model(TestPageContent)
+            content_type = ContentType.objects.get_for_model(PageContent)
 
             content_page_1 = Page.objects.create(
                 title="Foo",
@@ -638,7 +636,7 @@ class TestPageAdmin(TestCase):
                 content_type=content_type,
             )
 
-            TestPageContent.objects.create(
+            PageContent.objects.create(
                 page=content_page_1,
             )
 
@@ -651,7 +649,7 @@ class TestPageAdmin(TestCase):
                 content_type=content_type,
             )
 
-            TestPageContent.objects.create(
+            PageContent.objects.create(
                 page=alternative_page,
             )
 
@@ -662,7 +660,7 @@ class TestPageAdmin(TestCase):
                 content_type=content_type,
             )
 
-            TestPageContent.objects.create(
+            PageContent.objects.create(
                 page=content_page_2,
             )
 
@@ -712,8 +710,8 @@ class TestPageAdmin(TestCase):
 
         # Add some pages with different content types.
         with search.update_index():
-            content_type = ContentType.objects.get_for_model(TestPageContent)
-            content_type_2 = ContentType.objects.get_for_model(TestPageContentWithFields)
+            content_type = ContentType.objects.get_for_model(PageContent)
+            content_type_2 = ContentType.objects.get_for_model(PageContentWithFields)
 
             self._make_page('Food', content_type)
             self._make_page('Barred', content_type)
@@ -726,7 +724,7 @@ class TestPageAdmin(TestCase):
 
         # Test with a content type filter. It should return a subset of the
         # pages.
-        content_type_id = ContentType.objects.get_for_model(TestPageContent).id
+        content_type_id = ContentType.objects.get_for_model(PageContent).id
         parameters = {'page_type': content_type_id}
         filterer = PageContentTypeFilter(request, parameters, Page, self.page_admin)
         queryset = filterer.queryset(request, Page.objects.all())
@@ -744,8 +742,8 @@ class TestPageAdmin(TestCase):
     def test_pagecontenttypefilter_lookups(self):
         # Add some pages with different content types.
         with search.update_index():
-            content_type = ContentType.objects.get_for_model(TestPageContent)
-            content_type_2 = ContentType.objects.get_for_model(TestPageContentWithFields)
+            content_type = ContentType.objects.get_for_model(PageContent)
+            content_type_2 = ContentType.objects.get_for_model(PageContentWithFields)
 
             self._make_page('John', content_type)
             self._make_page('Paul', content_type)

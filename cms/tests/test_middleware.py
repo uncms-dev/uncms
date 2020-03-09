@@ -6,12 +6,10 @@ from django.template.response import SimpleTemplateResponse
 from django.test import RequestFactory, TestCase
 from watson import search
 
-from ..apps.pages.models import ContentBase, Country, Page
-from ..middleware import PublicationMiddleware
+from cms.apps.testing_models.models import PageContent
+from cms.apps.pages.models import Page
+from cms.middleware import PublicationMiddleware
 
-
-class TestContentBase(ContentBase):
-    pass
 
 
 class MiddlewareTest(TestCase):
@@ -44,11 +42,11 @@ class MiddlewareTest(TestCase):
         with search.update_index():
             page_obj = Page.objects.create(
                 title='Foo',
-                content_type=ContentType.objects.get_for_model(TestContentBase),
+                content_type=ContentType.objects.get_for_model(PageContent),
                 is_online=False,
             )
 
-            content_obj = TestContentBase.objects.create(page=page_obj)
+            content_obj = PageContent.objects.create(page=page_obj)
 
         middleware = [
             'django.contrib.sessions.middleware.SessionMiddleware',
