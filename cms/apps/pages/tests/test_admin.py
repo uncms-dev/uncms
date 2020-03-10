@@ -22,7 +22,8 @@ from reversion.models import Version
 from watson import search
 
 from cms.apps.pages.admin import (PAGE_FROM_KEY, PAGE_FROM_SITEMAP_VALUE,
-                     PAGE_TYPE_PARAMETER, PageAdmin, PageContentTypeFilter)
+                                  PAGE_TYPE_PARAMETER, PageAdmin,
+                                  PageContentTypeFilter)
 from cms.apps.pages.models import ContentBase,Page, get_registered_content
 from cms.apps.testing_models.admin import (InlineModelInline, InlineModelNoPageInline)
 from cms.apps.testing_models.models import (InlineModel, InlineModelNoPage,
@@ -336,22 +337,6 @@ class TestPageAdmin(TestCase):
 
         self.assertListEqual(form.base_fields['parent'].choices, [('', '---------')])
 
-        self.content_page.is_content_object = True
-        form = self.page_admin.get_form(request, obj=self.content_page)
-
-        keys = ['title', 'description', 'inline_model',
-                'requires_authentication', 'publication_date', 'expiry_date',
-                'is_online', 'short_title', 'in_navigation',
-                'hide_from_anonymous', 'browser_title', 'meta_description',
-                'sitemap_priority', 'sitemap_changefreq', 'robots_index',
-                'robots_follow', 'robots_archive', 'og_title', 'og_description',
-                'og_image', 'twitter_card', 'twitter_title',
-                'twitter_description', 'twitter_image']
-
-        self.assertListEqual(list(form.base_fields.keys()), keys)
-
-        self.content_page.is_content_object = False
-
         # Trigger the `content_cls.DoesNotExist` exception.
         content_cls = self.page_admin.get_page_content_cls(request, self.content_page)
 
@@ -464,27 +449,10 @@ class TestPageAdmin(TestCase):
 
     def test_pageadmin_change_view(self):
 
-        self.homepage_alt = deepcopy(self.homepage)
-        self.homepage_alt.pk = None
-        self.homepage_alt.is_content_object = True
-        self.homepage_alt.owner = self.homepage
-        self.homepage_alt.title = "Homepage Alt"
-        self.homepage_alt.save()
-
         request = self._build_request()
         response = self.page_admin.change_view(request, str(self.homepage.pk))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context_data['title'], 'Change page')
-        self.assertFalse(response.context_data['display_language_options'])
-
-        self.assertListEqual(list(response.context_data['language_pages']), [self.homepage, self.homepage_alt])
-
-        request = self._build_request()
-        response = self.page_admin.change_view(request, str(self.homepage_alt.pk))
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context_data['title'], 'Change page')
-
-        self.assertListEqual(list(response.context_data['language_pages']), [self.homepage, self.homepage_alt])
 
         response = self.page_admin.change_view(request, str(self.homepage.pk))
 
@@ -640,19 +608,6 @@ class TestPageAdmin(TestCase):
                 page=content_page_1,
             )
 
-            # Create an alternative page.
-            alternative_page = Page.objects.create(
-                is_content_object=True,
-                owner=content_page_1,
-                left=content_page_1.left,
-                right=content_page_1.right,
-                content_type=content_type,
-            )
-
-            PageContent.objects.create(
-                page=alternative_page,
-            )
-
             content_page_2 = Page.objects.create(
                 title="Bar",
                 slug='bar',
@@ -666,15 +621,12 @@ class TestPageAdmin(TestCase):
 
         self.homepage = Page.objects.get(pk=self.homepage.pk)
         content_page_1 = Page.objects.get(pk=content_page_1.pk)
-        alternative_page = Page.objects.get(pk=alternative_page.pk)
         content_page_2 = Page.objects.get(pk=content_page_2.pk)
 
         self.assertEqual(self.homepage.left, 1)
         self.assertEqual(self.homepage.right, 6)
         self.assertEqual(content_page_1.left, 2)
         self.assertEqual(content_page_1.right, 3)
-        self.assertEqual(alternative_page.left, 2)
-        self.assertEqual(alternative_page.right, 3)
         self.assertEqual(content_page_2.left, 4)
         self.assertEqual(content_page_2.right, 5)
 
@@ -685,15 +637,12 @@ class TestPageAdmin(TestCase):
 
         self.homepage = Page.objects.get(pk=self.homepage.pk)
         content_page_1 = Page.objects.get(pk=content_page_1.pk)
-        alternative_page = Page.objects.get(pk=alternative_page.pk)
         content_page_2 = Page.objects.get(pk=content_page_2.pk)
 
         self.assertEqual(self.homepage.left, 1)
         self.assertEqual(self.homepage.right, 6)
         self.assertEqual(content_page_1.left, 4)
         self.assertEqual(content_page_1.right, 5)
-        self.assertEqual(alternative_page.left, 4)
-        self.assertEqual(alternative_page.right, 5)
         self.assertEqual(content_page_2.left, 2)
         self.assertEqual(content_page_2.right, 3)
 

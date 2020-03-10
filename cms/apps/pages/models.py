@@ -38,9 +38,6 @@ class PageManager(OnlineBaseManager):
                     WHERE
                         {ancestors}.{left} < {page_alias}.{left} AND
                         {ancestors}.{right} > {page_alias}.{right} AND (
-                            {ancestors}.{country_group_id} = {page_alias}.{country_group_id} OR
-                            {ancestors}.{country_group_id} IS NULL
-                        ) AND (
                             {ancestors}.{is_online} = FALSE OR
                             {ancestors}.{publication_date} > %s OR
                             {ancestors}.{expiry_date} <= %s
@@ -55,7 +52,6 @@ class PageManager(OnlineBaseManager):
                         'ancestors',
                         'left',
                         'right',
-                        'country_group_id',
                         'is_online',
                         'publication_date',
                         'expiry_date',
@@ -68,7 +64,7 @@ class PageManager(OnlineBaseManager):
 
     def get_homepage(self):
         '''Returns the site homepage.'''
-        return self.get(parent=None, is_content_object=False)
+        return self.get(parent=None)
 
 
 class Page(PageBase):
@@ -97,32 +93,13 @@ class Page(PageBase):
         db_index=True,
     )
 
-    is_content_object = models.BooleanField(
-        default=False
-    )
-
-    country_group = models.ForeignKey(
-        'pages.CountryGroup',
-        blank=True,
-        null=True,
-        on_delete=models.CASCADE,
-    )
-
-    owner = models.ForeignKey(
-        'self',
-        blank=True,
-        null=True,
-        related_name='owner_set',
-        on_delete=models.CASCADE,
-    )
-
     @cached_property
     def children(self):
         '''The child pages for this page.'''
         children = []
         if self.right - self.left > 1:  # Optimization - don't fetch children
             #  we know aren't there!
-            for child in self.child_set.filter(is_content_object=False):
+            for child in self.child_set.all():
                 child.parent = self
                 children.append(child)
         return children
@@ -250,84 +227,81 @@ class Page(PageBase):
     def save(self, *args, **kwargs):  # pylint:disable=arguments-differ
         '''Saves the page.'''
 
-        if self.is_content_object is False:
-            with connection.cursor() as cursor:
-                cursor.execute('LOCK TABLE {} IN ROW SHARE MODE'.format(Page._meta.db_table))
+        with connection.cursor() as cursor:
+            cursor.execute('LOCK TABLE {} IN ROW SHARE MODE'.format(Page._meta.db_table))
 
-                # Lock entire table.
-                existing_pages = dict(
-                    (page['id'], page)
-                    for page
-                    in Page.objects.filter(
-                        is_content_object=False
-                    ).select_for_update().values(
-                        'id',
-                        'parent_id',
-                        'left',
-                        'right'
-                    )
+            # Lock entire table.
+            existing_pages = dict(
+                (page['id'], page)
+                for page
+                in Page.objects.select_for_update().values(
+                    'id',
+                    'parent_id',
+                    'left',
+                    'right'
                 )
+            )
 
-                if self.left is None or self.right is None:
-                    # This page is being inserted.
-                    if existing_pages:
-                        if not self.parent_id:  # pylint:disable=access-member-before-definition
-                            # There is no parent - we're updating the homepage.
-                            # Set the parent to be the homepage by default
-                            self.parent_id = Page.objects.get_homepage().pk  # pylint:disable=attribute-defined-outside-init
+            if self.left is None or self.right is None:
+                # This page is being inserted.
+                if existing_pages:
+                    if not self.parent_id:  # pylint:disable=access-member-before-definition
+                        # There is no parent - we're updating the homepage.
+                        # Set the parent to be the homepage by default
+                        self.parent_id = Page.objects.get_homepage().pk  # pylint:disable=attribute-defined-outside-init
 
-                        parent_right = existing_pages[self.parent_id]['right']
-                        # Set the model left and right.
-                        self.left = parent_right
-                        self.right = self.left + 1
-                        # Update the whole tree structure.
-                        self._insert_branch()
-                    else:
-                        # This is the first page to be created, ever!
-                        self.left = 1
-                        self.right = 2
+                    parent_right = existing_pages[self.parent_id]['right']
+                    # Set the model left and right.
+                    self.left = parent_right
+                    self.right = self.left + 1
+                    # Update the whole tree structure.
+                    self._insert_branch()
                 else:
-                    # This is an update.
-                    if self.id not in existing_pages:
-                        old_parent_id = -1
-                    else:
-                        old_parent_id = existing_pages[self.id]['parent_id']
+                    # This is the first page to be created, ever!
+                    self.left = 1
+                    self.right = 2
+            else:
+                # This is an update.
+                if self.id not in existing_pages:
+                    old_parent_id = -1
+                else:
+                    old_parent_id = existing_pages[self.id]['parent_id']
 
-                    if old_parent_id != self.parent_id:
-                        # The page has moved.
-                        branch_width = self.right - self.left + 1
-                        # Disconnect child branch.
+                if old_parent_id != self.parent_id:
+                    # The page has moved.
+                    branch_width = self.right - self.left + 1
+                    # Disconnect child branch.
+                    if branch_width > 2:
+                        Page.objects.filter(
+                            left__gt=self.left,
+                            right__lt=self.right
+                        ).update(
+                            left=F('left') * -1,
+                            right=F('right') * -1,
+                        )
+                    self._excise_branch()
+                    # Store old left and right values.
+                    old_left = self.left
+                    old_right = self.right
+                    # Put self into the tree.
+                    if self.parent_id:
+                        parent_right = existing_pages[self.parent_id]['right']
+                        if parent_right > self.right:
+                            parent_right -= self._branch_width
+                        self.left = parent_right
+                        self.right = self.left + branch_width - 1
+                        self._insert_branch()
+
+                        # Put all children back into the tree.
                         if branch_width > 2:
+                            child_offset = self.left - old_left
                             Page.objects.filter(
-                                left__gt=self.left,
-                                right__lt=self.right
+                                left__lt=-old_left,
+                                right__gt=-old_right
                             ).update(
-                                left=F('left') * -1,
-                                right=F('right') * -1,
+                                left=(F('left') - child_offset) * -1,
+                                right=(F('right') - child_offset) * -1,
                             )
-                        self._excise_branch()
-                        # Store old left and right values.
-                        old_left = self.left
-                        old_right = self.right
-                        # Put self into the tree.
-                        if self.parent_id:
-                            parent_right = existing_pages[self.parent_id]['right']
-                            if parent_right > self.right:
-                                parent_right -= self._branch_width
-                            self.left = parent_right
-                            self.right = self.left + branch_width - 1
-                            self._insert_branch()
-
-                            # Put all children back into the tree.
-                            if branch_width > 2:
-                                child_offset = self.left - old_left
-                                Page.objects.filter(
-                                    left__lt=-old_left,
-                                    right__gt=-old_right
-                                ).update(
-                                    left=(F('left') - child_offset) * -1,
-                                    right=(F('right') - child_offset) * -1,
-                                )
 
         # Now actually save it!
         super().save(*args, **kwargs)
@@ -356,7 +330,7 @@ class Page(PageBase):
         return '-'
 
     class Meta:
-        unique_together = (('parent', 'slug', 'country_group'),)
+        unique_together = (('parent', 'slug'),)
         ordering = ('left',)
 
 
@@ -483,44 +457,3 @@ class ContentBase(models.Model):
             # Because we don't want to index "None" :)
             if getattr(self, field_name)
         ])
-
-
-class Country(models.Model):
-    name = models.CharField(
-        max_length=256
-    )
-
-    code = models.CharField(
-        max_length=16
-    )
-
-    group = models.ForeignKey(
-        'pages.CountryGroup',
-        blank=True,
-        null=True,
-        on_delete=models.CASCADE,
-    )
-
-    default = models.NullBooleanField(
-        default=None,
-        unique=True
-    )
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        ordering = ('name',)
-        verbose_name_plural = 'countries'
-
-
-class CountryGroup(models.Model):
-    name = models.CharField(
-        max_length=256
-    )
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        ordering = ('name',)

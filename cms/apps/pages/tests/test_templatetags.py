@@ -12,9 +12,9 @@ from cms.apps.media.models import File
 from cms.apps.testing_models.models import TemplateTagTestPage
 
 from ..middleware import RequestPageManager
-from ..models import ContentBase, Country, Page
+from ..models import ContentBase, Page
 from ..templatetags.pages import (_navigation_entries, absolute_domain_url,
-                                  get_country_code, get_meta_description,
+                                  get_meta_description,
                                   get_meta_robots, get_og_image, get_page_url,
                                   get_twitter_card, get_twitter_description,
                                   get_twitter_image, get_twitter_title,
@@ -239,23 +239,6 @@ class TestTemplatetags(TestCase):
         request.pages = RequestPageManager(request)
         output = render_breadcrumbs({'request': request})
         self.assertTrue(len(output) > 0)
-
-    def test_get_country_code(self):
-        class Context:
-            pass
-
-        context = Context()
-        context.request = self.request
-        self.assertEqual(get_country_code(context), '')
-
-        country = Country.objects.create(
-            code='GB',
-        )
-
-        context = Context()
-        context.request = self.request
-        context.request.country = country
-        self.assertEqual(get_country_code(context), '/gb')
 
     def test_open_graph_tags(self):
         request = self.factory.get('/')

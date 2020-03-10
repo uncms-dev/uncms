@@ -26,19 +26,6 @@ class RequestPageManager:
         self._path_info = self._request.path_info
 
     @cached_property
-    def country(self):
-        if hasattr(self._request, 'country'):
-            return self._request.country
-        return None
-
-    def request_country_group(self):
-        if hasattr(self._request, 'country'):
-            if self._request.country:
-                return self._request.country.group
-
-        return None
-
-    @cached_property
     def homepage(self):
         '''Returns the site homepage.'''
         try:

@@ -522,14 +522,3 @@ def render_breadcrumbs(context, page=None, extended=False):
     return {
         'breadcrumbs': breadcrumb_list,
     }
-
-
-@library.global_function
-@jinja2.contextfunction
-def get_country_code(context):
-    if hasattr(context.request, 'country') and context.request.country:
-        return '/{}'.format(
-            context.request.country.code.lower()
-        )
-
-    return ''

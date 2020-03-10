@@ -102,9 +102,6 @@ class PageAdmin(PageBaseAdmin):
 
     change_form_template = 'admin/pages/page/change_form.html'
 
-    def get_queryset(self, request):
-        return super().get_queryset(request).filter(is_content_object=False)
-
     def get_object(self, request, object_id, from_field=None):
         queryset = super().get_queryset(request)
         model = queryset.model
@@ -266,12 +263,8 @@ class PageAdmin(PageBaseAdmin):
         defaults = {'form': ContentForm}
         defaults.update(kwargs)
 
-        if obj and obj.is_content_object:
-            self.prepopulated_fields = {}
-            self.fieldsets[0][1]['fields'] = ('title',)
-        else:
-            self.prepopulated_fields = {'slug': ('title',), }
-            self.fieldsets[0][1]['fields'] = ('title', 'slug', 'parent')
+        self.prepopulated_fields = {'slug': ('title',), }
+        self.fieldsets[0][1]['fields'] = ('title', 'slug', 'parent')
 
         PageForm = super().get_form(request, obj=obj, **defaults)
 
@@ -296,10 +289,7 @@ class PageAdmin(PageBaseAdmin):
         if not parent_choices:
             parent_choices = (('', '---------'),)
 
-        if obj and not obj.is_content_object:
-            PageForm.base_fields['parent'].choices = parent_choices
-        elif not obj:
-            PageForm.base_fields['parent'].choices = parent_choices
+        PageForm.base_fields['parent'].choices = parent_choices
 
         # Return the completed form.
         return PageForm
@@ -406,20 +396,6 @@ class PageAdmin(PageBaseAdmin):
         request._admin_change_obj = page
 
         extra_context = {}
-
-        if not page.is_content_object:
-            # Get all of the language pages
-            extra_context['language_pages'] = Page.objects.filter(
-                Q(pk=page.pk) |
-                Q(owner=page, is_content_object=True)
-            ).order_by('-country_group')
-        else:
-            extra_context['language_pages'] = Page.objects.filter(
-                Q(pk=page.owner.pk) |
-                Q(owner=page.owner, is_content_object=True)
-            ).order_by('-country_group')
-
-        extra_context['display_language_options'] = False
 
         # Call the change view.
         return super().change_view(request, object_id, form_url=form_url, extra_context=extra_context)
@@ -553,9 +529,7 @@ class PageAdmin(PageBaseAdmin):
             return HttpResponseForbidden('You do not have permission to move this page.')
 
         # Lock entire table.
-        existing_pages_list = Page.objects.all().exclude(
-            is_content_object=True,
-        ).select_for_update().values(
+        existing_pages_list = Page.objects.select_for_update().values(
             'id',
             'parent_id',
             'left',
@@ -616,24 +590,6 @@ class PageAdmin(PageBaseAdmin):
             left=(F('left') - second_branch_width) * -1,
             right=(F('right') - second_branch_width) * -1,
         )
-
-        # Update all content models to match the left and right of their parents.
-        existing_pages_list = Page.objects.all().exclude(
-            is_content_object=False,
-        ).select_for_update().values(
-            'id',
-            'parent_id',
-            'owner',
-            'left',
-            'right',
-            'title'
-        ).order_by('left')
-
-        for child_page in existing_pages_list:
-            child_page.update(
-                left=F('owner__left'),
-                right=F('owner__right'),
-            )
 
         # Report back.
         return HttpResponse('Page #%s was moved %s.' % (page['id'], direction))
