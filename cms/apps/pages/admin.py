@@ -18,7 +18,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import models, transaction
-from django.db.models import F, Q
+from django.db.models import F
 from django.http import (Http404, HttpResponse, HttpResponseForbidden,
                          HttpResponseRedirect, JsonResponse)
 from django.shortcuts import get_object_or_404, redirect, render
