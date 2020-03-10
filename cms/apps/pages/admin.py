@@ -1,9 +1,10 @@
 '''
-The upgraded CMS online admin area.
+The CMS pages admin app.
 
-This is an enhanced version of the Django admin area, providing a more
-user-friendly appearance and providing additional functionality over the
-standard implementation.
+This mostly takes care of patching the fields from content models into the
+page form, including registering inlines. It also gives you a totally
+different page for "add a page", which gives you a list of page types with
+their icons.
 '''
 from functools import cmp_to_key
 
@@ -452,12 +453,16 @@ class PageAdmin(PageBaseAdmin):
 
     def get_preserved_filters(self, request):
         '''
-            This is to fix an always present issue in our CMS where if there were preserved filters from the list view,
-            the type of page being saved would not be passed to the form action of the change form. This mean that on
-            posting, the admin would think the user was on the page type selection page and not trying to save the form.
-            We just need to add the PAGE_TYPE_PARAMETER to the form action if there are preserved filters.
+        This is to fix an always present issue in our CMS where if there
+        were preserved filters from the list view,the type of page being
+        saved would not be passed to the form action of the change form.
 
-            For more info see: https://github.com/onespacemedia/osm-jet/issues/11
+        This mean that on posting, the admin would think the user was on
+        the page type selection page and not trying to save the form.
+        We just need to add the PAGE_TYPE_PARAMETER to the form action if
+        there are preserved filters.
+
+        For more info see: https://github.com/onespacemedia/osm-jet/issues/11
         '''
         preserved_filters = super().get_preserved_filters(request)
 
