@@ -93,22 +93,6 @@ class Page(PageBase):
         db_index=True,
     )
 
-    @cached_property
-    def children(self):
-        '''The child pages for this page.'''
-        children = []
-        if self.right - self.left > 1:  # Optimization - don't fetch children
-            #  we know aren't there!
-            for child in self.child_set.all():
-                child.parent = self
-                children.append(child)
-        return children
-
-    @property
-    def navigation(self):
-        '''The sub-navigation of this page.'''
-        return [child for child in self.children if child.in_navigation]
-
     # Publication fields.
 
     publication_date = models.DateTimeField(
@@ -162,6 +146,17 @@ class Page(PageBase):
         return self.parent.auth_required()
 
     @cached_property
+    def children(self):
+        '''The child pages for this page.'''
+        children = []
+        # Optimization - don't fetch children we know aren't there!
+        if self.right - self.left > 1:
+            for child in self.child_set.all():
+                child.parent = self
+                children.append(child)
+        return children
+
+    @cached_property
     def content(self):
         '''The associated content model for this page.'''
         content_cls = ContentType.objects.get_for_id(
@@ -169,6 +164,11 @@ class Page(PageBase):
         content = content_cls._default_manager.get(page=self)
         content.page = self
         return content
+
+    @cached_property
+    def navigation(self):
+        '''The sub-navigation of this page.'''
+        return [child for child in self.children if child.in_navigation]
 
     def reverse(self, view_func, args=None, kwargs=None):
         '''Performs a reverse URL lookup.'''
@@ -186,8 +186,6 @@ class Page(PageBase):
             kwargs=kwargs,
             urlconf=urlconf,
         )
-
-    # Standard model methods.
 
     def get_absolute_url(self):
         '''Generates the absolute url of the page.'''
