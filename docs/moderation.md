@@ -1,7 +1,7 @@
 # Moderation system
 
 Sometimes it is useful for certain admin users to be able to create and edit objects, such as news articles, but to not be able to publish them immediately.
-The CMS has a simple, entirely optional system for facilitating this.
+UnCMS has a simple, entirely optional system for facilitating this.
 Models which utilise this moderation system gain a field named `status` which has three possible values: "Draft", "Submitted for approval" or "Approved".
 Objects are only visible on the front-end of the website when they are marked as "Approved".
 

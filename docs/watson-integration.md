@@ -1,11 +1,11 @@
 # django-watson integration
 
-Onespacemedia CMS integrates [django-watson](https://github.com/etianen/django-watson) into the admin for improved full-text searching of pages in your admin.
+UnCMS integrates [django-watson](https://github.com/etianen/django-watson) into the admin for improved full-text searching of pages in your admin.
 Any ModelAdmin that inherits from the `SearchMetaBaseAdmin` or `PageBaseAdmin` [helper ModelAdmins](helpers.md) will also get this full-text search.
 
-As much as we like Watson, the CMS does not require that you use Watson for searching on the front-end of your site;
+As much as we like Watson, UnCMS does not require that you use Watson for searching on the front-end of your site;
 you're free to implement your own search, or no search at all.
-If you choose to use Watson on your front-end, and you are using the CMS's helper models, the CMS supplies a few helper search adapters.
+If you choose to use Watson on your front-end, and you are using UnCMS's helper models, UnCMS supplies a few helper search adapters.
 Just pass one of these as the second argument to `register` (see ["Registering models"](https://github.com/etianen/django-watson/wiki/registering-models) in Watson's documentation):
 
 ```
@@ -28,7 +28,7 @@ it will default to Watson's behaviour of using the `__str__` of the object as th
 
 ## Controlling search text for content models (ContentBase derivatives)
 
-The CMS `Page` model is registered with `cms.apps.pages.models.PageSearchAdapter` by default. `PageSearchAdapter` will add all textual fields from the page's content object to the blob of text that gets indexed (with a lower priority than the page title).
+The UnCMS `Page` model is registered with `cms.apps.pages.models.PageSearchAdapter` by default. `PageSearchAdapter` will add all textual fields from the page's content object to the blob of text that gets indexed (with a lower priority than the page title).
 
 That's sensible behaviour, but you may have inlined models that need to be searched too.
 For example, our simple sectioned content model from the [walkthrough](walkthrough.md) has most of its textual content in `ContentSection` objects.

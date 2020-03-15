@@ -1,8 +1,8 @@
 # The HTML editor
 
-Onespacemedia CMS comes with a <abbr title="What You See Is What You Get">WYSIWYG</abbr> HTML editor that you can use on your models to provide rich-text editing in your admin using TinyMCE v4.
-The CMS does not use this internally (as it has no opinions about what your content should look like),
-but it's included with the CMS because almost every website requires it.
+UnCMS comes with a <abbr title="What You See Is What You Get">WYSIWYG</abbr> HTML editor that you can use on your models to provide rich-text editing in your admin using TinyMCE v4.
+UnCMS does not use this internally (as it has no opinions about what your page content should look like),
+but it's included with UnCMS because almost every website requires it.
 
 First, you will want to provide some settings for TinyMCE using the `WYSIWYG_OPTIONS` setting.
 These correspond to [TinyMCE v4's settings](https://www.tiny.cloud/docs-4x/configure/integration-and-setup/).

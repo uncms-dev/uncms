@@ -1,12 +1,12 @@
 # A walkthrough
 
-This walkthrough will take you through setting up the CMS on an existing project, and it will introduce several core CMS concepts.
+This walkthrough will take you through setting up UnCMS on an existing project, and it will introduce several core UnCMS concepts.
 If you prefer to learn from code than learn from a wall of text,
 you probably want to look at the companion [tiny CMS project repo](https://github.com/onespacemedia/tiny-cms-project).
 
 ## Django settings
 
-We'll need to add a few settings that the CMS depends on.
+We'll need to add a few settings that UnCMS depends on.
 Don't worry too much about what these do for now; the concepts behind them will be explained in depth over the course of the walkthrough.
 
 First, tell us the name of your site. We depend on this in one of our [template functions](template-functions.md):
@@ -29,7 +29,7 @@ PUBLICATION_MIDDLEWARE_EXCLUDE_URLS = (
 )
 ```
 
-Add our core CMS things to your `INSTALLED_APPS`:
+Add our core UnCMS things to your `INSTALLED_APPS`:
 
 ```python
 INSTALLED_APPS = [
@@ -48,7 +48,7 @@ Add our context processors to our template context processors (in `['OPTIONS']['
 'cms.apps.pages.context_processors.pages',
 ```
 
-Add the CMS middleware to your `MIDDLEWARE`:
+Add the page management middleware to your `MIDDLEWARE`:
 
 ```python
 MIDDLEWARE = [
@@ -104,11 +104,11 @@ class MyContent(ContentBase):
 
 Let's unpack this!
 
-The `Page` model in the CMS defines its place in the hierarchy, some invisible metadata fields, and some publication controls, and that is it.
+The `Page` model in UnCMS defines its place in the hierarchy, some invisible metadata fields, and some publication controls, and that is it.
 It has no opinions about what the _user-visible_ content should look like - not so much as an HTML field!
 This is the job of **content models**.
 
-That's what derivatives of `ContentBase` are. Anything that inherits from `ContentBase` will be available as a page type in the CMS.
+That's what derivatives of `ContentBase` are. Anything that inherits from `ContentBase` will be available as a page type in your project.
 _There is no explicit registration of content models_; it just works.
 
 ?> **Note:** We've named this model MyContent.
@@ -122,7 +122,7 @@ Now go to your admin and add a Page. You will be prompted to select a page type.
 
 Surprise! It's totally empty.
 Just as it doesn't have any assumptions about what your content looks like, it doesn't have any opinions on what the front end of your site should look like either.
-But the CMS is in fact rendering this view, and is making an educated guess as to what template it should use. It's falling back to your `base.html` at the moment, but that's not its first choice. Let's create a template called `content/mycontent.html`:
+But UnCMS is in fact rendering this view, and is making an educated guess as to what template it should use. It's falling back to your `base.html` at the moment, but that's not its first choice. Let's create a template called `content/mycontent.html`:
 
 ```
 {% extends 'base.html' %}
@@ -194,7 +194,7 @@ page_admin.register_content_inline(MyContent, ContentSectionInline)
 ```
 
 That's it! It's just as easy as adding inlines to any other model.
-We've told the CMS "be prepared to display these inlines only when the page type is MyContent".
+We've told UnCMS "be prepared to display these inlines only when the page type is MyContent".
 This won't appear on pages whose type is any other model, because it might not make sense there.
 
 Now, stick this just before the `{% endblock %}` in your `content/mycontent.html` template:
@@ -216,7 +216,7 @@ In fact, for a lot of sites, you might not even need to write a single view!
 
 ## Let's make another content model: a deeper dive
 
-For the second part of this walkthrough, we are going to create a simple blog app using some of the CMS's more advanced tooling.
+For the second part of this walkthrough, we are going to create a simple blog app using some of UnCMS's more advanced tooling.
 
 First, create an app called "news", add it to your `INSTALLED_APPS`, and add this to your `news/models.py`:
 
@@ -236,7 +236,7 @@ Instead, we've introduced two new class attributes that will be used on the "Add
 On the "Add a page" screen, the available page types are broken down into classifiers.
 Really, this is just a heading under which this page type will appear.
 At Onespacemedia we use 'apps' for content models whose primary purpose it is to display links to other content, and 'content' for content models for which the content is primarily on-page.
-That's just our convention; you can actually name this anything you like. The CMS doesn't mind!
+That's just our convention; you can actually name this anything you like. UnCMS doesn't mind!
 
 The `icon` attribute will, as you may have guessed, be displayed in the "Add a page" screen too.
 This attribute should be a path inside your static files directory.
@@ -255,9 +255,9 @@ For example, we might want to have a page of articles called "News" (what your c
 We'll get to exactly how this will happen shortly.
 But first, we're going to need an Article model.
 
-## Let's use the CMS's helper models
+## Let's use UnCMS's helper models
 
-The CMS comes with a lot of handy helper models, and some nice helper fields too.
+UnCMS comes with a lot of handy helper models, and some nice helper fields too.
 You will want to use them, because you should always use the batteries! We're going to be introducing a couple of them in our `Article` model.
 
 First, add these imports to your `news/models.py`:
@@ -305,7 +305,7 @@ class Article(PageBase):
 Let's talk about PageBase!
 It's a helper (abstract) model to make it easier for you to have article-like fields on your model.
 It has nearly all the fields that the Page model itself does, but does not consider itself part of any hierarchy.
-In fact, the CMS Page itself inherits from PageBase.
+In fact, the UnCMS Page itself inherits from PageBase.
 Here's what you get (see the [helper models](helpers.md) section for more):
 
 * A title and slug
@@ -318,7 +318,7 @@ You can read about the [media app](media-app.md) later on, but the short version
 `ImageRefField` is a ForeignKey to `media.File`, but it uses a raw ID widget by default, and is constrained to only select files that appear to be images (just a regex on the filename).
 
 `HtmlField` is a `TextField` with a nice WYSIWYG editor as its default widget - that was what the `WYSIWYG_OPTIONS` setting was about.
-You can use a standard TextField here if you like, or you can bring your own HTML editor; nothing in the CMS requires `HtmlField` to be used.
+You can use a standard TextField here if you like, or you can bring your own HTML editor; nothing in UnCMS requires `HtmlField` to be used.
 
 Now, in our `admin.py` for our news app, we're going to register our Article:
 
@@ -344,7 +344,7 @@ class ArticleAdmin(PageBaseAdmin):
 
 `PageBaseAdmin` defines some useful default behaviour for the article-like things it is intended to enable.
 It also defines some useful fieldsets that you will definitely want, such as the publication controls (turning things on/offline), and those SEO and social media controls mentioned earlier.
-You should use it for anything that inherits from `PageBase`, though nothing in Onespacemedia CMS forces you to.
+You should use it for anything that inherits from `PageBase`, though nothing in UnCMS forces you to.
 
 Now, go create a "News feed" page, if you haven't already, and add an Article, setting "Page" to your new news feed.
 
@@ -419,7 +419,7 @@ class ArticleDetailView(PageDetailView):
     model = Article
 ```
 
-`PageDetailView` is a subclass of Django's `DetailView` that takes care of putting the page title, SEO information and all the other `PageBase` metadata into the template context, where it can be accessed by our CMS's template functions that render them on the page.
+`PageDetailView` is a subclass of Django's `DetailView` that takes care of putting the page title, SEO information and all the other `PageBase` metadata into the template context, where it can be accessed by UnCMS's template functions that render them on the page.
 If you have a `DetailView` for a model that inherits from `PageBase`, you almost certainly want to inherit from `PageDetailView`, but nothing forces you to.
 
 ## Let's reverse some page URLs
@@ -475,7 +475,7 @@ And now that we can actually make our way to it, an article detail template at `
 ## Let's add some per-page settings
 
 Now that we have a news feed, and our cats are writing countless articles about themselves, we'll probably find the need to paginate the news list at some point.
-The great part of the simple data model of Onespacemedia CMS is that it makes it really easy to define page settings that are not visible to non-admin users.
+The great part of the simple data model of UnCMS is that it makes it really easy to define page settings that are not visible to non-admin users.
 
 Add this to our `NewsFeed` content model:
 
@@ -497,7 +497,7 @@ Then, we can override `ListView`'s  `get_paginate_by` in our `ArticleListView`:
 There are many use cases for this sort of thing.
 If we had a "Contact" content model that rendered a contact form, you could add an `EmailField` to decide who the submissions go to.
 Or you may want to make certain `NewsFeed` pages use a different layout; in this case you could add a `layout` field and override `get_template_names` in your view.
-There's no need to hard-code anything with Onespacemedia CMS!
+There's no need to hard-code anything with UnCMS!
 Some CMSes make this harder for developers than it needs to be; here you're just writing Django.
 
 ## Let's add fieldsets to our content model

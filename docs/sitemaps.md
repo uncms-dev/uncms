@@ -1,7 +1,7 @@
 # Sitemaps
 
 Any model that has a `get_absolute_url()` method should probably have its URL exposed in an [XML sitemap](https://en.wikipedia.org/wiki/Sitemaps) for easier indexing by search engines.
-The CMS has some helpers for this, which build on Django's [sitemaps framework](https://docs.djangoproject.com/en/dev/ref/contrib/sitemaps/).
+UnCMS has some helpers for this, which build on Django's [sitemaps framework](https://docs.djangoproject.com/en/dev/ref/contrib/sitemaps/).
 
 First, you will need a URL route in your root `urls.py`. You will want something very much like this:
 
@@ -16,7 +16,7 @@ urlpatterns = [
 ]
 ```
 
-There are, of course, helper sitemap classes for all of the CMS's [helper models](helpers.md).
+There are, of course, helper sitemap classes for all of UnCMS's [helper models](helpers.md).
 You don't need to worry about those most of the time.
 The `cms.sitemaps.register` function guesses an appropriate one for you:
 
