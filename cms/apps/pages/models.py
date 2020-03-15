@@ -140,6 +140,10 @@ class Page(PageBase):
         help_text="Visitors that aren't logged in won't see this page in the navigation"
     )
 
+    def __init__(self, *args, **kwargs):
+        self.cached_parent = None
+        super().__init__(*args, **kwargs)
+
     def auth_required(self):
         if self.requires_authentication or not self.parent:
             return self.requires_authentication
@@ -152,7 +156,10 @@ class Page(PageBase):
         # Optimization - don't fetch children we know aren't there!
         if self.right - self.left > 1:
             for child in self.child_set.all():
-                child.parent = self
+                # get_absolute_url will check this first before causing an
+                # extra database query looking up its parent page. (It is
+                # potentially dangerous to overwrite 'parent'.)
+                child.cached_parent = self
                 children.append(child)
         return children
 
@@ -189,11 +196,12 @@ class Page(PageBase):
 
     def get_absolute_url(self):
         '''Generates the absolute url of the page.'''
+        parent = self.cached_parent or self.parent
 
-        if not self.parent:
+        if not parent:
             return urls.get_script_prefix()
 
-        return self.parent.get_absolute_url() + self.slug + '/'
+        return parent.get_absolute_url() + self.slug + '/'
 
     # Tree management.
 
