@@ -315,12 +315,11 @@ class Page(PageBase):
     @transaction.atomic
     def delete(self, *args, **kwargs):  # pylint:disable=arguments-differ
         '''Deletes the page.'''
+        # Lock entire table.
         list(Page.objects.all().select_for_update().values_list(
             'left',
             'right'
-        ))  #
-        # Lock entire
-        #  table.
+        ))
         super().delete(*args, **kwargs)
         # Update the entire tree.
         self._excise_branch()
