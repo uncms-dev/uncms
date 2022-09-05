@@ -148,7 +148,7 @@ class TestPageMiddleware(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
 
-    def test_process_response(self):
+    def test_process_response(self):  # pylint:disable=too-many-statements
         request = self.factory.get('/')
         response = HttpResponse()
 

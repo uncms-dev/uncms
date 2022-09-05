@@ -368,7 +368,7 @@ class TestPageAdmin(TestCase):
         self.assertEqual(self.homepage.content_type_id, ContentType.objects.get_for_model(PageContent).pk)
 
         with self.assertRaises(AttributeError):
-            self.homepage.content.description
+            self.homepage.content.description  # pylint:disable=pointless-statement
 
         # Save the model
         self.page_admin.save_model(request, self.homepage, form, True)

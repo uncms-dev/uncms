@@ -10,8 +10,7 @@ from django.test import TestCase, TransactionTestCase
 from django.utils.timezone import now
 
 
-from cms.apps.media.models import (File, FileRefField, Label, Video,
-                                   VideoFileRefField, VideoRefField)
+from cms.apps.media.models import File, FileRefField, Label, Video
 from cms.apps.testing_models.models import MediaTestModel
 
 

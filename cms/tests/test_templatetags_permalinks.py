@@ -1,5 +1,4 @@
 from django.contrib.contenttypes.models import ContentType
-from django.db import models
 from django.test import RequestFactory, TestCase
 
 from cms.templatetags.permalinks import get_permalink_absolute, permalink

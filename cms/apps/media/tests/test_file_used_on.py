@@ -1,18 +1,15 @@
-import random
-
 from django.contrib import admin
 from django.contrib.admin.sites import AdminSite
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import models
 from django.test import TestCase
-from django.urls import NoReverseMatch, reverse
+from django.urls import reverse
 from django.utils.timezone import now
 from watson import search
 
-from cms.apps.pages.models import Page, PageBase, ContentBase
+from cms.apps.pages.models import Page, ContentBase
 from cms.apps.pages.admin import page_admin
-from cms.apps.media.admin import FileAdmin
 from cms.apps.media.models import File, ImageRefField
 from cms.admin import get_related_objects_admin_urls
 
@@ -83,13 +80,13 @@ page_admin.register_content_inline(ContentBaseModelInline, ContentBaseModelInlin
 class TestFileUsedOn(TestCase):
     maxDiff = 2000
 
-    def clear_image_references(self, models):
+    def clear_image_references(self, instances):
         # Clear out the old images from the previous test to esnure
         # that they do not interfere.
-        for model in models:
-            if hasattr(model, 'image'):
-                model.image = None
-                model.save()
+        for instance in instances:
+            if hasattr(instance, 'image'):
+                instance.image = None
+                instance.save()
 
     def setUp(self):
         self.site = AdminSite(name='test_admin')

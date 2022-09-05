@@ -3,17 +3,15 @@ from datetime import timedelta
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.management import call_command
-from django.db import models
 from django.test import TestCase
 from django.utils.timezone import now
 from reversion import create_revision
 from watson import search
 
 from cms.models.managers import publication_manager
-from cms.apps.pages.models import (ContentBase, Page, PageSearchAdapter,
-                                   PageSitemap, filter_indexable_pages)
-from cms.apps.testing_models.models import (Section, PageContent,
-                                            PageContentWithSections)
+from cms.apps.pages.models import (Page, PageSearchAdapter, PageSitemap,
+                                   filter_indexable_pages)
+from cms.apps.testing_models.models import PageContent, PageContentWithSections
 
 
 class TestPage(TestCase):
@@ -499,4 +497,4 @@ class TestPageComplex(TestCase):
         self.assertEqual(self.pages['Tree_3___Page_4'].right, 13)
 
         with self.assertRaises(KeyError):
-            self.pages['Tree_3___Page_5']
+            self.pages['Tree_3___Page_5']  # pylint:disable=pointless-statement

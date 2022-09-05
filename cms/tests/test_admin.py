@@ -1,8 +1,4 @@
-import sys
-
-from django.contrib import admin
 from django.contrib.admin.sites import AdminSite
-from django.contrib.auth.models import User
 from django.test import RequestFactory, TestCase
 
 # `cms.admin` is import here and later on to test the NotRegistered exception.

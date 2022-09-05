@@ -1,5 +1,3 @@
-import os
-
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.contenttypes.models import ContentType
 from django.template.response import SimpleTemplateResponse
@@ -46,7 +44,7 @@ class MiddlewareTest(TestCase):
                 is_online=False,
             )
 
-            content_obj = PageContent.objects.create(page=page_obj)
+            PageContent.objects.create(page=page_obj)
 
         middleware = [
             'django.contrib.sessions.middleware.SessionMiddleware',
