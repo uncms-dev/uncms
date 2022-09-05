@@ -5,7 +5,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import connection, models, transaction
 from django.db.models import F, Q
 from django.utils import timezone
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 from django.utils.functional import cached_property
 from reversion.models import Version
 
@@ -449,7 +449,7 @@ class ContentBase(models.Model):
         page's content is built out of other models.
         '''
         return ' '.join([
-            force_text(getattr(self, field_name))
+            force_str(getattr(self, field_name))
             for field_name in [
                 field.name for field
                 in self._meta.fields

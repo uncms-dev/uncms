@@ -2,7 +2,6 @@
 from functools import partial
 
 import requests
-from django.conf.urls import url
 from django.contrib import admin, messages
 from django.contrib.admin.views.main import IS_POPUP_VAR
 from django.core.files import File as DjangoFile
@@ -12,6 +11,7 @@ from django.http import (Http404, HttpResponse, HttpResponseForbidden,
 from django.shortcuts import get_object_or_404, render
 from django.template.defaultfilters import filesizeformat
 from django.template.loader import render_to_string
+from django.urls import re_path
 from django.utils.html import format_html
 from django.utils.text import Truncator
 from reversion.admin import VersionAdmin
@@ -208,8 +208,8 @@ class FileAdmin(VersionAdmin, SearchAdmin):
         urls = super().get_urls()
 
         new_urls = [
-            url(r'^(?P<object_id>\d+)/remote/$', self.remote_view, name='media_file_remote'),
-            url(r'^media-library-wysiwyg/$', self.media_library_changelist_view, name='media_file_wysiwyg_list'),
+            re_path(r'^(?P<object_id>\d+)/remote/$', self.remote_view, name='media_file_remote'),
+            re_path(r'^media-library-wysiwyg/$', self.media_library_changelist_view, name='media_file_wysiwyg_list'),
         ]
 
         return new_urls + urls

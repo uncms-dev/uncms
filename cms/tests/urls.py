@@ -1,11 +1,10 @@
-from django.conf.urls import include, url
 from django.contrib import admin
 from django.contrib.contenttypes.views import shortcut
+from django.urls import include, path
 
 urlpatterns = [
-    url(r'^admin/', admin.site.urls),
-    url(
-        r'^r/(?P<content_type_id>\d+)-(?P<object_id>[^/]+)/$',
+    path('admin/', admin.site.urls),
+    path('<int:content_type_id>-<int:object_id>/',
         shortcut,
         name='permalink_redirect'
     ),
