@@ -1,6 +1,7 @@
 import os
 import platform
 import random
+import secrets
 import sys
 
 import pytest
@@ -32,7 +33,6 @@ def pytest_configure():
             'default': {
                 'ENGINE': 'django.db.backends.postgresql_psycopg2',
                 'NAME': 'cms',
-                'HOST': 'localhost',
                 'TEST': {
                     'NAME': 'cms',
                 }
@@ -58,7 +58,6 @@ def pytest_configure():
 
             # Third party apps
             'sorl.thumbnail',
-            'historylinks',
             'reversion',
             'watson',
         ],
@@ -119,6 +118,6 @@ def pytest_configure():
                 }
             }
         ],
-        GEOIP_PATH=os.path.join('cms', 'tests', 'geoip'),
         MIDDLEWARE=[],
+        SECRET_KEY=secrets.token_hex(32),
     )

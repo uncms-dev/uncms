@@ -7,7 +7,6 @@ from django.db.models import F, Q
 from django.utils import timezone
 from django.utils.encoding import force_text
 from django.utils.functional import cached_property
-from historylinks import shortcuts as historylinks
 from reversion.models import Version
 
 from cms import sitemaps
@@ -337,9 +336,6 @@ class Page(PageBase):
     class Meta:
         unique_together = (('parent', 'slug'),)
         ordering = ('left',)
-
-
-historylinks.register(Page)
 
 
 class PageSitemap(sitemaps.PageBaseSitemap):

@@ -14,7 +14,7 @@ DEPENDENCIES = [
     'Jinja2==2.10.1',
 
     'beautifulsoup4',
-    'django>=1.11,<2.3',
+    'django>=3.2,<3.3',
     'django-historylinks',
     'django-watson',
     'django-reversion',
@@ -33,8 +33,8 @@ setup(
     name='onespacemedia-cms',
     version='.'.join(str(n) for n in VERSION),
     url='https://github.com/onespacemedia/cms',
-    author='Onespacemedia',
-    author_email='developers@onespacemedia.com',
+    author='Lewis Collard',
+    author_email='lewis@lewiscollard.com',
     license='BSD',
     packages=find_packages(),
     include_package_data=True,
@@ -42,7 +42,7 @@ setup(
     description='CMS used by Onespacemedia',
     install_requires=DEPENDENCIES,
     extras_require={
-        'testing': [
+        'dev': [
             'flake8==3.7.9',
             'isort==4.3.21',
             'pylint==2.4.4',
@@ -50,13 +50,11 @@ setup(
             'pytest-cov',
             'pytest-django',
             'pytest-xdist',
-            'coveralls',
         ],
     },
     classifiers=[
         'Development Status :: 5 - Production/Stable',
-        'Framework :: Django :: 1.11',
-        'Framework :: Django :: 2.2',
+        'Framework :: Django :: 3.2',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
         'Natural Language :: English',
