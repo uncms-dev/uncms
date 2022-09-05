@@ -17,13 +17,9 @@ DEPENDENCIES = [
     'django-watson',
     'django-reversion',
     'django-jinja==2.10.2',
+    'psycopg2',
     'python-magic==0.4.15',
 ]
-
-if platform.python_implementation() == 'PyPy':
-    DEPENDENCIES.append('psycopg2cffi')
-else:
-    DEPENDENCIES.append('psycopg2')
 
 
 setup(
