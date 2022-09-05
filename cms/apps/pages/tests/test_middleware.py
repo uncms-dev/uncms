@@ -152,7 +152,7 @@ class TestPageMiddleware(TestCase):
         request = self.factory.get('/')
         response = HttpResponse()
 
-        middleware = PageMiddleware()
+        middleware = PageMiddleware(lambda: None)
         self.assertEqual(middleware.process_response(request, response), response)
 
         response = HttpResponseNotFound()

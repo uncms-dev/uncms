@@ -18,7 +18,7 @@ class MiddlewareTest(TestCase):
         self.request.user = AnonymousUser()
 
     def test_publicationmiddleware_process_request(self):
-        publication_middleware = PublicationMiddleware()
+        publication_middleware = PublicationMiddleware(lambda: None)
         publication_middleware.process_request(self.request)
 
     def test_publicationmiddleware_process_response(self):
@@ -30,7 +30,7 @@ class MiddlewareTest(TestCase):
         context['page_obj'].has_other_pages = lambda: False
 
         response = SimpleTemplateResponse('pagination/pagination.html', context)
-        publication_middleware = PublicationMiddleware()
+        publication_middleware = PublicationMiddleware(lambda: None)
 
         response = publication_middleware.process_response(self.request, response)
 
