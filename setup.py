@@ -11,14 +11,14 @@ DEPENDENCIES = [
     'requests',
     'Pillow',
     'sorl-thumbnail',
-    'Jinja2==2.10.1',
+    'Jinja2==3.1.2',
 
     'beautifulsoup4',
     'django>=3.2,<3.3',
     'django-historylinks',
     'django-watson',
     'django-reversion',
-    'django-jinja==2.4.1',
+    'django-jinja==2.10.2',
     'python-magic',
     'tinypng',
 ]

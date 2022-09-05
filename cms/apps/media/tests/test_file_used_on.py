@@ -7,7 +7,6 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import models
 from django.test import TestCase
 from django.urls import NoReverseMatch, reverse
-from django.utils import six
 from django.utils.timezone import now
 from watson import search
 

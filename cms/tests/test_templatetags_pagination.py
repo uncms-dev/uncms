@@ -24,6 +24,7 @@ class PaginationTest(TestCase):
             paginate({'request': self.request}, [])
 
     def test_pagination(self):
+        # pylint:disable=attribute-defined-outside-init
         obj = Object()
         obj.has_other_pages = lambda: False
         pagination_response = render_pagination({'request': self.request}, obj)

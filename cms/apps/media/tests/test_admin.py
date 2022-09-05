@@ -1,5 +1,6 @@
 import base64
 import random
+import sys
 
 from django.contrib.admin.sites import AdminSite
 from django.contrib.admin.views.main import IS_POPUP_VAR
@@ -8,7 +9,6 @@ from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.http import Http404
 from django.test import LiveServerTestCase, RequestFactory, TestCase, TransactionTestCase
-from django.utils import six
 from django.utils.timezone import now
 
 from ..admin import FileAdmin, VideoAdmin
@@ -77,7 +77,7 @@ class TestFileAdminBase(TransactionTestCase):
         # An invalid JPEG
         self.name_1 = '{}-{}.jpg'.format(
             now().strftime('%Y-%m-%d_%H-%M-%S'),
-            random.randint(0, six.MAXSIZE)
+            random.randint(0, sys.maxsize)
         )
 
         self.obj_1 = File.objects.create(
@@ -88,7 +88,7 @@ class TestFileAdminBase(TransactionTestCase):
         # A valid GIF.
         self.name_2 = '{}-{}.gif'.format(
             now().strftime('%Y-%m-%d_%H-%M-%S'),
-            random.randint(0, six.MAXSIZE)
+            random.randint(0, sys.maxsize)
         )
 
         base64_string = b'R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=='
@@ -265,7 +265,7 @@ class LiveServerTestFileAdminBase(LiveServerTestCase):
         # An invalid JPEG
         self.name_1 = '{}-{}.jpg'.format(
             now().strftime('%Y-%m-%d_%H-%M-%S'),
-            random.randint(0, six.MAXSIZE)
+            random.randint(0, sys.maxsize)
         )
 
         self.obj_1 = File.objects.create(

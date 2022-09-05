@@ -55,7 +55,7 @@ def _navigation_entries(context, pages, section=None, is_json=False):
 
 @library.global_function
 @library.render_with('pages/navigation.html')
-@jinja2.contextfunction
+@jinja2.pass_context
 def render_navigation(context, pages, section=None):
     '''
     Renders a navigation list for the given pages.
@@ -95,7 +95,7 @@ def get_page_url(page, view_func=None, *args, **kwargs):  # pylint:disable=keywo
 
 # Page widgets.
 @library.global_function
-@jinja2.contextfunction
+@jinja2.pass_context
 def get_meta_description(context, description=None):
     '''
     Renders the content of the meta description tag for the current page::
@@ -128,7 +128,7 @@ def get_meta_description(context, description=None):
 
 
 @library.global_function
-@jinja2.contextfunction
+@jinja2.pass_context
 def get_meta_robots(context, index=None, follow=None, archive=None):
     '''
     Renders the content of the meta robots tag for the current page::
@@ -194,7 +194,7 @@ def absolute_domain_url(context):
 
 
 @library.global_function
-@jinja2.contextfunction
+@jinja2.pass_context
 def get_canonical_url(context):
     '''
     Returns the canonical URL of the current page.
@@ -210,7 +210,7 @@ def get_canonical_url(context):
 
 
 @library.global_function
-@jinja2.contextfunction
+@jinja2.pass_context
 def get_og_title(context, title=None):
     if not title:
         obj = context.get('object', None)
@@ -235,7 +235,7 @@ def get_og_title(context, title=None):
 
 
 @library.global_function
-@jinja2.contextfunction
+@jinja2.pass_context
 def get_og_description(context, description=None):
     if not description:
         description = context.get('og_description')
@@ -259,7 +259,7 @@ def get_og_description(context, description=None):
 
 
 @library.global_function
-@jinja2.contextfunction
+@jinja2.pass_context
 def get_og_image(context, image=None):
     image_obj = None
 
@@ -297,7 +297,7 @@ def get_og_image(context, image=None):
 
 
 @library.global_function
-@jinja2.contextfunction
+@jinja2.pass_context
 def get_twitter_card(context, card=None):
     choices = dict(SearchMetaBase._meta.get_field('twitter_card').choices)
 
@@ -326,7 +326,7 @@ def get_twitter_card(context, card=None):
 
 
 @library.global_function
-@jinja2.contextfunction
+@jinja2.pass_context
 def get_twitter_title(context, title=None):
     # Load from context if exists
     if not title:
@@ -362,7 +362,7 @@ def get_twitter_title(context, title=None):
 
 
 @library.global_function
-@jinja2.contextfunction
+@jinja2.pass_context
 def get_twitter_description(context, description=None):
     # Load from context if exists
     if not description:
@@ -400,7 +400,7 @@ def get_twitter_description(context, description=None):
 
 
 @library.global_function
-@jinja2.contextfunction
+@jinja2.pass_context
 def get_twitter_image(context, image=None):
     '''
     Returns an appropriate Twitter image for the current page, falling back
@@ -459,7 +459,7 @@ def get_twitter_image(context, image=None):
 
 @library.global_function
 @library.render_with('pages/title.html')
-@jinja2.contextfunction
+@jinja2.pass_context
 def render_title(context, browser_title=None):
     '''
     Renders the title of the current page::
@@ -490,7 +490,7 @@ def render_title(context, browser_title=None):
 
 @library.global_function
 @library.render_with('pages/breadcrumbs.html')
-@jinja2.contextfunction
+@jinja2.pass_context
 def render_breadcrumbs(context, page=None, extended=False):
     '''
     Renders the breadcrumbs trail for the current page::

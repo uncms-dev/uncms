@@ -9,7 +9,6 @@ their icons.
 from functools import cmp_to_key
 
 from django import forms
-from django.conf.urls import url
 from django.contrib import admin
 from django.contrib.admin.options import IS_POPUP_VAR
 from django.contrib.admin.widgets import FilteredSelectMultiple
@@ -23,7 +22,7 @@ from django.http import (Http404, HttpResponse, HttpResponseForbidden,
                          HttpResponseRedirect, JsonResponse)
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.defaultfilters import capfirst
-from django.urls import reverse
+from django.urls import path, reverse
 
 from cms.admin import PageBaseAdmin
 from cms.apps.pages.models import (Page, PageSearchAdapter,
@@ -489,8 +488,8 @@ class PageAdmin(PageBaseAdmin):
         '''Adds in some custom admin URLs.'''
         admin_view = self.admin_site.admin_view
         return [
-            url(r'^sitemap.json$', admin_view(self.sitemap_json_view), name='pages_page_sitemap_json'),
-            url(r'^move-page/$', admin_view(self.move_page_view), name='pages_page_move_page'),
+            path('sitemap.json', admin_view(self.sitemap_json_view), name='pages_page_sitemap_json'),
+            path('move-page/', admin_view(self.move_page_view), name='pages_page_move_page'),
         ] + super().get_urls()
 
     def sitemap_json_view(self, request):

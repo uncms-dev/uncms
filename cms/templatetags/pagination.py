@@ -7,7 +7,7 @@ from django_jinja import library
 
 
 @library.global_function
-@jinja2.contextfunction
+@jinja2.pass_context
 def paginate(context, queryset, per_page=10, key='page'):
     '''Returns a paginator object for the given queryset.'''
     request = context['request']
@@ -29,7 +29,7 @@ def paginate(context, queryset, per_page=10, key='page'):
 
 @library.global_function
 @library.render_with('pagination/pagination.html')
-@jinja2.contextfunction
+@jinja2.pass_context
 def render_pagination(context, page_obj, pagination_key=None):
     '''Renders pagination for the given paginator object.'''
     return {
@@ -41,7 +41,7 @@ def render_pagination(context, page_obj, pagination_key=None):
 
 
 @library.global_function
-@jinja2.contextfunction
+@jinja2.pass_context
 def get_pagination_url(context, page_number):
     '''Returns a URL for the given page number.'''
     request = context['request']

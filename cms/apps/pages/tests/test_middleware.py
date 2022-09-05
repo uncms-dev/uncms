@@ -217,7 +217,7 @@ class TestPageMiddleware(TestCase):
             )
 
             MiddlewareURLsTestPage.objects.create(
-                page=self.content_url,
+                page=page,
             )
 
         request = self.factory.get('/raise404/')

@@ -13,7 +13,7 @@ def permalink(obj):
 
 
 @library.global_function
-@jinja2.contextfunction
+@jinja2.pass_context
 def get_permalink_absolute(context, model):
     request = context['request']
 
