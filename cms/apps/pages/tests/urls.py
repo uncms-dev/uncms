@@ -1,5 +1,5 @@
-from django.conf.urls import url
 from django.http import Http404, HttpResponse
+from django.urls import path
 
 
 def view(request, *args, **kwargs):
@@ -9,6 +9,6 @@ def view(request, *args, **kwargs):
 
 
 urlpatterns = [
-    url("^$", view, name="index"),
-    url("^(?P<slug>[^/]+)/$", view, name="detail"),
+    path('', view, name='index'),
+    path('<slug:slug>/', view, name='detail'),
 ]
