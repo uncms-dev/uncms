@@ -13,7 +13,6 @@ from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.functional import cached_property
 from PIL import Image
-from tinypng.api import shrink_file
 
 from .filetypes import get_icon, is_image
 from .widgets import ImageThumbnailWidget
@@ -105,22 +104,6 @@ class File(models.Model):
             if dimensions:
                 self.width, self.height = dimensions
                 super().save(False, True, using=using, update_fields=update_fields)
-
-        # If the file is a PNG or JPG, send it off to TinyPNG to get minified.
-        if self.file and getattr(settings, 'TINYPNG_API_KEY', ''):
-            _, extension = os.path.splitext(self.file.name)
-            extension = extension.lower()[1:]
-
-            if extension in ['png', 'jpg', 'jpeg']:
-                try:
-                    shrink_file(
-                        self.file.path,
-                        api_key=settings.TINYPNG_API_KEY,
-                        out_filepath=self.file.path,
-                    )
-                # If the minification doesn't happen, that's ok.
-                except:  # pylint: disable=bare-except
-                    pass
 
     @cached_property
     def icon(self):

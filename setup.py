@@ -7,7 +7,6 @@ from setuptools import find_packages, setup
 from cms import VERSION
 
 DEPENDENCIES = [
-    'python-magic==0.4.15',
     'requests',
     'Pillow',
     'sorl-thumbnail',
@@ -19,8 +18,7 @@ DEPENDENCIES = [
     'django-watson',
     'django-reversion',
     'django-jinja==2.10.2',
-    'python-magic',
-    'tinypng',
+    'python-magic==0.4.15',
 ]
 
 if platform.python_implementation() == 'PyPy':
