@@ -4,7 +4,7 @@ from django.test import TestCase
 
 from cms.apps.testing_models.models import LinkFieldModel
 from cms.models.fields import (LinkResolutionError, link_validator,
-                             resolve_link)
+                               resolve_link)
 
 
 class TestFields(TestCase):

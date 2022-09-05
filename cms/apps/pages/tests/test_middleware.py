@@ -190,7 +190,7 @@ class TestPageMiddleware(TestCase):
         with search.update_index():
             content_type = ContentType.objects.get_for_model(MiddlewareURLsTestPage)
 
-            self.content_url = Page.objects.create(
+            page = Page.objects.create(
                 title="Foo",
                 slug='urls',
                 parent=self.homepage,
@@ -198,7 +198,7 @@ class TestPageMiddleware(TestCase):
             )
 
             MiddlewareURLsTestPage.objects.create(
-                page=self.content_url,
+                page=page,
             )
 
         request = self.factory.get('/urls/')
@@ -209,7 +209,7 @@ class TestPageMiddleware(TestCase):
         with search.update_index():
             content_type = ContentType.objects.get_for_model(MiddlewareURLsTestPage)
 
-            self.content_url = Page.objects.create(
+            page = Page.objects.create(
                 title="Foo",
                 slug='raise404',
                 parent=self.homepage,

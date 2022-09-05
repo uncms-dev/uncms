@@ -10,8 +10,8 @@ from reversion import create_revision
 from watson import search
 
 from cms.models.managers import publication_manager
-from cms.apps.pages.models import (ContentBase, Page, PageSearchAdapter, PageSitemap,
-                      filter_indexable_pages)
+from cms.apps.pages.models import (ContentBase, Page, PageSearchAdapter,
+                                   PageSitemap, filter_indexable_pages)
 from cms.apps.testing_models.models import (Section, PageContent,
                                             PageContentWithSections)
 

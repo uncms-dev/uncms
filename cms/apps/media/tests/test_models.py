@@ -1,12 +1,12 @@
 import base64
 import random
+import sys
 
 from django.contrib import admin
 from django.contrib.admin.widgets import ForeignKeyRawIdWidget
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import models
 from django.test import TestCase, TransactionTestCase
-from django.utils import six
 from django.utils.timezone import now
 
 
@@ -33,7 +33,7 @@ class TestFile(TransactionTestCase):
         # An invalid JPEG
         self.name_1 = '{}-{}.jpg'.format(
             now().strftime('%Y-%m-%d_%H-%M-%S'),
-            random.randint(0, six.MAXSIZE)
+            random.randint(0, sys.maxsize)
         )
 
         self.obj_1 = File.objects.create(
@@ -44,7 +44,7 @@ class TestFile(TransactionTestCase):
         # Plain text file
         self.name_2 = '{}-{}.txt'.format(
             now().strftime('%Y-%m-%d_%H-%M-%S'),
-            random.randint(0, six.MAXSIZE)
+            random.randint(0, sys.maxsize)
         )
 
         self.obj_2 = File.objects.create(
@@ -55,7 +55,7 @@ class TestFile(TransactionTestCase):
         # A valid GIF.
         self.name_3 = '{}-{}.gif'.format(
             now().strftime('%Y-%m-%d_%H-%M-%S'),
-            random.randint(0, six.MAXSIZE)
+            random.randint(0, sys.maxsize)
         )
 
         base64_string = b'R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=='
@@ -134,7 +134,7 @@ class TestVideo(TransactionTestCase):
         # An invalid JPEG
         self.name_1 = '{}-{}.jpg'.format(
             now().strftime('%Y-%m-%d_%H-%M-%S'),
-            random.randint(0, six.MAXSIZE)
+            random.randint(0, sys.maxsize)
         )
 
         self.obj_1 = File.objects.create(

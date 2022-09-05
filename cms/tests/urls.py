@@ -4,8 +4,5 @@ from django.urls import include, path
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('<int:content_type_id>-<int:object_id>/',
-        shortcut,
-        name='permalink_redirect'
-    ),
+    path('<int:content_type_id>-<int:object_id>/', shortcut, name='permalink_redirect'),
 ]

@@ -1,10 +1,10 @@
 import base64
 import random
+import sys
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import Client, RequestFactory, TestCase
-from django.utils import six
+from django.test import RequestFactory, TestCase
 from django.utils.timezone import now
 from watson import search
 
@@ -12,7 +12,7 @@ from cms.apps.media.models import File
 from cms.apps.testing_models.models import TemplateTagTestPage
 
 from ..middleware import RequestPageManager
-from ..models import ContentBase, Page
+from ..models import Page
 from ..templatetags.pages import (_navigation_entries, absolute_domain_url,
                                   get_meta_description,
                                   get_meta_robots, get_og_image, get_page_url,
@@ -41,7 +41,7 @@ class TestTemplatetags(TestCase):
         # A valid GIF.
         self.name_1 = '{}-{}.gif'.format(
             now().strftime('%Y-%m-%d_%H-%M-%S'),
-            random.randint(0, six.MAXSIZE)
+            random.randint(0, sys.maxsize)
         )
 
         base64_string = b'R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=='

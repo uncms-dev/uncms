@@ -1,22 +1,18 @@
+# pylint:disable=attribute-defined-outside-init
 import json
 import os
 import sys
-from copy import deepcopy
 
 import reversion
-from django.conf import settings
-from django.contrib import admin
 from django.contrib.admin.sites import AdminSite
 from django.contrib.admin.widgets import (FilteredSelectMultiple,
                                           RelatedFieldWidgetWrapper)
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core.exceptions import PermissionDenied
-from django.db import models
 from django.http import Http404, HttpResponseRedirect
 from django.http.request import QueryDict
 from django.test import RequestFactory, TestCase
-from django.utils import six
 from django.utils.text import slugify
 from reversion.models import Version
 from watson import search
@@ -24,10 +20,10 @@ from watson import search
 from cms.apps.pages.admin import (PAGE_FROM_KEY, PAGE_FROM_SITEMAP_VALUE,
                                   PAGE_TYPE_PARAMETER, PageAdmin,
                                   PageContentTypeFilter)
-from cms.apps.pages.models import ContentBase,Page, get_registered_content
+from cms.apps.pages.models import Page, get_registered_content
 from cms.apps.testing_models.admin import (InlineModelInline, InlineModelNoPageInline)
-from cms.apps.testing_models.models import (InlineModel, InlineModelNoPage,
-                                            PageContent, PageContentWithFields)
+from cms.apps.testing_models.models import (InlineModelNoPage, PageContent,
+                                            PageContentWithFields)
 
 
 class MockRequest:
@@ -316,7 +312,7 @@ class TestPageAdmin(TestCase):
         keys = ['title', 'slug', 'parent', 'description', 'inline_model',
                 'requires_authentication', 'publication_date', 'expiry_date',
                 'is_online', 'short_title', 'in_navigation',
-                'hide_from_anonymous',  'browser_title', 'meta_description',
+                'hide_from_anonymous', 'browser_title', 'meta_description',
                 'sitemap_priority', 'sitemap_changefreq', 'robots_index',
                 'robots_follow', 'robots_archive', 'og_title', 'og_description',
                 'og_image', 'twitter_card', 'twitter_title',

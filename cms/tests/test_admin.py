@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from django.test import RequestFactory, TestCase
 
 # `cms.admin` is import here and later on to test the NotRegistered exception.
-import cms.admin
+import cms.admin  # pylint:disable=unused-import
 
 from ..admin import OnlineBaseAdmin
 from ..models import OnlineBase
