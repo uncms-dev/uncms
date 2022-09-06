@@ -1,6 +1,7 @@
 '''Base classes for the CMS admin interface.'''
 from django.conf import settings
 from django.contrib import admin
+from django.db.models import Q
 from django.db.models.deletion import get_candidate_relations_to_delete
 from django.db.utils import DEFAULT_DB_ALIAS
 from django.urls import NoReverseMatch, reverse
@@ -160,6 +161,45 @@ def get_related_objects_admin_urls(obj):
     ]
 
 
+class SEOQualityControlFilter(admin.SimpleListFilter):
+    '''
+    A filter for models deriving from SearchMetaBase, to find pages with
+    incomplete SEO, OpenGraph or Twitter card information.
+
+    Usage:
+
+    class MyModelAdmin(SearchMetaBaseAdmin):
+        list_filter = [SEOQualityControlFilter]
+    '''
+
+    title = 'quality control'
+
+    parameter_name = 'seo_quality_control'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('no-meta-description', 'No meta description'),
+            ('no-browser-title', 'No browser title'),
+            ('incomplete-opengraph-fields', 'Incomplete Open Graph fields'),
+            ('no-og-image', 'No Open Graph image'),
+            ('incomplete-twitter-fields', 'Incomplete Twitter card fields'),
+        )
+
+    def queryset(self, request, queryset):
+        if not self.value():
+            return queryset
+
+        options = {
+            'no-meta-description': lambda qs: qs.filter(meta_description=''),
+            'no-browser-title': lambda qs: qs.filter(browser_title=''),
+            'incomplete-opengraph-fields': lambda qs: qs.filter(Q(og_description='') | Q(og_image=None)),
+            'no-og-image': lambda qs: qs.filter(og_image=None),
+            'incomplete-twitter-fields': lambda qs: qs.filter(Q(twitter_description='') | Q(og_image=None)),
+        }
+
+        return options[self.value()](queryset)
+
+
 class PublishedBaseAdmin(admin.ModelAdmin):
     '''Base admin class for models with publication controls.'''
 
@@ -204,6 +244,8 @@ class SearchMetaBaseAdmin(OnlineBaseAdmin, VersionAdmin, SearchAdmin):
     adapter_cls = SearchMetaBaseSearchAdapter
 
     list_display = ('__str__', 'is_online',)
+
+    list_filter = OnlineBaseAdmin.list_filter + (SEOQualityControlFilter,)
 
     SEO_FIELDS = ('SEO', {
         'fields': ('browser_title', 'meta_description', 'sitemap_priority', 'sitemap_changefreq', 'robots_index', 'robots_follow', 'robots_archive',),
