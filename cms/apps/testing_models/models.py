@@ -1,7 +1,7 @@
 # Test-only models.
 from django.db import models
 
-from cms.apps.media.models import FileRefField, VideoRefField, VideoFileRefField
+from cms.apps.media.models import FileRefField, VideoFileRefField
 from cms.apps.pages.models import ContentBase
 from cms.models import OnlineBase, PageBase, PublishedBase, SearchMetaBase
 from cms.models.base import \
@@ -121,11 +121,6 @@ class MediaTestModel(models.Model):
     )
 
     video_file = VideoFileRefField(
-        blank=True,
-        null=True,
-    )
-
-    video = VideoRefField(
         blank=True,
         null=True,
     )

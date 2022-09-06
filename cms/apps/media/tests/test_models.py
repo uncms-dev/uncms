@@ -5,12 +5,10 @@ import sys
 from django.contrib import admin
 from django.contrib.admin.widgets import ForeignKeyRawIdWidget
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.db import models
 from django.test import TestCase, TransactionTestCase
 from django.utils.timezone import now
 
-
-from cms.apps.media.models import File, FileRefField, Label, Video
+from cms.apps.media.models import File, FileRefField, Label
 from cms.apps.testing_models.models import MediaTestModel
 
 
@@ -125,70 +123,3 @@ class TestFile(TransactionTestCase):
         )
 
         self.assertEqual(field.remote_field.model, 'media.File')
-
-
-class TestVideo(TransactionTestCase):
-
-    def setUp(self):
-        # An invalid JPEG
-        self.name_1 = '{}-{}.jpg'.format(
-            now().strftime('%Y-%m-%d_%H-%M-%S'),
-            random.randint(0, sys.maxsize)
-        )
-
-        self.obj_1 = File.objects.create(
-            title="Foo",
-            file=SimpleUploadedFile(self.name_1, b"data", content_type="image/jpeg")
-        )
-
-    def tearDown(self):
-        self.obj_1.file.delete(False)
-        self.obj_1.delete()
-
-    def test_videofilereffield_init(self):
-        obj = MediaTestModel.objects.create(
-            video_file=self.obj_1
-        )
-
-        self.assertEqual(
-            obj._meta.get_field('video_file').get_limit_choices_to(),
-            {'file__iregex': '\\.(mp4|m4v)$'}
-        )
-
-        obj.delete()
-
-    def test_videoreffield_init(self):
-        video = Video.objects.create(
-            title='Foo',
-            high_resolution_mp4=self.obj_1
-        )
-
-        obj = MediaTestModel.objects.create(
-            video=video
-        )
-
-        field = obj._meta.get_field('video')
-        rel = obj._meta.get_field('video').remote_field
-
-        self.assertEqual(rel.model, Video)
-        self.assertEqual(rel.related_name, '+')
-        self.assertEqual(rel.on_delete, models.PROTECT)
-
-        widget = field.formfield().widget
-        self.assertIsInstance(widget, ForeignKeyRawIdWidget)
-        self.assertEqual(widget.rel, field.remote_field)
-        self.assertEqual(widget.admin_site, admin.site)
-        self.assertIsNone(widget.db)
-
-        obj.delete()
-        video.delete()
-
-    def test_video_unicode(self):
-        video = Video.objects.create(
-            title='Foo',
-            high_resolution_mp4=self.obj_1
-        )
-
-        self.assertEqual(video.__str__(), 'Foo')
-
-        video.delete()

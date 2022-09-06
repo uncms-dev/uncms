@@ -21,7 +21,7 @@ from watson.admin import SearchAdmin
 from cms import permalinks
 from cms.admin import get_related_objects_admin_urls
 from cms.apps.media.forms import FileForm, ImageChangeForm
-from cms.apps.media.models import File, Label, Video
+from cms.apps.media.models import File, Label
 
 
 @admin.register(Label)
@@ -31,15 +31,6 @@ class LabelAdmin(admin.ModelAdmin):
     list_display = ('name',)
 
     search_fields = ('name',)
-
-
-@admin.register(Video)
-class VideoAdmin(admin.ModelAdmin):
-    fieldsets = [
-        (None, {
-            'fields': ['title', 'image', 'high_resolution_mp4', 'low_resolution_mp4', 'external_video'],
-        }),
-    ]
 
 
 @admin.register(File)

@@ -8,11 +8,11 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.http import Http404
-from django.test import LiveServerTestCase, RequestFactory, TestCase, TransactionTestCase
+from django.test import LiveServerTestCase, RequestFactory, TransactionTestCase
 from django.utils.timezone import now
 
-from ..admin import FileAdmin, VideoAdmin
-from ..models import File, Label, Video
+from ..admin import FileAdmin
+from ..models import File, Label
 from ..forms import mime_check
 
 
@@ -45,21 +45,6 @@ class MockSuperUser:
     @staticmethod
     def has_perm(perm):
         return True
-
-
-class TestVideoAdmin(TestCase):
-
-    def setUp(self):
-        self.site = AdminSite()
-        self.video_admin = VideoAdmin(Video, self.site)
-
-        factory = RequestFactory()
-        self.request = factory.get('/')
-        self.request.user = MockSuperUser
-
-    def test_videoadmin_to_field_allowed(self):
-        self.assertTrue(self.video_admin.to_field_allowed(self.request, 'id'))
-        self.assertFalse(self.video_admin.to_field_allowed(self.request, 'foo'))
 
 
 class TestFileAdminBase(TransactionTestCase):

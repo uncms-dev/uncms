@@ -70,9 +70,6 @@ class PageAdmin(PageBaseAdmin):
         (None, {
             'fields': ('title', 'slug', 'parent'),
         }),
-        ('Security', {
-            'fields': ('requires_authentication',),
-        }),
         ('Publication', {
             'fields': ('publication_date', 'expiry_date', 'is_online'),
             'classes': ('collapse',)
@@ -80,7 +77,11 @@ class PageAdmin(PageBaseAdmin):
         ('Navigation', {
             'fields': ('short_title', 'in_navigation', 'hide_from_anonymous'),
             'classes': ('collapse',)
-        })
+        }),
+        ('Security', {
+            'fields': ('requires_authentication',),
+            'classes': ('collapse',)
+        }),
     ]
 
     new_fieldsets.extend(PageBaseAdmin.fieldsets)
