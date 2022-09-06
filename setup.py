@@ -39,10 +39,9 @@ setup(
             'flake8==3.7.9',
             'isort==4.3.21',
             'pylint==2.4.4',
-            'pytest>=3.8',
+            'pytest==7.1.3',
             'pytest-cov',
-            'pytest-django',
-            'pytest-xdist',
+            'pytest-django==4.5.2',
         ],
     },
     classifiers=[
