@@ -23,9 +23,9 @@ DEPENDENCIES = [
 
 
 setup(
-    name='onespacemedia-cms',
+    name='uncms',
     version='.'.join(str(n) for n in VERSION),
-    url='https://github.com/onespacemedia/cms',
+    url='https://github.com/lewiscollard/uncms',
     author='Lewis Collard',
     author_email='lewis@lewiscollard.com',
     license='BSD',
