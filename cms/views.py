@@ -1,14 +1,8 @@
-'''Views used by the CMS.'''
+"""
+Helper views for UnCMS.
+"""
 
-from django.shortcuts import render
 from django.views import generic
-
-
-def handler500(request):
-    '''Renders a pretty error page.'''
-    response = render(request, '500.html', {})
-    response.status_code = 500
-    return response
 
 
 class TextTemplateView(generic.TemplateView):
