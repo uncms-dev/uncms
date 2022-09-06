@@ -32,7 +32,7 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
-    description='CMS used by Onespacemedia',
+    description='Not quite a content management system.',
     install_requires=DEPENDENCIES,
     extras_require={
         'dev': [
