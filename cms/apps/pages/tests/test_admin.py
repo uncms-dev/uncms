@@ -320,7 +320,7 @@ class TestPageAdmin(TestCase):
                 'is_online', 'short_title', 'in_navigation',
                 'hide_from_anonymous',
                 'requires_authentication',
-                'browser_title',  'meta_description',
+                'browser_title', 'meta_description',
                 'sitemap_priority', 'sitemap_changefreq', 'robots_index',
                 'robots_follow', 'robots_archive', 'og_title', 'og_description',
                 'og_image', 'twitter_card', 'twitter_title',
