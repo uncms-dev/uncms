@@ -51,7 +51,7 @@ class FileAdmin(VersionAdmin, SearchAdmin):
         }),
     ]
     filter_horizontal = ['labels']
-    list_display = ['get_number', 'get_preview', 'get_title', 'get_alt_text', 'get_size']
+    list_display = ['get_preview', 'get_title', 'get_alt_text', 'get_size', 'id']
     list_display_links = list_display
     list_filter = ['labels']
     readonly_fields = ['used_on']
@@ -64,19 +64,12 @@ class FileAdmin(VersionAdmin, SearchAdmin):
             kwargs['form'] = FileForm
         return super().get_form(request, obj=obj, change=change, **kwargs)
 
-    def get_number(self, obj):
-        return obj.pk
-
-    get_number.admin_order_field = 'pk'
-    get_number.short_description = 'number'
-
+    @admin.display(description='alt text')
     def get_alt_text(self, obj):
         if not obj.alt_text:
             return ''
 
         return obj.alt_text
-
-    get_alt_text.short_description = 'Alt text'
 
     # Custom actions.
 
@@ -112,6 +105,7 @@ class FileAdmin(VersionAdmin, SearchAdmin):
         return actions
 
     # Custom display routines.
+    @admin.display(description='size')
     def get_size(self, obj):
         '''Returns the size of the media in a human-readable format.'''
         try:
@@ -119,8 +113,7 @@ class FileAdmin(VersionAdmin, SearchAdmin):
         except OSError:
             return '0 bytes'
 
-    get_size.short_description = 'size'
-
+    @admin.display(description='preview')
     def get_preview(self, obj):
         '''Generates a thumbnail of the image, falling back to an appropriate
         icon if it is not an image file or if thumbnailing fails.'''
@@ -149,13 +142,11 @@ class FileAdmin(VersionAdmin, SearchAdmin):
             icon,
             obj.title
         )
-    get_preview.short_description = 'preview'
 
+    @admin.display(description='title', ordering='title')
     def get_title(self, obj):
         '''Returns a truncated title of the object.'''
         return Truncator(obj.title).words(8)
-    get_title.admin_order_field = 'title'
-    get_title.short_description = 'title'
 
     def used_on(self, obj=None):
         context = {}
