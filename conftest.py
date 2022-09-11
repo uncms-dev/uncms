@@ -16,11 +16,6 @@ def django_db_setup(django_db_setup, django_db_blocker):
         cur.execute('ALTER SEQUENCE pages_page_id_seq RESTART WITH %s;', [random.randint(100, 200000)])
 
 
-if platform.python_implementation() == 'PyPy':
-    from psycopg2cffi import compat  # pylint: disable=import-error
-    compat.register()
-
-
 def pytest_configure():
     settings.configure(
         SITE_DOMAIN='example.com',
