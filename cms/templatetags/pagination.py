@@ -32,12 +32,13 @@ def paginate(context, queryset, per_page=10, key='page'):
 @jinja2.pass_context
 def render_pagination(context, page_obj, pagination_key=None):
     '''Renders pagination for the given paginator object.'''
-    return {
-        'request': context['request'],
+    new_context = dict(context)
+    new_context.update({
         'page_obj': page_obj,
         'paginator': page_obj.paginator,
         'pagination_key': pagination_key or getattr(page_obj, '_pagination_key', 'page')
-    }
+    })
+    return new_context
 
 
 @library.global_function
