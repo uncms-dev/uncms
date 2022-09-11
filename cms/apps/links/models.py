@@ -23,10 +23,5 @@ class Link(ContentBase):
         help_text='The URL where the user will be redirected.',
     )
 
-    new_window = models.BooleanField(
-        help_text='Open the page in a new window.',
-        default=False,
-    )
-
     def __str__(self):
         return self.page.title

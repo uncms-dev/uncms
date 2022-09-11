@@ -65,7 +65,6 @@ class LinkField(models.CharField):
     '''A field that contains an internal or external link.'''
 
     def __init__(self, *args, **kwargs):
-        '''Initializes the LinkField.'''
         kwargs.setdefault('max_length', 1000)
         super().__init__(*args, **kwargs)
         self.validators.append(link_validator)
