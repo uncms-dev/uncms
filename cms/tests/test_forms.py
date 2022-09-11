@@ -8,17 +8,6 @@ from django.utils.html import conditional_escape
 from ..forms import HtmlWidget
 
 
-class MockSuperUser:
-
-    pk = 1
-
-    def check_password(self, password):
-        return True
-
-    def has_perm(self, perm):
-        return True
-
-
 class TestForms(TestCase):
 
     def test_htmlwidget_init(self):
