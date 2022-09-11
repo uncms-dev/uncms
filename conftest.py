@@ -22,9 +22,9 @@ def pytest_configure():
         DATABASES={
             'default': {
                 'ENGINE': 'django.db.backends.postgresql_psycopg2',
-                'NAME': 'cms',
+                'NAME': 'uncms_test',
                 'TEST': {
-                    'NAME': 'cms',
+                    'NAME': 'uncms_test',
                 }
             }
         },
