@@ -41,5 +41,6 @@ class PaginationTest(TestCase):
         self.assertTrue(len(pagination_response) > 0)
 
     def test_pagination_url(self):
-        self.assertEqual(get_pagination_url({'request': self.request}, 1), '/')
-        self.assertEqual(get_pagination_url({'request': self.request}, 2), '/?page=2')
+        for request in [self.factory.get('/'), self.factory.get('/?page=9001')]:
+            self.assertEqual(get_pagination_url({'request': request}, 1), '/')
+            self.assertEqual(get_pagination_url({'request': request}, 2), '/?page=2')
