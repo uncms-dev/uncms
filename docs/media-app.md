@@ -58,11 +58,11 @@ Label has only one field: a `title`, which is also used as the ordering field.
 Three useful fields in the media app make it easier to integrate the media module into your project.
 You should probably use these any time you want to reference a File.
 
-`cms.apps.media.models.FileRefField` provides a widget which allows a user to select a file from the media library.
+`cms.apps.media.fields.FileRefField` provides a widget which allows a user to select a file from the media library.
 This is a simple subclass of Django's `ForeignKey` that uses Django's `ForeignKeyRawIdWidget` -
 if you're anything like us, your media libraries can get large enough to make dropdowns unusable.
 
-`cms.apps.media.models.ImageRefField` has the same functionality as `FileRefField`, but files are filtered to only show images (based on the extension of the file).
+`cms.apps.media.fields.ImageRefField` has the same functionality as `FileRefField`, but files are filtered to only show images (based on the extension of the file).
 This will also display a small preview of the image in the widget in the admin.
 
-`cms.apps.media.models.VideoFileRefField` has the same functionality as `FileRefField`, but the files are filtered to only show videos.
+`cms.apps.media.fields.VideoFileRefField` has the same functionality as `FileRefField`, but the files are filtered to only show videos.
