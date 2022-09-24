@@ -100,17 +100,6 @@ class PageAdmin(PageBaseAdmin):
 
     search_adapter_cls = PageSearchAdapter
 
-    def get_object(self, request, object_id, from_field=None):
-        queryset = super().get_queryset(request)
-        model = queryset.model
-        field = model._meta.pk if from_field is None else model._meta.get_field(
-            from_field)
-        try:
-            object_id = field.to_python(object_id)
-            return queryset.get(**{field.name: object_id})
-        except (model.DoesNotExist, ValidationError, ValueError):
-            return None
-
     def _register_page_inline(self, model):
         '''Registers the given page inline with reversion.'''
         self._reversion_autoregister(model, follow=['page'])
