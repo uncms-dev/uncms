@@ -1,6 +1,5 @@
 import json
 
-from django import VERSION
 from django.conf import settings
 from django.test import TestCase
 from django.utils.html import conditional_escape
