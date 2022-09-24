@@ -15,7 +15,7 @@ from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.contrib.auth import get_permission_codename
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.staticfiles.storage import staticfiles_storage
-from django.core.exceptions import PermissionDenied, ValidationError
+from django.core.exceptions import PermissionDenied
 from django.db import models, transaction
 from django.db.models import F
 from django.http import (Http404, HttpResponse, HttpResponseForbidden,
