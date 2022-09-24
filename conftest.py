@@ -82,7 +82,6 @@ def pytest_configure():
                         'django.template.context_processors.static',
                         'django.contrib.messages.context_processors.messages',
                         'django.template.context_processors.request',
-                        'cms.context_processors.settings',
                         'cms.apps.pages.context_processors.pages',
                     ]
                 }
@@ -102,7 +101,6 @@ def pytest_configure():
                         'django.template.context_processors.static',
                         'django.contrib.messages.context_processors.messages',
                         'django.template.context_processors.request',
-                        'cms.context_processors.settings',
                         'cms.apps.pages.context_processors.pages',
                     ]
                 }
