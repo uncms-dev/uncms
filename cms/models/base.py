@@ -66,8 +66,9 @@ class OnlineBase(PublishedBase):
     )
 
     def get_preview_url(self):
+        # Not all derivatives of OnlineBase will have a URL.
         if not hasattr(self, 'get_absolute_url'):
-            return None
+            return None  # pragma: no cover
 
         return f'{self.get_absolute_url()}?preview={path_token_generator.make_token(self.get_absolute_url())}'
 
