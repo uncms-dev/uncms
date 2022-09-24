@@ -11,6 +11,6 @@
 * [The HTML editor](html-editor.md)
 * [django-watson integration](watson-integration.md)
 * [Performance notes](performance.md)
-* [Design philosophy](philosophy.md)
+* [Philosophy](philosophy.md)
 * [History](history.md)
 * [About this documentation](DOCUMENTATION-README.md)

@@ -16,8 +16,9 @@ Accessing the `content` property of a page causes at least one database query, a
 Because it is a [cached property](https://docs.djangoproject.com/en/dev/ref/utils/#django.utils.functional.cached_property),
 subsequent accesses of it are close to free, but your first access of it is not.
 
-Treating it as free might be damaging your performance if you are accessing it when rendering the navigation.
-In this case, you should only access `Page.content` when you know you need to.
+Treating it as free might be damaging your performance.
+A previously-common case of this would be accessing `page.content` for every item in the navigation, for example.
+In this case, you should find some means to only access `Page.content` when you know you need to.
 
 ## Avoid expensive 404 pages
 

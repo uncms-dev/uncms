@@ -55,7 +55,7 @@ If a change _facilitates_ adding useful features to projects that use UnCMS, it 
 
 ## Performance matters
 
-Having a performant UnCMS site should not depend on hot-rodding tricks such as caching.
+Having a [performant UnCMS site](performance.md) should not depend on hot-rodding tricks such as caching.
 Local development should be as fast and as easy to set up as production development.
 
 Of course, it should always play nicely with caching tools and other hot-rodding tricks, too.

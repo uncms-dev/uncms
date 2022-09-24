@@ -11,7 +11,7 @@ The codebase did, however, suffer from an accretion of cruft and unnecessary fea
 Yet, at its core, there was always a tiny, elegant not-quite-a-CMS waiting to get out.
 
 Development on onespacemedia-cms halted in 2021, and no updates were made for Django versions after 2.2.
-Over the years since the current maintainer left Onespacemedia, he occasionally found himself needing something that looked very much like onespacemedia-cms for small personal projects.
+In the years since the current maintainer left Onespacemedia, he occasionally found himself needing something that looked very much like onespacemedia-cms for small personal projects.
 Over a period of some time, I ported it to a modern LTS version of Django, removed a pile of features, and added a few features that are useful for most projects.
 I released this work publicly in 2022.
 
