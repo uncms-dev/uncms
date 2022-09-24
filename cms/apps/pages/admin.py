@@ -9,7 +9,7 @@ their icons.
 from functools import cmp_to_key
 
 from django import forms
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.contrib.admin.options import IS_POPUP_VAR
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.contrib.auth import get_permission_codename
@@ -490,7 +490,7 @@ class PageAdmin(PageBaseAdmin):
         admin_view = self.admin_site.admin_view
         return [
             path('sitemap.json', admin_view(self.sitemap_json_view), name='pages_page_sitemap_json'),
-            path('move-page/', admin_view(self.move_page_view), name='pages_page_move_page'),
+            path('move-page/<page_id>/', admin_view(self.move_page_view), name='pages_page_move_page'),
         ] + super().get_urls()
 
     def sitemap_json_view(self, request):
@@ -501,7 +501,6 @@ class PageAdmin(PageBaseAdmin):
         data = {
             'canAdd': self.has_add_permission(request),
             'createHomepageUrl': reverse('admin:pages_page_add') + '?{0}={1}'.format(PAGE_FROM_KEY, PAGE_FROM_SITEMAP_VALUE),
-            'moveUrl': reverse('admin:pages_page_move_page') or None,
             'addUrl': reverse('admin:pages_page_add') + '?{0}={1}&parent=__id__'.format(PAGE_FROM_KEY, PAGE_FROM_SITEMAP_VALUE),
             'changeUrl': reverse('admin:pages_page_change', args=('__id__',)) + '?{0}={1}'.format(PAGE_FROM_KEY, PAGE_FROM_SITEMAP_VALUE),
             'deleteUrl': reverse('admin:pages_page_delete', args=('__id__',)) + '?{0}={1}'.format(PAGE_FROM_KEY, PAGE_FROM_SITEMAP_VALUE),
@@ -519,6 +518,7 @@ class PageAdmin(PageBaseAdmin):
                     'children': children,
                     'canChange': self.has_change_permission(request, page),
                     'canDelete': self.has_delete_permission(request, page),
+                    'moveUrl': reverse('admin:pages_page_move_page', args=[page.pk]),
                 }
             data['entries'] = [sitemap_entry(homepage)]
         else:
@@ -526,7 +526,7 @@ class PageAdmin(PageBaseAdmin):
         return JsonResponse(data)
 
     @transaction.atomic
-    def move_page_view(self, request):
+    def move_page_view(self, request, page_id):
         '''Moves a page up or down.'''
         # Check that the user has permission to move pages.
         if not self.has_change_permission(request):
@@ -547,7 +547,7 @@ class PageAdmin(PageBaseAdmin):
         )
 
         # Get the page.
-        page = existing_pages[int(request.POST['page'])]
+        page = existing_pages[int(page_id)]
         parent_id = page['parent_id']
 
         # Get all the siblings.
@@ -595,8 +595,12 @@ class PageAdmin(PageBaseAdmin):
             right=(F('right') - second_branch_width) * -1,
         )
 
-        # Report back.
-        return HttpResponse('Page #%s was moved %s.' % (page['id'], direction))
+        # if we've managed to POST, "next" should always be safe (if we've
+        # managed to do a POST with an attacker-supplied URL we've got other
+        # problems like CSRF protection not working)
+        next_url = request.POST.get('next') or reverse('admin:index')
+        messages.success(request, f'Page was moved {direction}')
+        return redirect(next_url)
 
 
 admin.site.register(Page, PageAdmin)

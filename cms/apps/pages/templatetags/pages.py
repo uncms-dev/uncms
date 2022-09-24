@@ -2,6 +2,7 @@
 import jinja2
 from django import template
 from django.conf import settings
+from django.urls import reverse
 from django.utils.html import escape
 from django_jinja import library
 from jinja2.filters import do_striptags
@@ -51,6 +52,31 @@ def _navigation_entries(context, pages, section=None, is_json=False):
         entries = [section_entry] + list(entries)
 
     return entries
+
+
+@register.simple_tag(takes_context=True)
+def admin_sitemap_entries(context):
+    user = context['request'].user
+    can_change = user.has_perm('pages.change_page')
+    can_view = user.has_perm('pages.view_page') or can_change
+    def sitemap_entry(page):
+        return {
+            'admin_url': reverse('admin:pages_page_change', args=[page.pk]),
+            'can_move': can_change,
+            'can_view': can_view,
+            'children': [sitemap_entry(child_page) for child_page in page.children],
+            'id': page.pk,
+            'in_navigation': page.in_navigation,
+            'is_homepage': page.parent_id is None,
+            'is_online': page.is_online,
+            'title': str(page),
+        }
+
+    return {
+        # Note that we must not use request.pages here - we want to be able
+        # to render the sitemap after it has changed.
+        'pages': [sitemap_entry(Page.objects.get_homepage())]
+    }
 
 
 @library.global_function

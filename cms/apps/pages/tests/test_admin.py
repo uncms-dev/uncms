@@ -74,6 +74,9 @@ class TestPageAdmin(TestCase):
         request.method = method
         request.path = '/'
         request.resolver_match = False
+        request.session = {}
+        messages = FallbackStorage(request)
+        setattr(request, '_messages', messages)
 
         if page_type:
             request.GET['type'] = page_type
@@ -537,10 +540,14 @@ class TestPageAdmin(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_pageadmin_sitemap_json_view(self):
+        # pylint:disable=fixme
+        # FIXME: This is a bit of a silly test. Why is it comparing against a
+        # giant half-kilobyte blob of hard-coded JSON? Can we do a more
+        # meaningful test here?
         request = self._build_request()
         response = self.page_admin.sitemap_json_view(request)
 
-        sitemap = '{"createHomepageUrl": "/admin/pages/page/add/?from=sitemap", "addUrl": "/admin/pages/page/add/?from=sitemap&parent=__id__", "canAdd": true, "changeUrl": "/admin/pages/page/__id__/change/?from=sitemap", "entries": [{"isOnline": true, "canDelete": true, "title": "Homepage", "canChange": true, "id": ' + str(self.homepage.pk) + ', "children": []}], "deleteUrl": "/admin/pages/page/__id__/delete/?from=sitemap", "moveUrl": "/admin/pages/page/move-page/"}'
+        sitemap = '{"createHomepageUrl": "/admin/pages/page/add/?from=sitemap", "addUrl": "/admin/pages/page/add/?from=sitemap&parent=__id__", "canAdd": true, "changeUrl": "/admin/pages/page/__id__/change/?from=sitemap", "entries": [{"isOnline": true, "canDelete": true, "title": "Homepage", "canChange": true, "id": ' + str(self.homepage.pk) + ', "moveUrl": "/admin/pages/page/move-page/' + str(self.homepage.pk) + '/", "children": []}], "deleteUrl": "/admin/pages/page/__id__/delete/?from=sitemap"}'
 
         self.assertDictEqual(json.loads(response.content.decode()), json.loads(sitemap))
         self.assertEqual(response['Content-Type'], "application/json")
@@ -562,27 +569,26 @@ class TestPageAdmin(TestCase):
 
         request.pages.homepage = Page.objects.get(slug='homepage')
         response = self.page_admin.sitemap_json_view(request)
-        sitemap = '{"createHomepageUrl": "/admin/pages/page/add/?from=sitemap", "addUrl": "/admin/pages/page/add/?from=sitemap&parent=__id__", "canAdd": true, "changeUrl": "/admin/pages/page/__id__/change/?from=sitemap", "entries": [{"isOnline": true, "canDelete": true, "title": "Homepage", "canChange": true, "id": ' + str(self.homepage.pk) + ', "children": [{"isOnline": true, "canDelete": true, "title": "Content page", "canChange": true, "id": ' + str(self.content_page.pk) + ', "children": []}]}], "deleteUrl": "/admin/pages/page/__id__/delete/?from=sitemap", "moveUrl": "/admin/pages/page/move-page/"}'
+        sitemap = '{"createHomepageUrl": "/admin/pages/page/add/?from=sitemap", "addUrl": "/admin/pages/page/add/?from=sitemap&parent=__id__", "canAdd": true, "changeUrl": "/admin/pages/page/__id__/change/?from=sitemap", "entries": [{"isOnline": true, "canDelete": true, "title": "Homepage", "canChange": true, "id": ' + str(self.homepage.pk) + ', "moveUrl": "/admin/pages/page/move-page/' + str(self.homepage.pk) + '/", "children": [{"isOnline": true, "canDelete": true, "title": "Content page", "canChange": true, "id": ' + str(self.content_page.pk) + ', "moveUrl": "/admin/pages/page/move-page/' + str(self.content_page.pk) + '/", "children": []}]}], "deleteUrl": "/admin/pages/page/__id__/delete/?from=sitemap"}'
         self.assertDictEqual(json.loads(response.content.decode()), json.loads(sitemap))
         self.assertEqual(response['Content-Type'], "application/json")
 
         request.pages.homepage = None
         response = self.page_admin.sitemap_json_view(request)
-        sitemap = '{"createHomepageUrl": "/admin/pages/page/add/?from=sitemap", "addUrl": "/admin/pages/page/add/?from=sitemap&parent=__id__", "canAdd": true, "changeUrl": "/admin/pages/page/__id__/change/?from=sitemap", "entries": [], "deleteUrl": "/admin/pages/page/__id__/delete/?from=sitemap", "moveUrl": "/admin/pages/page/move-page/"}'
+        sitemap = '{"createHomepageUrl": "/admin/pages/page/add/?from=sitemap", "addUrl": "/admin/pages/page/add/?from=sitemap&parent=__id__", "canAdd": true, "changeUrl": "/admin/pages/page/__id__/change/?from=sitemap", "entries": [], "deleteUrl": "/admin/pages/page/__id__/delete/?from=sitemap"}'
         self.assertDictEqual(json.loads(response.content.decode()), json.loads(sitemap))
         self.assertEqual(response['Content-Type'], "application/json")
 
     def test_pageadmin_move_page_view(self):
         request = self._build_request()
-        request.POST['page'] = self.homepage.pk
         request.POST['direction'] = 'up'
-        response = self.page_admin.move_page_view(request)
+        response = self.page_admin.move_page_view(request, self.homepage.pk)
         self.assertEqual(response.status_code, 200)
 
         self.assertEqual(response.content, b"Page could not be moved, as nothing to swap with.")
 
         request.POST['direction'] = 'down'
-        response = self.page_admin.move_page_view(request)
+        response = self.page_admin.move_page_view(request, self.homepage.pk)
         self.assertEqual(response.status_code, 200)
 
         self.assertEqual(response.content, b"Page could not be moved, as nothing to swap with.")
@@ -591,9 +597,6 @@ class TestPageAdmin(TestCase):
 
         self.orig_stderr = sys.stderr
         sys.stderr = open(os.devnull, 'w')
-
-        with self.assertRaises(ValueError):
-            self.page_admin.move_page_view(request)
 
         sys.stderr = self.orig_stderr
 
@@ -635,9 +638,8 @@ class TestPageAdmin(TestCase):
         self.assertEqual(content_page_2.right, 5)
 
         # Move the page
-        request.POST['page'] = content_page_1.pk
         request.POST['direction'] = 'down'
-        response = self.page_admin.move_page_view(request)
+        response = self.page_admin.move_page_view(request, content_page_1.pk)
 
         self.homepage = Page.objects.get(pk=self.homepage.pk)
         content_page_1 = Page.objects.get(pk=content_page_1.pk)
@@ -650,11 +652,10 @@ class TestPageAdmin(TestCase):
         self.assertEqual(content_page_2.left, 2)
         self.assertEqual(content_page_2.right, 3)
 
-        self.assertEqual(response.content, bytes("Page #" + str(content_page_1.pk) + " was moved down.", 'utf-8'))
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 302)
 
         request.user.has_perm = lambda x: False
-        response = self.page_admin.move_page_view(request)
+        response = self.page_admin.move_page_view(request, self.homepage.pk)
         self.assertEqual(response.status_code, 403)
 
     def test_pagecontenttypefilter_queryset(self):
