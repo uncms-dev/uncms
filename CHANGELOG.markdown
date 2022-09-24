@@ -15,3 +15,4 @@ This is the first release of UnCMS, forked from version onespacemedia-cms 4.4.
 * The canonical location of `ImageRefField` is now `cms.apps.media.fields`. This permits easier project-local overrides of the media app, because UnCMS's `Page` and helper models no longer import from `cms.apps.media.models`.
 * `cms.views.handler500` has been retired, as it does nothing more than Django's built-in 500 view.
 * The old pages dashboard item has been retired. It has a new one that works with no Javascript! 🎉
+* Probably fix the long-standing bug where the page tree gets randomly mangled.

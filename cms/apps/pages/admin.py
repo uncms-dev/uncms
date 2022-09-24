@@ -602,6 +602,28 @@ class PageAdmin(PageBaseAdmin):
         messages.success(request, f'Page was moved {direction}')
         return redirect(next_url)
 
+    def publish_selected(self, request, queryset):
+        """
+        publish_selected (and also unpublish_selected) on this ModelAdmin are
+        overrides of the OnlineBaseAdmin methods of the same name. This is
+        because using `.update` as OnlineBaseAdmin does, does not go through
+        the save method, and the save method does a bunch of things to ensure
+        that the page tree is in a sane state.
+
+        Instead, we do it the slow way of looping through each instance and
+        calling save().
+        """
+        for obj in queryset:
+            obj.is_online = True
+            obj.save()
+    publish_selected.short_description = 'Place selected %(verbose_name_plural)s online'
+
+    def unpublish_selected(self, request, queryset):
+        for obj in queryset:
+            obj.is_online = False
+            obj.save()
+    unpublish_selected.short_description = 'Take selected %(verbose_name_plural)s offline'
+
 
 admin.site.register(Page, PageAdmin)
 page_admin = admin.site._registry[Page]
