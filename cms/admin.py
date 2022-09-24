@@ -203,8 +203,6 @@ class SEOQualityControlFilter(admin.SimpleListFilter):
 class PublishedBaseAdmin(admin.ModelAdmin):
     '''Base admin class for models with publication controls.'''
 
-    change_form_template = 'admin/cms/publishedmodel/change_form.html'
-
 
 class OnlineBaseAdmin(PublishedBaseAdmin):
     '''Base admin class for OnlineModelBase instances.'''
