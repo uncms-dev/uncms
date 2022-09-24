@@ -19,22 +19,13 @@ class TestForms(TestCase):
 
         media = widget.get_media()
 
-        if (VERSION[0], VERSION[1]) == (1, 11):
-            self.assertDictEqual(media.__dict__, {
-                '_css': {},
-                '_js': [
-                    '/static/cms/js/tinymce/tinymce.min.js',
-                    '/static/cms/js/jquery.cms.wysiwyg.js',
-                ],
-            })
-        else:
-            self.assertDictEqual(media.__dict__, {
-                '_css_lists': [{}],
-                '_js_lists': [[
-                    '/static/cms/js/tinymce/tinymce.min.js',
-                    '/static/cms/js/jquery.cms.wysiwyg.js',
-                ]],
-            })
+        self.assertDictEqual(media.__dict__, {
+            '_css_lists': [{}],
+            '_js_lists': [[
+                '/static/cms/js/tinymce/tinymce.min.js',
+                '/static/cms/js/jquery.cms.wysiwyg.js',
+            ]],
+        })
 
     def test_htmlwidget_render(self):
         # Sorry for the long strings in this one..
