@@ -100,8 +100,6 @@ class PageAdmin(PageBaseAdmin):
 
     search_adapter_cls = PageSearchAdapter
 
-    change_form_template = 'admin/pages/page/change_form.html'
-
     def get_object(self, request, object_id, from_field=None):
         queryset = super().get_queryset(request)
         model = queryset.model
