@@ -442,6 +442,9 @@ class PageAdmin(PageBaseAdmin):
                 'title': 'Select page type',
                 'content_types': content_types,
                 'is_popup': request.GET.get(IS_POPUP_VAR, False),
+                'opts': self.model._meta,
+                'add': True,
+                'has_view_permission': self.has_view_permission(request, obj=None)
             }
 
             return render(request, 'admin/pages/page/select_page_type.html', context)
