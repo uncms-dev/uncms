@@ -265,7 +265,7 @@ class PageBaseAdmin(SearchMetaBaseAdmin):
 
     prepopulated_fields = {'slug': ('title',), }
 
-    search_fields = ('title', 'short_title', 'meta_description',)
+    search_fields = ('title', 'meta_description',)
 
     adapter_cls = PageBaseSearchAdapter
 
