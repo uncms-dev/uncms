@@ -15,9 +15,11 @@ from cms.models.managers import (
 
 class PathTokenGenerator:
     '''
-        A simple token generator that takes a path and generates a hash for it.
-        Intended for use by the CMS publication middleware and OnlineBase derivatives.
-        In reality it just takes a string so it can be used for other purposes.
+    A simple token generator that takes a path and generates a hash for it.
+    Intended for use by the CMS publication middleware and OnlineBase
+    subclasses.
+
+    In reality it just takes a string; it can be used for other purposes.
     '''
     key_salt = "django.contrib.auth.tokens.PasswordResetTokenGenerator"
 
@@ -321,18 +323,6 @@ class PageBase(SearchMetaBase):
         ),
     )
 
-    # SEO fields.
-
-    def get_context_data(self):
-        """Returns the SEO context data for this page."""
-        context_data = super().get_context_data()
-        context_data.update({
-            "title": self.browser_title or self.title,
-            "header": self.title,
-        })
-        return context_data
-
-    # Base model methods.
 
     def __str__(self):
         """
@@ -340,6 +330,17 @@ class PageBase(SearchMetaBase):
         title.
         """
         return self.short_title or self.title
+
+    def get_context_data(self):
+        """
+        Returns the SEO context data for this page.
+        """
+        context_data = super().get_context_data()
+        context_data.update({
+            "title": self.browser_title or self.title,
+            "header": self.title,
+        })
+        return context_data
 
     class Meta:
         abstract = True
