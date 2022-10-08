@@ -16,14 +16,6 @@
     <script type="text/javascript" src="{% static 'cms/js/imgeditor/image-editor.js' %}"></script>
   {% endif %}
 
-  {% if is_popup %}
-    <style>
-      body {
-        background-color: #FFF;
-      }
-    </style>
-  {% endif %}
-
   {% if not original %}
     {# Prepopulate the title with the name of the file, for new files. #}
     <script>
