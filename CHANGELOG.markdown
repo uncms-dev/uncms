@@ -8,6 +8,7 @@ This is the first release of UnCMS, forked from version onespacemedia-cms 4.4.
 * Django 3.2 is now supported.
 * Page localisation support has been removed. Its core idea was fatally flawed; it had an unjustified assumption that a user's _country_ would determine what language they preferred. On top of that, it was undocumented, and it never worked all that well. Not having more than one version of a page is now a core part of the UnCMS philosophy.
 * Configuration is now handled in a single `UNCMS` dictionary in your config file. `WYSIWYG_OPTIONS` and `PUBLICATION_MIDDLEWARE_EXCLUDE_URLS` now have sensible defaults. If you have changed any of the defaults you may wish to move them into the `UNCMS` configuration dictionary.
+* It is now possible to use a different key for path signing, rather than `SECRET_KEY`.
 * Paths in `PUBLICATION_MIDDLEWARE_EXCLUDE_URLS` must now begin with a forward slash.
 * TinyPNG support has been removed. Image size reduction is better implemented per-project with post-save hooks, if it is needed.
 * Django Jet support has been removed, because Django Jet is dead. Not being tied to any particular admin skin, and being made with the stock Django admin as a first-class citizen, is now a core part of the UnCMS philosophy.

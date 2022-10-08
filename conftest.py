@@ -107,7 +107,7 @@ def pytest_configure():
             }
         ],
         MIDDLEWARE=[],
-        SECRET_KEY=secrets.token_hex(32),
+        SECRET_KEY='KNOWN_FIXED_VALUE_IS_FINE',
         PUBLICATION_MIDDLEWARE_EXCLUDE_URLS=['/admin/'],
         UNCMS={}
     )

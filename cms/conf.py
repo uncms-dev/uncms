@@ -12,6 +12,7 @@ class AppSettings:
     default_settings = {
         'MEDIA_FILE_MODEL': 'media.File',
         'ONLINE_DEFAULT': True,
+        'PATH_SIGNING_SECRET': settings.SECRET_KEY,
         'PUBLICATION_MIDDLEWARE_EXCLUDE_URLS': [r'^/admin/'],
         'WYSIWYG_OPTIONS': {
             'height': 500,

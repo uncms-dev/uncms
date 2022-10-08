@@ -5,6 +5,7 @@ from django.utils.crypto import constant_time_compare, salted_hmac
 from watson.search import SearchAdapter
 
 from cms.apps.media.fields import ImageRefField
+from cms.conf import defaults
 from cms.models.managers import (
     OnlineBaseManager,
     PageBaseManager,
@@ -21,12 +22,13 @@ class PathTokenGenerator:
 
     In reality it just takes a string; it can be used for other purposes.
     '''
-    key_salt = "django.contrib.auth.tokens.PasswordResetTokenGenerator"
+    key_salt = 'cms.apps.pages.models.base.PathTokenGenerator'
 
     def make_token(self, path):
         return salted_hmac(
-            self.key_salt,
-            path,
+            key_salt=self.key_salt,
+            value=path,
+            secret=defaults.PATH_SIGNING_SECRET,
         ).hexdigest()[::2]
 
     def check_token(self, token, path):

@@ -1,4 +1,6 @@
+import pytest
 from django.test import RequestFactory, TestCase
+from django.test.utils import override_settings
 
 from cms.apps.testing_models.models import (
     PageBaseModel,
@@ -7,7 +9,6 @@ from cms.apps.testing_models.models import (
     SearchMetaBaseModel,
     SearchMetaBaseSearchAdapter
 )
-from cms.models.base import path_token_generator
 
 
 class ModelsBaseTest(TestCase):
@@ -87,10 +88,12 @@ class ModelsBaseTest(TestCase):
             'twitter_image': None
         })
 
-    def test_get_preview_url(self):
-        obj = PageBaseModel.objects.create()
 
-        self.assertEqual(
-            '/?preview={}'.format(path_token_generator.make_token('/')),
-            obj.get_preview_url()
-        )
+@pytest.mark.django_db
+def test_get_preview_url():
+    obj = PageBaseModel.objects.create()
+
+    assert obj.get_preview_url() == '/?preview=8b8dd47f46831cc58507'
+
+    with override_settings(UNCMS={'PATH_SIGNING_SECRET': 'bonk'}):
+        assert obj.get_preview_url() == '/?preview=1e4643d03f930d8c78bc'

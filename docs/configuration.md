@@ -38,6 +38,19 @@ Note that this may not play nicely with using `HtmlField`.
 This controls whether a new `Page` (and anything else that inherits from OnlineBase) will have `is_online` set to True by default when creating new objects in the admin.
 Set it to `False` to make new pages be offline by default.
 
+## `PATH_SIGNING_SECRET`
+
+* Type: string
+* Default: value of `settings.SECRET_KEY`
+
+UnCMS uses signed URLs to, e.g., generate preview links for offline pages,
+so that unauthenticated users can view them if they are given a special URL.
+Usually, this is generated and validated using a hash of the path and `settings.SECRET_KEY`.
+However, it is not uncommon to rotate `settings.SECRET_KEY` to protect data that is truly secret.
+This might not be necessary with signed paths.
+
+If you are using `SECRET_KEY` rotation, then you may want to override `PATH_SIGNING_SECRET` with a fixed value.
+
 ## `PUBLICATION_MIDDLEWARE_EXCLUDE_URLS`
 
 * Type: list of regular expressions
