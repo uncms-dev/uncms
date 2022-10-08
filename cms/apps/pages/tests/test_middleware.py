@@ -259,11 +259,24 @@ class TestPageMiddleware(TestCase):
 @pytest.mark.django_db
 @override_settings(MIDDLEWARE=REQUIRED_PAGE_MIDDLEWARE)
 def test_middleware_query_count(client, django_assert_num_queries):
+    """
+    Regression test to ensure that any middleware changes do not result in
+    extra queries.
+    """
     class Pages:
         pass
 
     pages = Pages()
     _generate_pages(pages)
+
+    with django_assert_num_queries(3):
+        response = client.get(pages.homepage.get_absolute_url())
+    assert response.status_code == 200
+
+    with django_assert_num_queries(3):
+        response = client.get(pages.page_1.get_absolute_url())
+    assert response.status_code == 200
+
     with django_assert_num_queries(4):
         response = client.get(pages.page_2.get_absolute_url())
     assert response.status_code == 200
