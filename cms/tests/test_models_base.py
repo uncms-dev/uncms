@@ -26,8 +26,6 @@ class ModelsBaseTest(TestCase):
             'meta_description': '',
             'robots_follow': True,
             'robots_index': True,
-            # This differs from 1.11 to 2.x - 2.x puts the PK in the default
-            # __str__.
             'title': ['SearchMetaBaseModel object', f'SearchMetaBaseModel object ({obj.pk})'],
             'robots_archive': True,
             'header': ['SearchMetaBaseModel object', f'SearchMetaBaseModel object ({obj.pk})'],
