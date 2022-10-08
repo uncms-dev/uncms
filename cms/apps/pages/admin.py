@@ -97,7 +97,6 @@ class PageAdmin(PageBaseAdmin):
     removed_fieldsets = [
         new_fieldsets.index(PageBaseAdmin.TITLE_FIELDS),
         new_fieldsets.index(PageBaseAdmin.PUBLICATION_FIELDS),
-        new_fieldsets.index(PageBaseAdmin.NAVIGATION_FIELDS)
     ]
 
     fieldsets = []

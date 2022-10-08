@@ -273,15 +273,9 @@ class PageBaseAdmin(SearchMetaBaseAdmin):
         'fields': ('title', 'slug',),
     })
 
-    NAVIGATION_FIELDS = ('Navigation', {
-        'fields': ('short_title',),
-        'classes': ('collapse',),
-    })
-
     fieldsets = [
         TITLE_FIELDS,
         OnlineBaseAdmin.PUBLICATION_FIELDS,
-        NAVIGATION_FIELDS,
         SearchMetaBaseAdmin.SEO_FIELDS,
         SearchMetaBaseAdmin.OPENGRAPH_FIELDS,
         SearchMetaBaseAdmin.OPENGRAPH_TWITTER_FIELDS

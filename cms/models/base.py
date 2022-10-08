@@ -2,6 +2,7 @@
 from django.db import models
 from django.shortcuts import render
 from django.utils.crypto import constant_time_compare, salted_hmac
+from urllib.parse import urlparse, urlencode
 from watson.search import SearchAdapter
 
 from cms.apps.media.fields import ImageRefField
@@ -16,13 +17,17 @@ from cms.models.managers import (
 
 class PathTokenGenerator:
     '''
-    A simple token generator that takes a path and generates a hash for it.
-    Intended for use by the CMS publication middleware and OnlineBase
-    subclasses.
-
-    In reality it just takes a string; it can be used for other purposes.
+    PathTokenGenerator is a simple token generator that takes a path and
+    generates a signed path for it. It allows adding reasonably-unguessable
+    preview URLs to offline pages.
     '''
     key_salt = 'cms.apps.pages.models.base.PathTokenGenerator'
+
+    def check_token(self, token, path):
+        return constant_time_compare(
+            token,
+            salted_hmac(self.key_salt, path).hexdigest()[::2]
+        )
 
     def make_token(self, path):
         return salted_hmac(
@@ -31,12 +36,10 @@ class PathTokenGenerator:
             secret=defaults.PATH_SIGNING_SECRET,
         ).hexdigest()[::2]
 
-    def check_token(self, token, path):
-        return constant_time_compare(
-            token,
-            salted_hmac(self.key_salt, path).hexdigest()[::2]
-        )
-
+    def make_url(self, path):
+        parsed = urlparse(path)
+        parsed = parsed._replace(query=urlencode({'preview': self.make_token(path)}))
+        return parsed.geturl()
 
 path_token_generator = PathTokenGenerator()
 
@@ -78,7 +81,7 @@ class OnlineBase(PublishedBase):
         if not hasattr(self, 'get_absolute_url'):
             return None  # pragma: no cover
 
-        return f'{self.get_absolute_url()}?preview={path_token_generator.make_token(self.get_absolute_url())}'
+        return path_token_generator.make_url(self.get_absolute_url())
 
     class Meta:
         abstract = True
@@ -313,18 +316,6 @@ class PageBase(SearchMetaBase):
     title = models.CharField(
         max_length=1000,
     )
-
-    # Navigation fields.
-
-    short_title = models.CharField(
-        max_length=200,
-        blank=True,
-        help_text=(
-            "A shorter version of the title that will be used in site navigation. "
-            "Leave blank to use the full-length title."
-        ),
-    )
-
 
     def __str__(self):
         """

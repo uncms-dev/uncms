@@ -112,6 +112,15 @@ class Page(PageBase):
 
     # Navigation fields.
 
+    short_title = models.CharField(
+        max_length=200,
+        blank=True,
+        help_text=(
+            "A shorter version of the title that will be used in site navigation. "
+            "Leave blank to use the full-length title."
+        ),
+    )
+
     in_navigation = models.BooleanField(
         'add to navigation',
         default=True,
