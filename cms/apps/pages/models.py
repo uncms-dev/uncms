@@ -148,9 +148,16 @@ class Page(PageBase):
         help_text="Visitors that aren't logged in won't see this page in the navigation"
     )
 
+    class Meta:
+        unique_together = (('parent', 'slug'),)
+        ordering = ('left',)
+
     def __init__(self, *args, **kwargs):
         self.cached_parent = None
         super().__init__(*args, **kwargs)
+
+    def __str__(self):
+        return self.short_title or self.title
 
     def auth_required(self):
         if self.requires_authentication or not self.parent:
@@ -341,10 +348,6 @@ class Page(PageBase):
                 latest_version.revision.user
             )
         return '-'
-
-    class Meta:
-        unique_together = (('parent', 'slug'),)
-        ordering = ('left',)
 
 
 class PageSitemap(sitemaps.PageBaseSitemap):
