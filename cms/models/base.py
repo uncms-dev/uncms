@@ -22,6 +22,7 @@ class PathTokenGenerator:
     generates a signed path for it. It allows adding reasonably-unguessable
     preview URLs to offline pages.
     '''
+
     key_salt = 'cms.apps.pages.models.base.PathTokenGenerator'
 
     def check_token(self, token, path):
@@ -41,6 +42,7 @@ class PathTokenGenerator:
         parsed = urlparse(path)
         parsed = parsed._replace(query=urlencode({'preview': self.make_token(path)}))
         return parsed.geturl()
+
 
 path_token_generator = PathTokenGenerator()
 
@@ -323,7 +325,7 @@ class PageBase(SearchMetaBase):
         Returns the short title of this page, falling back to the standard
         title.
         """
-        return self.short_title or self.title
+        return self.title
 
     def get_context_data(self):
         """
