@@ -1,3 +1,4 @@
+{% load i18n %}
 <style>
   .fle-RelatedList {
     /* override Django's really specific selectors :( */
@@ -31,6 +32,6 @@
   </ul>
 {% else %}
   <p class="fle-RelatedList fle-RelatedList-empty">
-    No usage to show.
+    {% translate 'No file usage to show. It may be unused' %}
   </p>
 {% endif %}
