@@ -59,6 +59,7 @@ def admin_sitemap_entries(context):
     user = context['request'].user
     can_change = user.has_perm('pages.change_page')
     can_view = user.has_perm('pages.view_page') or can_change
+
     def sitemap_entry(page):
         return {
             'admin_url': reverse('admin:pages_page_change', args=[page.pk]),
