@@ -2,18 +2,23 @@ import base64
 import random
 import sys
 
+import pytest
+from bs4 import BeautifulSoup
 from django.contrib.admin.sites import AdminSite
 from django.contrib.admin.views.main import IS_POPUP_VAR
+from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.http import Http404
 from django.test import LiveServerTestCase, RequestFactory, TransactionTestCase
+from django.test.utils import override_settings
+from django.urls import reverse
 from django.utils.timezone import now
 
-from ..admin import FileAdmin
-from ..forms import mime_check
-from ..models import File, Label
+from cms.apps.media.admin import FileAdmin
+from cms.apps.media.forms import mime_check
+from cms.apps.media.models import File, Label
 
 
 class BrokenFile:
@@ -146,7 +151,7 @@ class TestFileAdminBase(TransactionTestCase):
     def test_fileadminbase_get_preview(self):
         self.assertEqual(
             self.file_admin.get_preview(self.obj_1),
-            '<img cms:permalink="/r/{}-{}/" src="/static/media/img/image-x-generic.png" width="56" height="66" alt="" title="Foo"/>'.format(
+            '<img class="uncms-fallback-icon" cms:permalink="/r/{}-{}/" src="/static/media/img/image-x-generic.png" width="56" height="66" alt="" title="Foo"/>'.format(
                 ContentType.objects.get_for_model(File).pk,
                 self.obj_1.pk
             )
@@ -156,7 +161,7 @@ class TestFileAdminBase(TransactionTestCase):
         preview = self.file_admin.get_preview(self.obj_2)
 
         self.assertIn(
-            '<img cms:permalink="/r/{}-{}/"'.format(
+            '<img class="uncms-thumbnail" cms:permalink="/r/{}-{}/"'.format(
                 ContentType.objects.get_for_model(File).pk,
                 self.obj_2.pk
             ),
@@ -164,7 +169,7 @@ class TestFileAdminBase(TransactionTestCase):
         )
 
         self.assertIn(
-            'width="66" height="66" alt="" title="Foo 2"/>',
+            'width="132" height="132" alt="" title="Foo 2"/>',
             preview,
         )
 
@@ -175,7 +180,7 @@ class TestFileAdminBase(TransactionTestCase):
 
         preview = self.file_admin.get_preview(obj)
 
-        self.assertEqual(preview, '<img cms:permalink="/r/{}-{}/" src="/static/media/img/image-x-generic.png" width="56" height="66" alt="" title="Foo"/>'.format(
+        self.assertEqual(preview, '<img class="uncms-fallback-icon" cms:permalink="/r/{}-{}/" src="/static/media/img/image-x-generic.png" width="56" height="66" alt="" title="Foo"/>'.format(
             ContentType.objects.get_for_model(File).pk,
             obj.pk
         ))
@@ -186,7 +191,7 @@ class TestFileAdminBase(TransactionTestCase):
         )
         preview = self.file_admin.get_preview(obj)
 
-        self.assertEqual(preview, '<img cms:permalink="/r/{}-{}/" src="/static/media/img/text-x-generic-template.png" width="56" height="66" alt="" title="Foo"/>'.format(
+        self.assertEqual(preview, '<img class="uncms-fallback-icon" cms:permalink="/r/{}-{}/" src="/static/media/img/text-x-generic-template.png" width="56" height="66" alt="" title="Foo"/>'.format(
             ContentType.objects.get_for_model(File).pk,
             obj.pk
         ))
@@ -296,3 +301,20 @@ class LiveServerTestFileAdminBase(LiveServerTestCase):
 
         self.assertEqual(view.content, b'{"status": "ok"}')
         self.assertEqual(view.status_code, 200)
+
+
+@pytest.mark.django_db
+def test_media_list_shows_stylesheet(client):
+    """
+    Ensure the stylesheet is correctly conditionally loaded on the media file
+    list page depending on the MEDIA_LIST_GRID_VIEW setting.
+    """
+    user = get_user_model().objects.create_superuser(username='admin', password='hunter2')
+    client.force_login(user)
+
+    for fancy_view in [True, False]:
+        with override_settings(UNCMS={'MEDIA_LIST_GRID_VIEW': fancy_view}):
+            response = client.get(reverse('admin:media_file_changelist'))
+        assert response.status_code == 200
+        soup = BeautifulSoup(response.content, 'html.parser')
+        assert bool(soup.find('link', attrs={'rel': 'stylesheet', 'href': '/static/media/css/media-list.css'})) is fancy_view

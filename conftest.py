@@ -35,6 +35,7 @@ def pytest_configure():
             'django.contrib.admin',
             'django.contrib.auth',
             'django.contrib.contenttypes',
+            'django.contrib.sessions',
             'django.contrib.sitemaps',
 
             # CMS apps
@@ -106,7 +107,11 @@ def pytest_configure():
                 }
             }
         ],
-        MIDDLEWARE=[],
+        MIDDLEWARE=[
+            'django.contrib.sessions.middleware.SessionMiddleware',
+            'django.contrib.auth.middleware.AuthenticationMiddleware',
+            'cms.apps.pages.middleware.PageMiddleware',
+        ],
         SECRET_KEY='KNOWN_FIXED_VALUE_IS_FINE',
         PUBLICATION_MIDDLEWARE_EXCLUDE_URLS=['/admin/'],
         UNCMS={}

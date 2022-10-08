@@ -135,7 +135,7 @@ class FileAdmin(VersionAdmin, SearchAdmin):
                 pass
 
         return format_html(
-            '<img cms:permalink="{}" class="uncms-fallback-icon" src="{}" width="56" height="66" alt="" title="{}"/>',
+            '<img class="uncms-fallback-icon" cms:permalink="{}" src="{}" width="56" height="66" alt="" title="{}"/>',
             permalink,
             icon,
             obj.title
