@@ -1,6 +1,7 @@
 '''Tests for the pages app.'''
 from datetime import timedelta
 
+import pytest
 from django.contrib.contenttypes.models import ContentType
 from django.core.management import call_command
 from django.test import TestCase
@@ -502,3 +503,23 @@ class TestPageComplex(TestCase):
 
         with self.assertRaises(KeyError):
             self.pages['Tree_3___Page_5']  # pylint:disable=pointless-statement
+
+
+@pytest.mark.django_db
+def test_page_str():
+    content_type = ContentType.objects.get_for_model(PageContent)
+    with search.update_index():
+        page = Page.objects.create(
+            title='Home page',
+            short_title='Home',
+            slug='homepage',
+            content_type=content_type,
+        )
+
+        PageContent.objects.create(
+            page=page,
+        )
+
+    assert str(page) == 'Home'
+    page.short_title = None
+    assert str(page) == 'Home page'
