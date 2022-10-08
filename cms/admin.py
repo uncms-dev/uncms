@@ -203,6 +203,9 @@ class SEOQualityControlFilter(admin.SimpleListFilter):
 class PublishedBaseAdmin(admin.ModelAdmin):
     '''Base admin class for models with publication controls.'''
 
+    def view_on_site(self, obj):
+        return obj.get_preview_url()
+
 
 class OnlineBaseAdmin(PublishedBaseAdmin):
     '''Base admin class for OnlineModelBase instances.'''
