@@ -1,12 +1,22 @@
 from django.test import TestCase
 
-from cms.apps.testing_models.models import (OnlineBaseModel, PageBaseModel,
-                                            PublishedBaseModel,
-                                            SearchMetaBaseModel, SitemapModel)
-from cms.sitemaps import (BaseSitemap, OnlineBaseSitemap, PageBaseSitemap,
-                          PublishedBaseSitemap, SearchMetaBaseSitemap,
-                          SitemapRegistrationError, register,
-                          registered_sitemaps)
+from cms.apps.testing_models.models import (
+    OnlineBaseModel,
+    PageBaseModel,
+    PublishedBaseModel,
+    SearchMetaBaseModel,
+    SitemapModel
+)
+from cms.sitemaps import (
+    BaseSitemap,
+    OnlineBaseSitemap,
+    PageBaseSitemap,
+    PublishedBaseSitemap,
+    SearchMetaBaseSitemap,
+    SitemapRegistrationError,
+    register,
+    registered_sitemaps
+)
 
 
 class Object:

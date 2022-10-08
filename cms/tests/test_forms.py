@@ -3,8 +3,8 @@ import json
 from django.test import TestCase
 from django.utils.html import conditional_escape
 
-
 from cms.conf import defaults
+
 from ..forms import HtmlWidget
 
 

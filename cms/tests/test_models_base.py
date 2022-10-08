@@ -1,8 +1,13 @@
 from django.test import RequestFactory, TestCase
 
+from cms.apps.testing_models.models import (
+    PageBaseModel,
+    PublishedBaseModel,
+    PublishedBaseSearchAdapter,
+    SearchMetaBaseModel,
+    SearchMetaBaseSearchAdapter
+)
 from cms.models.base import path_token_generator
-from cms.apps.testing_models.models import (PageBaseModel, PublishedBaseModel, SearchMetaBaseModel,
-                                            PublishedBaseSearchAdapter, SearchMetaBaseSearchAdapter)
 
 
 class ModelsBaseTest(TestCase):

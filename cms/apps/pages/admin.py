@@ -18,15 +18,23 @@ from django.contrib.staticfiles.storage import staticfiles_storage
 from django.core.exceptions import PermissionDenied
 from django.db import models, transaction
 from django.db.models import F
-from django.http import (Http404, HttpResponse, HttpResponseForbidden,
-                         HttpResponseRedirect, JsonResponse)
+from django.http import (
+    Http404,
+    HttpResponse,
+    HttpResponseForbidden,
+    HttpResponseRedirect,
+    JsonResponse
+)
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.defaultfilters import capfirst
 from django.urls import path, reverse
 
 from cms.admin import PageBaseAdmin
-from cms.apps.pages.models import (Page, PageSearchAdapter,
-                                   get_registered_content)
+from cms.apps.pages.models import (
+    Page,
+    PageSearchAdapter,
+    get_registered_content
+)
 
 # Used to track references to and from the JS sitemap.
 PAGE_FROM_KEY = 'from'

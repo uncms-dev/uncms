@@ -4,10 +4,9 @@ from django.template.response import SimpleTemplateResponse
 from django.test import RequestFactory, TestCase
 from watson import search
 
-from cms.apps.testing_models.models import PageContent
 from cms.apps.pages.models import Page
+from cms.apps.testing_models.models import PageContent
 from cms.middleware import PublicationMiddleware
-
 
 
 class MiddlewareTest(TestCase):

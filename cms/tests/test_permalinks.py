@@ -2,8 +2,8 @@ from django import urls
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 
-from cms.permalinks import PermalinkError, expand, resolve
 from cms.apps.testing_models.models import PermalinksModel
+from cms.permalinks import PermalinkError, expand, resolve
 
 
 class PermalinksTest(TestCase):

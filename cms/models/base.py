@@ -5,8 +5,12 @@ from django.utils.crypto import constant_time_compare, salted_hmac
 from watson.search import SearchAdapter
 
 from cms.apps.media.fields import ImageRefField
-from cms.models.managers import (OnlineBaseManager, PageBaseManager,
-                                 PublishedBaseManager, SearchMetaBaseManager)
+from cms.models.managers import (
+    OnlineBaseManager,
+    PageBaseManager,
+    PublishedBaseManager,
+    SearchMetaBaseManager
+)
 
 
 class PathTokenGenerator:

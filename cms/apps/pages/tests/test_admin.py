@@ -5,8 +5,10 @@ import sys
 
 import reversion
 from django.contrib.admin.sites import AdminSite
-from django.contrib.admin.widgets import (FilteredSelectMultiple,
-                                          RelatedFieldWidgetWrapper)
+from django.contrib.admin.widgets import (
+    FilteredSelectMultiple,
+    RelatedFieldWidgetWrapper
+)
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core.exceptions import PermissionDenied
@@ -17,13 +19,23 @@ from django.utils.text import slugify
 from reversion.models import Version
 from watson import search
 
-from cms.apps.pages.admin import (PAGE_FROM_KEY, PAGE_FROM_SITEMAP_VALUE,
-                                  PAGE_TYPE_PARAMETER, PageAdmin,
-                                  PageContentTypeFilter)
+from cms.apps.pages.admin import (
+    PAGE_FROM_KEY,
+    PAGE_FROM_SITEMAP_VALUE,
+    PAGE_TYPE_PARAMETER,
+    PageAdmin,
+    PageContentTypeFilter
+)
 from cms.apps.pages.models import Page, get_registered_content
-from cms.apps.testing_models.admin import (InlineModelInline, InlineModelNoPageInline)
-from cms.apps.testing_models.models import (InlineModelNoPage, PageContent,
-                                            PageContentWithFields)
+from cms.apps.testing_models.admin import (
+    InlineModelInline,
+    InlineModelNoPageInline
+)
+from cms.apps.testing_models.models import (
+    InlineModelNoPage,
+    PageContent,
+    PageContentWithFields
+)
 
 
 class MockRequest:

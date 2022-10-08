@@ -13,12 +13,20 @@ from cms.apps.testing_models.models import TemplateTagTestPage
 
 from ..middleware import RequestPageManager
 from ..models import Page
-from ..templatetags.pages import (_navigation_entries, absolute_domain_url,
-                                  get_meta_description,
-                                  get_meta_robots, get_og_image, get_page_url,
-                                  get_twitter_card, get_twitter_description,
-                                  get_twitter_image, get_twitter_title,
-                                  render_breadcrumbs, render_navigation)
+from ..templatetags.pages import (
+    _navigation_entries,
+    absolute_domain_url,
+    get_meta_description,
+    get_meta_robots,
+    get_og_image,
+    get_page_url,
+    get_twitter_card,
+    get_twitter_description,
+    get_twitter_image,
+    get_twitter_title,
+    render_breadcrumbs,
+    render_navigation
+)
 
 
 class MockUser:

@@ -3,7 +3,11 @@ from django.utils import timezone
 from django.utils.functional import cached_property
 from PIL import Image
 
-from cms.apps.media.fields import FileRefField, ImageRefField, VideoFileRefField
+from cms.apps.media.fields import (
+    FileRefField,
+    ImageRefField,
+    VideoFileRefField
+)
 from cms.apps.media.filetypes import get_icon, is_image
 
 

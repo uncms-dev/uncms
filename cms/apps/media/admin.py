@@ -6,8 +6,12 @@ from django.contrib import admin, messages
 from django.contrib.admin.views.main import IS_POPUP_VAR
 from django.core.files import File as DjangoFile
 from django.core.files.temp import NamedTemporaryFile
-from django.http import (Http404, HttpResponse, HttpResponseForbidden,
-                         HttpResponseNotAllowed)
+from django.http import (
+    Http404,
+    HttpResponse,
+    HttpResponseForbidden,
+    HttpResponseNotAllowed
+)
 from django.shortcuts import get_object_or_404, render
 from django.template.defaultfilters import filesizeformat
 from django.template.loader import render_to_string

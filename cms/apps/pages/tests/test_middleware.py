@@ -3,7 +3,10 @@ from django.http import HttpResponse, HttpResponseNotFound
 from django.test import RequestFactory, TestCase
 from watson import search
 
-from cms.apps.testing_models.models import MiddlewareTestPage, MiddlewareURLsTestPage
+from cms.apps.testing_models.models import (
+    MiddlewareTestPage,
+    MiddlewareURLsTestPage
+)
 
 from ..middleware import PageMiddleware, RequestPageManager
 from ..models import Page

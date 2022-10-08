@@ -6,8 +6,11 @@ from django.template.response import SimpleTemplateResponse
 from django.utils.deprecation import MiddlewareMixin
 
 from cms.conf import defaults
-from cms.models import (PublicationManagementError, path_token_generator,
-                        publication_manager)
+from cms.models import (
+    PublicationManagementError,
+    path_token_generator,
+    publication_manager
+)
 
 
 class PublicationMiddleware(MiddlewareMixin):

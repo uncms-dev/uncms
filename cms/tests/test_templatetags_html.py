@@ -1,8 +1,8 @@
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 
-from cms.templatetags.html import html, truncate_paragraphs
 from cms.apps.testing_models.models import HTMLModel
+from cms.templatetags.html import html, truncate_paragraphs
 
 
 class HTMLTest(TestCase):

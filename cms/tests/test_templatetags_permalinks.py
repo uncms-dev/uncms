@@ -1,8 +1,8 @@
 from django.contrib.contenttypes.models import ContentType
 from django.test import RequestFactory, TestCase
 
-from cms.templatetags.permalinks import get_permalink_absolute, permalink
 from cms.apps.testing_models.models import PermalinksModel
+from cms.templatetags.permalinks import get_permalink_absolute, permalink
 
 
 class PermalinkTest(TestCase):

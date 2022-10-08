@@ -8,10 +8,10 @@ from django.urls import reverse
 from django.utils.timezone import now
 from watson import search
 
-from cms.apps.pages.models import Page, ContentBase
-from cms.apps.pages.admin import page_admin
-from cms.apps.media.models import File, ImageRefField
 from cms.admin import get_related_objects_admin_urls
+from cms.apps.media.models import File, ImageRefField
+from cms.apps.pages.admin import page_admin
+from cms.apps.pages.models import ContentBase, Page
 
 
 class ModelBase(models.Model):

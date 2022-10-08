@@ -12,8 +12,8 @@ from django.test import LiveServerTestCase, RequestFactory, TransactionTestCase
 from django.utils.timezone import now
 
 from ..admin import FileAdmin
-from ..models import File, Label
 from ..forms import mime_check
+from ..models import File, Label
 
 
 class BrokenFile:
