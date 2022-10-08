@@ -1,5 +1,4 @@
 '''Base classes for the CMS admin interface.'''
-from django.conf import settings
 from django.contrib import admin
 from django.db.models import Q
 from django.db.models.deletion import get_candidate_relations_to_delete
@@ -9,6 +8,7 @@ from reversion.admin import VersionAdmin
 from watson.admin import SearchAdmin
 
 from cms.apps.pages.models import Page
+from cms.conf import defaults
 from cms.models.base import PageBaseSearchAdapter, SearchMetaBaseSearchAdapter
 
 
@@ -218,10 +218,9 @@ class OnlineBaseAdmin(PublishedBaseAdmin):
         'classes': ('collapse',),
     })
 
-    # The pylint-disable is here for compatibility with both 1.11 and 2.x.
-    def get_form(self, request, obj=None, **kwargs):  # pylint:disable=arguments-differ
-        form = super().get_form(request, obj=obj, **kwargs)
-        form.base_fields['is_online'].initial = getattr(settings, 'ONLINE_DEFAULT', True)
+    def get_form(self, request, obj=None, change=False, **kwargs):
+        form = super().get_form(request, obj=obj, change=change, **kwargs)
+        form.base_fields['is_online'].initial = defaults.ONLINE_DEFAULT
         return form
 
     # Custom admin actions.

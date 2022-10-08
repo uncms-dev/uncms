@@ -1,9 +1,10 @@
 import json
 
 from django import forms
-from django.conf import settings
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.utils.safestring import mark_safe
+
+from cms.conf import defaults
 
 
 class HtmlWidget(forms.Textarea):
@@ -32,23 +33,7 @@ class HtmlWidget(forms.Textarea):
         attrs = attrs or {}
         attrs['class'] = 'wysiwyg'
         attrs['required'] = False
-        wysiwyg_settings = {
-            'branding': False,
-            'codemirror': {
-                'indentOnInit': True,
-                'fullscreen': False,
-                'path': 'codemirror',
-                'config': {
-                    'lineNumbers': True,
-                    'lineWrapping': True
-                },
-                'width': 800,
-                'height': 600,
-                'saveCursorPosition': True
-            }
-        }
-        wysiwyg_settings.update(getattr(settings, 'WYSIWYG_OPTIONS', {}))
-        attrs['data-wysiwyg-settings'] = json.dumps(wysiwyg_settings)
+        attrs['data-wysiwyg-settings'] = json.dumps(defaults.WYSIWYG_OPTIONS)
 
         # Get the standard widget.
         html = super().render(name, value, attrs)

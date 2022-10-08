@@ -2,10 +2,10 @@
 
 import re
 
-from django.conf import settings
 from django.template.response import SimpleTemplateResponse
 from django.utils.deprecation import MiddlewareMixin
 
+from cms.conf import defaults
 from cms.models import (PublicationManagementError, path_token_generator,
                         publication_manager)
 
@@ -19,11 +19,10 @@ class PublicationMiddleware(MiddlewareMixin):
 
         exclude_urls = [
             re.compile(url)
-            for url in
-            getattr(settings, 'PUBLICATION_MIDDLEWARE_EXCLUDE_URLS', ())
+            for url in defaults.PUBLICATION_MIDDLEWARE_EXCLUDE_URLS
         ]
 
-        if not any(pattern.match(request.path_info[1:]) for pattern in exclude_urls):
+        if not any(pattern.match(request.path) for pattern in exclude_urls):
             # See if preview mode is requested.
             try:
                 path = f'{request.path_info[1:] if request.path_info[1:] else request.path_info}'

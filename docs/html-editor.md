@@ -4,36 +4,7 @@ UnCMS comes with a <abbr title="What You See Is What You Get">WYSIWYG</abbr> HTM
 UnCMS does not use this internally (as it has no opinions about what your page content should look like),
 but it's included with UnCMS because almost every website requires it.
 
-First, you will want to provide some settings for TinyMCE using the `WYSIWYG_OPTIONS` setting.
-These correspond to [TinyMCE v4's settings](https://www.tiny.cloud/docs-4x/configure/integration-and-setup/).
-
-Here is a nice minimal configuration:
-
-```python
-WYSIWYG_OPTIONS = {
-    # Overall height of the WYSIWYG
-    'height': 500,
-
-    # The one to pay attention to here is `cmsimage` - it allows you to insert
-    # images from your media library.
-    'plugins': [
-        'advlist autolink link image lists charmap hr anchor pagebreak',
-        'wordcount visualblocks visualchars code fullscreen cmsimage hr',
-    ],
-    # cmsimage here gives you the aforementioned item in your toolbar.
-    'toolbar1': 'code | cut copy pastetext | undo redo | bullist numlist | link unlink anchor cmsimage | blockquote',
-    'menubar': False,
-    'toolbar_items_size': 'small',
-    'block_formats': 'Paragraph=p;Header 2=h2;Header 3=h3;Header 4=h4;Header 5=h5;Header 6=h6;',
-    'convert_urls': False,
-    'paste_as_text': True,
-    'image_advtab': True,
-}
-```
-
-Adding the `cmsimage` plugin (and corresponding `cmsimage` button) will allow media files to be inserted directly from your [media gallery](media-app.md).
-
-Next, use `cms.models.HtmlField` to add HTML editing to your admin.
+Use `cms.models.HtmlField` to add HTML editing to your admin.
 `HtmlField` is a subclass of `TextField` which overrides the widget with a TinyMCE text editor.
 Other than the widget, it works just like a `TextField`:
 
@@ -57,3 +28,5 @@ This will expand permalinks and set alt text, attribution etc on the images in y
 
 There may be circumstances in which you want to use the HTML editing widget, but not use `HtmlField` on your model.
 In this unusual case, use `cms.fields.HtmlWidget` in your form class.
+
+If you wish to add extra capabilities or options to your editor, you will want to look at the `WYSIWYG_OPTIONS` [configuration option](configuration.md).

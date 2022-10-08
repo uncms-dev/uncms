@@ -23,12 +23,6 @@ SITE_DOMAIN = 'example.com'
 
 We don't want things set to be offline to appear in the front-end (our pages have on/offline controls), but we definitely want them to appear in our admin:
 
-```python
-PUBLICATION_MIDDLEWARE_EXCLUDE_URLS = (
-    '^admin/.*',
-)
-```
-
 Add our core UnCMS things to your `INSTALLED_APPS`:
 
 ```python
@@ -58,23 +52,11 @@ MIDDLEWARE = [
 ]
 ```
 
-And finally, options for our HTML editor:
+Add an UnCMS configuration dictionary.
+An empty dictionary will mean UnCMS will use all its defaults.
 
-```python
-WYSIWYG_OPTIONS = {
-    'height': 500,
-    'plugins': [
-        'advlist autolink link image lists charmap hr anchor pagebreak',
-        'wordcount visualblocks visualchars code fullscreen cmsimage hr',
-    ],
-    'toolbar1': 'code | cut copy pastetext | undo redo | bullist numlist | link unlink anchor cmsimage | blockquote',
-    'menubar': False,
-    'toolbar_items_size': 'small',
-    'block_formats': 'Paragraph=p;Header 2=h2;Header 3=h3;Header 4=h4;Header 5=h5;Header 6=h6;',
-    'convert_urls': False,
-    'paste_as_text': True,
-    'image_advtab': True,
-}
+```
+UNCMS = {}
 ```
 
 ## Let's make a content model
@@ -547,7 +529,5 @@ Let's get our template functions into the `<head>` of our document:
 
 If you haven't already, you'll want to clone the [tiny CMS project](https://github.com/onespacemedia/tiny-cms-project) and have a look around.
 It's a slightly-more-fleshed out version of the example we've written here. It has an absurd comment-to-code ratio and serves as a mini walkthrough all by itself.
-
-For a real-world example of much more complex models and views, you might want to look at our [project template](https://github.com/onespacmedia/project-template).
 
 If you're the reading type, you'll want to read [more about the pages system](pages-app.md).

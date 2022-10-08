@@ -10,6 +10,7 @@
 * [Sitemaps](sitemaps.md)
 * [The HTML editor](html-editor.md)
 * [django-watson integration](watson-integration.md)
+* [Configuration](configuration.md)
 * [Performance notes](performance.md)
 * [Philosophy](philosophy.md)
 * [History](history.md)

@@ -108,4 +108,6 @@ def pytest_configure():
         ],
         MIDDLEWARE=[],
         SECRET_KEY=secrets.token_hex(32),
+        PUBLICATION_MIDDLEWARE_EXCLUDE_URLS=['/admin/'],
+        UNCMS={}
     )

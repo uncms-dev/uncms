@@ -3,13 +3,14 @@ from django.contrib.admin.widgets import ForeignKeyRawIdWidget
 from django.db import models
 
 from cms.apps.media.widgets import ImageThumbnailWidget
+from cms.conf import defaults
 
 
 class FileRefField(models.ForeignKey):
     '''A foreign key to a File.'''
 
     def __init__(self, **kwargs):
-        kwargs['to'] = 'media.File'
+        kwargs['to'] = defaults.MEDIA_FILE_MODEL
         kwargs.setdefault('related_name', '+')
         kwargs.setdefault('on_delete', models.PROTECT)
         super().__init__(**kwargs)

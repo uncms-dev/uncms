@@ -28,7 +28,7 @@ class YourModelAdmin(OnlineBaseAdmin):
 `OnlineBaseAdmin` also adds a helpful list `action`: you will be able to turn off items as a batch from the list view.
 
 By default, new objects will have the checkbox for `is_online` checked by default in the admin, if your `ModelAdmin` extends from `OnlineBase`.
-If you want to change this, set `ONLINE_DEFAULT` to `False` in your Django settings.
+If you want to change this, set `ONLINE_DEFAULT` to `False` in your [UnCMS configuration](configuration.md).
 
 ## PageBase
 
