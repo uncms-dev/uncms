@@ -1,0 +1,136 @@
+#result_list {
+  display: block;
+}
+
+#result_list tr:nth-child(2n) {
+  background-color: transparent;
+}
+
+#result_list thead {
+  display: none;
+}
+
+#result_list td,
+#result_list th {
+  display: block;
+  padding: 0;
+
+  border: 0 !important;
+}
+
+#result_list tbody {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-gap: 2px;
+}
+
+@media (min-width: 600px) {
+  #result_list tbody {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+@media (min-width: 1280px) {
+  #result_list tbody {
+    grid-template-columns: repeat(7, 1fr);
+  }
+}
+
+#result_list tr {
+  position: relative;
+}
+
+#result_list tbody a {
+  display: block;
+}
+
+#result_list .action-checkbox {
+  position: absolute;
+  z-index: 2;
+
+  top: 5px;
+  right: 5px;
+}
+
+#result_list .action-checkbox input[type='checkbox'] {
+  width: 15px;
+  height: 15px;
+}
+
+.field-get_preview {
+  position: relative;
+
+  background-color: var(--darkened-bg);
+}
+
+.field-get_preview::before {
+  content: '';
+
+  display: block;
+  padding-bottom: 75%;
+}
+
+.field-get_preview a {
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  display: flex;
+  width: 100%;
+  height: 100%;
+
+  text-align: center;
+}
+
+.uncms-thumbnail,
+.uncms-fallback-icon {
+  height: 100%;
+  object-fit: contain;
+}
+
+.uncms-thumbnail {
+  width: 100%;
+  height: 100%;
+
+  object-fit: contain;
+}
+
+.uncms-fallback-icon {
+  width: 40%;
+  height: 100%;
+
+  object-fit: contain;
+}
+
+@media (prefers-color-scheme: dark) {
+  /* shitty hack to make file icons not dark-on-dark */
+  .uncms-fallback-icon {
+    filter: invert(90%);
+  }
+}
+
+.field-get_title a,
+.field-get_size a,
+.field_get_size a {
+  padding: 5px 5px 0;
+
+  text-align: center;
+}
+
+.field-get_title a {
+  font-weight: 700;
+}
+
+.field-id {
+  padding: 5px !important;
+
+  text-align: center;
+}
+
+.field-id::before {
+  content: 'ID: ';
+}
+
+.paginator {
+  margin-top: 10px;
+}

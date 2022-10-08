@@ -16,7 +16,8 @@ This is the first release of UnCMS, forked from version onespacemedia-cms 4.4.
 * historylinks is no longer a requirement.
 * The `Link.new_window` field has been retired. It encouraged the slow practice of checking for `Page.content.new_window` in the navigation.
 * The canonical location of `ImageRefField` is now `cms.apps.media.fields`. This permits easier project-local overrides of the media app, because UnCMS's `Page` and helper models no longer import from `cms.apps.media.models`.
-* On that note, it is possible to override the default media file model with the `MEDIA_FILE_MODEL` config override.
+* On that note, it is possible to override the default media file model with the `MEDIA_FILE_MODEL` configuration option.
+* The media app now has a fancy grid list view. It can be turned off with the `MEDIA_LIST_GRID_VIEW` configuration option.
 * `cms.views.handler500` has been retired, as it does nothing more than Django's built-in 500 view.
 * The old pages dashboard item has been retired. It has a new one that works with no Javascript! 🎉
 * Probably fix the long-standing bug where the page tree gets randomly mangled.

@@ -30,6 +30,17 @@ and `width` and `height` attributes returning the width and height of the file a
 
 Note that this may not play nicely with using `HtmlField`.
 
+## `MEDIA_LIST_GRID_VIEW`
+
+* Type: boolean
+* Default: `True`
+
+The list of files in the [media app](media-app.md) has some extra CSS to style the list as a grid,
+rather than as a table.
+This looks much better for something that is not informationally-dense,
+but it may not play well with non-standard admin skins.
+Set this to `False` if it looks weird in your admin, or if you prefer a standard table list view.
+
 ## `ONLINE_DEFAULT`
 
 * Type: boolean

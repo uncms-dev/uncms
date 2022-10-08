@@ -5,12 +5,16 @@ class AppSettings:
     """
     AppSettings implements a way to get default settings for the application.
     Settings are accessible via attributes on an AppSettings instance.
-    It will attempt to read the options from the UNCMS configuration
-    dictionary if it is present, and if it is neither in UNCMS or UNCMS is not
-    present, will return some sensible default.
+
+    It will attempt to read any requested option from the `UNCMS`
+    configuration dictionary, if that dictionary is present.
+
+    If that option is not in the `UNCMS` dictionary, or `UNCMS` is not
+    present, a sensible default will be returned.
     """
     default_settings = {
         'MEDIA_FILE_MODEL': 'media.File',
+        'MEDIA_LIST_GRID_VIEW': True,
         'ONLINE_DEFAULT': True,
         'PATH_SIGNING_SECRET': settings.SECRET_KEY,
         'PUBLICATION_MIDDLEWARE_EXCLUDE_URLS': [r'^/admin/'],

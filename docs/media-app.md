@@ -13,7 +13,7 @@ This allows users to upload a file in one place and use it in more than one plac
 `File` is not intended for files uploaded via the public front-end of a website (i.e. non-staff users).
 For this, you'll want to use a simpler Django `django.db.models.FileField` or `ImageField`.
 
-The default `FileAdmin` adds a thumbnail preview to the list view, falling back to an appropriate icon for the file type if the file is not an image.
+The default `FileAdmin` adds a nice grid view, with a thumbnail preview, falling back to an appropriate icon for the file type if the file is not an image. You can disable the grid view with the `MEDIA_LIST_GRID_VIEW` [configuration option](configuration.md).
 
 For images, there is an in-browser image editor that gives quick access to common image operations such as cropping and rotating.
 

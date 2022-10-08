@@ -26,6 +26,7 @@ from cms import permalinks
 from cms.admin import get_related_objects_admin_urls
 from cms.apps.media.forms import FileForm, ImageChangeForm
 from cms.apps.media.models import File, Label
+from cms.conf import defaults
 
 
 @admin.register(Label)
@@ -55,8 +56,8 @@ class FileAdmin(VersionAdmin, SearchAdmin):
         }),
     ]
     filter_horizontal = ['labels']
-    list_display = ['get_preview', 'get_title', 'get_alt_text', 'get_size', 'id']
-    list_display_links = list_display
+    list_display = ['get_preview', 'get_title', 'get_size', 'id']
+    list_display_links = ['get_preview', 'get_title', 'get_size']
     list_filter = ['labels']
     readonly_fields = ['used_on']
     search_fields = ['title']
@@ -67,13 +68,6 @@ class FileAdmin(VersionAdmin, SearchAdmin):
         else:
             kwargs['form'] = FileForm
         return super().get_form(request, obj=obj, change=change, **kwargs)
-
-    @admin.display(description='alt text')
-    def get_alt_text(self, obj):
-        if not obj.alt_text:
-            return ''
-
-        return obj.alt_text
 
     # Custom actions.
 
@@ -125,9 +119,9 @@ class FileAdmin(VersionAdmin, SearchAdmin):
         permalink = permalinks.create(obj)
         if obj.is_image():
             try:
-                thumbnail = get_thumbnail(obj.file, '100x66', quality=99)
+                thumbnail = get_thumbnail(obj.file, '200x132', quality=99)
                 return format_html(
-                    '<img cms:permalink="{}" src="{}" width="{}" height="{}" alt="" title="{}"/>',
+                    '<img class="uncms-thumbnail" cms:permalink="{}" src="{}" width="{}" height="{}" alt="" title="{}"/>',
                     permalink,
                     thumbnail.url,
                     thumbnail.width,
@@ -141,7 +135,7 @@ class FileAdmin(VersionAdmin, SearchAdmin):
                 pass
 
         return format_html(
-            '<img cms:permalink="{}" src="{}" width="56" height="66" alt="" title="{}"/>',
+            '<img cms:permalink="{}" class="uncms-fallback-icon" src="{}" width="56" height="66" alt="" title="{}"/>',
             permalink,
             icon,
             obj.title
@@ -174,6 +168,7 @@ class FileAdmin(VersionAdmin, SearchAdmin):
         context = extra_context or {}
 
         context.setdefault('changelist_template_parent', 'reversion/change_list.html')
+        context['fancy_grid_css'] = defaults.MEDIA_LIST_GRID_VIEW
 
         return super().changelist_view(request, context)
 

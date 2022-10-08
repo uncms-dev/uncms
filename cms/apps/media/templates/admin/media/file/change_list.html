@@ -1,7 +1,13 @@
 {% extends changelist_template_parent %}
 
+{% load static %}
+
 {% block extrahead %}
   {{ block.super }}
+
+  {% if fancy_grid_css %}
+    <link rel="stylesheet" href="{% static 'media/css/media-list.css' %}">
+  {% endif %}
 
   {% if is_media_library_iframe %}
     <script>
