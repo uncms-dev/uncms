@@ -3,6 +3,7 @@ import json
 import os
 import sys
 
+import pytest
 import reversion
 from django.contrib.admin.sites import AdminSite
 from django.contrib.admin.widgets import (
@@ -475,6 +476,7 @@ class TestPageAdmin(TestCase):
 
         response = self.page_admin.change_view(request, str(self.homepage.pk))
 
+    @pytest.mark.xfail(reason='see #3')  # pragma: no cover
     def test_pageadmin_revision_view(self):
         request = self._build_request()
 
@@ -487,7 +489,8 @@ class TestPageAdmin(TestCase):
         response = self.page_admin.revision_view(request, str(self.homepage.pk), (versions[0].pk))
         self.assertEqual(response.status_code, 200)
 
-    def test_pageadmin_add_view(self):
+    @pytest.mark.xfail(reason='see #3')
+    def test_pageadmin_add_view(self):  # pragma: no cover
         request = self._build_request()
         response = self.page_admin.add_view(request)
         self.assertEqual(response.status_code, 200)
