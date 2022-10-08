@@ -14,4 +14,5 @@
 * [Performance notes](performance.md)
 * [Philosophy](philosophy.md)
 * [History](history.md)
+* [Changelog](CHANGELOG.md)
 * [About this documentation](DOCUMENTATION-README.md)
