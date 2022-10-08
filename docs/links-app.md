@@ -19,5 +19,5 @@ If you have more than one content type registered (i.e. anything other than that
 If you do not have any other page content types you will be taken directly to the add form.
 The form itself is very straightforward; simply add the Title for the page and a URL to redirect to.
 
-You can control what kind of redirect is used with the `permanent` boolean field.
+You can control what kind of redirect is used with the `permanent_redirect` boolean field.
 It defaults to being off, i.e. it will use a 302 Found (temporary) redirect.
