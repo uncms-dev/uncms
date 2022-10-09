@@ -450,12 +450,12 @@ class ContentBase(models.Model):
         on_delete=models.CASCADE,
     )
 
+    class Meta:
+        abstract = True
+
     def __str__(self):
         '''Returns a unicode representation.'''
         return self.page.title
-
-    class Meta:
-        abstract = True
 
     def get_searchable_text(self):
         '''
