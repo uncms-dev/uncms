@@ -507,7 +507,7 @@ Let's get our template functions into the `<head>` of our document:
 ```
 <meta name="description" content="{{ get_meta_description() }}">
 <meta name="robots" content="{{ get_meta_robots() }}">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <!-- Open Graph data -->
 <meta property="og:title" content="{{ get_og_title() }}">
 <meta property="og:url" content="{{ get_canonical_url() }}">
