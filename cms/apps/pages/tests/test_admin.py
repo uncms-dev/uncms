@@ -3,7 +3,6 @@ import json
 import os
 import sys
 
-import pytest
 import reversion
 from django.contrib.admin.sites import AdminSite
 from django.contrib.admin.widgets import (
