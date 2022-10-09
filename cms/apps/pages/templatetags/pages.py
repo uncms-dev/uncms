@@ -65,7 +65,7 @@ def admin_sitemap_entries(context):
             'admin_url': reverse('admin:pages_page_change', args=[page.pk]),
             'can_move': can_change,
             'can_view': can_view,
-            'children': [sitemap_entry(child_page) for child_page in page.children],
+            'children': [sitemap_entry(child_page) for child_page in page.get_children()],
             'id': page.pk,
             'in_navigation': page.in_navigation,
             'is_homepage': page.parent_id is None,

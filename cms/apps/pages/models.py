@@ -166,7 +166,22 @@ class Page(PageBase):
 
     @cached_property
     def children(self):
-        '''The child pages for this page.'''
+        return self.get_children()
+
+    @cached_property
+    def content(self):
+        '''The associated content model for this page.'''
+        content_cls = ContentType.objects.get_for_id(
+            self.content_type_id).model_class()
+        content = content_cls._default_manager.get(page=self)
+        content.page = self
+        return content
+
+    def get_children(self):
+        '''
+        `get_children` returns the pages for this page, with some minor
+        optimisations.
+        '''
         children = []
         # Optimization - don't fetch children we know aren't there!
         if self.right - self.left > 1:
@@ -177,15 +192,6 @@ class Page(PageBase):
                 child.cached_parent = self
                 children.append(child)
         return children
-
-    @cached_property
-    def content(self):
-        '''The associated content model for this page.'''
-        content_cls = ContentType.objects.get_for_id(
-            self.content_type_id).model_class()
-        content = content_cls._default_manager.get(page=self)
-        content.page = self
-        return content
 
     @cached_property
     def navigation(self):
