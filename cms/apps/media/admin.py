@@ -42,7 +42,9 @@ class LabelAdmin(admin.ModelAdmin):
 class FileAdmin(VersionAdmin, SearchAdmin):
     '''Admin settings for File models.'''
 
+    # override necessary for VersionAdmin
     change_list_template = 'admin/media/file/change_list.html'
+
     fieldsets = [
         (None, {
             'fields': ['title', 'file'],
