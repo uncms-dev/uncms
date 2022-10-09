@@ -339,13 +339,13 @@ Like, for example, if we have a page at `/news/`, we want `/news/` to render a l
 Glad you asked! First, let's create a `urls.py` inside your news app, and make it look like this:
 
 ```python
-from django.conf.urls import url
+from django.urls import path
 
 from . import views
 
 urlpatterns = [
-    url(r'^$', views.ArticleListView.as_view(), name='article_list'),
-    url(r'^(?P<slug>[^/]+)/$', views.ArticleDetailView.as_view(), name='article_detail'),
+    path('', views.ArticleListView.as_view(), name='article_list'),
+    path('<slug:slug>/', views.ArticleDetailView.as_view(), name='article_detail'),
 ]
 ```
 
@@ -353,10 +353,10 @@ You _don't_ want to add this to your root urlconf, because we don't need to.
 Instead, add this to your `NewsFeed` model:
 
 ```python
-urlconf = 'tiny_project.apps.news.urls'
+urlconf = 'your_project.apps.news.urls'
 ```
 
-You'll want to correct the path; we've assumed your news app lives at `tiny_project.apps.news`.
+You'll want to correct the path; we've assumed your news app lives at `your_project.apps.news`.
 However you do this, this must be an absolute import path from the root of your Django application.
 
 And there you have it: your page's URLs will now be controlled by your news app's urlconf!
@@ -457,7 +457,7 @@ And now that we can actually make our way to it, an article detail template at `
 ## Let's add some per-page settings
 
 Now that we have a news feed, and our cats are writing countless articles about themselves, we'll probably find the need to paginate the news list at some point.
-The great part of the simple data model of UnCMS is that it makes it really easy to define page settings that are not visible to non-admin users.
+The simple data model of UnCMS makes it really easy to define page settings that are not visible to non-admin users.
 
 Add this to our `NewsFeed` content model:
 
@@ -471,8 +471,8 @@ per_page = models.IntegerField(
 Then, we can override `ListView`'s  `get_paginate_by` in our `ArticleListView`:
 
 ```python
-  def get_paginate_by(self, queryset):
-      return self.request.pages.current.content.per_page
+    def get_paginate_by(self, queryset):
+        return self.request.pages.current.content.per_page
 
 ```
 
