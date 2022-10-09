@@ -1,11 +1,11 @@
 # Philosophy of UnCMS
 
-UnCMS is intended to provide the minimum of functionality to build a CMS-backed website.
+UnCMS is intended to provide the minimum of functionality to build most CMS-backed websites.
 Some of its philosophy is by [historic accident](history.md);
 Some of it is by design.
 Some of it has come from mistakes tried and made.
 And a little of it comes by doing the opposite of what other Django CMSes are doing -
-not because they are bad, but because they are doing those things already.
+not because that thing is the wrong thing to do, but because they are doing those things already.
 
 ## Exactly one page will live at one URL
 
@@ -51,7 +51,9 @@ you may want to look at [Wagtail](https://wagtail.org/) instead.
 
 If a feature is not useful for the overwhelming majority of small-to-medium-sized sites, it probably will not be added.
 If a feature is useful for many sites, but can reasonably be implemented per-project, it might not be added.
-If a change _facilitates_ adding useful features to projects that use UnCMS, it might well be added.
+If a change _facilitates_ adding useful features to projects that use UnCMS,
+such as by adding extension points,
+it might well be added.
 
 ## Performance matters
 
