@@ -130,7 +130,7 @@ class TestFileAdminBase(TransactionTestCase):
 
     def test_fileadminbase_get_actions(self):
         actions = self.file_admin.get_actions(self.request)
-        self.assertEqual(len(actions), 2)
+        self.assertEqual(len(actions), 3)
 
         self.request = self.factory.get('/?{}'.format(IS_POPUP_VAR))
         self.request.user = MockSuperUser()

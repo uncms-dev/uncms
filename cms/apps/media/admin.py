@@ -90,7 +90,7 @@ class FileAdmin(VersionAdmin, SearchAdmin):
         for label in Label.objects.all():
             # Add action.
             action_function = partial(self.__class__.add_label_action, label=label)
-            action_description = 'Remove label %s from selected %s' % (label.name, verbose_name_plural)
+            action_description = 'Add label %s to selected %s' % (label.name, verbose_name_plural)
             action_name = action_description.lower().replace(' ', '_')
             actions[action_name] = (action_function, action_name, action_description)
             # Remove action.
