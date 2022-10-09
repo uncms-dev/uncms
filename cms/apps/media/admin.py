@@ -193,7 +193,7 @@ class FileAdmin(VersionAdmin, SearchAdmin):
         context['is_popup'] = True
         context['is_media_library_iframe'] = True
 
-        return super().changelist_view(request, context)
+        return super().changelist_view(request, extra_context=context)
 
     def get_urls(self):
         urls = super().get_urls()
