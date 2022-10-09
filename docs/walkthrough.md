@@ -502,7 +502,7 @@ But it's nice knowing that we have the option if we need it.
 ## Let's fix your base template
 
 Finally, many times we mentioned about all of that SEO and OpenGraph goodness that would be available in your page's context if we used certain helper models and helper views.
-Let's get our template functions into the `<head>` of our document:
+Let's get our template functions into the `<head>` of our site's base template:
 
 ```
 <meta name="description" content="{{ get_meta_description() }}">
