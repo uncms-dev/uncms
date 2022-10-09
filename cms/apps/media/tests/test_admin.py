@@ -318,3 +318,24 @@ def test_media_list_shows_stylesheet(client):
         assert response.status_code == 200
         soup = BeautifulSoup(response.content, 'html.parser')
         assert bool(soup.find('link', attrs={'rel': 'stylesheet', 'href': '/static/media/css/media-list.css'})) is fancy_view
+
+
+@pytest.mark.django_db
+def test_file_detail_conditionally_shows_fieldsets(client):
+    def has_usage_fieldset(context):
+        return any(fieldset[0] == 'Usage' for fieldset in context['adminform'].fieldsets)
+
+    user = get_user_model().objects.create_superuser(username='admin', password='hunter2')
+    client.force_login(user)
+
+    response = client.get(reverse('admin:media_file_add'))
+    assert response.status_code == 200
+    assert has_usage_fieldset(response.context_data) is False
+
+    file = File.objects.create(
+        title="Foo",
+        file=SimpleUploadedFile('Sample', b"data", content_type='image/jpeg')
+    )
+    response = client.get(reverse('admin:media_file_change', args=[file.pk]))
+    assert response.status_code == 200
+    assert has_usage_fieldset(response.context_data) is True

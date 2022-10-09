@@ -50,10 +50,6 @@ class FileAdmin(VersionAdmin, SearchAdmin):
         ('Media management', {
             'fields': ['attribution', 'copyright', 'alt_text', 'labels'],
         }),
-        ('Usage', {
-            # This is the used_on function, not a field.
-            'fields': ['used_on'],
-        }),
     ]
     filter_horizontal = ['labels']
     list_display = ['get_preview', 'get_title', 'get_size', 'id']
@@ -101,6 +97,20 @@ class FileAdmin(VersionAdmin, SearchAdmin):
             action_name = action_description.lower().replace(' ', '_')
             actions[action_name] = (action_function, action_name, action_description)
         return actions
+
+    def get_fieldsets(self, request, obj=None):
+        """
+        Only display the "usage" fieldset when changing an instance, not when
+        creating a new file.
+        """
+        fieldsets = super().get_fieldsets(request, obj=obj)
+
+        if obj is not None:
+            fieldsets = fieldsets + [('Usage', {
+                # This is the used_on function, not a field.
+                'fields': ['used_on'],
+            })]
+        return fieldsets
 
     # Custom display routines.
     @admin.display(description='size')
