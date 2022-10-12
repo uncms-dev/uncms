@@ -37,6 +37,7 @@ setup(
     install_requires=DEPENDENCIES,
     extras_require={
         'dev': [
+            'factory-boy==3.2.1',
             'flake8==3.7.9',
             'isort==4.3.21',
             'pylint==2.4.4',

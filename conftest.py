@@ -30,6 +30,7 @@ def pytest_configure():
         },
         STATIC_URL='/static/',
         MEDIA_URL='/media/',
+        MEDIA_ROOT=os.path.join(os.path.dirname(__file__), 'media/'),
         INSTALLED_APPS=[
             # Django apps
             'django.contrib.admin',
@@ -114,5 +115,6 @@ def pytest_configure():
         ],
         SECRET_KEY='KNOWN_FIXED_VALUE_IS_FINE',
         PUBLICATION_MIDDLEWARE_EXCLUDE_URLS=['/admin/'],
-        UNCMS={}
+        UNCMS={},
+        THUMBNAIL_PRESERVE_FORMAT=True,
     )

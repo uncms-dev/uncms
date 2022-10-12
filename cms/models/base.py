@@ -20,7 +20,8 @@ class PathTokenGenerator:
     '''
     PathTokenGenerator is a simple token generator that takes a path and
     generates a signed path for it. It allows adding reasonably-unguessable
-    preview URLs to offline pages.
+    preview URLs to offline pages, as well as for signing image thumbnail
+    URLs.
     '''
 
     key_salt = 'cms.apps.pages.models.base.PathTokenGenerator'
@@ -38,9 +39,9 @@ class PathTokenGenerator:
             secret=defaults.PATH_SIGNING_SECRET,
         ).hexdigest()[::2]
 
-    def make_url(self, path):
+    def make_url(self, path, token_parameter='preview'):
         parsed = urlparse(path)
-        parsed = parsed._replace(query=urlencode({'preview': self.make_token(path)}))
+        parsed = parsed._replace(query=urlencode({token_parameter: self.make_token(path)}))
         return parsed.geturl()
 
 
