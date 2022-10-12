@@ -5,6 +5,7 @@ from django.contrib.staticfiles.storage import staticfiles_storage
 from django.utils.safestring import mark_safe
 
 from cms.conf import defaults
+from cms.html import clean_all
 
 
 class HtmlWidget(forms.Textarea):
@@ -34,6 +35,7 @@ class HtmlWidget(forms.Textarea):
         attrs['class'] = 'wysiwyg'
         attrs['required'] = False
         attrs['data-wysiwyg-settings'] = json.dumps(defaults.WYSIWYG_OPTIONS)
+        value = clean_all(value)
 
         # Get the standard widget.
         html = super().render(name, value, attrs)

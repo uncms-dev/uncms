@@ -14,6 +14,47 @@ UNCMS = {
 }
 ```
 
+## `BLEACH_OPTIONS`
+
+* Type: dictionary (Bleach `clean` keyword arguments)
+* Default: too large to put here; see `cms/conf.py`
+
+HTML from the default [HTML editor](html-editor.md) should be sanitised for bad tags (such as `<script>`) and bad attributes (such as `onload`) before being displayed to users of your site.
+By default, this is passed through [Bleach](https://github.com/mozilla/bleach).
+UnCMS has a long list of built-in default allowed tags and attributes that should be safe.
+You may want to allow or disallow other tags and attributes.
+If you do, use this configuration setting.
+
+This option corresponds directly to keyword arguments accepted by the [`bleach.clean`](https://bleach.readthedocs.io/en/latest/clean.html) function.
+
+## `HTML_CLEANERS`
+
+* Type: list of strings (dotted names of cleaner functions)
+* Default: `['cms.html.clean_html']`
+
+This is a list of functions that will clean the output in the `html` template filter.
+The default is to run it through a function that cleans it with Bleach's `clean` function.
+See `BLEACH_OPTIONS` above.
+
+This should be a list of functions, as dotted string paths, which accept a single argument and return the cleaned HTML as a string.
+This list is _not_ additive to the defaults;
+if you wish to retain the default HTML cleaning while adding your own cleaner functions,
+you must include `'cms.html.clean_html'` in this list.
+
+## `HTML_OUTPUT_FORMATTERS`
+
+* Type: list of strings (dotted names of HTML output formatting functions)
+* Default: `['cms.html.format_html']`
+
+`HTML_OUTPUT_FORMATTERS` is a list of functions, as dotted string paths, which will clean the HTML when output on your site with the `html` template filter.
+This is intended for_post-processing_, not for sanitisation;
+for the latter, see the `HTML_CLEANERS` option.
+
+By default, it will run `'cms.html.format_html'`, which expands permalinks and rewrites images.
+This list is _not_ additive to the defaults;
+if you wish to retain the default HTML processing while adding your own output formatters,
+you must include `'cms.html.format_html'` in this list.
+
 ## `MEDIA_FILE_MODEL`
 
 * Type: string (dotted name of Django model)

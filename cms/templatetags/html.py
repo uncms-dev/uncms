@@ -4,7 +4,7 @@ from django.template.defaultfilters import stringfilter
 from django.utils.safestring import mark_safe
 from django_jinja import library
 
-from cms.html import process as process_html
+from cms.html import process_html
 
 
 @library.filter

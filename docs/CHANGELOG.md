@@ -2,7 +2,7 @@
 
 ## 1.0.0
 
-This is the first release of UnCMS, forked from version onespacemedia-cms 4.4.
+This is the first release of UnCMS, forked from onespacemedia-cms version 4.4.
 
 * Rename! 🥳 This project is now UnCMS, because it is not quite a CMS. It now has a documented philosophy and a maintainer.
 * Django 3.2 is now supported.
@@ -10,6 +10,7 @@ This is the first release of UnCMS, forked from version onespacemedia-cms 4.4.
 * Configuration is now handled in a single `UNCMS` dictionary in your config file. `WYSIWYG_OPTIONS` and `PUBLICATION_MIDDLEWARE_EXCLUDE_URLS` now have sensible defaults. If you have changed any of the defaults you may wish to move them into the `UNCMS` configuration dictionary.
 * It is now possible to use a different key for path signing, rather than `SECRET_KEY`.
 * Paths in `PUBLICATION_MIDDLEWARE_EXCLUDE_URLS` must now begin with a forward slash.
+* The `html` template filter now sanitises output. It is also sanitised before rendering it in the HTML editor.
 * TinyPNG support has been removed. Image size reduction is better implemented per-project with post-save hooks, if it is needed.
 * Django Jet support has been removed, because Django Jet is dead. Not being tied to any particular admin skin, and being made with the stock Django admin as a first-class citizen, is now a core part of the UnCMS philosophy.
 * usertools dependency has been removed.

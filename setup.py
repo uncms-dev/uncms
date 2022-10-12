@@ -13,6 +13,7 @@ DEPENDENCIES = [
     'Jinja2==3.1.2',
 
     'beautifulsoup4',
+    'bleach>=5.0.1,<6',
     'django>=3.2,<3.3',
     'django-watson',
     'django-reversion',

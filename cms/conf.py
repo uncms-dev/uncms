@@ -13,11 +13,59 @@ class AppSettings:
     present, a sensible default will be returned.
     """
     default_settings = {
+        # Options for HTML output filtering.
+        'BLEACH_OPTIONS': {
+            'tags': {
+                'p', 'div', 'a', 'hr', 'span', 'blockquote',
+                # Lists
+                'ol', 'ul', 'li', 'dl', 'dt', 'dd',
+                # Headings
+                'h2', 'h3', 'h4', 'h5', 'h6',
+                # Media
+                'img', 'audio', 'picture', 'figure', 'figcaption', 'source', 'video',
+                # Simple emphasis
+                'i', 'em', 'strong', 'b', 'u',
+                # obvs
+                'br',
+                # Code formats
+                'code', 'pre',
+                # super/subscripts
+                'sup', 'sub',
+                # a thing I needed once
+                'abbr',
+                # strikethrough and such
+                'del', 'ins', 's',
+                # external media
+                'iframe',
+                # Tables
+                'table', 'thead', 'tbody', 'th', 'tr', 'td', 'tfoot', 'caption', 'colgroup', 'col',
+            },
+            'attributes': {
+                '*': {
+                    # blanket stuff that should almost always be OK - can
+                    # style ever be dangerous?
+                    'style', 'class', 'title',
+                },
+                'a': ['href'],
+                'audio': ['src', 'controls', 'loop', 'muted'],
+                'col': ['span'],
+                'iframe': ['src', 'allowfullscreen', 'frameborder'],
+                'img': ['src', 'loading', 'height', 'width', 'alt'],
+                'ol': ['type'],
+                'table': ['summary'],
+                'td': ['rowspan', 'colspan'],
+                'ul': ['type'],
+                'video': ['controls', 'height', 'width'],
+            }
+        },
+        'HTML_CLEANERS': ['cms.html.clean_html'],
+        'HTML_OUTPUT_FORMATTERS': ['cms.html.format_html'],
         'MEDIA_FILE_MODEL': 'media.File',
         'MEDIA_LIST_GRID_VIEW': True,
         'ONLINE_DEFAULT': True,
         'PATH_SIGNING_SECRET': settings.SECRET_KEY,
         'PUBLICATION_MIDDLEWARE_EXCLUDE_URLS': [r'^/admin/'],
+        'SANITISE_HTML': True,
         'WYSIWYG_OPTIONS': {
             'height': 500,
             'plugins': [

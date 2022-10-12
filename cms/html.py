@@ -1,24 +1,41 @@
 """HTML processing routines."""
 import re
 
+import bleach
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.utils.html import escape
+from django.utils.module_loading import import_string
 from sorl.thumbnail import get_thumbnail
 
 from cms import permalinks
+from cms.conf import defaults
 
 RE_TAG = re.compile(r"<(img|a)(\s+.*?)(/?)>", re.IGNORECASE)
 
 RE_ATTR = re.compile(r"\s([\w-]+)=(\".*?\"|'.*?')", re.IGNORECASE)
 
 
-def process(text):  # pylint:disable=too-many-statements
+def clean_html(html):
+    return bleach.clean(html, **defaults.BLEACH_OPTIONS)
+
+
+def clean_all(html):
+    for cleaner in defaults.HTML_CLEANERS:
+        cleaner_func = import_string(cleaner)
+        html = cleaner_func(html)
+
+    return html
+
+
+def format_html(text):  # pylint:disable=too-many-statements
     """
     Expands permalinks in <a/> and <img/> tags.
 
     Images will also be automatically thumbnailed to fit their specified width
     and height.
+
+    Note that this does *not* run any sanitisation on the output.
     """
     resolved_permalinks = {}
 
@@ -95,3 +112,15 @@ def process(text):  # pylint:disable=too-many-statements
         attrs_str = " ".join("%s=%s" % (key, value) for key, value in sorted(attrs.items()))
         return "<%s %s%s>" % (tagname, attrs_str, match.group(3))
     return RE_TAG.sub(sub_tag, text)
+
+
+def format_all(html):
+    for formatter in defaults.HTML_OUTPUT_FORMATTERS:
+        formatter_func = import_string(formatter)
+        html = formatter_func(html)
+
+    return html
+
+
+def process_html(html):
+    return format_all(clean_all(html))
