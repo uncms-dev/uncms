@@ -1,14 +1,22 @@
 import base64
 import random
 import sys
+from io import BytesIO
 
+import pytest
 from django.contrib import admin
 from django.contrib.admin.widgets import ForeignKeyRawIdWidget
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, TransactionTestCase
 from django.utils.timezone import now
+from PIL import Image
 
 from cms.apps.media.models import File, FileRefField, Label
+from cms.apps.media.tests.factories import (
+    EmptyFileFactory,
+    MinimalGIFFileFactory,
+    SamplePNGFileFactory
+)
 from cms.apps.testing_models.models import MediaTestModel
 
 
@@ -123,3 +131,68 @@ class TestFile(TransactionTestCase):
         )
 
         self.assertEqual(field.remote_field.model, 'media.File')
+
+
+@pytest.mark.django_db
+def test_file_get_thumbnail(client):
+    image = SamplePNGFileFactory()
+
+    # tuple of (kwargs, expected height, expected width)
+    tests = [
+        # Is height being guessed correctly if it is auto?
+        ({'width': 960}, 960, 540),
+        # Is width being guessed correctly if it is auto?
+        ({'height': 540}, 960, 540),
+        # And if we've specified both?
+        ({'width': 240, 'height': 240}, 240, 240),
+        # And if numbers don't divide neatly into each other?
+        ({'width': 1919}, 1919, 1079),
+        ({'height': 1079}, 1918, 1079),
+        # And if we're feeding it pretty much garbage inputs? WHAT THEN HUH
+        ({'width': 2}, 2, 1),
+    ]
+    for thumb_kwargs, width, height in tests:
+        thumbnail = image.get_thumbnail(**thumb_kwargs)
+        assert thumbnail.width == width
+        assert thumbnail.height == height
+
+        # But do they match up with what the image view will actually do?
+        response = client.get(thumbnail.url)
+        assert response.status_code == 302
+
+        response = client.get(response['Location'])
+        assert response.status_code == 200
+        assert response['Content-Type'] == 'image/png'
+        response_content = response.getvalue()
+        pil_image = Image.open(BytesIO(response_content))
+        # not gonna try and work out EXACTLY how Sorl decides how to round
+        # dimensions - if there's less than 1px different call it close enough
+        assert abs(pil_image.size[0] - thumbnail.width) <= 1
+        assert abs(pil_image.size[1] - thumbnail.height) <= 1
+        pil_image.close()
+
+
+@pytest.mark.django_db
+def test_file_get_thumbnail_on_garbage():
+    # What happens when we feed get_thumbnail total nonsense? As get_thumbnail
+    # can be called in-request, on user-facing sites, we don't want to crash
+    # other than being called with no target height or width (which is a
+    # programmer's error).
+
+    # Test "your code is bad" branch
+    image = SamplePNGFileFactory()
+    with pytest.raises(ValueError) as excinfo:
+        image.get_thumbnail()
+    assert 'no dimensions provided' in str(excinfo.value)
+
+    # Give it something that isn't an image
+    garbage = EmptyFileFactory()
+    thumbnail = garbage.get_thumbnail(width=2)
+    assert thumbnail.width == 2
+    assert thumbnail.height == 0
+
+    # what happens on a 0x0 gif?
+    garbage_gif = MinimalGIFFileFactory()
+    thumbnail = garbage_gif.get_thumbnail(width=10)
+    assert thumbnail.width == 10
+    assert thumbnail.height == 0

@@ -1,5 +1,5 @@
 #!/bin/sh
-pytest cms
+pytest --cov=cms cms
 isort --diff --check-only
 flake8 cms/
 pylint cms/

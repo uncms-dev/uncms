@@ -1,4 +1,5 @@
 from django.db import models
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
@@ -10,6 +11,8 @@ from cms.apps.media.fields import (
     VideoFileRefField
 )
 from cms.apps.media.filetypes import get_icon, is_image
+from cms.apps.media.types import Thumbnail
+from cms.models.base import path_token_generator
 
 
 class Label(models.Model):
@@ -113,6 +116,41 @@ class File(models.Model):
             return image.size
         except IOError:
             return (0, 0)
+
+    def get_thumbnail(self, *, width='auto', height='auto', crop='none', fmt='source', colorspace='auto', quality='default') -> Thumbnail:
+        if width == 'auto' and height == 'auto':
+            raise ValueError('no dimensions provided - specify either height or width')
+
+        url = reverse('media_library:image_view', kwargs={
+            'pk': self.pk,
+            'width': str(width),
+            'height': str(height),
+            'crop': crop,
+            'format': fmt,
+            'colorspace': colorspace,
+            'quality': quality,
+        })
+
+        # Now try and calculate the expected width. If they have specified
+        # both height and width, that's going to be the expected height and
+        # width, obvs.
+        if width != 'auto' and height != 'auto':
+            thumb_width, thumb_height = width, height
+        elif height == 'auto':
+            # They've specified a width but no height. "self.height or 1"
+            # guards against a broken image file - this function should be
+            # safe to use without throwing an exception.
+            thumb_width, thumb_height = width, round(self.height * (width / (self.width or 1)))
+        else:
+            # due to the exception raised if both are 'auto', this is the only
+            # other option: height specified, width auto
+            thumb_width, thumb_height = round(self.width * (height / (self.height or 1))), height
+
+        return Thumbnail(
+            url=path_token_generator.make_url(url, token_parameter='signature'),
+            width=thumb_width,
+            height=thumb_height,
+        )
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         super().save(force_insert, force_update, using, update_fields)

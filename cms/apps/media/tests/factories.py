@@ -31,3 +31,9 @@ class SampleJPEGFileFactory(FileFactory):
     file = factory.django.FileField(
         from_path=os.path.join(os.path.dirname(__file__), 'data', '1920x1080.jpg'),
     )
+
+
+class MinimalGIFFileFactory(FileFactory):
+    file = factory.django.FileField(
+        from_string=b'R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==',
+    )
