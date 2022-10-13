@@ -27,12 +27,12 @@ Add our core UnCMS things to your `INSTALLED_APPS`:
 
 ```python
 INSTALLED_APPS = [
-  # .....
-  'cms',
-  'cms.apps.pages',
-  'cms.apps.media',
-  # Links is optional, but it's very handy to have.
-  'cms.apps.links',
+    # .....
+    'cms',
+    'cms.apps.pages',
+    'cms.apps.media',
+    # Links is optional, but it's very handy to have.
+    'cms.apps.links',
 ]
 ```
 
@@ -46,9 +46,9 @@ Add the page management middleware to your `MIDDLEWARE`:
 
 ```python
 MIDDLEWARE = [
-  # ...
-  'cms.middleware.PublicationMiddleware',
-  'cms.apps.pages.middleware.PageMiddleware',
+    # ...
+    'cms.middleware.PublicationMiddleware',
+    'cms.apps.pages.middleware.PageMiddleware',
 ]
 ```
 
@@ -57,6 +57,16 @@ An empty dictionary will mean UnCMS will use all its defaults.
 
 ```
 UNCMS = {}
+```
+
+Finally, you will need something like this in your root URLconf.
+You may change the path part, but do not change the namespace.
+
+```
+urlpatterns = [
+    # ... your other stuff here ...
+    path('library/', include('cms.apps.media.urls', namespace='media_library')),
+]
 ```
 
 ## Let's make a content model

@@ -3,6 +3,24 @@
 The media app provides file and image management to the Django admin.
 It also integrates with UnCMS's WYSIWYG text editor to provide a file browser and image browser interface that allows images and files to be added directly into the editor.
 
+## Adding the media app to your site
+
+You will need to add `'cms.apps.media'` to your `INSTALLED_APPS`.
+If you are using any of UnCMS's other features,
+you would have done this already.
+
+You will also need something like this in your root urlconf (note the namespace `media_library`):
+
+```
+from django.urls import include, path
+
+urlpatterns = [
+    # other URLs here...
+    path('library/', include('cms.apps.media.urls', namespace='media_library')),
+]
+
+```
+
 ## Models
 
 ### File

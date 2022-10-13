@@ -10,6 +10,13 @@ _WIP: development and testing guide_
 
 UnCMS aims for a very high code coverage percentage.
 Eventually, the goal is to reach 100% coverage, and to enforce this in CI.
+Any new features should probably have a test.
+Any bug fixes might need a regression test.
+
+You should write new tests as pytest test functions.
+Experience with test classes shows that they tend to smoosh together too many responsibilities.
+If you are changing an existing test which is part of a test class,
+it might be best to rewrite that test as a test function.
 
 ### Writing tests
 
