@@ -9,13 +9,7 @@ you probably want to look at the companion [tiny CMS project repo](https://githu
 We'll need to add a few settings that UnCMS depends on.
 Don't worry too much about what these do for now; the concepts behind them will be explained in depth over the course of the walkthrough.
 
-First, tell us the name of your site. We depend on this in one of our [template functions](template-functions.md):
-
-```python
-SITE_NAME = 'a tiny project'
-```
-
-And your domain; it is used by template functions to turn relative /urls/ into http://actual.absolute/urls/:
+First, put your default hostname in the `SITE_DOMAIN` setting; it is used by template functions to turn relative /urls/ into http://actual.absolute/urls/:
 
 ```python
 SITE_DOMAIN = 'example.com'
