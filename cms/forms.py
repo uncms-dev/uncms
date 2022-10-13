@@ -35,7 +35,7 @@ class HtmlWidget(forms.Textarea):
         attrs['class'] = 'wysiwyg'
         attrs['required'] = False
         attrs['data-wysiwyg-settings'] = json.dumps(defaults.WYSIWYG_OPTIONS)
-        value = clean_all(value)
+        value = clean_all(value or '')
 
         # Get the standard widget.
         html = super().render(name, value, attrs)
