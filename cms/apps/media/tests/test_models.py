@@ -150,6 +150,8 @@ def test_file_get_thumbnail(client):
         ({'height': 1079}, 1918, 1079),
         # And if we're feeding it pretty much garbage inputs? WHAT THEN HUH
         ({'width': 2}, 2, 1),
+        # why not test the other things while we're here?
+        ({'width': 960, 'colorspace': 'gray', 'quality': 90}, 960, 540),
     ]
     for thumb_kwargs, width, height in tests:
         thumbnail = image.get_thumbnail(**thumb_kwargs)
