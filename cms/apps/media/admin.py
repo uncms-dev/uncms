@@ -54,8 +54,8 @@ class FileAdmin(VersionAdmin, SearchAdmin):
         }),
     ]
     filter_horizontal = ['labels']
-    list_display = ['get_preview', 'get_title', 'get_size', 'id']
-    list_display_links = ['get_preview', 'get_title', 'get_size']
+    list_display = ['get_preview', 'title', 'get_size', 'id']
+    list_display_links = ['get_preview', 'title', 'get_size']
     list_filter = ['labels']
     readonly_fields = ['used_on']
     search_fields = ['title']
@@ -152,11 +152,6 @@ class FileAdmin(VersionAdmin, SearchAdmin):
             icon,
             obj.title
         )
-
-    @admin.display(description='title', ordering='title')
-    def get_title(self, obj):
-        '''Returns a truncated title of the object.'''
-        return Truncator(obj.title).words(8)
 
     def used_on(self, obj=None):
         context = {}

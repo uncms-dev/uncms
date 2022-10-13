@@ -198,9 +198,6 @@ class TestFileAdminBase(TransactionTestCase):
 
         obj.delete()
 
-    def test_fileadminbase_get_title(self):
-        self.assertEqual(self.file_admin.get_title(self.obj_1), 'Foo')
-
     def test_fileadminbase_response_add(self):
         # Allow the messages framework to work.
         setattr(self.request, 'session', 'session')
