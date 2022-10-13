@@ -17,9 +17,7 @@ from django.template.defaultfilters import filesizeformat
 from django.template.loader import render_to_string
 from django.urls import re_path
 from django.utils.html import format_html
-from django.utils.text import Truncator
 from reversion.admin import VersionAdmin
-from sorl.thumbnail import get_thumbnail
 from watson.admin import SearchAdmin
 
 from cms import permalinks
@@ -130,21 +128,15 @@ class FileAdmin(VersionAdmin, SearchAdmin):
         icon = obj.icon
         permalink = permalinks.create(obj)
         if obj.is_image():
-            try:
-                thumbnail = get_thumbnail(obj.file, '200x132', quality=99)
-                return format_html(
-                    '<img class="uncms-thumbnail" cms:permalink="{}" src="{}" width="{}" height="{}" alt="" title="{}"/>',
-                    permalink,
-                    thumbnail.url,
-                    thumbnail.width,
-                    thumbnail.height,
-                    obj.title
-                )
-
-            # AttributeError will be raised if thumbnail returns None - the
-            # others can be raised with bad files.
-            except (IOError, TypeError, AttributeError):
-                pass
+            thumbnail = obj.get_thumbnail(width=200, fmt='webp')
+            return format_html(
+                '<img class="uncms-thumbnail" cms:permalink="{}" src="{}" width="{}" height="{}" alt="" title="{}"/>',
+                permalink,
+                thumbnail.url,
+                thumbnail.width,
+                thumbnail.height,
+                obj.title
+            )
 
         return format_html(
             '<img class="uncms-fallback-icon" cms:permalink="{}" src="{}" width="56" height="66" alt="" title="{}"/>',

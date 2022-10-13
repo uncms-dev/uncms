@@ -149,14 +149,6 @@ class TestFileAdminBase(TransactionTestCase):
         self.assertEqual(self.file_admin.get_size(obj), '0 bytes')
 
     def test_fileadminbase_get_preview(self):
-        self.assertEqual(
-            self.file_admin.get_preview(self.obj_1),
-            '<img class="uncms-fallback-icon" cms:permalink="/r/{}-{}/" src="/static/media/img/image-x-generic.png" width="56" height="66" alt="" title="Foo"/>'.format(
-                ContentType.objects.get_for_model(File).pk,
-                self.obj_1.pk
-            )
-        )
-
         # We can't do an `assertEqual` here as the generated src URL is dynamic.
         preview = self.file_admin.get_preview(self.obj_2)
 
@@ -169,7 +161,7 @@ class TestFileAdminBase(TransactionTestCase):
         )
 
         self.assertIn(
-            'width="132" height="132" alt="" title="Foo 2"/>',
+            'width="200" height="200" alt="" title="Foo 2"/>',
             preview,
         )
 
@@ -180,10 +172,7 @@ class TestFileAdminBase(TransactionTestCase):
 
         preview = self.file_admin.get_preview(obj)
 
-        self.assertEqual(preview, '<img class="uncms-fallback-icon" cms:permalink="/r/{}-{}/" src="/static/media/img/image-x-generic.png" width="56" height="66" alt="" title="Foo"/>'.format(
-            ContentType.objects.get_for_model(File).pk,
-            obj.pk
-        ))
+        assert preview.startswith('<img class="uncms-thumbnail"')
 
         obj = File.objects.create(
             title="Foo",
