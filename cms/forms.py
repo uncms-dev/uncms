@@ -15,7 +15,7 @@ class HtmlWidget(forms.Textarea):
         '''Returns the media used by the widget.'''
         js = [
             staticfiles_storage.url('cms/js/tinymce/tinymce.min.js'),
-            staticfiles_storage.url('cms/js/jquery.cms.wysiwyg.js'),
+            staticfiles_storage.url('cms/js/wysiwyg.js'),
         ]
 
         css = {}
