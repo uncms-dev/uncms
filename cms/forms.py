@@ -12,7 +12,6 @@ class HtmlWidget(forms.Textarea):
     '''A textarea that is converted into a TinyMCE rich text editor.'''
 
     def get_media(self):
-        '''Returns the media used by the widget.'''
         js = [
             staticfiles_storage.url('cms/js/tinymce/tinymce.min.js'),
             staticfiles_storage.url('cms/js/wysiwyg.js'),
@@ -28,8 +27,6 @@ class HtmlWidget(forms.Textarea):
     )
 
     def render(self, name, value, attrs=None, renderer=None):
-        '''Renders the widget.'''
-
         # Add on the JS initializer.
         attrs = attrs or {}
         attrs['class'] = 'wysiwyg'
@@ -38,6 +35,4 @@ class HtmlWidget(forms.Textarea):
         value = clean_all(value or '')
 
         # Get the standard widget.
-        html = super().render(name, value, attrs)
-
-        return mark_safe(html)
+        return super().render(name, value, attrs)
