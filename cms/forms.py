@@ -17,7 +17,9 @@ class HtmlWidget(forms.Textarea):
             staticfiles_storage.url('cms/js/wysiwyg.js'),
         ]
 
-        css = {}
+        css = {
+            'screen': ['cms/css/tinymce-tweak.css'],
+        }
 
         return forms.Media(js=js, css=css)
 

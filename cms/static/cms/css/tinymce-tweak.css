@@ -1,0 +1,7 @@
+.mce-tinymce {
+  /*
+  this stops TinyMCE running into its label, which is positioned to the
+  left with "float" in the Current Year
+  */
+  clear: both;
+}
