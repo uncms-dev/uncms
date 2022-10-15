@@ -20,10 +20,12 @@ def test_raw_id_widget_rendering(client):
     empty_file = EmptyFileFactory()
     widget = ImageThumbnailWidget(rel=ImageFieldModel._meta.get_field('image').remote_field, admin_site=admin.site)
 
-    # No value or a broken file should
+    # No value or a broken file should not render a thumbnail.
     assert not get_img(widget.render(name='image', value=None))
     assert not get_img(widget.render(name='image', value=empty_file.pk))
 
+    # But a real image should! Let's make sure it renders and is an actual
+    # image.
     image = get_img(widget.render(name='image', value=image.pk))
     assert image
     assert client.get(image['src']).status_code == 200
