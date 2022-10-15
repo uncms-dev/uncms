@@ -15,6 +15,7 @@ from cms.apps.pages.models import (
     PageSitemap,
     filter_indexable_pages
 )
+from cms.apps.pages.tests.factories import PageFactory
 from cms.apps.testing_models.models import PageContent, PageContentWithSections
 from cms.models.managers import publication_manager
 
@@ -113,23 +114,6 @@ class TestPage(TestCase):
 
         self.assertEqual(len(sitemap.items()), 3)
 
-    def test_contentbase_unicode(self):
-        self.assertEqual(self.homepage.content.__str__(), 'Homepage')
-        self.assertEqual(self.section.content.__str__(), 'Section')
-        self.assertEqual(self.subsection.content.__str__(), 'Subsection')
-        self.assertEqual(self.subsubsection.content.__str__(), 'Subsubsection')
-
-    def test_pagesearchadapter_get_live_queryset(self):
-        self.assertEqual(len(search.search('Homepage', models=(Page,))), 1)
-
-        with publication_manager.select_published(True):
-            self.assertEqual(len(search.search('Homepage', models=(Page,))), 1)
-
-            self.homepage.is_online = False
-            self.homepage.save()
-
-            self.assertEqual(len(search.search('Homepage', models=(Page,))), 0)
-
     def test_page_get_absolute_url(self):
         with search.update_index():
             Page.objects.all().delete()
@@ -154,18 +138,6 @@ class TestPage(TestCase):
         new_page = Page.objects.get(pk=new_page.pk)
         self.assertEqual(new_page.get_absolute_url(), '/')
 
-    def test_last_modified(self):
-
-        # We have no versions
-        self.assertEqual(self.homepage.last_modified(), '-')
-
-        # Create an initial revision.
-        with create_revision():
-            self.homepage.save()
-
-        # We have reversion and a version in the db, last_modified should not be empty
-        self.assertNotEqual(self.homepage.last_modified(), '-')
-
     def test_publication(self):
         self.homepage.publication_date = now() + timedelta(days=10)
         self.homepage.save()
@@ -189,29 +161,6 @@ class TestPage(TestCase):
         with self.assertRaises(TypeError), \
                 publication_manager.select_published(True):
             assert 1 / 'a'
-
-
-class TestSectionPage(TestCase):
-
-    def setUp(self):
-        with search.update_index():
-            content_type = ContentType.objects.get_for_model(PageContentWithSections)
-
-            self.homepage = Page.objects.create(
-                title='Homepage',
-                slug='homepage',
-                content_type=content_type,
-            )
-
-            PageContentWithSections.objects.create(
-                page=self.homepage,
-            )
-
-    def test_pagesearchadapter_get_content(self):
-        search_adapter = PageSearchAdapter(Page)
-
-        content = search_adapter.get_content(self.homepage)
-        self.assertEqual(content, '      homepage Homepage  testing')
 
 
 class TestPageComplex(TestCase):
@@ -506,20 +455,60 @@ class TestPageComplex(TestCase):
 
 
 @pytest.mark.django_db
+def test_contentbase_str():
+    page = PageFactory(title='Awesome')
+    assert(str(page.content)) == 'Awesome'
+
+
+@pytest.mark.django_db
+def test_page_last_modified():
+    page = PageFactory()
+    # We have no versions
+    assert page.last_modified() == '-'
+
+    # Create an initial revision.
+    with create_revision():
+        page.save()
+
+    # We have reversion and a version in the db, last_modified should not be empty
+    assert page.last_modified() != '-'
+
+
+@pytest.mark.django_db
 def test_page_str():
-    content_type = ContentType.objects.get_for_model(PageContent)
-    with search.update_index():
-        page = Page.objects.create(
-            title='Home page',
-            short_title='Home',
-            slug='homepage',
-            content_type=content_type,
-        )
-
-        PageContent.objects.create(
-            page=page,
-        )
-
+    page = PageFactory(
+        title='Home page',
+        short_title='Home',
+    )
+    assert page.slug == 'home-page'
     assert str(page) == 'Home'
     page.short_title = None
     assert str(page) == 'Home page'
+
+
+@pytest.mark.django_db
+def test_pagesearchadapter_get_live_queryset():
+    call_command('installwatson')
+    def do_search():
+        return search.search('Sparkles', models=(Page,))
+
+    page = PageFactory(title='Sparkles')
+    assert len(do_search()) == 1
+
+    with publication_manager.select_published(True):
+        assert len(do_search()) == 1
+
+        # Take it offline, save...
+        page.is_online = False
+        page.save()
+        # ...and it should no longer be in the results
+        assert len(do_search()) == 0
+
+
+@pytest.mark.django_db
+def test_pagesearchadapter_get_content():
+    page = PageFactory(title='Homepage', content=PageContentWithSections())
+    search_adapter = PageSearchAdapter(Page)
+
+    content = search_adapter.get_content(page)
+    assert content == '      homepage Homepage  testing'
