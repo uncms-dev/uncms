@@ -79,17 +79,6 @@ class TestPage(TestCase):
         subsubsection = subsection.children[0]
         self.assertEqual(subsubsection.title, 'Subsubsection')
 
-    def test_page_reverse(self):
-        url = self.homepage.reverse('detail', kwargs={
-            'slug': self.homepage.slug
-        })
-
-        self.assertEqual(url, '/homepage/')
-
-        url = self.homepage.reverse('index')
-
-        self.assertEqual(url, '/')
-
     def test_filter_indexable_pages(self):
         pages = Page.objects.all()
         self.assertEqual(len(pages), 4)
@@ -137,30 +126,6 @@ class TestPage(TestCase):
 
         new_page = Page.objects.get(pk=new_page.pk)
         self.assertEqual(new_page.get_absolute_url(), '/')
-
-    def test_publication(self):
-        self.homepage.publication_date = now() + timedelta(days=10)
-        self.homepage.save()
-
-        self.section.publication_date = now() + timedelta(days=10)
-        self.section.save()
-
-        self.subsection.publication_date = now() + timedelta(days=10)
-        self.subsection.save()
-
-        self.subsubsection.publication_date = now() + timedelta(days=10)
-        self.subsubsection.save()
-
-        with publication_manager.select_published(True):
-            self.assertEqual(Page.objects.count(), 0)
-
-        with publication_manager.select_published(False):
-            self.assertEqual(Page.objects.count(), 4)
-
-        # We need to generate an exception within the published block.
-        with self.assertRaises(TypeError), \
-                publication_manager.select_published(True):
-            assert 1 / 'a'
 
 
 class TestPageComplex(TestCase):
@@ -472,6 +437,45 @@ def test_page_last_modified():
 
     # We have reversion and a version in the db, last_modified should not be empty
     assert page.last_modified() != '-'
+
+
+@pytest.mark.django_db
+def test_page_publication_date():
+    for _ in range(4):
+        PageFactory.create(publication_date=now() + timedelta(days=10))
+
+    with publication_manager.select_published(True):
+        assert Page.objects.count() == 0
+
+    with publication_manager.select_published(False):
+        assert Page.objects.count() == 4
+
+    # We need to generate an exception within the published block.
+    with pytest.raises(TypeError), publication_manager.select_published(True):
+        assert 1 / 'a'
+
+
+@pytest.mark.django_db
+def test_page_reverse():
+    page = PageFactory(content=PageContent())
+
+    url = page.reverse('index')
+    assert url == '/'
+
+    url = page.reverse('detail', kwargs={
+        'slug': 'sample',
+    })
+    assert url == '/sample/'
+
+    subpage = PageFactory(slug='subpage', content=PageContent(), parent=page)
+
+    url = subpage.reverse('index')
+    assert url == '/subpage/'
+
+    url = subpage.reverse('detail', kwargs={
+        'slug': 'sample',
+    })
+    assert url == '/subpage/sample/'
 
 
 @pytest.mark.django_db
