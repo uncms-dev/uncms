@@ -1,3 +1,5 @@
+from dataclasses import dataclass
+
 import pytest
 from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponse, HttpResponseNotFound
@@ -140,13 +142,9 @@ class TestRequestPageManager(TestCase):
         self.assertTrue(self.page_manager.is_exact)
 
 
+@dataclass
 class MockUser:
-
-    def __init__(self, authenticated=True):
-        self.authenticated = authenticated
-
-    def is_authenticated(self):
-        return self.authenticated
+    is_authenticated: bool
 
 
 class TestPageMiddleware(TestCase):
@@ -238,14 +236,14 @@ class TestPageMiddleware(TestCase):
             self.assertEqual(processed_response.status_code, 404)
 
         request = self.factory.get('/auth/')
-        request.user = MockUser(authenticated=False)
+        request.user = MockUser(is_authenticated=False)
         request.pages = RequestPageManager(request)
         processed_response = middleware.process_response(request, response)
         self.assertEqual(processed_response['Location'], '/accounts/login/?next=/auth/')
         self.assertEqual(processed_response.status_code, 302)
 
         request = self.factory.get('/auth/')
-        request.user = MockUser(authenticated=True)
+        request.user = MockUser(is_authenticated=True)
         request.pages = RequestPageManager(request)
         processed_response = middleware.process_response(request, response)
         self.assertEqual(processed_response.status_code, 200)

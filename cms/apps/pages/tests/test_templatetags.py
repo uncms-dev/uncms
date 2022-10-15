@@ -1,6 +1,7 @@
 import base64
 import random
 import sys
+from dataclasses import dataclass
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -29,13 +30,9 @@ from ..templatetags.pages import (
 )
 
 
+@dataclass
 class MockUser:
-
-    def __init__(self, authenticated=True):
-        self.authenticated = authenticated
-
-    def is_authenticated(self):
-        return self.authenticated
+    is_authenticated: bool
 
 
 class TestTemplatetags(TestCase):
@@ -111,7 +108,7 @@ class TestTemplatetags(TestCase):
 
     def test_render_navigation(self):
         request = self.factory.get('/')
-        request.user = MockUser(authenticated=True)
+        request.user = MockUser(is_authenticated=True)
         request.pages = RequestPageManager(request)
 
         navigation = render_navigation({
@@ -140,14 +137,14 @@ class TestTemplatetags(TestCase):
         self.assertTrue(len(output) > 0)
 
         request = self.factory.get('/')
-        request.user = MockUser(authenticated=True)
+        request.user = MockUser(is_authenticated=True)
         request.pages = RequestPageManager(request)
         output = render_breadcrumbs({'request': request})
         self.assertTrue(len(output) > 0)
 
     def test_open_graph_tags(self):
         request = self.factory.get('/')
-        request.user = MockUser(authenticated=True)
+        request.user = MockUser(is_authenticated=True)
         request.pages = RequestPageManager(request)
 
         context = {}
@@ -167,7 +164,7 @@ class TestTemplatetags(TestCase):
 
     def test_image_obj(self):
         request = self.factory.get('/')
-        request.user = MockUser(authenticated=True)
+        request.user = MockUser(is_authenticated=True)
         request.pages = RequestPageManager(request)
 
         context = {}
@@ -245,7 +242,7 @@ class TestTemplatetags(TestCase):
 def test_navigation_entries(simple_page_tree):
     factory = RequestFactory()
     request = factory.get('/')
-    request.user = MockUser(authenticated=True)
+    request.user = MockUser(is_authenticated=True)
     request.pages = RequestPageManager(request)
 
     navigation = _navigation_entries({'request': request}, request.pages.current.navigation)
@@ -340,7 +337,7 @@ def test_navigation_entries(simple_page_tree):
     ]
 
     # Section page isn't visible to non logged in users
-    request.user = MockUser(authenticated=False)
+    request.user = MockUser(is_authenticated=False)
 
     navigation = _navigation_entries({'request': request}, request.pages.current.navigation)
 

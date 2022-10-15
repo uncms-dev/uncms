@@ -19,7 +19,7 @@ def _navigation_entries(context, pages, section=None, json_safe=False):
 
     def page_entry(page):
         # Do nothing if the page is to be hidden from not logged in users
-        if page.hide_from_anonymous and not request.user.is_authenticated():
+        if page.hide_from_anonymous and not request.user.is_authenticated:
             return None
 
         url = page.get_absolute_url()
