@@ -20,7 +20,7 @@ class TestForms(TestCase):
         media = widget.get_media()
 
         self.assertDictEqual(media.__dict__, {
-            '_css_lists': [{}],
+            '_css_lists': [{'screen': ['/static/cms/css/tinymce-tweak.css']}],
             '_js_lists': [[
                 '/static/cms/js/tinymce/tinymce.min.js',
                 '/static/cms/js/wysiwyg.js',

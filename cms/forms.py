@@ -2,7 +2,6 @@ import json
 
 from django import forms
 from django.contrib.staticfiles.storage import staticfiles_storage
-from django.utils.safestring import mark_safe
 
 from cms.conf import defaults
 from cms.html import clean_all
@@ -18,7 +17,7 @@ class HtmlWidget(forms.Textarea):
         ]
 
         css = {
-            'screen': ['cms/css/tinymce-tweak.css'],
+            'screen': [staticfiles_storage.url('cms/css/tinymce-tweak.css')],
         }
 
         return forms.Media(js=js, css=css)
