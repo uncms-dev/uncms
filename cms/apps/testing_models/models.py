@@ -1,7 +1,11 @@
 # Test-only models.
 from django.db import models
 
-from cms.apps.media.models import FileRefField, VideoFileRefField
+from cms.apps.media.models import (
+    FileRefField,
+    ImageRefField,
+    VideoFileRefField
+)
 from cms.apps.pages.models import ContentBase
 from cms.models import OnlineBase, PageBase, PublishedBase, SearchMetaBase
 from cms.models.base import \
@@ -106,6 +110,10 @@ class HTMLModel(models.Model):
 class LinkFieldModel(models.Model):
 
     link = LinkField()
+
+
+class ImageFieldModel(models.Model):
+    image = ImageRefField(null=True, blank=True)
 
 
 class ModerationModel(ModerationBase):
