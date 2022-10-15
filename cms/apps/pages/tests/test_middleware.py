@@ -4,14 +4,12 @@ import pytest
 from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponse, HttpResponseNotFound
 from django.test import RequestFactory, TestCase
-from django.test.utils import override_settings
 from watson import search
 
 from cms.apps.testing_models.models import (
     MiddlewareTestPage,
     MiddlewareURLsTestPage
 )
-from cms.tests.helpers import REQUIRED_PAGE_MIDDLEWARE
 
 from ..middleware import PageMiddleware, RequestPageManager
 from ..models import Page
@@ -255,7 +253,6 @@ class TestPageMiddleware(TestCase):
 
 
 @pytest.mark.django_db
-@override_settings(MIDDLEWARE=REQUIRED_PAGE_MIDDLEWARE)
 def test_middleware_query_count(client, django_assert_num_queries):
     """
     Regression test to ensure that any middleware changes do not result in
