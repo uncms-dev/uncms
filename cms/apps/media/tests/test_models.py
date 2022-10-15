@@ -7,7 +7,7 @@ import pytest
 from django.contrib import admin
 from django.contrib.admin.widgets import ForeignKeyRawIdWidget
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import TestCase, TransactionTestCase
+from django.test import TransactionTestCase
 from django.utils.timezone import now
 from PIL import Image
 
@@ -18,18 +18,6 @@ from cms.apps.media.tests.factories import (
     SamplePNGFileFactory
 )
 from cms.apps.testing_models.models import MediaTestModel
-
-
-class TestLabel(TestCase):
-
-    def test_label_unicode(self):
-        obj = Label.objects.create(
-            name="Foo"
-        )
-
-        self.assertEqual(repr(obj), "<Label: Foo>")
-        self.assertEqual(str(obj), "Foo")
-        self.assertEqual(obj.__str__(), "Foo")
 
 
 class TestFile(TransactionTestCase):
@@ -198,3 +186,9 @@ def test_file_get_thumbnail_on_garbage():
     thumbnail = garbage_gif.get_thumbnail(width=10)
     assert thumbnail.width == 10
     assert thumbnail.height == 0
+
+
+@pytest.mark.django_db
+def test_label_str():
+    obj = Label.objects.create(name="Foo")
+    assert str(obj) == "Foo"
