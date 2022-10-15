@@ -103,30 +103,6 @@ class TestPage(TestCase):
 
         self.assertEqual(len(sitemap.items()), 3)
 
-    def test_page_get_absolute_url(self):
-        with search.update_index():
-            Page.objects.all().delete()
-
-            content_type = ContentType.objects.get_for_model(PageContent)
-
-            new_page = Page(
-                content_type=content_type,
-                parent=None,
-                left=None,
-                right=None,
-            )
-
-            new_page.save()
-
-            PageContent.objects.create(
-                page=new_page,
-            )
-
-        self.assertEqual(new_page.get_absolute_url(), '/')
-
-        new_page = Page.objects.get(pk=new_page.pk)
-        self.assertEqual(new_page.get_absolute_url(), '/')
-
 
 class TestPageComplex(TestCase):
 
@@ -516,3 +492,12 @@ def test_pagesearchadapter_get_content():
 
     content = search_adapter.get_content(page)
     assert content == '      homepage Homepage  testing'
+
+
+@pytest.mark.django_db
+def test_page_get_absolute_url():
+    page = PageFactory()
+    assert page.get_absolute_url() == '/'
+
+    page2 = PageFactory(parent=page, slug='subpage')
+    assert page2.get_absolute_url() == '/subpage/'
