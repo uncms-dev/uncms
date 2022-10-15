@@ -190,8 +190,6 @@ You will want to use them like so:
 
 `get_og_image` checks the OpenGraph image field of the current object, then falls back to the `image`, `photo` and `logo` field on the current object, in that order.
 
-`get_og_description` will fall back to the current object's `description` and `summary` field.
-
 ## Twitter card functions
 
 `get_twitter_card`, `get_twitter_description` and `get_twitter_image` render the current Twitter card information for the current object. You will want to use them like so:

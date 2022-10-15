@@ -21,19 +21,3 @@ def html(text):
         return ''
     text = process_html(text)
     return mark_safe(text)
-
-
-@library.filter
-@stringfilter
-def truncate_paragraphs(text, number):
-    '''Returns HTML text truncated to the given number of paragraphs.'''
-    position = 0
-    count = 0
-    while count < number and position < len(text):
-        position = text.find('</p>', position)
-        if position == -1:
-            position = len(text)
-        else:
-            position += 4
-        count += 1
-    return text[:position]

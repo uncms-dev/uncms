@@ -5,11 +5,9 @@ from django.conf import settings
 from django.urls import reverse
 from django.utils.html import escape
 from django_jinja import library
-from jinja2.filters import do_striptags
 
 from cms.apps.pages.models import Page
 from cms.models import SearchMetaBase
-from cms.templatetags.html import truncate_paragraphs
 
 register = template.Library()
 
@@ -268,14 +266,6 @@ def get_og_description(context, description=None):
         description = context.get('og_description')
 
     if not description:
-        obj = context.get('object', None)
-
-        if obj:
-            field = getattr(obj, 'description', None) or getattr(obj, 'summary', None)
-
-            description = do_striptags(truncate_paragraphs(field, 1)) if field else None
-
-    if not description:
         request = context['request']
         page = request.pages.current
 
@@ -394,15 +384,6 @@ def get_twitter_description(context, description=None):
     # Load from context if exists
     if not description:
         description = context.get('twitter_description')
-
-    # Check the object if we still have nothing
-    if not description:
-        obj = context.get('object', None)
-
-        if obj:
-            field = getattr(obj, 'description', None) or getattr(obj, 'summary', None)
-
-            description = do_striptags(truncate_paragraphs(field, 1)) if field else None
 
     # If we are still None, look at page content
     if not description:

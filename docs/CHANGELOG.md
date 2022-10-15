@@ -23,6 +23,7 @@ This is the first release of UnCMS, forked from onespacemedia-cms version 4.4.
 * The old pages dashboard item has been retired. It has a new one that works with no Javascript! 🎉
 * Probably fix the long-standing bug where the page tree gets randomly mangled.
 * The `Video` model in the media app has been retired.
+* The `truncate_paragraphs` function and template filter has been retired, as auto-generated summaries are usually bad.
 * `cms.context_processors`, which existed to put settings and the package version into templates, no longer exists. Having settings in the context by default makes it easy to make mistakes which expose secret settings. The package version was only ever there to advertise this software in the admin, but UnCMS no longer cares what your admin looks like.
 * `cms.models.base.BasePage` no longer has `in_navigation`, because this did not make sense for the things `PageBase` is intended for. It is now a field on `Page`.
 * A pile of template overrides were removed.
