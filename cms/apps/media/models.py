@@ -106,7 +106,7 @@ class File(models.Model):
 
     def get_dimensions(self):
         try:
-            with open(self.file.path, 'rb') as f:
+            with self.file.storage.open(self.file.name, 'rb') as f:
                 try:
                     image = Image.open(f)
                     image.verify()
