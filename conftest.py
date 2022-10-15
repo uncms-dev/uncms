@@ -1,19 +1,8 @@
+import getpass
 import os
-import platform
-import random
-import secrets
-import sys
 
 import pytest
 from django.conf import settings
-from django.db import connection
-
-
-@pytest.fixture(scope='session')
-def django_db_setup(django_db_setup, django_db_blocker):
-    with django_db_blocker.unblock():
-        cur = connection.cursor()
-        cur.execute('ALTER SEQUENCE pages_page_id_seq RESTART WITH %s;', [random.randint(100, 200000)])
 
 
 def pytest_configure():
@@ -21,8 +10,10 @@ def pytest_configure():
         SITE_DOMAIN='example.com',
         DATABASES={
             'default': {
-                'ENGINE': 'django.db.backends.postgresql_psycopg2',
+                'ENGINE': 'django.db.backends.postgresql',
                 'NAME': 'uncms_test',
+                'USER': os.environ.get('UNCMS_DB_USER', getpass.getuser()),
+                'PASSWORD': os.environ.get('UNCMS_DB_PASSWORD'),
                 'TEST': {
                     'NAME': 'uncms_test',
                 }
