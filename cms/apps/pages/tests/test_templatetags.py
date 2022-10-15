@@ -109,109 +109,6 @@ class TestTemplatetags(TestCase):
         self.obj_1.file.delete(False)
         self.obj_1.delete()
 
-    def test_navigation_entries(self):
-        request = self.factory.get('/')
-        request.user = MockUser(authenticated=True)
-        request.pages = RequestPageManager(request)
-
-        navigation = _navigation_entries({'request': request}, request.pages.current.navigation)
-
-        self.assertListEqual(navigation, [
-            {
-                'url': '/section/',
-                'page': self.section,
-                'here': False,
-                'title': 'Section',
-                'children': [
-                    {
-                        'url': '/section/subsection/',
-                        'page': self.subsection,
-                        'here': False,
-                        'title': 'Subsection',
-                        'children': [
-                            {
-                                'url': '/section/subsection/subsubsection/',
-                                'page': self.subsubsection,
-                                'here': False,
-                                'title': 'Subsubsection',
-                                'children': []
-                            }
-                        ]
-                    }
-                ]
-            }
-        ])
-
-        # Test is_json response.
-        navigation = _navigation_entries({'request': request}, request.pages.current.navigation, json_safe=True)
-        self.assertListEqual(navigation, [
-            {
-                'url': '/section/',
-                'here': False,
-                'title': 'Section',
-                'children': [
-                    {
-                        'url': '/section/subsection/',
-                        'here': False,
-                        'title': 'Subsection',
-                        'children': [
-                            {
-                                'url': '/section/subsection/subsubsection/',
-                                'here': False,
-                                'title': 'Subsubsection',
-                                'children': []
-                            }
-                        ]
-                    }
-                ]
-            }
-        ])
-
-        # Test with section specified.
-        navigation = _navigation_entries({
-            'request': request,
-            'pages': request.pages,
-        }, request.pages.current.navigation, section=self.subsubsection)
-        self.assertListEqual(navigation, [
-            {
-                'url': '/section/subsection/subsubsection/',
-                'page': self.subsubsection,
-                'here': False,
-                'title': 'Subsubsection',
-                'children': []
-            },
-            {
-                'url': '/section/',
-                'page': self.section,
-                'here': False,
-                'title': 'Section',
-                'children': [
-                    {
-                        'url': '/section/subsection/',
-                        'page': self.subsection,
-                        'here': False,
-                        'title': 'Subsection',
-                        'children': [
-                            {
-                                'url': '/section/subsection/subsubsection/',
-                                'page': self.subsubsection,
-                                'here': False,
-                                'title': 'Subsubsection',
-                                'children': []
-                            }
-                        ]
-                    }
-                ]
-            }
-        ])
-
-        # Section page isn't visible to non logged in users
-        request.user = MockUser(authenticated=False)
-
-        navigation = _navigation_entries({'request': request}, request.pages.current.navigation)
-
-        self.assertListEqual(navigation, [])
-
     def test_render_navigation(self):
         request = self.factory.get('/')
         request.user = MockUser(authenticated=True)
@@ -342,3 +239,109 @@ class TestTemplatetags(TestCase):
         self.assertEqual(get_meta_robots({
             'pages': request.pages,
         }), 'INDEX, FOLLOW, ARCHIVE')
+
+
+
+def test_navigation_entries(simple_page_tree):
+    factory = RequestFactory()
+    request = factory.get('/')
+    request.user = MockUser(authenticated=True)
+    request.pages = RequestPageManager(request)
+
+    navigation = _navigation_entries({'request': request}, request.pages.current.navigation)
+
+    assert navigation == [
+        {
+            'url': '/section/',
+            'page': simple_page_tree.section,
+            'here': False,
+            'title': 'Section',
+            'children': [
+                {
+                    'url': '/section/subsection/',
+                    'page': simple_page_tree.subsection,
+                    'here': False,
+                    'title': 'Subsection',
+                    'children': [
+                        {
+                            'url': '/section/subsection/subsubsection/',
+                            'page': simple_page_tree.subsubsection,
+                            'here': False,
+                            'title': 'Subsubsection',
+                            'children': []
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+
+    # Test is_json response.
+    navigation = _navigation_entries({'request': request}, request.pages.current.navigation, json_safe=True)
+    assert navigation == [
+        {
+            'url': '/section/',
+            'here': False,
+            'title': 'Section',
+            'children': [
+                {
+                    'url': '/section/subsection/',
+                    'here': False,
+                    'title': 'Subsection',
+                    'children': [
+                        {
+                            'url': '/section/subsection/subsubsection/',
+                            'here': False,
+                            'title': 'Subsubsection',
+                            'children': []
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+
+    # Test with section specified.
+    navigation = _navigation_entries({
+        'request': request,
+        'pages': request.pages,
+    }, request.pages.current.navigation, section=simple_page_tree.subsubsection)
+    assert navigation == [
+        {
+            'url': '/section/subsection/subsubsection/',
+            'page': simple_page_tree.subsubsection,
+            'here': False,
+            'title': 'Subsubsection',
+            'children': []
+        },
+        {
+            'url': '/section/',
+            'page': simple_page_tree.section,
+            'here': False,
+            'title': 'Section',
+            'children': [
+                {
+                    'url': '/section/subsection/',
+                    'page': simple_page_tree.subsection,
+                    'here': False,
+                    'title': 'Subsection',
+                    'children': [
+                        {
+                            'url': '/section/subsection/subsubsection/',
+                            'page': simple_page_tree.subsubsection,
+                            'here': False,
+                            'title': 'Subsubsection',
+                            'children': []
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+
+    # Section page isn't visible to non logged in users
+    request.user = MockUser(authenticated=False)
+
+    navigation = _navigation_entries({'request': request}, request.pages.current.navigation)
+
+    assert navigation == []

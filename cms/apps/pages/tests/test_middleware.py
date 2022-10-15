@@ -131,8 +131,8 @@ class TestRequestPageManager(TestCase):
 
     def test_is_exact(self):
         _generate_pages(self)
-        self.page_manager._path = ''
-        self.page_manager._path_info = ''
+        self.page_manager.path = ''
+        self.page_manager.path_info = ''
         self.assertFalse(self.page_manager.is_exact)
 
         self.request = self.factory.get('/foo/bar/')

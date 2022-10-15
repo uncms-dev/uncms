@@ -21,9 +21,9 @@ class RequestPageManager:
 
     def __init__(self, request):
         '''Initializes the RequestPageManager.'''
-        self._request = request
-        self._path = self._request.path
-        self._path_info = self._request.path_info
+        self.request = request
+        self.path = self.request.path
+        self.path_info = self.request.path_info
 
     @cached_property
     def homepage(self):
@@ -36,13 +36,13 @@ class RequestPageManager:
     @cached_property
     def is_homepage(self):
         '''Whether the current request is for the site homepage.'''
-        return self._path == self.homepage.get_absolute_url()
+        return self.path == self.homepage.get_absolute_url()
 
     @cached_property
     def breadcrumbs(self):
         '''The breadcrumbs for the current request.'''
         breadcrumbs = []
-        slugs = self._path_info.strip('/').split('/')
+        slugs = self.path_info.strip('/').split('/')
         slugs.reverse()
 
         def do_breadcrumbs(page):
@@ -84,7 +84,7 @@ class RequestPageManager:
     @cached_property
     def is_exact(self):
         '''Whether the current page exactly matches the request URL.'''
-        return self.current.get_absolute_url() == self._path
+        return self.current.get_absolute_url() == self.path
 
 
 class PageMiddleware(MiddlewareMixin):

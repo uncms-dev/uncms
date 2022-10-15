@@ -126,6 +126,10 @@ class MediaTestModel(models.Model):
     )
 
 
+class EmptyTestPage(ContentBase):
+    pass
+
+
 class TemplateTagTestPage(ContentBase):
     urlconf = 'cms.apps.pages.tests.urls'
 
