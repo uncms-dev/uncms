@@ -52,6 +52,15 @@ def _navigation_entries(context, pages, section=None, json_safe=False):
 
 @register.simple_tag(takes_context=True)
 def admin_sitemap_entries(context):
+    """
+    admin_sitemap_entries returns the full page tree, bypassing
+    any caching mechanisms, does not exclude entries that are not in the
+    navigation, and adds `can_move` and `can_view` attributes. It is intended
+    for cases where the tree might change over the course of a request, and
+    only for admin users.
+
+    You should use this tag for rendering a sitemap in the admin.
+    """
     user = context['request'].user
     can_change = user.has_perm('pages.change_page')
     can_view = user.has_perm('pages.view_page') or can_change
