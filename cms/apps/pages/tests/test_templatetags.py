@@ -143,7 +143,7 @@ class TestTemplatetags(TestCase):
         ])
 
         # Test is_json response.
-        navigation = _navigation_entries({'request': request}, request.pages.current.navigation, is_json=True)
+        navigation = _navigation_entries({'request': request}, request.pages.current.navigation, json_safe=True)
         self.assertListEqual(navigation, [
             {
                 'url': '/section/',

@@ -13,7 +13,7 @@ register = template.Library()
 
 
 # Navigation.
-def _navigation_entries(context, pages, section=None, is_json=False):
+def _navigation_entries(context, pages, section=None, json_safe=False):
     request = context['request']
     # Compile the entries.
 
@@ -23,22 +23,20 @@ def _navigation_entries(context, pages, section=None, is_json=False):
             return None
 
         url = page.get_absolute_url()
-
-        if is_json:
-            return {
-                'url': url,
-                'title': str(page),
-                'here': request.path.startswith(url),
-                'children': [page_entry(x) for x in page.navigation if
-                             page is not request.pages.homepage]
-            }
-        return {
+        entry = {
             'url': url,
-            'page': page,
             'title': str(page),
             'here': request.path.startswith(url),
-            'children': [page_entry(x) for x in page.navigation if page is not request.pages.homepage]
+            'children': [
+                page_entry(x) for x in page.navigation
+                if page is not request.pages.homepage
+            ],
         }
+
+        if not json_safe:
+            entry['page'] = page
+
+        return entry
 
     # All the applicable nav items
     entries = [page_entry(x) for x in pages if page_entry(x) is not None]
