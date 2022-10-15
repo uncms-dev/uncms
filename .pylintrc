@@ -34,6 +34,7 @@ disable=
   too-many-branches,
   # Also: see above.
   too-many-locals,
+enable=useless-suppression
 
 [REPORTS]
 output-format=text

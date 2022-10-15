@@ -32,7 +32,7 @@ class ImageRefField(FileRefField):
         kwargs['limit_choices_to'] = IMAGE_FILTER
         super().__init__(**kwargs)
 
-    def formfield(self, **kwargs):  # pylint:disable=arguments-differ
+    def formfield(self, **kwargs):
         kwargs.setdefault('widget', ImageThumbnailWidget(self.remote_field, admin.site))
         return super().formfield(**kwargs)
 
