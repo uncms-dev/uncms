@@ -16,7 +16,11 @@ from cms.apps.pages.models import (
     filter_indexable_pages
 )
 from cms.apps.pages.tests.factories import PageFactory
-from cms.apps.testing_models.models import PageContent, PageContentWithSections
+from cms.apps.testing_models.models import (
+    EmptyTestPage,
+    PageContent,
+    PageContentWithSections,
+)
 from cms.models.managers import publication_manager
 
 
@@ -399,6 +403,22 @@ class TestPageComplex(TestCase):
 def test_contentbase_str():
     page = PageFactory(title='Awesome')
     assert(str(page.content)) == 'Awesome'
+
+
+@pytest.mark.django_db
+def test_page_content(django_assert_num_queries):
+    """
+    Guard against performance regression on Page.content.
+    """
+    page = PageFactory()
+    # content has been created from the factory, so reload...
+    page = Page.objects.get(pk=page.pk)
+
+    with django_assert_num_queries(1):
+        assert isinstance(page.content, EmptyTestPage)
+
+    with django_assert_num_queries(0):
+        assert isinstance(page.content, EmptyTestPage)
 
 
 @pytest.mark.django_db
