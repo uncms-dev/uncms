@@ -13,7 +13,7 @@ class PageFactory(factory.django.DjangoModelFactory):
     the "content" parameter as an unsaved ContentBase derivative and it will
     handle the specifics of saving the content to the page, including making
     sure that Watson doesn't attempt to read the page until both the page and
-    its content are sved.
+    its content are saved.
 
     `content` is optional; if it is omitted you will get an EmptyTestPage
     as the page content, which is a content model with no fields.
