@@ -7,6 +7,7 @@ different page for "add a page", which gives you a list of page types with
 their icons.
 '''
 from functools import cmp_to_key
+from urllib.parse import parse_qs, urlencode
 
 from django import forms
 from django.contrib import admin, messages
@@ -458,7 +459,11 @@ class PageAdmin(PageBaseAdmin):
         preserved_filters = super().get_preserved_filters(request)
 
         if preserved_filters and request.GET.get(PAGE_TYPE_PARAMETER):
-            preserved_filters = f'{preserved_filters}&{PAGE_TYPE_PARAMETER}={request.GET.get(PAGE_TYPE_PARAMETER)}'
+            # it seems like get_preserved_filters really should be a dict,
+            # not a query string smooshed together, but...
+            filters_dict = parse_qs(preserved_filters)
+            filters_dict[PAGE_TYPE_PARAMETER] = request.GET[PAGE_TYPE_PARAMETER]
+            preserved_filters = urlencode(filters_dict)
 
         return preserved_filters
 
