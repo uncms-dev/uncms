@@ -21,7 +21,7 @@ but the existence of UnCMS certainly owes a debt to every one of them.
 * Aidan Currah
 * Dan Gamble
 * Daniel Clayton
-* Daniel Samuels
+* Daniel Finch
 * Dave Hall
 * James Foley
 * Joe Hastings
