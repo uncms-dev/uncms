@@ -1,3 +1,5 @@
+import os.path
+
 from django.conf import settings
 from django.test.utils import override_settings
 
@@ -17,3 +19,21 @@ def test_conf_get_attr():
     # Check that an override works.
     with override_settings(UNCMS={'MEDIA_FILE_MODEL': 'imaginary.File'}):
         assert cms.conf.defaults.MEDIA_FILE_MODEL == 'imaginary.File'
+
+
+def test_all_config_items_are_documented():
+    """
+    Ensure all configuration items are documented in docs/configuration.md
+    and that no imaginary options are in the documentation.
+
+    This is a relatively dumb test but it should work well enough :)
+    """
+    with open(os.path.join(settings.REPO_ROOT, 'docs', 'configuration.md')) as fd:
+        items = [
+            # as i said, not a smart test...
+            line.replace('##', '').replace('`', '').strip()
+            for line in fd
+            if line.startswith('## `')
+        ]
+
+    assert list(set(items)) == list(set(cms.conf.defaults.default_settings.keys())), 'undocumented settings and/or imaginary documented settings'

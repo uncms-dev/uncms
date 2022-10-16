@@ -109,4 +109,5 @@ def pytest_configure():
         PUBLICATION_MIDDLEWARE_EXCLUDE_URLS=['/admin/'],
         UNCMS={},
         THUMBNAIL_PRESERVE_FORMAT=True,
+        REPO_ROOT=os.path.abspath(os.path.dirname(__file__)),
     )
