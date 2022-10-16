@@ -2,8 +2,11 @@
 import json
 import os
 import sys
+from urllib.parse import urlencode, urljoin, urlparse
 
+import pytest
 import reversion
+from bs4 import BeautifulSoup
 from django.contrib.admin.sites import AdminSite
 from django.contrib.admin.widgets import (
     FilteredSelectMultiple,
@@ -15,6 +18,7 @@ from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpResponseRedirect
 from django.http.request import QueryDict
 from django.test import RequestFactory, TestCase
+from django.urls import reverse
 from django.utils.text import slugify
 from reversion.models import Version
 from watson import search
@@ -32,10 +36,12 @@ from cms.apps.testing_models.admin import (
     InlineModelNoPageInline
 )
 from cms.apps.testing_models.models import (
+    EmptyTestPage,
     InlineModelNoPage,
     PageContent,
     PageContentWithFields
 )
+from cms.tests.factories import UserFactory
 
 
 class MockRequest:
@@ -726,3 +732,66 @@ class TestPageAdmin(TestCase):
         # Ensure that the lookup names have been ordered.
         lookup_names = [lookup[1] for lookup in lookups]
         self.assertEqual(lookup_names, sorted(lookup_names))
+
+
+@pytest.mark.django_db
+def test_pageadmin_get_preserved_filters(client):
+    """
+    Make sure that filters are being preserved. Testing get_preserved_filters
+    in isolation is both effort and doesn't actually test whether this works.
+    It is better to ensure that the form action does what we think it is
+    doing, and we do that by actually posting with a client to the form action
+    on the page.
+    """
+    def build_url_with_qs(url, qs):
+        # we can client.get(url, data) but that doesn't ensure that the URL is
+        # exactly the same as the one with a guessed form action, so this is
+        # to ensure consistency
+        parsed = urlparse(url)
+        parsed = parsed._replace(query=urlencode(qs))
+        return parsed.geturl()
+
+    def get_form_action(response):
+        soup = BeautifulSoup(response.content, 'html.parser')
+        element = soup.find(id='page_form')
+        assert element
+        return element.get('action')
+
+    def post_and_check_form(url, title):
+        response = client.post(url, data={'title': title, 'slug': slugify(title)})
+        assert response.status_code == 302
+        assert Page.objects.filter(title=title).count() == 1
+
+    content_type_id = ContentType.objects.get_for_model(EmptyTestPage).id
+    user = UserFactory(superuser=True)
+    client.force_login(user)
+
+    url = reverse('admin:pages_page_add')
+
+    url_qs = build_url_with_qs(url, {'type': content_type_id})
+    response = client.get(url_qs)
+    assert response.status_code == 200
+    # The "action" should be empty.
+    assert get_form_action(response) is None
+    # When "action" is empty on a form, browsers will use the current full URL
+    # including query string.
+    post_and_check_form(url_qs, title='Save me')
+
+    # Cleanup! It'll require a parent page if we do not do this.
+    Page.objects.all().delete()
+
+    # Let's add a preserved filter to the URL.
+    response = client.get(url, {'type': content_type_id, '_changelist_filters': 'seo_quality_control%3Dno-meta-description'})
+    assert response.status_code == 200
+
+    # Form action must be present.
+    action_url = get_form_action(response)
+    assert action_url is not None
+    # Sanity check: make sure it begins with '?' - if Django changes this
+    # our behaviour from here might not make sense
+    assert action_url.startswith('?')
+    # stupid test, but...
+    assert '_changelist_filters' in action_url
+
+    # Now try posting to it. It should create a page.
+    post_and_check_form(urljoin(url, action_url), title='Save yourself')

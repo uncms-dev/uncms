@@ -101,6 +101,7 @@ def pytest_configure():
         ],
         MIDDLEWARE=[
             'django.contrib.sessions.middleware.SessionMiddleware',
+            'django.contrib.messages.middleware.MessageMiddleware',
             'django.contrib.auth.middleware.AuthenticationMiddleware',
             'cms.apps.pages.middleware.PageMiddleware',
         ],
