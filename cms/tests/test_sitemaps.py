@@ -5,7 +5,7 @@ from cms.apps.testing_models.models import (
     PageBaseModel,
     PublishedBaseModel,
     SearchMetaBaseModel,
-    SitemapModel
+    SitemapModel,
 )
 from cms.sitemaps import (
     BaseSitemap,
@@ -15,7 +15,7 @@ from cms.sitemaps import (
     SearchMetaBaseSitemap,
     SitemapRegistrationError,
     register,
-    registered_sitemaps
+    registered_sitemaps,
 )
 
 

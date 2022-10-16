@@ -4,7 +4,7 @@ from django.test import RequestFactory, TestCase
 from ..templatetags.pagination import (
     get_pagination_url,
     paginate,
-    render_pagination
+    render_pagination,
 )
 
 

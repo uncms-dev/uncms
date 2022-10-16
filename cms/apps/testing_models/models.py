@@ -4,7 +4,7 @@ from django.db import models
 from cms.apps.media.models import (
     FileRefField,
     ImageRefField,
-    VideoFileRefField
+    VideoFileRefField,
 )
 from cms.apps.pages.models import ContentBase
 from cms.models import OnlineBase, PageBase, PublishedBase, SearchMetaBase

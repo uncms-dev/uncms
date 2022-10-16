@@ -13,7 +13,7 @@ from cms.apps.pages.models import (
     Page,
     PageSearchAdapter,
     PageSitemap,
-    filter_indexable_pages
+    filter_indexable_pages,
 )
 from cms.apps.pages.tests.factories import PageFactory
 from cms.apps.testing_models.models import (

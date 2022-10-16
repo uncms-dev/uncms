@@ -7,7 +7,7 @@ from cms.apps.testing_models.models import (
     PublishedBaseModel,
     PublishedBaseSearchAdapter,
     SearchMetaBaseModel,
-    SearchMetaBaseSearchAdapter
+    SearchMetaBaseSearchAdapter,
 )
 
 

@@ -9,7 +9,7 @@ from PIL import Image
 from cms.apps.media.tests.factories import (
     EmptyFileFactory,
     SampleJPEGFileFactory,
-    SamplePNGFileFactory
+    SamplePNGFileFactory,
 )
 from cms.models.base import path_token_generator
 

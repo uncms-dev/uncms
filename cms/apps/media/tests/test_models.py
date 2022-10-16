@@ -15,7 +15,7 @@ from cms.apps.media.models import File, FileRefField, Label
 from cms.apps.media.tests.factories import (
     EmptyFileFactory,
     MinimalGIFFileFactory,
-    SamplePNGFileFactory
+    SamplePNGFileFactory,
 )
 from cms.apps.testing_models.models import MediaTestModel
 

@@ -8,7 +8,7 @@ from cms.models.base import (
     PublishedBaseSearchAdapter,
     SearchMetaBase,
     SearchMetaBaseSearchAdapter,
-    path_token_generator
+    path_token_generator,
 )
 from cms.models.fields import HtmlField, LinkField
 from cms.models.managers import (
@@ -17,5 +17,5 @@ from cms.models.managers import (
     PublicationManagementError,
     PublishedBaseManager,
     SearchMetaBaseManager,
-    publication_manager
+    publication_manager,
 )

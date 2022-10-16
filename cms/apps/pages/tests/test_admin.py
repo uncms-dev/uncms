@@ -10,7 +10,7 @@ from bs4 import BeautifulSoup
 from django.contrib.admin.sites import AdminSite
 from django.contrib.admin.widgets import (
     FilteredSelectMultiple,
-    RelatedFieldWidgetWrapper
+    RelatedFieldWidgetWrapper,
 )
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.messages.storage.fallback import FallbackStorage
@@ -28,18 +28,18 @@ from cms.apps.pages.admin import (
     PAGE_FROM_SITEMAP_VALUE,
     PAGE_TYPE_PARAMETER,
     PageAdmin,
-    PageContentTypeFilter
+    PageContentTypeFilter,
 )
 from cms.apps.pages.models import Page, get_registered_content
 from cms.apps.testing_models.admin import (
     InlineModelInline,
-    InlineModelNoPageInline
+    InlineModelNoPageInline,
 )
 from cms.apps.testing_models.models import (
     EmptyTestPage,
     InlineModelNoPage,
     PageContent,
-    PageContentWithFields
+    PageContentWithFields,
 )
 from cms.tests.factories import UserFactory
 

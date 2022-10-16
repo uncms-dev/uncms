@@ -8,7 +8,7 @@ from PIL import Image
 from cms.apps.media.fields import (
     FileRefField,
     ImageRefField,
-    VideoFileRefField
+    VideoFileRefField,
 )
 from cms.apps.media.filetypes import get_icon, is_image
 from cms.apps.media.types import Thumbnail

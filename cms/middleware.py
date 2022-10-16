@@ -9,7 +9,7 @@ from cms.conf import defaults
 from cms.models import (
     PublicationManagementError,
     path_token_generator,
-    publication_manager
+    publication_manager,
 )
 
 

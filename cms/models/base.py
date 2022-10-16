@@ -12,7 +12,7 @@ from cms.models.managers import (
     OnlineBaseManager,
     PageBaseManager,
     PublishedBaseManager,
-    SearchMetaBaseManager
+    SearchMetaBaseManager,
 )
 
 

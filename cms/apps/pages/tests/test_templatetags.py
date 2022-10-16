@@ -26,7 +26,7 @@ from ..templatetags.pages import (
     get_twitter_image,
     get_twitter_title,
     render_breadcrumbs,
-    render_navigation
+    render_navigation,
 )
 
 

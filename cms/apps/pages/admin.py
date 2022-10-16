@@ -23,7 +23,7 @@ from django.http import (
     HttpResponse,
     HttpResponseForbidden,
     HttpResponseRedirect,
-    JsonResponse
+    JsonResponse,
 )
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.defaultfilters import capfirst
@@ -33,7 +33,7 @@ from cms.admin import PageBaseAdmin
 from cms.apps.pages.models import (
     Page,
     PageSearchAdapter,
-    get_registered_content
+    get_registered_content,
 )
 
 # Used to track references to and from the JS sitemap.

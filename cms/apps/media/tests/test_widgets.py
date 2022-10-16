@@ -4,7 +4,7 @@ from django.contrib import admin
 
 from cms.apps.media.tests.factories import (
     EmptyFileFactory,
-    SamplePNGFileFactory
+    SamplePNGFileFactory,
 )
 from cms.apps.media.widgets import ImageThumbnailWidget
 from cms.apps.testing_models.models import ImageFieldModel

@@ -10,7 +10,7 @@ from django.http import (
     Http404,
     HttpResponse,
     HttpResponseForbidden,
-    HttpResponseNotAllowed
+    HttpResponseNotAllowed,
 )
 from django.shortcuts import get_object_or_404, render
 from django.template.defaultfilters import filesizeformat

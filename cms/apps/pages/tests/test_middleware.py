@@ -8,7 +8,7 @@ from watson import search
 
 from cms.apps.testing_models.models import (
     MiddlewareTestPage,
-    MiddlewareURLsTestPage
+    MiddlewareURLsTestPage,
 )
 
 from ..middleware import PageMiddleware, RequestPageManager
