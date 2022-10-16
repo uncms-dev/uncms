@@ -1,0 +1,11 @@
+{% if navigation %}
+  <ul class="{{ prefix }}" {% block attributes %}{% endblock %}>
+    {% block inside_top %}{% endblock %}
+
+    {% for entry in navigation %}
+      {% include item_template %}
+    {% endfor %}
+
+    {% block inside_bottom %}{% endblock %}
+  </ul>
+{% endif %}

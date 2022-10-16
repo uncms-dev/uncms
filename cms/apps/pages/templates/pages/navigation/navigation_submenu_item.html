@@ -1,0 +1,31 @@
+<li class="
+  {{ prefix }}-submenu__item
+  {% if entry.children %}{{ prefix }}-submenu__item--has-children{% endif %}
+  {% if entry.here %}{{ prefix }}-submenu__item--here{% endif %}
+  {% if entry.current %}{{ prefix }}-submenu__item--current{% endif %}
+  "
+  {% block item_attributes %}{% endblock %}
+>
+  {% block item_inside_top %}{% endblock %}
+  <a
+    class="{{ prefix }}-submenu__link"
+    href="{{ entry.url }}"
+    {% if entry.current %}aria-current="page"{% endif %}
+  >
+    {% block link_inside_top %}{% endblock %}
+
+    {{ entry.title }}
+
+    {% block link_inside_bottom %}{% endblock %}
+  </a>
+  {% block before_children %}{% endblock %}
+  {% block children %}
+    {% if entry.children %}
+      {% with children=entry.children %}
+        {% include submenu_template %}
+      {% endwith %}
+    {% endif %}
+  {% endblock %}
+
+  {% block item_inside_bottom %}{% endblock %}
+</li>

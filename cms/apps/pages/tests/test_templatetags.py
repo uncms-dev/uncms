@@ -252,18 +252,21 @@ def test_navigation_entries(simple_page_tree):
             'url': '/section/',
             'page': simple_page_tree.section,
             'here': False,
+            'current': False,
             'title': 'Section',
             'children': [
                 {
                     'url': '/section/subsection/',
                     'page': simple_page_tree.subsection,
                     'here': False,
+                    'current': False,
                     'title': 'Subsection',
                     'children': [
                         {
                             'url': '/section/subsection/subsubsection/',
                             'page': simple_page_tree.subsubsection,
                             'here': False,
+                            'current': False,
                             'title': 'Subsubsection',
                             'children': []
                         }
@@ -279,16 +282,19 @@ def test_navigation_entries(simple_page_tree):
         {
             'url': '/section/',
             'here': False,
+            'current': False,
             'title': 'Section',
             'children': [
                 {
                     'url': '/section/subsection/',
                     'here': False,
+                    'current': False,
                     'title': 'Subsection',
                     'children': [
                         {
                             'url': '/section/subsection/subsubsection/',
                             'here': False,
+                            'current': False,
                             'title': 'Subsubsection',
                             'children': []
                         }
@@ -308,6 +314,7 @@ def test_navigation_entries(simple_page_tree):
             'url': '/section/subsection/subsubsection/',
             'page': simple_page_tree.subsubsection,
             'here': False,
+            'current': False,
             'title': 'Subsubsection',
             'children': []
         },
@@ -315,17 +322,20 @@ def test_navigation_entries(simple_page_tree):
             'url': '/section/',
             'page': simple_page_tree.section,
             'here': False,
+            'current': False,
             'title': 'Section',
             'children': [
                 {
                     'url': '/section/subsection/',
                     'page': simple_page_tree.subsection,
                     'here': False,
+                    'current': False,
                     'title': 'Subsection',
                     'children': [
                         {
                             'url': '/section/subsection/subsubsection/',
                             'page': simple_page_tree.subsubsection,
+                            'current': False,
                             'here': False,
                             'title': 'Subsubsection',
                             'children': []

@@ -219,3 +219,6 @@ class CarouselSlideInline(admin.StackedInline):
 
 page_admin.register_content_inline(ContentModel, CarouselSlideInline)
 ```
+## Next steps
+
+Read about how to [render and customise your page navigation tree](rendering-navigation.md).

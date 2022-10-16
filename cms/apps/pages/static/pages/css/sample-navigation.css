@@ -1,0 +1,75 @@
+/* resets, can be removed if you are using a global CSS reset */
+.navigation,
+.navigation__item,
+.navigation-submenu,
+.navigation-submenu__item {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.navigation__item-link,
+.navigation-submenu__link {
+  text-decoration: none;
+}
+
+.navigation {
+  display: flex;
+
+  height: 100%;
+
+  /* to discourage you from using this in production */
+  font-family: 'Comic Sans MS' !important;
+}
+
+.navigation__item {
+  position: relative;
+
+  flex-grow: 1;
+
+  display: flex;
+  margin-left: 20px;
+}
+
+.navigation__item::first-child {
+  margin-left: 0;
+}
+
+.navigation__item-link {
+  flex-grow: 1;
+
+  padding: 10px 0;
+}
+
+.navigation-submenu {
+  position: absolute;
+
+  width: 200px;
+
+  background-color: #f00;
+  visibility: hidden;
+}
+
+.navigation__item:hover > .navigation-submenu,
+.navigation-submenu__item:hover > .navigation-submenu {
+  visibility: visible;
+}
+
+.navigation__item > .navigation-submenu {
+  top: 100%;
+  left: 0;
+}
+
+.navigation-submenu__item > .navigation-submenu {
+  top: 0;
+  left: 100%;
+}
+
+.navigation-submenu__item {
+  position: relative;
+}
+
+.navigation-submenu__link {
+  display: block;
+  padding: 10px;
+}

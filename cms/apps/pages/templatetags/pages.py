@@ -7,6 +7,7 @@ from django.utils.html import escape
 from django_jinja import library
 
 from cms.apps.pages.models import Page
+from cms.conf import defaults
 from cms.models import SearchMetaBase
 
 register = template.Library()
@@ -27,6 +28,7 @@ def _navigation_entries(context, pages, section=None, json_safe=False):
             'url': url,
             'title': str(page),
             'here': request.path.startswith(url),
+            'current': page == request.pages.current,
             'children': [
                 page_entry(x) for x in page.navigation
                 if page is not request.pages.homepage
@@ -86,9 +88,9 @@ def admin_sitemap_entries(context):
 
 
 @library.global_function
-@library.render_with('pages/navigation.html')
+@library.render_with(defaults.NAVIGATION_TEMPLATE)
 @jinja2.pass_context
-def render_navigation(context, pages, section=None):
+def render_navigation(context, pages, section=None, class_prefix=None, **templates):
     '''
     Renders a navigation list for the given pages.
 
@@ -99,6 +101,10 @@ def render_navigation(context, pages, section=None):
     '''
     return {
         'navigation': _navigation_entries(context, pages, section),
+        'prefix': class_prefix or defaults.NAVIGATION_CLASS_PREFIX,
+        'item_template': templates.get('item_template', defaults.NAVIGATION_ITEM_TEMPLATE),
+        'submenu_template': templates.get('submenu_template', defaults.NAVIGATION_SUBMENU_TEMPLATE),
+        'submenu_item_template': templates.get('submenu_item_template', defaults.NAVIGATION_SUBMENU_ITEM_TEMPLATE),
     }
 
 

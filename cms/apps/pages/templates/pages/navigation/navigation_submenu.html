@@ -1,0 +1,7 @@
+<ul class="{{ prefix }}-submenu" {% block attributes %}{% endblock %}>
+  {% block inside_top %}{% endblock %}
+  {% for entry in children %}
+    {% include submenu_item_template %}
+  {% endfor %}
+  {% block inside_bottom %}{% endblock %}
+</ul>

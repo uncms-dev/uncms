@@ -82,6 +82,51 @@ This looks much better for something that is not informationally-dense,
 but it may not play well with non-standard admin skins.
 Set this to `False` if it looks weird in your admin, or if you prefer a standard table list view.
 
+## `NAVIGATION_CLASS_PREFIX`
+
+* Type: string
+* Default: `'navigation'`
+
+This controls prefixes for HTML class names within the navigation template.
+It defaults to `navigation`, which gives class names such as
+`.navigation`,
+`.navigation__item`,
+`.navigation-submenu`,
+etc.
+See [Rendering page navigation](rendering-navigation.md) for more details.
+
+## `NAVIGATION_TEMPLATE`
+
+* Type: string (template path)
+* Default: `'pages/navigation/navigation.html'`
+
+This controls which template will be used to render site navigation.
+See [Rendering page navigation](rendering-navigation.md) for more details.
+
+## `NAVIGATION_ITEM_TEMPLATE`
+
+* Type: string (template path)
+* Default: `'pages/navigation/navigation_item.html'`
+
+This controls which template will be used to render individual top-level items inside the site navigation.
+See [Rendering page navigation](rendering-navigation.md) for more details.
+
+## `NAVIGATION_SUBMENU_TEMPLATE`
+
+* Type: string (template path)
+* Default: `'pages/navigation/navigation_submenu.html'`
+
+This controls which template will be used to render sub-menus inside the site navigation.
+See [Rendering page navigation](rendering-navigation.md) for more details.
+
+## `NAVIGATION_SUBMENU_ITEM_TEMPLATE`
+
+* Type: string (template path)
+* Default: `'pages/navigation/navigation_submenu_item.html'`
+
+This controls which template will be used to render individual items within sub-menus inside the site navigation.
+See [Rendering page navigation](rendering-navigation.md) for more details.
+
 ## `ONLINE_DEFAULT`
 
 * Type: boolean

@@ -1,7 +1,8 @@
 # UnCMS documentation
 
 UnCMS is a collection of Django extensions that add content-management facilities to Django projects.
-It is not a CMS, but rather a toolkit that will help you build one.
+It is not a CMS, but rather a toolkit that will help you build one,
+with an emphasis on speed, simplicity, and familiarity.
 
 ## Requirements
 
@@ -13,7 +14,7 @@ UnCMS comes with just enough features for building the normal small-to-medium-si
 and leaves other decisions to your project.
 It has no opinions about how your project should be structured, it has minimal opinions about how the admin looks, and it plays well with your existing models.
 
-* Hierarchal [page management](pages-app.md) with no depth limit.
+* Hierarchal [page management](pages-app.md) and [navigation menus](rendering-navigation.md) with no depth limit.
 * [Publication controls](publication-control.md) with online preview.
 * Pre-configured [WYSIWYG editor](html-editor.md) widgets (using TinyMCE).
 * [Image and file management](media-app.md), with easy embedding via WYSIWYG editors or pure model fields.

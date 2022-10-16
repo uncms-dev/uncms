@@ -1,6 +1,7 @@
 * [Introduction](/)
 * [Getting started: the walkthrough](walkthrough.md)
 * [The Pages app](pages-app.md)
+** [Rendering page navigation](rendering-navigation.md)
 * [Jinja2 template functions](template-functions.md)
 * [The Media app](media-app.md)
 * [The Links app](links-app.md)
