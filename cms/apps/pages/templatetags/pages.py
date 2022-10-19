@@ -1,7 +1,6 @@
 '''Template tags used to render pages.'''
 import jinja2
 from django import template
-from django.conf import settings
 from django.urls import reverse
 from django.utils.html import escape
 from django_jinja import library
@@ -9,6 +8,7 @@ from django_jinja import library
 from cms.apps.pages.models import Page
 from cms.conf import defaults
 from cms.models import SearchMetaBase
+from cms.utils import canonicalise_url
 
 register = template.Library()
 
@@ -221,29 +221,14 @@ def get_meta_robots(context, index=None, follow=None, archive=None):
     return escape(robots)
 
 
-def absolute_domain_url(context):
-    request = context['request']
-
-    return 'http{}://{}{}'.format(
-        's' if request.is_secure() else '',
-        'www.' if settings.PREPEND_WWW else '',
-        settings.SITE_DOMAIN,
-    )
-
-
 @library.global_function
 @jinja2.pass_context
 def get_canonical_url(context):
     '''
-    Returns the canonical URL of the current page.
+    Returns the canonical URL of the current page, normalised for the correct
+    protocol, path and PREPEND_WWW setting.
     '''
-    request = context['request']
-
-    url = '{}{}'.format(
-        absolute_domain_url(context),
-        request.path
-    )
-
+    url = canonicalise_url(context['request'].path)
     return escape(url)
 
 
@@ -312,16 +297,10 @@ def get_og_image(context, image=None):
             image_obj = page.og_image
 
     if image_obj:
-        return '{}{}'.format(
-            absolute_domain_url(context),
-            image_obj.get_absolute_url()
-        )
+        return canonicalise_url(image_obj.get_absolute_url())
 
     if image:
-        return '{}{}'.format(
-            absolute_domain_url(context),
-            image.get_absolute_url()
-        )
+        return canonicalise_url(image.get_absolute_url())
 
     return None
 
@@ -463,16 +442,10 @@ def get_twitter_image(context, image=None):
 
     # If its a file object, load the URL manually
     if image_obj:
-        return '{}{}'.format(
-            absolute_domain_url(context),
-            image_obj.get_absolute_url()
-        )
+        return canonicalise_url(image_obj.get_absolute_url())
 
     if image:
-        return '{}{}'.format(
-            absolute_domain_url(context),
-            image.get_absolute_url()
-        )
+        return canonicalise_url(image.get_absolute_url())
 
     # Return image, or an empty string if nothing is working
     return None

@@ -5,18 +5,16 @@ from dataclasses import dataclass
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import RequestFactory, TestCase
+from django.test import RequestFactory, TestCase, override_settings
 from django.utils.timezone import now
 from watson import search
 
 from cms.apps.media.models import File
-from cms.apps.testing_models.models import TemplateTagTestPage
-
-from ..middleware import RequestPageManager
-from ..models import Page
-from ..templatetags.pages import (
+from cms.apps.pages.middleware import RequestPageManager
+from cms.apps.pages.models import Page
+from cms.apps.pages.templatetags.pages import (
     _navigation_entries,
-    absolute_domain_url,
+    get_canonical_url,
     get_meta_description,
     get_meta_robots,
     get_og_image,
@@ -28,6 +26,8 @@ from ..templatetags.pages import (
     render_breadcrumbs,
     render_navigation,
 )
+from cms.apps.testing_models.models import TemplateTagTestPage
+from cms.utils import canonicalise_url
 
 
 @dataclass
@@ -170,23 +170,11 @@ class TestTemplatetags(TestCase):
         context = {}
         context['request'] = request
         context['og_image'] = context['twitter_image'] = self.obj_1
-
-        self.assertEqual(get_og_image(context), '{}{}'.format(
-            absolute_domain_url(context),
-            self.obj_1.get_absolute_url()
-        ))
-
-        self.assertEqual(get_twitter_image(context), '{}{}'.format(
-            absolute_domain_url(context),
-            self.obj_1.get_absolute_url()
-        ))
+        self.assertEqual(get_og_image(context), canonicalise_url(self.obj_1.get_absolute_url()))
+        self.assertEqual(get_twitter_image(context), canonicalise_url(self.obj_1.get_absolute_url()))
 
         context['twitter_image'] = None
-
-        self.assertEqual(get_twitter_image(context), '{}{}'.format(
-            absolute_domain_url(context),
-            self.obj_1.get_absolute_url()
-        ))
+        self.assertEqual(get_twitter_image(context), canonicalise_url(self.obj_1.get_absolute_url()))
 
     def test_get_meta_description(self):
         request = self.factory.get('/')
@@ -352,3 +340,20 @@ def test_navigation_entries(simple_page_tree):
     navigation = _navigation_entries({'request': request}, request.pages.current.navigation)
 
     assert navigation == []
+
+
+@override_settings(SITE_DOMAIN='canonicalise.example.com')
+def test_get_canonical_url():
+    rf = RequestFactory()
+
+    request = rf.get('/')
+    assert get_canonical_url({'request': request}) == 'https://canonicalise.example.com/'
+
+    request = rf.get('/air/')
+    assert get_canonical_url({'request': request}) == 'https://canonicalise.example.com/air/'
+
+    with override_settings(DEBUG=True):
+        assert get_canonical_url({'request': request}) == 'http://canonicalise.example.com/air/'
+
+    with override_settings(PREPEND_WWW=True):
+        assert get_canonical_url({'request': request}) == 'https://www.canonicalise.example.com/air/'
