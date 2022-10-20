@@ -2,6 +2,8 @@ from urllib.parse import urlparse
 
 from django.conf import settings
 
+from cms.conf import defaults
+
 
 def canonicalise_url(path=None):
     if path is None:
@@ -9,9 +11,9 @@ def canonicalise_url(path=None):
     parsed = urlparse(path)
 
     if settings.PREPEND_WWW:
-        domain = f'www.{settings.SITE_DOMAIN}'
+        domain = f'www.{defaults.SITE_DOMAIN}'
     else:
-        domain = settings.SITE_DOMAIN
+        domain = defaults.SITE_DOMAIN
 
     parsed = parsed._replace(netloc=domain)
 

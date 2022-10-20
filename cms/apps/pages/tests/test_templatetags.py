@@ -342,7 +342,7 @@ def test_navigation_entries(simple_page_tree):
     assert navigation == []
 
 
-@override_settings(SITE_DOMAIN='canonicalise.example.com')
+@override_settings(UNCMS={'SITE_DOMAIN': 'canonicalise.example.com'})
 def test_get_canonical_url():
     rf = RequestFactory()
 

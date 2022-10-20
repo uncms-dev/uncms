@@ -17,6 +17,7 @@ This is the first release of UnCMS, forked from onespacemedia-cms version 4.4.
 * usertools dependency has been removed.
 * historylinks is no longer a requirement.
 * `get_canonical_url` template tag now always returns an HTTPS URL except when `settings.DEBUG == False`.
+* `get_canonical_url` now uses `settings.UNCMS['SITE_DOMAIN']`, and this is now a required setting. (It was de facto required in the past, but UnCMS would start without it.)
 * The `Link.new_window` field has been retired. It encouraged the slow practice of checking for `Page.content.new_window` in the navigation.
 * The canonical location of `ImageRefField` is now `cms.apps.media.fields`. This permits easier project-local overrides of the media app, because UnCMS's `Page` and helper models no longer import from `cms.apps.media.models`.
 * On that note, it is possible to override the default media file model with the `MEDIA_FILE_MODEL` configuration option.

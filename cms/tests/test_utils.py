@@ -3,7 +3,7 @@ from django.test import override_settings
 from cms.utils import canonicalise_url
 
 
-@override_settings(SITE_DOMAIN='canonicalise.example.com')
+@override_settings(UNCMS={'SITE_DOMAIN': 'canonicalise.example.com'})
 def test_get_canonical_url():
     assert canonicalise_url() == 'https://canonicalise.example.com/'
 

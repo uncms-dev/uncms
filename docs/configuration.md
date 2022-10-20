@@ -158,6 +158,22 @@ Of course, you probably don't want to do that for _every_ request.
 The most obvious is that you will want to be able to view offline pages in your site's administrative area.
 You may want to change this setting if your admin lives at any location other than "/admin/".
 
+## `SITE_DOMAIN`
+
+* Type: string (bare domain name)
+* Default: `None` (must be specified)
+* Example form: `'example.com'`
+
+This controls the canonical domain name used for converting URLs into paths,
+e.g. converting `/path/` to `https://example.com/path/`.
+It must be specified (the only mandatory setting here);
+UnCMS will refused to start without it.
+
+You do not need to specify a `www.` prefix if this is your preferred host for your site;
+if you wish to canonicalise to `www.`, set Django's `PREPEND_WWW` setting to `True`.
+Note that if you _do_ specify a `www.` prefix and you have `PREPEND_WWW` set to `True`,
+URLs will be canonicalised as `www.www.example.com`, which you probably do not want.
+
 ## `WYSIWYG_OPTIONS`
 
 * Type: dictionary

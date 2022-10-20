@@ -9,15 +9,21 @@ you probably want to look at the companion [tiny CMS project repo](https://githu
 We'll need to add a few settings that UnCMS depends on.
 Don't worry too much about what these do for now; the concepts behind them will be explained in depth over the course of the walkthrough.
 
-First, put your default hostname in the `SITE_DOMAIN` setting; it is used by template functions to turn relative /urls/ into http://actual.absolute/urls/:
+First, create an UNCMS dictionary for all of UnCMS's settings,
+and add the `SITE_DOMAIN` key with your default domain:
 
 ```python
-SITE_DOMAIN = 'example.com'
+UNCMS = {
+    # Note that you do not want "www." before this - we'll obey the Django
+    # PREPEND_WWW setting when constructing URLs.
+    'SITE_DOMAIN': 'example.com',
+}
 ```
 
-We don't want things set to be offline to appear in the front-end (our pages have on/offline controls), but we definitely want them to appear in our admin:
+This is the _only_ required setting in this dictionary, because it cannot always be guessed.
+It is used by template functions to turn relative /urls/ into `https://actual.absolute/urls/`:
 
-Add our core UnCMS things to your `INSTALLED_APPS`:
+Add our core UnCMS apps to your `INSTALLED_APPS`:
 
 ```python
 INSTALLED_APPS = [
@@ -44,13 +50,6 @@ MIDDLEWARE = [
     'cms.middleware.PublicationMiddleware',
     'cms.apps.pages.middleware.PageMiddleware',
 ]
-```
-
-Add an UnCMS configuration dictionary.
-An empty dictionary will mean UnCMS will use all its defaults.
-
-```
-UNCMS = {}
 ```
 
 Finally, you will need something like this in your root URLconf.

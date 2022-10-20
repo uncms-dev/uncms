@@ -7,7 +7,6 @@ from django.conf import settings
 
 def pytest_configure():
     settings.configure(
-        SITE_DOMAIN='example.com',
         DATABASES={
             'default': {
                 'ENGINE': 'django.db.backends.postgresql',
@@ -27,6 +26,7 @@ def pytest_configure():
             'django.contrib.admin',
             'django.contrib.auth',
             'django.contrib.contenttypes',
+            'django.contrib.messages',
             'django.contrib.sessions',
             'django.contrib.sitemaps',
 
@@ -107,7 +107,9 @@ def pytest_configure():
         ],
         SECRET_KEY='KNOWN_FIXED_VALUE_IS_FINE',
         PUBLICATION_MIDDLEWARE_EXCLUDE_URLS=['/admin/'],
-        UNCMS={},
+        UNCMS={
+            'SITE_DOMAIN': 'example.com',
+        },
         THUMBNAIL_PRESERVE_FORMAT=True,
         REPO_ROOT=os.path.abspath(os.path.dirname(__file__)),
     )
