@@ -45,10 +45,14 @@ This helps to prevent exceptions being thrown while thumbnailing images on the f
 #### Model fields
 
 * `title`: A name for the file.
+You should not display this to users of your site.
 In the admin, this is prepopulated from the filename when first uploaded, if no title is provided by the user.
 * `labels`: A `ManyToManyField` to `Label` (see below).
-* `file`: A Django `FileField`, which is the file itself.
-* `attribution`, `copyright` and `alt_text`: Additional metadata fields.
+* `file`: A Django `FileField`, which is the file itself
+* `alt_text`: Text that will be used to describe this image to screen readers.
+You should leave this empty for purely decorative images.
+This will be used as a fallback by the [image rendering](rendering-images.md) template function.
+* `attribution`, `copyright` Additional metadata fields.
 It is up to you how, or if, to render these on the front end of the site.
 
 In addition, the following fields are present on the model, but are not user-visible and are automatically populated on save:
@@ -84,3 +88,7 @@ if you're anything like us, your media libraries can get large enough to make dr
 This will also display a small preview of the image in the widget in the admin.
 
 `uncms.media.fields.VideoFileRefField` has the same functionality as `FileRefField`, but the files are filtered to only show videos.
+
+## Next steps
+
+Learn about [rendering images](rendering-images.md) from your library.

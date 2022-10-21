@@ -55,6 +55,33 @@ This list is _not_ additive to the defaults;
 if you wish to retain the default HTML processing while adding your own output formatters,
 you must include `'uncms.html.format_html'` in this list.
 
+## `IMAGE_CLASS_PREFIX`
+
+* Type: string (HTML class name prefix)
+* Default: `image`
+
+## `IMAGE_TEMPLATE`
+
+* Type: string (template path)
+* Default: `'media/multi_format_image.html'`
+
+The template to use when [rendering images](rendering-images.md).
+
+## `IMAGE_WIDTHS`
+
+* Type: list of integers (image widths)
+* Default: `[400, 768, 1024]`
+
+When [rendering images](rendering-images.md),
+extra sizes other than the ones you have requested will be placed into the `srcset` in the HTML output.
+This allows you to render a guessed largest size at which you want it rendered,
+and to have lower-resolution versions output too for smaller devices.
+Browsers will choose the most appropriate one for their display.
+
+These sizes are expressed as widths.
+This will work as expected for thumbnails where you have specified only a height and ask for the width to be calculated automatically;
+these sizes apply
+
 ## `MEDIA_FILE_MODEL`
 
 * Type: string (dotted name of Django model)

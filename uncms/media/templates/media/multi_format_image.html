@@ -1,0 +1,17 @@
+{% block before_picture_tag %}{% endblock %}
+<picture class="{% block picture_tag_classes %}{{ class_prefix }} {% block extra_picture_tag_classes %}{% endblock %}{% endblock %}">
+  {% block inside_picture_tag_top %}{% endblock %}
+  {% for format, images in formats.items %}
+    <source type="{{ format }}" srcset="{{ images.srcset }}" sizes="{{ sizes_attribute }}">
+  {% endfor %}
+  <img
+    class="{% block img_tag_classes %}{{ class_prefix }}__image {% block extra_img_tag_classes %}{% endblock %}{% endblock %}"
+    alt="{{ alt_text }}"
+    src="{{ original_url }}"
+    {% if lazy %}{% block img_tag_lazy_attribute %}loading="lazy"{% endblock %}{% endif %}
+    {% if aspect_ratio %}{% block img_tag_style_attribute %}style="aspect-ratio: {{ aspect_ratio }}"{% endblock %}{% endif %}
+    {% block extra_img_tag_attributes %}{% endblock %}
+  >
+  {% block inside_picture_tag_bottom %}{% endblock %}
+</picture>
+{% block after_picture_tag %}{% endblock %}

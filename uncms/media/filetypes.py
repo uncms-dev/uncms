@@ -32,7 +32,15 @@ FILE_ICONS = {
     'wmv': MOVIE_FILE_ICON,
 }
 
-IMAGE_FILE_EXTENSIONS = ['gif', 'png', 'jpg', 'jpeg']
+IMAGE_MIMETYPES = {
+    'gif': 'image/gif',
+    'png': 'image/png',
+    'jpg': 'image/jpeg',
+    'jpeg': 'image/jpeg',
+    'webp': 'image/webp',
+}
+
+IMAGE_FILE_EXTENSIONS = IMAGE_MIMETYPES.keys()
 
 for ext in IMAGE_FILE_EXTENSIONS:
     FILE_ICONS[ext] = IMAGE_FILE_ICON
@@ -55,6 +63,9 @@ def get_icon_for_extension(extension):
 
 def get_icon(filename):
     '''Returns an appropriate icon for the given filename.'''
+    return get_icon_for_extension(normalised_file_extension(filename))
+
+
+def normalised_file_extension(filename):
     _, extension = os.path.splitext(filename)
-    extension = extension[1:]
-    return get_icon_for_extension(extension)
+    return extension.lower()[1:]
