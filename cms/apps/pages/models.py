@@ -152,10 +152,6 @@ class Page(PageBase):
         unique_together = (('parent', 'slug'),)
         ordering = ('left',)
 
-    def __init__(self, *args, **kwargs):
-        self.cached_parent = None
-        super().__init__(*args, **kwargs)
-
     def __str__(self):
         return self.short_title or self.title
 
@@ -179,19 +175,16 @@ class Page(PageBase):
 
     def get_children(self):
         '''
-        `get_children` returns the pages for this page, with some minor
-        optimisations.
+        `get_children` returns the pages for this page, as a list,
+        with a minor optimisations.
+
+        This does not permit further filtering on the children, and that is
+        the point; use Page.child_set if you wish to do this.
         '''
-        children = []
         # Optimization - don't fetch children we know aren't there!
         if self.right - self.left > 1:
-            for child in self.child_set.all():
-                # get_absolute_url will check this first before causing an
-                # extra database query looking up its parent page. (It is
-                # potentially dangerous to overwrite 'parent'.)
-                child.cached_parent = self
-                children.append(child)
-        return children
+            return list(self.child_set.all())
+        return []
 
     @cached_property
     def navigation(self):
@@ -217,12 +210,10 @@ class Page(PageBase):
 
     def get_absolute_url(self):
         '''Generates the absolute url of the page.'''
-        parent = self.cached_parent or self.parent
-
-        if not parent:
+        if not self.parent:
             return urls.get_script_prefix()
 
-        return parent.get_absolute_url() + self.slug + '/'
+        return self.parent.get_absolute_url() + self.slug + '/'
 
     # Tree management.
 

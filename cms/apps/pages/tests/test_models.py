@@ -521,3 +521,45 @@ def test_page_get_absolute_url():
 
     page2 = PageFactory(parent=page, slug='subpage')
     assert page2.get_absolute_url() == '/subpage/'
+
+
+@pytest.mark.django_db
+def test_page_get_absolute_url_on_children_is_efficient(django_assert_num_queries):
+    """
+    A previous version of `pages.children` (which got split into two parts
+    later, get_children() and cached-property children) used to do an
+    "optimisation" of setting the parent page on the child page. I wrote this
+    test to prove it was unnecessary, but it doubles as a regression test to
+    make sure `get_absolute_url` (which is used on every entry in the
+    navigation) does not regress.
+    """
+    PageFactory.create_tree(1, 1)
+
+    top_level = Page.objects.get(parent=None)
+
+    with django_assert_num_queries(1):
+        child = top_level.children[0]
+
+    with django_assert_num_queries(0):
+        child.get_absolute_url()
+
+
+@pytest.mark.django_db
+def test_page_children_does_not_invalidate_prefetches(django_assert_num_queries):
+    """
+    In our previous life as Onespacemedia CMS, there used to be extra filtering
+    in `.children` which used to invalidate prefetches on Page. That meant
+    that prefetching was a pessimisation, so prefetching got removed here:
+    https://github.com/onespacemedia/cms/pull/191
+
+    Fortunately, with the multiregion stuff ripped out in the UnCMS era,
+    prefetches are now viable again. Let's make sure we have not regressed on
+    that one.
+    """
+    PageFactory.create_tree(1, 1)
+
+    top_level = Page.objects.prefetch_related('child_set', 'child_set__child_set').get(parent=None)
+
+    with django_assert_num_queries(0):
+        top_level.children[0].get_absolute_url()
+        top_level.children[0].children[0].get_absolute_url()

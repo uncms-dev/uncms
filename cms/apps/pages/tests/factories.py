@@ -37,3 +37,32 @@ class PageFactory(factory.django.DjangoModelFactory):
         params['content_type'] = ContentType.objects.get_for_model(params['content'].__class__)
         with watson.update_index():
             return super()._generate(strategy, params)
+
+    @classmethod
+    def create_tree(cls, *shape):
+        """
+        PageFactory.create_tree creates a page tree for testing things at
+        depth.
+
+        `shape` takes the form:
+
+        top_level_depth, sub_menu_depth, sub_sub_menu_depth, ...
+
+        So if you want to create a menu of 5 top level pages (underneath the
+        home page), each of which has 4 children, each of *those* having 7
+        children each, this would do the trick:
+
+        PageFactory.create_tree(5, 4, 7)
+        """
+        homepage = cls.create()
+
+        def create_children_recursive(parent, nested_shape):
+            if not nested_shape:
+                return
+
+            for _ in range(nested_shape[0]):
+                page = cls.create(parent=parent)
+                create_children_recursive(page, nested_shape[1:])
+
+
+        create_children_recursive(homepage, shape)
