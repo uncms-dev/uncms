@@ -545,6 +545,41 @@ def test_page_get_absolute_url_on_children_is_efficient(django_assert_num_querie
 
 
 @pytest.mark.django_db
+def test_page_get_children_is_efficient(django_assert_num_queries):
+    """
+    This is a long-standing comment in Page.get_children, dating all the way
+    back to 2012:
+
+        # Optimization - don't fetch children we know aren't there!
+
+    The code looks alright, but this test was written to ensure that this is
+    really the case. Let's be sure!
+    """
+    PageFactory.create()
+    homepage = Page.objects.get_homepage()
+
+    # The homepage has no children. This should result in zero database
+    # queries.
+    with django_assert_num_queries(0):
+        assert not homepage.get_children()
+
+    for _ in range(2):
+        PageFactory.create(parent=homepage)
+
+    # Just to make sure something wasn't really bad earlier, let's make sure
+    # that we do in fact cause a query if it does have children.
+    homepage = Page.objects.get_homepage()
+    with django_assert_num_queries(1):
+        assert len(homepage.get_children()) == 2
+
+    # Let's be sure that these child pages do not cause a database query
+    # either.
+    child = Page.objects.filter(parent=Page.objects.get_homepage()).first()
+    with django_assert_num_queries(0):
+        assert not child.get_children()
+
+
+@pytest.mark.django_db
 def test_page_children_does_not_invalidate_prefetches(django_assert_num_queries):
     """
     In our previous life as Onespacemedia CMS, there used to be extra filtering
