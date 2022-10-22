@@ -61,9 +61,22 @@ class PageManager(OnlineBaseManager):
         )
         return queryset
 
-    def get_homepage(self):
+    def get_homepage(self, prefetch_depth=0):
         '''Returns the site homepage.'''
-        return self.get(parent=None)
+        queryset = self.filter(parent=None)
+
+        prefetch_args = self.prefetch_children_args(depth=prefetch_depth)
+
+        if prefetch_args:
+            queryset = queryset.prefetch_related(*prefetch_args)
+
+        return queryset.get(parent=None)
+
+    def prefetch_children_args(self, *, depth):
+        return [
+            '__'.join(['child_set'] * (i + 1))
+            for i in range(depth)
+        ]
 
 
 class Page(PageBase):

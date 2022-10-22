@@ -563,3 +563,35 @@ def test_page_children_does_not_invalidate_prefetches(django_assert_num_queries)
     with django_assert_num_queries(0):
         top_level.children[0].get_absolute_url()
         top_level.children[0].children[0].get_absolute_url()
+
+
+@pytest.mark.django_db
+def test_pagemanager_get_homepage_prefetching(django_assert_num_queries):
+    # Create a tree with 3 top-level entries, 5 second-level pages, and 4
+    # third-level ones.
+    PageFactory.create_tree(3, 5, 2)
+
+    home = Page.objects.get_homepage(prefetch_depth=2)
+    with django_assert_num_queries(0):
+        children = home.get_children()
+
+    with django_assert_num_queries(0):
+        for child in children:
+            child.get_children()
+
+    home = Page.objects.get_homepage()
+    with django_assert_num_queries(1):
+        children = home.get_children()
+
+    # We should expect 3 queries, one for each of the top-level navigation
+    # items.
+    with django_assert_num_queries(3):
+        for child in children:
+            child.get_children()
+
+
+def test_pagemanager_prefetch_children_args():
+    assert Page.objects.prefetch_children_args(depth=0) == []
+    assert Page.objects.prefetch_children_args(depth=1) == ['child_set']
+    assert Page.objects.prefetch_children_args(depth=2) == ['child_set', 'child_set__child_set']
+    assert Page.objects.prefetch_children_args(depth=3) == ['child_set', 'child_set__child_set', 'child_set__child_set__child_set']
