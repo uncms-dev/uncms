@@ -13,6 +13,7 @@ from django.utils.functional import cached_property
 from django.views.debug import technical_404_response
 
 from cms.apps.pages.models import Page
+from cms.conf import defaults
 
 
 class RequestPageManager:
@@ -29,7 +30,7 @@ class RequestPageManager:
     def homepage(self):
         '''Returns the site homepage.'''
         try:
-            return Page.objects.get_homepage()
+            return Page.objects.get_homepage(prefetch_depth=defaults.PAGE_TREE_PREFETCH_DEPTH)
         except Page.DoesNotExist:
             return None
 

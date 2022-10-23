@@ -6,6 +6,12 @@ from cms.apps.pages.tests.factories import PageFactory
 
 @pytest.mark.django_db
 def test_page_factory_is_sane():
+    """
+    What is this, a test for the tests?
+
+    Well, PageFactory.create_tree is essential to some important performance
+    tests. It would be good to know that it is working properly.
+    """
     PageFactory.create_tree(3, 5, 4)
     homepage = Page.objects.get_homepage()
 

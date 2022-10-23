@@ -68,6 +68,7 @@ class AppSettings:
         'NAVIGATION_SUBMENU_TEMPLATE': 'pages/navigation/navigation_submenu.html',
         'NAVIGATION_SUBMENU_ITEM_TEMPLATE': 'pages/navigation/navigation_submenu_item.html',
         'ONLINE_DEFAULT': True,
+        'PAGE_TREE_PREFETCH_DEPTH': 2,
         'PATH_SIGNING_SECRET': settings.SECRET_KEY,
         'PUBLICATION_MIDDLEWARE_EXCLUDE_URLS': [r'^/admin/'],
         'SITE_DOMAIN': None,

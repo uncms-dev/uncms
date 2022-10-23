@@ -264,11 +264,11 @@ def test_middleware_query_count(client, django_assert_num_queries):
     pages = Pages()
     _generate_pages(pages)
 
-    with django_assert_num_queries(3):
+    with django_assert_num_queries(4):
         response = client.get(pages.homepage.get_absolute_url())
     assert response.status_code == 200
 
-    with django_assert_num_queries(3):
+    with django_assert_num_queries(4):
         response = client.get(pages.page_1.get_absolute_url())
     assert response.status_code == 200
 

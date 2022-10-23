@@ -135,6 +135,18 @@ See [Rendering page navigation](rendering-navigation.md) for more details.
 This controls whether a new `Page` (and anything else that inherits from OnlineBase) will have `is_online` set to True by default when creating new objects in the admin.
 Set it to `False` to make new pages be offline by default.
 
+## `PAGE_TREE_PREFETCH_DEPTH`
+
+* Type: boolean
+* Default: 2
+
+The depth at which pages will be prefetched, measured from the home page.
+By default, pages two levels deep from the home page will be prefetched.
+This means that the entire navigation on any site with a homepage, top-level pages, and pages underneath that can be fetched with 3 database queries,
+regardless of the number of pages you have on your site.
+
+See the [performance section](performance.md) of this documentation for more on this.
+
 ## `PATH_SIGNING_SECRET`
 
 * Type: string

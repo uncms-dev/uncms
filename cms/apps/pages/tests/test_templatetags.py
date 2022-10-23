@@ -3,6 +3,7 @@ import random
 import sys
 from dataclasses import dataclass
 
+import pytest
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import RequestFactory, TestCase, override_settings
@@ -26,6 +27,7 @@ from cms.apps.pages.templatetags.pages import (
     render_breadcrumbs,
     render_navigation,
 )
+from cms.apps.pages.tests.factories import PageFactory
 from cms.apps.testing_models.models import TemplateTagTestPage
 from cms.utils import canonicalise_url
 
@@ -340,6 +342,31 @@ def test_navigation_entries(simple_page_tree):
     navigation = _navigation_entries({'request': request}, request.pages.current.navigation)
 
     assert navigation == []
+
+
+@pytest.mark.django_db
+def test_render_navigation_is_efficient(django_assert_num_queries):
+    PageFactory.create_tree(5, 5)
+    factory = RequestFactory()
+
+    request = factory.get('/')
+    request.pages = RequestPageManager(request)
+
+    with django_assert_num_queries(3):
+        render_navigation({'request': request}, request.pages.homepage.navigation)
+
+
+@pytest.mark.django_db
+@override_settings(UNCMS={'PAGE_TREE_PREFETCH_DEPTH': 3})
+def test_render_navigation_is_efficient_with_deeper_trees(django_assert_num_queries):
+    PageFactory.create_tree(5, 5, 5)
+    factory = RequestFactory()
+
+    request = factory.get('/')
+    request.pages = RequestPageManager(request)
+
+    with django_assert_num_queries(4):
+        render_navigation({'request': request}, request.pages.homepage.navigation)
 
 
 @override_settings(UNCMS={'SITE_DOMAIN': 'canonicalise.example.com'})
