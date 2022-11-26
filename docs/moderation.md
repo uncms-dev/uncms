@@ -14,7 +14,7 @@ Users without the permission will only be able to set the object's status to "Dr
 First, modify your model:
 
 ```python
-from cms.plugins.moderation.models import ModerationBase
+from uncms.plugins.moderation.models import ModerationBase
 
 class MyModel(ModerationBase):
     # Your fields here.
@@ -27,7 +27,7 @@ class MyModel(ModerationBase):
 To integrate the moderation system with the Django admin, modify your ModelAdmin to take this form:
 
 ```python
-from cms.plugins.moderation.admin import MODERATION_FIELDS, ModerationAdminBase
+from uncms.plugins.moderation.admin import MODERATION_FIELDS, ModerationAdminBase
 from django.contrib import admin
 
 from .models import MyModel

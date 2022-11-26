@@ -1,5 +1,5 @@
 #!/bin/sh
-pytest --cov=cms cms
+pytest --cov=uncms uncms
 isort --diff --check-only
-flake8 cms/
-pylint cms/
+flake8 uncms/
+pylint uncms/

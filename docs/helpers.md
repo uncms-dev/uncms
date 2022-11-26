@@ -2,7 +2,7 @@
 
 ## OnlineBase
 
-`cms.models.OnlineBase` provides publication controls.
+`uncms.models.OnlineBase` provides publication controls.
 It provides a single field: `is_online`.
 An object with this field set to `False` (unchecked) will not appear on the front-end of your website.
 
@@ -13,7 +13,7 @@ We will go into more detail about that [elsewhere](publication-control.md).
 You may choose to implement a way to copy this in your admin theme; by default, UnCMS does nothing with it.
 If your model does not implement a `get_absolute_url()` method, this method will return `None`.
 
-`cms.admin.OnlineBaseAdmin` is the companion `ModelAdmin` for this model;
+`uncms.admin.OnlineBaseAdmin` is the companion `ModelAdmin` for this model;
 if your model inherits directly from `OnlineBase`, your `ModelAdmin` should inherit from `OnlineBaseAdmin`.
 It defines `PUBLICATION_FIELDS`, which you can use on your model's admin like this:
 
@@ -32,7 +32,7 @@ If you want to change this, set `ONLINE_DEFAULT` to `False` in your [UnCMS confi
 
 ## PageBase
 
-`cms.models.PageBase` provides the publication control that `OnlineBase` does, but also contains many useful fields that are useful for page- or article-like models on a website.
+`uncms.models.PageBase` provides the publication control that `OnlineBase` does, but also contains many useful fields that are useful for page- or article-like models on a website.
 If an instance of your model lives at its own URL and has a title, such as a news article or a blog post, then you almost certainly want to inherit from `PageBase`.
 UnCMS's own `Page` model inherits from it.
 
@@ -42,7 +42,7 @@ PageBase defines several fields that make this useful for article-like things:
 * Search engine optimisation (SEO) controls: title tag override, meta description, robots controls
 * Fields for Twitter and Facebook (OpenGraph) cards
 
-`cms.admin.PageBaseAdmin` is the companion `ModelAdmin`; anything that derives from `PageBase` definitely wants to use `PageBaseAdmin`.
+`uncms.admin.PageBaseAdmin` is the companion `ModelAdmin`; anything that derives from `PageBase` definitely wants to use `PageBaseAdmin`.
 It prepopulates your `title` and `slug` field automatically, and offers the following fieldsets:
 
 * `PUBLICATION_FIELDS`, inherited from `OnlineBase`
@@ -50,8 +50,8 @@ It prepopulates your `title` and `slug` field automatically, and offers the foll
 * `OPENGRAPH_FIELDS`, to control how OpenGraph card rendering (Facebook and others)
 * `OPENGRAPH_TWITTER_FIELDS`, to control how Twitter cards are rendered
 
-The companion `cms.views.PageDetailView` is a class-based view that takes care of putting `PageBase` fields into the template context so they are seen by UnCMS's [template functions](template-functions.md).
-There is also `cms.views.PageDetailMixin`, which does the same thing but does not inherit from Django's `DetailView`.
+The companion `uncms.views.PageDetailView` is a class-based view that takes care of putting `PageBase` fields into the template context so they are seen by UnCMS's [template functions](template-functions.md).
+There is also `uncms.views.PageDetailMixin`, which does the same thing but does not inherit from Django's `DetailView`.
 
 Because the Django `DetailView` from which this inherits will check the `slug` kwarg by default, your detail view could be as simple as this:
 
@@ -62,15 +62,15 @@ class ArticleDetailView(PageDetailView):
 
 ## SearchMetaBase
 
-`cms.models.SearchMetaBase` provides everything that `PageBase` does, except a title and a slug.
+`uncms.models.SearchMetaBase` provides everything that `PageBase` does, except a title and a slug.
 This is for models in which you want all the features of `PageBase`, but which don't have a "title" from which you can construct a page title.
 
 Historically, the most common use for this helper rather than `PageBase` is a typical "people" app, of the kind that would provide an "Our team" page on a typical corporate website.
 A person model does not have a title; they'll [typically](https://www.kalzumeus.com/2010/06/17/falsehoods-programmers-believe-about-names/) have at least a first name, a last name, and some other name fields from which you can construct a page title.
 
-`cms.admin.SearchMetaBaseAdmin` is the same as `PageBaseAdmin`, but does not have the title and prepopulated slug.
+`uncms.admin.SearchMetaBaseAdmin` is the same as `PageBaseAdmin`, but does not have the title and prepopulated slug.
 
-`cms.views.SearchMetaDetailView` is the companion class-based detail view, which, similarly, only differs from `PageDetailView` in that there is no title to put into the page context.
+`uncms.views.SearchMetaDetailView` is the companion class-based detail view, which, similarly, only differs from `PageDetailView` in that there is no title to put into the page context.
 Should you need to use `SearchMetaDetailView`, you will want to ensure the key 'title' is in the template context.
 
 ## Next steps

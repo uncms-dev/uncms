@@ -6,8 +6,8 @@ UnCMS has some helpers for this, which build on Django's [sitemaps framework](ht
 First, you will need a URL route in your root `urls.py`. You will want something very much like this:
 
 ```python
-from cms.sitemaps import registered_sitemaps
 from django.contrib.sitemaps import views as sitemaps_views
+from uncms.sitemaps import registered_sitemaps
 
 urlpatterns = [
     # ...your URLS here...
@@ -18,24 +18,24 @@ urlpatterns = [
 
 There are, of course, helper sitemap classes for all of UnCMS's [helper models](helpers.md).
 You don't need to worry about those most of the time.
-The `cms.sitemaps.register` function guesses an appropriate one for you:
+The `uncms.sitemaps.register` function guesses an appropriate one for you:
 
 ```python
-from cms import sitemaps
+from uncms import sitemaps
 sitemaps.register(YourModel)
 ```
 
 It will guess which sitemap class to use based on which helper model your model inherits from,
 checking `PageBase`, `SearchMetaBase`, and `OnlineBase`, in that order.
 
-`cms.sitemaps.BaseSitemap` does not do anything at all, other than returning all of the instances of a given model.
+`uncms.sitemaps.BaseSitemap` does not do anything at all, other than returning all of the instances of a given model.
 It assumes that the model implements a `get_absolute_url` method.
 
-`cms.sitemaps.OnlineBaseSitemap` inherits from `BaseSitemap`, but does not add anything.
+`uncms.sitemaps.OnlineBaseSitemap` inherits from `BaseSitemap`, but does not add anything.
 The `OnlineBaseManager` used by `OnlineBase`, not `OnlineBaseSitemap`, ensures that only online objects are included in the sitemap.
 However if you are inheriting from `OnlineBase` your sitemap should inherit from this class in case the implementation changes in the future.
 
-`cms.sitemaps.SearchMetaBaseSitemap` and `cms.sitemaps.PageBaseSitemap` are for models that inherit from `SearchMetaBase` and `PageBase`.
+`uncms.sitemaps.SearchMetaBaseSitemap` and `uncms.sitemaps.PageBaseSitemap` are for models that inherit from `SearchMetaBase` and `PageBase`.
 They will add the change frequency and priority from the SEO fields on those models to the model's sitemap.
 They will also exclude any objects that have been excluded from search engines (i.e. `robots_index == False`).
 
@@ -45,7 +45,7 @@ Say you have an `Article` model in your site that inherits from `PageBase`, whic
 We don't want those articles to appear in the sitemap. So we exclude them from indexing like so.
 
 ```python
-from cms import sitemaps
+from uncms import sitemaps
 
 class ArticleSitemap(sitemaps.PageBaseSitemap):
     model = Article

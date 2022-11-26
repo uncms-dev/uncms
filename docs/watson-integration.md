@@ -9,26 +9,26 @@ If you choose to use Watson on your front-end, and you are using UnCMS's helper 
 Just pass one of these as the second argument to `register` (see ["Registering models"](https://github.com/etianen/django-watson/wiki/registering-models) in Watson's documentation):
 
 ```
-from cms.models import OnlineBaseSearchAdapter
+from uncms.models import OnlineBaseSearchAdapter
 
 watson.register(YourModel, OnlineBaseSearchAdapter)
 ```
 
-`cms.models.OnlineBaseSearchAdapter`, from this example, is used to register models that inherit directly from `OnlineBase`.
+`uncms.models.OnlineBaseSearchAdapter`, from this example, is used to register models that inherit directly from `OnlineBase`.
 It ensures that objects that are set as offline do not appear in your search results.
 
-`cms.models.PageBaseSearchAdapter` is for models that inherit from `PageBase`.
+`uncms.models.PageBaseSearchAdapter` is for models that inherit from `PageBase`.
 It will ensure that the title of an object (rather than its `__str__`) is used as its title in search results.
 An object's meta description will be used as the description of its search result.
 It inherits the behaviour of `OnlineBaseSearchAdapter` above, but will also exclude any results that have been excluded from external search engine crawlers.
 
-`cms.models.SearchMetaBaseSearchAdapter` is for models that inherit directly from the less-commonly-used `SearchMetaBase`.
+`uncms.models.SearchMetaBaseSearchAdapter` is for models that inherit directly from the less-commonly-used `SearchMetaBase`.
 It behaves exactly like `PageBaseSearchAdapter`, but doesn't assume the presence of a "title" field;
 it will default to Watson's behaviour of using the `__str__` of the object as the title in search results.
 
 ## Controlling search text for content models (ContentBase derivatives)
 
-The UnCMS `Page` model is registered with `cms.apps.pages.models.PageSearchAdapter` by default. `PageSearchAdapter` will add all textual fields from the page's content object to the blob of text that gets indexed (with a lower priority than the page title).
+The UnCMS `Page` model is registered with `uncms.apps.pages.models.PageSearchAdapter` by default. `PageSearchAdapter` will add all textual fields from the page's content object to the blob of text that gets indexed (with a lower priority than the page title).
 
 That's sensible behaviour, but you may have inlined models that need to be searched too.
 For example, our simple sectioned content model from the [walkthrough](walkthrough.md) has most of its textual content in `ContentSection` objects.

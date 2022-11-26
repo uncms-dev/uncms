@@ -4,7 +4,7 @@ import platform
 
 from setuptools import find_packages, setup
 
-from cms import VERSION
+from uncms import VERSION
 
 DEPENDENCIES = [
     'requests',

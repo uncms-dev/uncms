@@ -5,7 +5,7 @@ It also integrates with UnCMS's WYSIWYG text editor to provide a file browser an
 
 ## Adding the media app to your site
 
-You will need to add `'cms.apps.media'` to your `INSTALLED_APPS`.
+You will need to add `'uncms.apps.media'` to your `INSTALLED_APPS`.
 If you are using any of UnCMS's other features,
 you would have done this already.
 
@@ -25,7 +25,7 @@ urlpatterns = [
 
 ### File
 
-`cms.apps.media.models.File` is a wrapper around Django's FileField.
+`uncms.apps.media.models.File` is a wrapper around Django's FileField.
 This allows users to upload a file in one place and use it in more than one place.
 
 `File` is not intended for files uploaded via the public front-end of a website (i.e. non-staff users).
@@ -61,11 +61,11 @@ In addition, the following fields are present on the model, but are not user-vis
 * `get_dimensions()`: If the file is an image, returns a tuple of (width, height), otherwise returns 0.
 This is only used internally; you probably want to access the `width` and `height` fields on the model instead, as they incur no overhead.
 * `icon`: A cached property that returns the path to an appropriate icon for the file type, e.g. `/static/media/img/x-office-spreadsheet.png`. This is used as a fallback in the media list if a file is not an image.
-* `is_image()`: Returns `True` if the file is an image (based on the file extension), `False` otherwise:
+* `is_image()`: Returns `True` if the file is an image (based on the file extension), `False` otherwise.
 
 ### Label
 
-`cms.apps.media.models.Label` helps administrators organise media;
+`uncms.apps.media.models.Label` helps administrators organise media;
 think of them as tags, or notes to self.
 They are not intended to be shown to users on the front end of a website.
 
@@ -76,11 +76,11 @@ Label has only one field: a `title`, which is also used as the ordering field.
 Three useful fields in the media app make it easier to integrate the media module into your project.
 You should probably use these any time you want to reference a File.
 
-`cms.apps.media.fields.FileRefField` provides a widget which allows a user to select a file from the media library.
+`uncms.apps.media.fields.FileRefField` provides a widget which allows a user to select a file from the media library.
 This is a simple subclass of Django's `ForeignKey` that uses Django's `ForeignKeyRawIdWidget` -
 if you're anything like us, your media libraries can get large enough to make dropdowns unusable.
 
-`cms.apps.media.fields.ImageRefField` has the same functionality as `FileRefField`, but files are filtered to only show images (based on the extension of the file).
+`uncms.apps.media.fields.ImageRefField` has the same functionality as `FileRefField`, but files are filtered to only show images (based on the extension of the file).
 This will also display a small preview of the image in the widget in the admin.
 
-`cms.apps.media.fields.VideoFileRefField` has the same functionality as `FileRefField`, but the files are filtered to only show videos.
+`uncms.apps.media.fields.VideoFileRefField` has the same functionality as `FileRefField`, but the files are filtered to only show videos.

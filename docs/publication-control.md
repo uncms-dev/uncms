@@ -1,7 +1,7 @@
 # Publication control
 
 As mentioned in `OnlineBase` in our discussion about [helper models](helpers.md), anything that inherits from `OnlineBase` will have a manager that ensures that objects with `is_online == False` will be excluded from `Model.objects.all()`.
-For `OnlineBase` this is `cms.models.OnlineBaseManager`, for `PageBase` it is `cms.models.PageBaseManager`, etc.
+For `OnlineBase` this is `uncms.models.OnlineBaseManager`, for `PageBase` it is `uncms.models.PageBaseManager`, etc.
 
 ?> **Note:** PageBaseManager and SearchMetaBaseManager inherit from OnlineBaseManager, and do not currently add any features.
 But if your model inherits from PageBase or SearchMetaBase,
@@ -19,7 +19,7 @@ Take the Article model in the [walkthrough](walkthrough.md); we might want to ex
 Rather than having to remember to filter the articles everywhere they are used, now and in the future (your news list, [sitemaps](sitemaps.md), etc), we can inherit from `PageBaseManager` to ensure that they are excluded _everywhere_ (other than in the circumstances detailed above):
 
 ```python
-from cms.models import PageBase, PageBaseManager
+from uncms.models import PageBase, PageBaseManager
 from django.utils.timezone import now
 
 
@@ -43,10 +43,10 @@ This is how the [moderation system](moderation.md) works.
 It is sometimes desirable to bypass the publication controls under certain circumstances.
 For example, if a non-admin user has posted a news article that needs to be approved by an admin, you might still want to show it in a list of their own articles.
 
-You can do this by importing `cms.models.publication_manager` and using its `select_published` context manager:
+You can do this by importing `uncms.models.publication_manager` and using its `select_published` context manager:
 
 ```python
-from cms.models import publication_manager
+from uncms.models import publication_manager
 
 # ...
 

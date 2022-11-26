@@ -28,18 +28,18 @@ Add our core UnCMS apps to your `INSTALLED_APPS`:
 ```python
 INSTALLED_APPS = [
     # .....
-    'cms',
-    'cms.apps.pages',
-    'cms.apps.media',
+    'uncms',
+    'uncms.apps.pages',
+    'uncms.apps.media',
     # Links is optional, but it's very handy to have.
-    'cms.apps.links',
+    'uncms.apps.links',
 ]
 ```
 
 Add our context processors to our template context processors (in `['OPTIONS']['context_processors']`):
 
 ```python
-'cms.apps.pages.context_processors.pages',
+'uncms.apps.pages.context_processors.pages',
 ```
 
 Add the page management middleware to your `MIDDLEWARE`:
@@ -47,8 +47,8 @@ Add the page management middleware to your `MIDDLEWARE`:
 ```python
 MIDDLEWARE = [
     # ...
-    'cms.middleware.PublicationMiddleware',
-    'cms.apps.pages.middleware.PageMiddleware',
+    'uncms.middleware.PublicationMiddleware',
+    'uncms.apps.pages.middleware.PageMiddleware',
 ]
 ```
 
@@ -58,7 +58,7 @@ You may change the path part, but do not change the namespace.
 ```
 urlpatterns = [
     # ... your other stuff here ...
-    path('library/', include('cms.apps.media.urls', namespace='media_library')),
+    path('library/', include('uncms.apps.media.urls', namespace='media_library')),
 ]
 ```
 
@@ -76,7 +76,7 @@ Now add your `content` app to your `INSTALLED_APPS`.
 Then, add this to your `models.py`:
 
 ```python
-from cms.apps.pages.models import ContentBase
+from uncms.apps.pages.models import ContentBase
 from django.db import models
 
 
@@ -166,7 +166,7 @@ We've defined a section model with a title, text, and an ordering field.
 Now let's register it as an inline for MyContent:
 
 ```python
-from cms.apps.pages.admin import page_admin
+from uncms.apps.pages.admin import page_admin
 from django.contrib.admin import StackedInline
 
 from .models import MyContent, ContentSection
@@ -206,7 +206,7 @@ For the second part of this walkthrough, we are going to create a simple blog ap
 First, create an app called "news", add it to your `INSTALLED_APPS`, and add this to your `news/models.py`:
 
 ```python
-from cms.apps.pages.models import ContentBase
+from uncms.apps.pages.models import ContentBase
 
 class NewsFeed(ContentBase):
 
@@ -248,8 +248,8 @@ You will want to use them, because you should always use the batteries! We're go
 First, add these imports to your `news/models.py`:
 
 ```python
-from cms.apps.media.models import ImageRefField
-from cms.models import HtmlField, PageBase
+from uncms.apps.media.models import ImageRefField
+from uncms.models import HtmlField, PageBase
 ```
 
 And add the model itself:
@@ -308,7 +308,7 @@ You can use a standard TextField here if you like, or you can bring your own HTM
 Now, in our `admin.py` for our news app, we're going to register our Article:
 
 ```python
-from cms.admin import PageBaseAdmin
+from uncms.admin import PageBaseAdmin
 from django.contrib import admin
 
 from .models import Article, NewsFeed
@@ -394,7 +394,7 @@ Just like we had access to `pages`, `pages.current`, etc in the context in our t
 Let's make a detail view for the article. Add this to your imports:
 
 ```python
-from cms.views import PageDetailView
+from uncms.views import PageDetailView
 ```
 
 And make our detail view here:

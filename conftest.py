@@ -31,27 +31,27 @@ def pytest_configure():
             'django.contrib.sitemaps',
 
             # CMS apps
-            'cms',
-            'cms.apps.links',
-            'cms.apps.media',
-            'cms.apps.pages',
-            'cms.apps.testing_models',
+            'uncms',
+            'uncms.apps.links',
+            'uncms.apps.media',
+            'uncms.apps.pages',
+            'uncms.apps.testing_models',
 
-            'cms.plugins.moderation.tests',
+            'uncms.plugins.moderation.tests',
 
             # Third party apps
             'sorl.thumbnail',
             'reversion',
             'watson',
         ],
-        ROOT_URLCONF='cms.tests.urls',
+        ROOT_URLCONF='uncms.tests.urls',
         ALLOWED_HOSTS=['*'],
         TEMPLATES=[
             {
                 'BACKEND': 'django_jinja.backend.Jinja2',
                 'DIRS': [
-                    os.path.join('cms', 'templates'),
-                    os.path.join('cms', 'tests', 'templates'),
+                    os.path.join('uncms', 'templates'),
+                    os.path.join('uncms', 'tests', 'templates'),
                 ],
                 'APP_DIRS': True,
                 'OPTIONS': {
@@ -75,14 +75,14 @@ def pytest_configure():
                         'django.template.context_processors.static',
                         'django.contrib.messages.context_processors.messages',
                         'django.template.context_processors.request',
-                        'cms.apps.pages.context_processors.pages',
+                        'uncms.apps.pages.context_processors.pages',
                     ]
                 }
             },
             {
                 'BACKEND': 'django.template.backends.django.DjangoTemplates',
                 'DIRS': [
-                    os.path.join('cms', 'tests', 'templates'),
+                    os.path.join('uncms', 'tests', 'templates'),
                 ],
                 'APP_DIRS': True,
                 'OPTIONS': {
@@ -94,7 +94,7 @@ def pytest_configure():
                         'django.template.context_processors.static',
                         'django.contrib.messages.context_processors.messages',
                         'django.template.context_processors.request',
-                        'cms.apps.pages.context_processors.pages',
+                        'uncms.apps.pages.context_processors.pages',
                     ]
                 }
             }
@@ -103,7 +103,7 @@ def pytest_configure():
             'django.contrib.sessions.middleware.SessionMiddleware',
             'django.contrib.messages.middleware.MessageMiddleware',
             'django.contrib.auth.middleware.AuthenticationMiddleware',
-            'cms.apps.pages.middleware.PageMiddleware',
+            'uncms.apps.pages.middleware.PageMiddleware',
         ],
         SECRET_KEY='KNOWN_FIXED_VALUE_IS_FINE',
         PUBLICATION_MIDDLEWARE_EXCLUDE_URLS=['/admin/'],
