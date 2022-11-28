@@ -1,7 +1,6 @@
 # pylint:disable=attribute-defined-outside-init
 import json
 import os
-import sys
 from urllib.parse import urlencode, urljoin, urlparse
 
 import pytest
@@ -609,11 +608,6 @@ class TestPageAdmin(TestCase):
         self.assertEqual(response.content, b"Page could not be moved, as nothing to swap with.")
 
         request.POST['direction'] = 'foo'
-
-        self.orig_stderr = sys.stderr
-        sys.stderr = open(os.devnull, 'w')
-
-        sys.stderr = self.orig_stderr
 
         # Add some child pages.
         with search.update_index():
