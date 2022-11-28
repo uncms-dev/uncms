@@ -1,5 +1,5 @@
 #!/bin/sh
-pytest --cov=uncms uncms
+pytest --cov=uncms --cov=tests tests
 isort --diff --check-only
-flake8 uncms/
-pylint uncms/
+flake8 uncms/ tests/
+pylint uncms/ tests/

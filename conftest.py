@@ -35,16 +35,18 @@ def pytest_configure():
             'uncms.apps.links',
             'uncms.apps.media',
             'uncms.apps.pages',
-            'uncms.apps.testing_models',
 
-            'uncms.plugins.moderation.tests',
+            # Testing models & such
+            'tests.testing_app',
+
+            # 'uncms.plugins.moderation.tests',
 
             # Third party apps
             'sorl.thumbnail',
             'reversion',
             'watson',
         ],
-        ROOT_URLCONF='uncms.tests.urls',
+        ROOT_URLCONF='tests.urls',
         ALLOWED_HOSTS=['*'],
         TEMPLATES=[
             {
