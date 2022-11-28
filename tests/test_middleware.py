@@ -1,11 +1,11 @@
+import pytest
 from django.contrib.auth.models import AnonymousUser
-from django.contrib.contenttypes.models import ContentType
 from django.template.response import SimpleTemplateResponse
 from django.test import RequestFactory, TestCase
-from watson import search
+from django.test.utils import override_settings
 
-from tests.testing_app.models import PageContent
-from uncms.apps.pages.models import Page
+from tests.factories import UserFactory
+from tests.pages.factories import PageFactory
 from uncms.middleware import PublicationMiddleware
 
 
@@ -35,31 +35,42 @@ class MiddlewareTest(TestCase):
 
         self.assertEqual(response.status_code, 200)
 
-    def test_publicationmiddleware_preview(self):
-        with search.update_index():
-            page_obj = Page.objects.create(
-                title='Foo',
-                content_type=ContentType.objects.get_for_model(PageContent),
-                is_online=False,
-            )
 
-            PageContent.objects.create(page=page_obj)
+@pytest.mark.django_db
+@override_settings(
+    MIDDLEWARE=[
+        'django.contrib.sessions.middleware.SessionMiddleware',
+        'django.contrib.auth.middleware.AuthenticationMiddleware',
+        'uncms.middleware.PublicationMiddleware',
+        'uncms.apps.pages.middleware.PageMiddleware',
+    ],
+)
+def test_publicationmiddleware_preview(client):
+    page_obj = PageFactory(is_online=False)
+    superuser = UserFactory(superuser=True)
 
-        middleware = [
-            'django.contrib.sessions.middleware.SessionMiddleware',
-            'django.contrib.auth.middleware.AuthenticationMiddleware',
-            'uncms.middleware.PublicationMiddleware',
-            'uncms.apps.pages.middleware.PageMiddleware',
-        ]
+    # Ensure getting the page fails.
+    response = client.get(page_obj.get_absolute_url())
+    assert response.status_code == 404
 
-        with self.settings(MIDDLEWARE=middleware):
-            request = self.client.get(page_obj.get_absolute_url())
-            self.assertEqual(request.status_code, 404)
+    # Ensure preview mode (without a valid token) fails for
+    # non-authenticated users.
+    response = client.get(page_obj.get_absolute_url() + '?preview=1')
+    assert response.status_code == 404
 
-            # Ensure preview mode (without a valid token) fails for
-            # non-authenticated users.
-            request = self.client.get(page_obj.get_absolute_url() + '?preview=1')
-            self.assertEqual(request.status_code, 404)
+    # Ensure getting its preview URL works.
+    response = client.get(page_obj.get_preview_url())
+    assert response.status_code == 200
 
-            request = self.client.get(page_obj.get_preview_url())
-            self.assertEqual(request.status_code, 200)
+    #
+    # Logged-in tests
+    #
+    client.force_login(superuser)
+
+    # Ensure that preview=1 works for superusers.
+    response = client.get(page_obj.get_absolute_url() + '?preview=1')
+    assert response.status_code == 200
+
+    # Ensure getting its preview URL works.
+    response = client.get(page_obj.get_preview_url())
+    assert response.status_code == 200
