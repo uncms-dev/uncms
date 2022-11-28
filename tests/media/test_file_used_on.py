@@ -1,11 +1,9 @@
 from django.contrib.admin.sites import AdminSite
-from django.contrib.contenttypes.models import ContentType
-from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from django.urls import reverse
-from django.utils.timezone import now
-from watson import search
 
+from tests.media.factories import MinimalGIFFileFactory
+from tests.pages.factories import PageFactory
 from tests.testing_app.models import (
     UsageContentBaseModel,
     UsageContentBaseModelInline,
@@ -14,8 +12,6 @@ from tests.testing_app.models import (
     UsageModelTwo,
 )
 from uncms.admin import get_related_objects_admin_urls
-from uncms.apps.media.models import File
-from uncms.apps.pages.models import Page
 
 
 class TestFileUsedOn(TestCase):
@@ -32,23 +28,9 @@ class TestFileUsedOn(TestCase):
     def setUp(self):
         self.site = AdminSite(name='test_admin')
 
-        self.test_file = File.objects.create(
-            title="Foo",
-            file=SimpleUploadedFile(
-                f"{now().strftime('%Y-%m-%d_%H-%M-%S')}.jpg",
-                b"data",
-                content_type="image/jpeg"
-            )
-        )
+        self.test_file = MinimalGIFFileFactory()
 
-        self.other_test_file = File.objects.create(
-            title="Bar",
-            file=SimpleUploadedFile(
-                f"{now().strftime('%Y-%m-%d_%H-%M-%S')}-2.jpg",
-                b"data",
-                content_type="image/jpeg"
-            )
-        )
+        self.other_test_file = MinimalGIFFileFactory()
 
         self.test_model_1a = UsageModelOne.objects.create(
             image=self.test_file,
@@ -88,7 +70,6 @@ class TestFileUsedOn(TestCase):
         if self.test_content_base_inline:
             self.test_content_base_inline.delete()
             self.test_page_model.delete()
-            self.test_content_base.delete()
 
     def test_get_related_objects_admin_urls_from_models_with_image(self):
         # We have an instance of File (eg: self.test_file)
@@ -116,16 +97,11 @@ class TestFileUsedOn(TestCase):
         self.assertEqual(get_related_objects_admin_urls(self.other_test_file), expected_outcome)
 
     def test_get_related_objects_admin_urls_from_contentbase_with_image(self):
-        with search.update_index():
-            self.test_page_model = Page.objects.create(
-                title='Test page',
-                content_type=ContentType.objects.get_for_model(UsageContentBaseModel),
-            )
-
-            self.test_content_base = UsageContentBaseModel.objects.create(
-                page=self.test_page_model,
+        self.test_page_model = PageFactory(
+            content=UsageContentBaseModel(
                 image=self.test_file,
-            )
+            ),
+        )
 
         self.clear_image_references([
             self.test_model_1a,
@@ -135,8 +111,8 @@ class TestFileUsedOn(TestCase):
 
         expected_outcome = [
             {
-                'title': str(self.test_content_base),
-                'model_name': self.test_content_base._meta.verbose_name,
+                'title': str(self.test_page_model.content),
+                'model_name': self.test_page_model.content._meta.verbose_name,
                 'admin_url': reverse(f'admin:{self.test_page_model._meta.app_label}_{self.test_page_model._meta.model_name}_change', args=[self.test_page_model.pk]),
             },
         ]
@@ -144,15 +120,9 @@ class TestFileUsedOn(TestCase):
         self.assertEqual(get_related_objects_admin_urls(self.test_file), expected_outcome)
 
     def test_get_related_objects_from_contentbase_inline_with_image(self):
-        with search.update_index():
-            self.test_page_model = Page.objects.create(
-                title='Test page',
-                content_type=ContentType.objects.get_for_model(UsageContentBaseModel),
-            )
-
-            self.test_content_base = UsageContentBaseModel.objects.create(
-                page=self.test_page_model,
-            )
+        self.test_page_model = PageFactory(
+            content=UsageContentBaseModel(),
+        )
 
         self.test_content_base_inline = UsageContentBaseModelInline.objects.create(
             page=self.test_page_model,
@@ -176,15 +146,9 @@ class TestFileUsedOn(TestCase):
         self.assertEqual(get_related_objects_admin_urls(self.test_file), expected_outcome)
 
     def test_get_related_objects_admin_urls_from_model_inline_with_image(self):
-        with search.update_index():
-            self.test_page_model = Page.objects.create(
-                title='Test page',
-                content_type=ContentType.objects.get_for_model(UsageContentBaseModel),
-            )
-
-            self.test_content_base = UsageContentBaseModel.objects.create(
-                page=self.test_page_model,
-            )
+        self.test_page_model = PageFactory(
+            content=UsageContentBaseModel(),
+        )
 
         test_model_1a_inline = UsageModelOneInline.objects.create(
             parent=self.test_model_1a,
