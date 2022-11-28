@@ -402,7 +402,7 @@ class TestPageComplex(TestCase):
 @pytest.mark.django_db
 def test_contentbase_str():
     page = PageFactory(title='Awesome')
-    assert(str(page.content)) == 'Awesome'
+    assert str(page.content) == 'Awesome'
 
 
 @pytest.mark.django_db

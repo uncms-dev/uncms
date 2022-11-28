@@ -35,7 +35,7 @@ setup(
     extras_require={
         'dev': [
             'factory-boy==3.2.1',
-            'flake8==3.7.9',
+            'flake8==6.0.0',
             'isort==4.3.21',
             'pylint==2.15.6',
             'pylint-django==2.5.3',
