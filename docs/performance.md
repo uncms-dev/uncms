@@ -44,7 +44,7 @@ top level pages under that,
 subpages under those,
 _and_ sub-sub-pages under those, it might be better to increase this value to `3`.
 
-Do not set this to an arbitrarily large number, as each increment of 1 causes one extra database query to be made for each page load.
+Do not set this to an arbitrarily large number, as each increment of this value causes one extra database query to be made for each page load.
 Measure!
 
 If you _only_ have top-level pages under your homepage,
