@@ -1,5 +1,4 @@
 [MASTER]
-
 profile=no
 ignore=
 persistent=yes
@@ -36,16 +35,7 @@ disable=
   too-many-locals,
 enable=useless-suppression
 
-[REPORTS]
-output-format=text
-include-ids=no
-files-output=no
-reports=no
-evaluation=10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10)
-comment=no
-
 [FORMAT]
-max-line-length=80
 max-module-lines=1000
 indent-string='    '
 
@@ -80,9 +70,6 @@ no-docstring-rgx=__.*__
 init-import=no
 dummy-variables-rgx=_|dummy
 additional-builtins=
-
-[IMPORTS]
-deprecated-modules=regsub,string,TERMIOS,Bastion,rexec
 
 [DESIGN]
 max-args=10
