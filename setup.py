@@ -1,7 +1,4 @@
 #!/usr/bin/env python
-# coding: utf-8
-import platform
-
 from setuptools import find_packages, setup
 
 from uncms import VERSION
