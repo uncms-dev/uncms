@@ -95,7 +95,7 @@ def get_admin_url(obj):
     (with page_admin.register_content_inline).
     '''
     # Import here to avoid circular imports
-    from uncms.apps.pages.admin import page_admin  # pylint:disable=import-outside-toplevel
+    from uncms.apps.pages.admin import page_admin  # pylint:disable=import-outside-toplevel,cyclic-import
 
     # We first of all just try and get an admin URL for the object that has
     # been passed to us.

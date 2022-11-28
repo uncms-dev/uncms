@@ -56,8 +56,8 @@ def link_validator(value):
     '''Validates the given link.'''
     try:
         resolve_link(value)
-    except LinkResolutionError:
-        raise ValidationError('Enter a valid URL.')
+    except LinkResolutionError as exc:
+        raise ValidationError('Enter a valid URL.') from exc
 
 
 class LinkField(models.CharField):

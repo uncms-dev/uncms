@@ -166,14 +166,8 @@ class UsageModelTwo(AbstractImageFieldModel):
     pass
 
 
-class UsageContentBaseModel(AbstractImageFieldModel, ContentBase):
-    page = models.OneToOneField(
-        Page,
-        primary_key=True,
-        editable=False,
-        related_name='+',
-        on_delete=models.CASCADE,
-    )
+class UsageContentBaseModel(AbstractImageFieldModel, ContentBase):  # pylint:disable=duplicate-code
+    pass
 
 
 class UsageContentBaseModelInline(AbstractImageFieldModel):

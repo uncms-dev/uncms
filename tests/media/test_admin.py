@@ -1,3 +1,4 @@
+# pylint:disable=duplicate-code
 import base64
 import random
 import sys
@@ -16,6 +17,7 @@ from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.timezone import now
 
+from tests.mocks import MockSuperUser
 from uncms.apps.media.admin import FileAdmin
 from uncms.apps.media.forms import mime_check
 from uncms.apps.media.models import File, Label
@@ -40,16 +42,6 @@ class BrokenFile:
 
     def __init__(self, *args, **kwargs):
         self.obj = File.objects.create(**kwargs)
-
-
-class MockSuperUser:
-    pk = 1
-    is_active = True
-    is_staff = True
-
-    @staticmethod
-    def has_perm(perm):
-        return True
 
 
 class TestFileAdminBase(TransactionTestCase):

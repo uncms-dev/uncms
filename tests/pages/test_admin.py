@@ -1,6 +1,5 @@
 # pylint:disable=attribute-defined-outside-init
 import json
-import os
 from urllib.parse import urlencode, urljoin, urlparse
 
 import pytest
@@ -23,6 +22,7 @@ from reversion.models import Version
 from watson import search
 
 from tests.factories import UserFactory
+from tests.mocks import MockSuperUser
 from tests.testing_app.admin import InlineModelInline, InlineModelNoPageInline
 from tests.testing_app.models import (
     EmptyTestPage,
@@ -42,15 +42,6 @@ from uncms.apps.pages.models import Page, get_registered_content
 
 class MockRequest:
     pass
-
-
-class MockSuperUser:
-    pk = 1
-    is_active = True
-    is_staff = True
-
-    def has_perm(self, perm):
-        return True
 
 
 class TestPageAdmin(TestCase):

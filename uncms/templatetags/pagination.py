@@ -20,8 +20,8 @@ def paginate(context, queryset, per_page=10, key='page'):
     # Create the paginator.
     try:
         page = Paginator(queryset, per_page).page(page_number)
-    except InvalidPage:
-        raise Http404('There are no items on page {}.'.format(page_number))
+    except InvalidPage as exc:
+        raise Http404('There are no items on page {}.'.format(page_number)) from exc
     page._pagination_key = key
 
     return page

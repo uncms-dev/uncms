@@ -5,7 +5,7 @@ from tests.testing_app.models import ModerationModel
 from uncms.plugins.moderation.admin import ModerationAdminBase
 
 
-class MockSuperUser:
+class MockUser:
     pk = 1
 
     def __init__(self, permission):
@@ -27,7 +27,7 @@ class TestModerationAdmin(TestCase):
         self.request = self.factory.get('/')
 
     def test_formfield_for_choice_field_has_permission(self):
-        self.request.user = MockSuperUser(True)
+        self.request.user = MockUser(True)
 
         formfield = self.moderation_admin.formfield_for_choice_field(
             self.object._meta.get_field('status'),
@@ -40,7 +40,7 @@ class TestModerationAdmin(TestCase):
         )
 
     def test_formfield_for_choice_field_has_no_permission(self):
-        self.request.user = MockSuperUser(False)
+        self.request.user = MockUser(False)
 
         formfield = self.moderation_admin.formfield_for_choice_field(
             self.object._meta.get_field('status'),

@@ -1,6 +1,6 @@
 [MASTER]
-profile=no
 ignore=
+load-plugins=pylint.extensions.bad_builtin
 persistent=yes
 jobs=0
 score=no
@@ -9,7 +9,6 @@ score=no
 disable=
   # You'll have a hard time making Django things with these enabled.
   invalid-name,
-  no-self-use,
   unused-argument,
   # I like keeping it within 78 characters, but I am also not going to make
   # code uglier for the sake of fitting on a 1970s glass teletype.
@@ -33,6 +32,13 @@ disable=
   too-many-branches,
   # Also: see above.
   too-many-locals,
+  # probably a valid warning, but
+  consider-using-f-string,
+  # pylint cannot see through model fields (it would be nice to use
+  # pylint-django but it fails at linting Python *packages* which do not have
+  # settings modules)
+  invalid-str-returned,
+
 enable=useless-suppression
 
 [FORMAT]
@@ -76,7 +82,6 @@ max-args=10
 ignored-argument-names=_.*
 max-locals=15
 max-returns=6
-max-branchs=12
 max-statements=50
 max-parents=15
 max-attributes=30

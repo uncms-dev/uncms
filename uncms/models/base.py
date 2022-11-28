@@ -321,7 +321,7 @@ class PageBase(SearchMetaBase):
         max_length=1000,
     )
 
-    def __str__(self):
+    def __str__(self):  # pylint:disable=invalid-str-returned
         """
         Returns the short title of this page, falling back to the standard
         title.

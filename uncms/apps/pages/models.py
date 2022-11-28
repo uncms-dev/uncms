@@ -18,7 +18,7 @@ class PageManager(OnlineBaseManager):
 
     '''Manager for Page objects.'''
 
-    def select_published(self, queryset, page_alias=None):  # pylint:disable=arguments-differ
+    def select_published(self, queryset, page_alias=None):
         '''Selects only published pages.'''
         queryset = super().select_published(queryset)
         now = timezone.now().replace(second=0, microsecond=0)
@@ -255,7 +255,7 @@ class Page(PageBase):
         )
 
     @transaction.atomic
-    def save(self, *args, **kwargs):  # pylint:disable=arguments-differ
+    def save(self, *args, **kwargs):
         '''Saves the page.'''
 
         with connection.cursor() as cursor:
@@ -338,7 +338,7 @@ class Page(PageBase):
         super().save(*args, **kwargs)
 
     @transaction.atomic
-    def delete(self, *args, **kwargs):  # pylint:disable=arguments-differ
+    def delete(self, *args, **kwargs):
         '''Deletes the page.'''
         # Lock entire table.
         list(Page.objects.all().select_for_update().values_list(

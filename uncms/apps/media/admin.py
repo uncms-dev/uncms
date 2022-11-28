@@ -208,13 +208,13 @@ class FileAdmin(VersionAdmin, SearchAdmin):
 
         # Pull down the remote image and save it as a temporary file.
         img_temp = NamedTemporaryFile()
-        img_temp.write(requests.get(image_url).content)
+        img_temp.write(requests.get(image_url, timeout=10).content)
         img_temp.flush()
 
         obj = get_object_or_404(File, pk=object_id)
         obj.file.save(image_url.split('/')[-1], DjangoFile(img_temp))
 
         messages.success(request, 'The file "{}" was changed successfully. You may edit it again below.'.format(
-            obj.__str__()
+            str(obj)
         ))
         return HttpResponse('{"status": "ok"}', content_type='application/json')

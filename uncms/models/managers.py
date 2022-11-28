@@ -43,8 +43,8 @@ class PublicationManager(threading.local):
         '''Ends a block of publication control.'''
         try:
             self._stack.pop()
-        except IndexError:
-            raise PublicationManagementError('There is no active block of publication management.')
+        except IndexError as exc:
+            raise PublicationManagementError('There is no active block of publication management.') from exc
 
     @contextlib.contextmanager
     def select_published(self, select_published):

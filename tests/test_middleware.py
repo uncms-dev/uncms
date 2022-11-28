@@ -21,6 +21,7 @@ class MiddlewareTest(TestCase):
         publication_middleware.process_request(self.request)
 
     def test_publicationmiddleware_process_response(self):
+        # pylint:disable=duplicate-code
         class Context(dict):
             pass
 

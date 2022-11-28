@@ -199,9 +199,9 @@ class TestPageComplex(TestCase):
 
     def _rebuild_page_dict(self):
         self.pages = {}
-        for page in self.page_ids:
+        for key, value in self.page_ids.items():
             try:
-                self.pages[page] = Page.objects.get(pk=self.page_ids[page])
+                self.pages[key] = Page.objects.get(pk=value)
             # Handle tests involving deletions.
             except Page.DoesNotExist:
                 pass

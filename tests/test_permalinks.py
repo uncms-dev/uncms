@@ -32,7 +32,9 @@ class PermalinksTest(TestCase):
     def test_expand(self):
         obj = PermalinksModel.objects.create()
 
-        self.assertEqual(obj.__str__(), 'Foo')
+        # just to get coverage on the test model, no meaningful behaviour
+        # asserted here
+        self.assertEqual(str(obj), 'Foo')
 
         url = expand('/r/{}-{}/'.format(
             ContentType.objects.get_for_model(PermalinksModel).pk,

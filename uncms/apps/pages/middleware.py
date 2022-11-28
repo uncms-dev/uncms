@@ -127,7 +127,7 @@ class PageMiddleware(MiddlewareMixin):
                     else:
                         return redirect(script_name + new_path_info, permanent=True)
                 return response
-            response = callback(request, *callback_args, **callback_kwargs)  # pylint:disable=not-callable
+            response = callback(request, *callback_args, **callback_kwargs)
             # Validate the response.
             if not response:
                 raise ValueError("The view {0!r} didn't return an HttpResponse object.".format(

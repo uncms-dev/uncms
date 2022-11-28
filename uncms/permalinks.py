@@ -37,8 +37,8 @@ def resolve(permalink):
     # Attempt to resolve the URL.
     try:
         callback, _, callback_kwargs = urls.resolve(permalink)  # @UnusedVariable
-    except (urls.Resolver404, TypeError):
-        raise PermalinkError("'{}' is not a valid permalink.".format(permalink))
+    except (urls.Resolver404, TypeError) as exc:
+        raise PermalinkError("'{}' is not a valid permalink.".format(permalink)) from exc
     # Check if the URL refers to a permalink.
     if callback != shortcut:  # pylint:disable=comparison-with-callable
         raise PermalinkError("'{}' is not a valid permalink.".format(permalink))
@@ -46,8 +46,8 @@ def resolve(permalink):
     try:
         content_type_id = callback_kwargs['content_type_id']
         object_id = callback_kwargs['object_id']
-    except KeyError:
-        raise ImproperlyConfigured('The permalink_redirect view should be configured using keyword arguments.')
+    except KeyError as exc:
+        raise ImproperlyConfigured('The permalink_redirect view should be configured using keyword arguments.') from exc
     # Resolve the object.
     content_type = ContentType.objects.get_for_id(content_type_id)
     obj = content_type.get_object_for_this_type(id=object_id)

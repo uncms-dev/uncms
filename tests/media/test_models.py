@@ -22,7 +22,7 @@ from uncms.apps.media.models import File, FileRefField, Label
 
 class TestFile(TransactionTestCase):
 
-    def setUp(self):
+    def setUp(self):  # pylint:disable=duplicate-code
         # An invalid JPEG
         self.name_1 = '{}-{}.jpg'.format(
             now().strftime('%Y-%m-%d_%H-%M-%S'),
@@ -81,7 +81,7 @@ class TestFile(TransactionTestCase):
         ))
 
     def test_file_unicode(self):
-        self.assertEqual(self.obj_1.__str__(), 'Foo')
+        self.assertEqual(str(self.obj_1), 'Foo')
         self.assertEqual(self.obj_1.file.name, 'uploads/files/' + self.name_1)
 
     def test_file_is_image(self):

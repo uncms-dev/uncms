@@ -28,7 +28,7 @@ def test_all_config_items_are_documented():
 
     This is a relatively dumb test but it should work well enough :)
     """
-    with open(os.path.join(settings.REPO_ROOT, 'docs', 'configuration.md')) as fd:
+    with open(os.path.join(settings.REPO_ROOT, 'docs', 'configuration.md'), encoding='utf-8') as fd:
         items = [
             # as i said, not a smart test...
             line.replace('##', '').replace('`', '').strip()
