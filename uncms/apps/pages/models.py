@@ -1,4 +1,4 @@
-'''Core models used by the CMS.'''
+'''Core models used by UnCMS.'''
 from django import urls
 from django.apps import apps
 from django.contrib.contenttypes.models import ContentType

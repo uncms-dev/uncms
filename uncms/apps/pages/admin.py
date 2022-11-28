@@ -1,5 +1,5 @@
 '''
-The CMS pages admin app.
+The UnCMS pages admin app.
 
 This mostly takes care of patching the fields from content models into the
 page form, including registering inlines. It also gives you a totally
@@ -445,9 +445,9 @@ class PageAdmin(PageBaseAdmin):
 
     def get_preserved_filters(self, request):
         '''
-        This is to fix an always present issue in our CMS where if there
-        were preserved filters from the list view,the type of page being
-        saved would not be passed to the form action of the change form.
+        This is fixes an issue wherein if there were preserved filters from
+        the list view,the type of page being saved would not be passed to the
+        form action of the change form.
 
         This mean that on posting, the admin would think the user was on
         the page type selection page and not trying to save the form.
