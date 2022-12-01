@@ -1,7 +1,8 @@
-# Moderation system
+# Moderation models
 
 Sometimes it is useful for certain admin users to be able to create and edit objects, such as news articles, but to not be able to publish them immediately.
-UnCMS has a simple, entirely optional system for facilitating this.
+UnCMS has a simple, entirely optional system for facilitating this,
+which also serves as an example of extending UnCMS's [publication control](publication-control.md).
 Models which utilise this moderation system gain a field named `status` which has three possible values: "Draft", "Submitted for approval" or "Approved".
 Objects are only visible on the front-end of the website when they are marked as "Approved".
 
@@ -14,7 +15,7 @@ Users without the permission will only be able to set the object's status to "Dr
 First, modify your model:
 
 ```python
-from uncms.plugins.moderation.models import ModerationBase
+from uncms.moderation.models import ModerationBase
 
 class MyModel(ModerationBase):
     # Your fields here.
@@ -27,7 +28,7 @@ class MyModel(ModerationBase):
 To integrate the moderation system with the Django admin, modify your ModelAdmin to take this form:
 
 ```python
-from uncms.plugins.moderation.admin import MODERATION_FIELDS, ModerationAdminBase
+from uncms.moderation.admin import MODERATION_FIELDS, ModerationAdminBase
 from django.contrib import admin
 
 from .models import MyModel

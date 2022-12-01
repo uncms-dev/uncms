@@ -13,7 +13,7 @@ from uncms.models.base import \
 from uncms.models.base import \
     SearchMetaBaseSearchAdapter as CMSSearchMetaBaseSearchAdapter
 from uncms.models.fields import LinkField
-from uncms.plugins.moderation.models import ModerationBase
+from uncms.moderation.models import ModerationBase
 
 
 class PageContent(ContentBase):

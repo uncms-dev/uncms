@@ -2,7 +2,7 @@ from django.contrib.admin.sites import AdminSite
 from django.test import RequestFactory, TestCase
 
 from tests.testing_app.models import ModerationModel
-from uncms.plugins.moderation.admin import ModerationAdminBase
+from uncms.moderation.admin import ModerationAdminBase
 
 
 class MockUser:
