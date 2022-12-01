@@ -9,7 +9,7 @@ def pytest_configure():
         DATABASES={
             'default': {
                 'ENGINE': 'django.db.backends.postgresql',
-                'NAME': 'uncms_test',
+                'NAME': os.environ.get('UNCMS_DB_NAME', 'uncms_test'),
                 'USER': os.environ.get('UNCMS_DB_USER', getpass.getuser()),
                 'PASSWORD': os.environ.get('UNCMS_DB_PASSWORD'),
                 'TEST': {
@@ -37,8 +37,6 @@ def pytest_configure():
 
             # Testing models & such
             'tests.testing_app',
-
-            # 'uncms.plugins.moderation.tests',
 
             # Third party apps
             'sorl.thumbnail',
