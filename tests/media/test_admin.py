@@ -151,7 +151,7 @@ class TestFileAdminBase(TransactionTestCase):
         preview = self.file_admin.get_preview(self.obj_2)
 
         self.assertIn(
-            '<img class="uncms-thumbnail" cms:permalink="/r/{}-{}/"'.format(
+            '<img class="uncms-thumbnail" uncms:permalink="/r/{}-{}/"'.format(
                 ContentType.objects.get_for_model(File).pk,
                 self.obj_2.pk
             ),
@@ -178,7 +178,7 @@ class TestFileAdminBase(TransactionTestCase):
         )
         preview = self.file_admin.get_preview(obj)
 
-        self.assertEqual(preview, '<img class="uncms-fallback-icon" cms:permalink="/r/{}-{}/" src="/static/media/img/text-x-generic-template.png" width="56" height="66" alt="" title="Foo"/>'.format(
+        self.assertEqual(preview, '<img class="uncms-fallback-icon" uncms:permalink="/r/{}-{}/" src="/static/media/img/text-x-generic-template.png" width="56" height="66" alt="" title="Foo"/>'.format(
             ContentType.objects.get_for_model(File).pk,
             obj.pk
         ))

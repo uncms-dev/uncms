@@ -11,42 +11,45 @@
 
   {% if is_media_library_iframe %}
     <script>
-      django.jQuery(function($) {
-        // Get tinymce from parent
-        var tinymce = parent.active_tinymce;
+      window.addEventListener('DOMContentLoaded', function () {
+        // Are we in a TinyMCE? Be flexible and don't assume that's the only
+        // place we will be used.
+        const tinymce = parent.active_tinymce;
 
-        // Don't assume that the only place this will be used is in a TinyMCE.
         if (!tinymce) {
           return
         }
 
         // Make the changelist links clickable and remove the original inline click listener.
-        $("div#changelist tr.row1 a, div#changelist tr.row2 a, div#changelist tr.row2 a").attr("onclick", null).click(function(event) {
+        for (const element of document.querySelectorAll('#result_list a')) {
+          element.addEventListener('click', function () {
             // Get information from the `<img>` tag in the first column.
-            var tr = $(this).closest('tr');
-            var img = $("img", tr);
-            var title = img.attr("title");
-            var permalink = img.attr("cms:permalink");
+            var tr = element.closest('tr');
+            var img = tr.querySelector('img');
+            var altText = img.getAttribute('uncms:alt-text');
+            var permalink = img.getAttribute('uncms:permalink');
 
             tinymce.focus()
             tinymce.selection.setContent(tinymce.dom.createHTML('img', {
               src: permalink,
-              alt: title,
-              title: title,
+              alt: altText,
             }));
 
             // Prevent default
             event.preventDefault()
 
             // Get the active editor open window
-            var tinymce_popup = parent.active_tinymce_window
-            if (tinymce_popup){
-              tinymce_popup.close()
+            var tinyMcePopup = parent.active_tinymce_window
+            if (tinyMcePopup){
+              tinyMcePopup.close()
             }
-        });
+          });
+        }
 
         // Made the add link flagged for tinymce.
-        $(".object-tools a").attr("href", $(".object-tools a").attr("href") + "&_tinymce=1");
+        for (const element of document.querySelectorAll(".object-tools a")) {
+          element.setAttribute("href", element.getAttribute('href') + "&_tinymce=1")
+        }
       });
     </script>
   {% endif %}

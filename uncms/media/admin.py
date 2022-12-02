@@ -150,8 +150,9 @@ class FileAdmin(VersionAdmin, SearchAdmin):
         if obj.is_image():
             thumbnail = obj.get_thumbnail(width=200, fmt='webp')
             return format_html(
-                '<img class="uncms-thumbnail" cms:permalink="{}" src="{}" width="{}" height="{}" alt="" title="{}"/>',
+                '<img class="uncms-thumbnail" uncms:permalink="{}" uncms:alt-text="{}" src="{}" width="{}" height="{}" alt="" title="{}"/>',
                 permalink,
+                obj.alt_text or "",
                 thumbnail.url,
                 thumbnail.width,
                 thumbnail.height,
@@ -159,7 +160,7 @@ class FileAdmin(VersionAdmin, SearchAdmin):
             )
 
         return format_html(
-            '<img class="uncms-fallback-icon" cms:permalink="{}" src="{}" width="56" height="66" alt="" title="{}"/>',
+            '<img class="uncms-fallback-icon" uncms:permalink="{}" src="{}" width="56" height="66" alt="" title="{}"/>',
             permalink,
             icon,
             obj.title
@@ -202,7 +203,7 @@ class FileAdmin(VersionAdmin, SearchAdmin):
         context['is_popup'] = True
         context['is_media_library_iframe'] = True
 
-        return super().changelist_view(request, extra_context=context)
+        return self.changelist_view(request, extra_context=context)
 
     def get_urls(self):
         urls = super().get_urls()
