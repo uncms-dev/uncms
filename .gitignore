@@ -14,3 +14,4 @@ uploads
 .coverage
 htmlcov
 .vscode/
+vendor/
