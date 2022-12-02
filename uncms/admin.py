@@ -7,7 +7,7 @@ from django.urls import NoReverseMatch, reverse
 from reversion.admin import VersionAdmin
 from watson.admin import SearchAdmin
 
-from uncms.apps.pages.models import Page
+from uncms.pages.models import Page
 from uncms.conf import defaults
 from uncms.models.base import (
     PageBaseSearchAdapter,
@@ -95,7 +95,7 @@ def get_admin_url(obj):
     (with page_admin.register_content_inline).
     '''
     # Import here to avoid circular imports
-    from uncms.apps.pages.admin import page_admin  # pylint:disable=import-outside-toplevel,cyclic-import
+    from uncms.pages.admin import page_admin  # pylint:disable=import-outside-toplevel,cyclic-import
 
     # We first of all just try and get an admin URL for the object that has
     # been passed to us.

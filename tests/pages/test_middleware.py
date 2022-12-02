@@ -7,8 +7,8 @@ from django.test import RequestFactory, TestCase
 from watson import search
 
 from tests.testing_app.models import MiddlewareTestPage, MiddlewareURLsTestPage
-from uncms.apps.pages.middleware import PageMiddleware, RequestPageManager
-from uncms.apps.pages.models import Page
+from uncms.pages.middleware import PageMiddleware, RequestPageManager
+from uncms.pages.models import Page
 
 
 def _generate_pages(self):

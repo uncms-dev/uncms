@@ -1,7 +1,7 @@
 import django.db.models.deletion
 from django.db import migrations, models
 
-import uncms.apps.media.fields
+import uncms.media.fields
 
 
 class Migration(migrations.Migration):
@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='page',
             name='og_image',
-            field=uncms.apps.media.fields.ImageRefField(related_name='+', on_delete=django.db.models.deletion.PROTECT, blank=True, to='media.File', help_text='The recommended image size is 1200x627 (1.91:1 ratio); this gives you a big stand out thumbnail. Using an image smaller than 400x209 will give you a small thumbnail and will splits posts into 2 columns. If you have text on the image make sure it is centered.', null=True, verbose_name='image'),
+            field=uncms.media.fields.ImageRefField(related_name='+', on_delete=django.db.models.deletion.PROTECT, blank=True, to='media.File', help_text='The recommended image size is 1200x627 (1.91:1 ratio); this gives you a big stand out thumbnail. Using an image smaller than 400x209 will give you a small thumbnail and will splits posts into 2 columns. If you have text on the image make sure it is centered.', null=True, verbose_name='image'),
         ),
         migrations.AlterField(
             model_name='page',
@@ -64,6 +64,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='page',
             name='twitter_image',
-            field=uncms.apps.media.fields.ImageRefField(related_name='+', on_delete=django.db.models.deletion.PROTECT, blank=True, to='media.File', help_text='The minimum size it needs to be is 280x150. If you want to use a larger imagemake sure the card type is set to "Large Summary".', null=True, verbose_name='image'),
+            field=uncms.media.fields.ImageRefField(related_name='+', on_delete=django.db.models.deletion.PROTECT, blank=True, to='media.File', help_text='The minimum size it needs to be is 280x150. If you want to use a larger imagemake sure the card type is set to "Large Summary".', null=True, verbose_name='image'),
         ),
     ]

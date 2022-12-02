@@ -6,7 +6,7 @@ from django.views.static import serve
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('library/', include('uncms.apps.media.urls', namespace='media_library')),
+    path('library/', include('uncms.media.urls', namespace='media_library')),
     path('r/<int:content_type_id>-<int:object_id>/', shortcut, name='permalink_redirect'),
     re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT})
 ]

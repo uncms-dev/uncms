@@ -31,7 +31,7 @@ from django.template.defaultfilters import capfirst
 from django.urls import path, reverse
 
 from uncms.admin import PageBaseAdmin
-from uncms.apps.pages.models import (
+from uncms.pages.models import (
     Page,
     PageSearchAdapter,
     get_registered_content,

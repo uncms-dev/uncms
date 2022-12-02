@@ -43,7 +43,7 @@ class MiddlewareTest(TestCase):
         'django.contrib.sessions.middleware.SessionMiddleware',
         'django.contrib.auth.middleware.AuthenticationMiddleware',
         'uncms.middleware.PublicationMiddleware',
-        'uncms.apps.pages.middleware.PageMiddleware',
+        'uncms.pages.middleware.PageMiddleware',
     ],
 )
 def test_publicationmiddleware_preview(client):

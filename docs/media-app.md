@@ -5,7 +5,7 @@ It also integrates with UnCMS's WYSIWYG text editor to provide a file browser an
 
 ## Adding the media app to your site
 
-You will need to add `'uncms.apps.media'` to your `INSTALLED_APPS`.
+You will need to add `'uncms.media'` to your `INSTALLED_APPS`.
 If you are using any of UnCMS's other features,
 you would have done this already.
 
@@ -25,7 +25,7 @@ urlpatterns = [
 
 ### File
 
-`uncms.apps.media.models.File` is a wrapper around Django's FileField.
+`uncms.media.models.File` is a wrapper around Django's FileField.
 This allows users to upload a file in one place and use it in more than one place.
 
 `File` is not intended for files uploaded via the public front-end of a website (i.e. non-staff users).
@@ -65,7 +65,7 @@ This is only used internally; you probably want to access the `width` and `heigh
 
 ### Label
 
-`uncms.apps.media.models.Label` helps administrators organise media;
+`uncms.media.models.Label` helps administrators organise media;
 think of them as tags, or notes to self.
 They are not intended to be shown to users on the front end of a website.
 
@@ -76,11 +76,11 @@ Label has only one field: a `title`, which is also used as the ordering field.
 Three useful fields in the media app make it easier to integrate the media module into your project.
 You should probably use these any time you want to reference a File.
 
-`uncms.apps.media.fields.FileRefField` provides a widget which allows a user to select a file from the media library.
+`uncms.media.fields.FileRefField` provides a widget which allows a user to select a file from the media library.
 This is a simple subclass of Django's `ForeignKey` that uses Django's `ForeignKeyRawIdWidget` -
 if you're anything like us, your media libraries can get large enough to make dropdowns unusable.
 
-`uncms.apps.media.fields.ImageRefField` has the same functionality as `FileRefField`, but files are filtered to only show images (based on the extension of the file).
+`uncms.media.fields.ImageRefField` has the same functionality as `FileRefField`, but files are filtered to only show images (based on the extension of the file).
 This will also display a small preview of the image in the widget in the admin.
 
-`uncms.apps.media.fields.VideoFileRefField` has the same functionality as `FileRefField`, but the files are filtered to only show videos.
+`uncms.media.fields.VideoFileRefField` has the same functionality as `FileRefField`, but the files are filtered to only show videos.

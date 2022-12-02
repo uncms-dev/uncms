@@ -1,7 +1,7 @@
 from django.test import TestCase
 from sorl.thumbnail.images import ImageFile
 
-from uncms.apps.media.templatetags.media import thumbnail
+from uncms.media.templatetags.media import thumbnail
 
 
 class TestTemplatetags(TestCase):

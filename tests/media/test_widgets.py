@@ -4,7 +4,7 @@ from django.contrib import admin
 
 from tests.media.factories import EmptyFileFactory, SamplePNGFileFactory
 from tests.testing_app.models import ImageFieldModel
-from uncms.apps.media.widgets import ImageThumbnailWidget
+from uncms.media.widgets import ImageThumbnailWidget
 
 
 @pytest.mark.django_db

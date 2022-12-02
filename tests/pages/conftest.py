@@ -8,7 +8,7 @@ def simple_page_tree(db):
     # pylint:disable=import-outside-toplevel
     from django.contrib.contenttypes.models import ContentType
 
-    from uncms.apps.pages.models import Page
+    from uncms.pages.models import Page
     from tests.testing_app.models import EmptyTestPage
     from watson import search
 

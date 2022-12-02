@@ -17,7 +17,7 @@ from tests.media.factories import (
     SamplePNGFileFactory,
 )
 from tests.testing_app.models import MediaTestModel
-from uncms.apps.media.models import File, FileRefField, Label
+from uncms.media.models import File, FileRefField, Label
 
 
 class TestFile(TransactionTestCase):

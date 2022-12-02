@@ -5,13 +5,13 @@ from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 from PIL import Image
 
-from uncms.apps.media.fields import (
+from uncms.media.fields import (
     FileRefField,
     ImageRefField,
     VideoFileRefField,
 )
-from uncms.apps.media.filetypes import get_icon, is_image
-from uncms.apps.media.types import Thumbnail
+from uncms.media.filetypes import get_icon, is_image
+from uncms.media.types import Thumbnail
 from uncms.models.base import path_token_generator
 
 

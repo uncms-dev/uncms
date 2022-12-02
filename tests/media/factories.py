@@ -3,7 +3,7 @@ from io import BytesIO
 
 import factory
 
-from uncms.apps.media.models import File
+from uncms.media.models import File
 
 
 class FileFactory(factory.django.DjangoModelFactory):

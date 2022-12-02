@@ -2,16 +2,16 @@
 
 ## How it works
 
-In `uncms.apps.pages.models` there is a model named `Page`.
+In `uncms.pages.models` there is a model named `Page`.
 For now, we only want to think about three of its attributes: its title, its slug, and its parent.
 These define the page's place in the page hierarchy.
 From there, a tree of pages can be constructed.
 
 ### PageMiddleware
 
-`uncms.apps.pages.middleware.PageMiddleware` serves two important tasks.
+`uncms.pages.middleware.PageMiddleware` serves two important tasks.
 
-First, it adds a `pages` attribute in its `process_request`. This is an instance of `uncms.apps.pages.middleware.RequestPageManager`, which is a wrapper around the site's Page tree.
+First, it adds a `pages` attribute in its `process_request`. This is an instance of `uncms.pages.middleware.RequestPageManager`, which is a wrapper around the site's Page tree.
 This gives you access to the page tree (as `request.pages`) any time you have access to the current request.
 
 `RequestPageManager` has the following attributes, which are all cached properties:
@@ -38,7 +38,7 @@ This could be a homepage, a standard page, a contact page, etc; this allows mult
 Here is an example of a content model:
 
 ```python
-from uncms.apps.pages.models import ContentBase
+from uncms.pages.models import ContentBase
 from django.db import models
 
 
@@ -85,7 +85,7 @@ If we wanted to have another page type with a different set of fields (or even t
 ```python
 from django.db import models
 
-from uncms.apps.pages.models import ContentBase
+from uncms.pages.models import ContentBase
 
 
 class PlainPage(ContentBase):
@@ -115,7 +115,7 @@ urlconf = 'tiny_project.apps.news.urls'
 ```
 
 You don't have to specify your own `urlconf` in your content model if you don't want to.
-`ContentBase` has a default `urlconf` (`'uncms.apps.pages.urls'`) that routes to a simple `TemplateView`.
+`ContentBase` has a default `urlconf` (`'uncms.pages.urls'`) that routes to a simple `TemplateView`.
 That attempts to render a template living at `<app-label>`/`modelname.html`.
 Thus, our default template for rendering our content model `PlainPage`, if it was in an app called `things`, would live at `things/plainpage.html`.
 
@@ -207,7 +207,7 @@ First, you need to add a ForeignKey from your inline model to `pages.Page` (note
 In your admin.py add code that looks like this:
 
 ```python
-from uncms.apps.pages.admin import page_admin
+from uncms.pages.admin import page_admin
 from django.contrib import admin
 
 from .models import ContentModel, CarouselSlide

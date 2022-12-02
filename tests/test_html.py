@@ -9,7 +9,7 @@ from django.test import TestCase
 from django.test.utils import override_settings
 from django.utils.timezone import now
 
-from uncms.apps.media.models import File
+from uncms.media.models import File
 from uncms.html import clean_all, clean_html, process_html
 
 

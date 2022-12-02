@@ -8,7 +8,7 @@ from tests.testing_app.models import (
     UsageModelOneInline,
     UsageModelTwo,
 )
-from uncms.apps.pages.admin import page_admin
+from uncms.pages.admin import page_admin
 
 
 # Test-only model admins

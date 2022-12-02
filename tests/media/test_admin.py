@@ -18,9 +18,9 @@ from django.urls import reverse
 from django.utils.timezone import now
 
 from tests.mocks import MockSuperUser
-from uncms.apps.media.admin import FileAdmin
-from uncms.apps.media.forms import mime_check
-from uncms.apps.media.models import File, Label
+from uncms.media.admin import FileAdmin
+from uncms.media.forms import mime_check
+from uncms.media.models import File, Label
 
 
 class BrokenFile:

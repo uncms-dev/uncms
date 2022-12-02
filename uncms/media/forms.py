@@ -7,7 +7,7 @@ from django import forms
 from django.core.files.base import ContentFile
 from PIL import Image
 
-from uncms.apps.media.models import File
+from uncms.media.models import File
 
 CHECKED_MIME_TYPES = {
     'image/jpeg',

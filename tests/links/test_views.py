@@ -1,7 +1,7 @@
 import pytest
 
 from tests.pages.factories import PageFactory
-from uncms.apps.links.models import Link
+from uncms.links.models import Link
 
 
 @pytest.mark.django_db

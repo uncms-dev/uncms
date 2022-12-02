@@ -437,7 +437,7 @@ class ContentBase(models.Model):
     classifier = 'content'
 
     # The urlconf used to power this content's views.
-    urlconf = 'uncms.apps.pages.urls'
+    urlconf = 'uncms.pages.urls'
 
     # A fieldset definition. If blank, one will be generated.
     fieldsets = None

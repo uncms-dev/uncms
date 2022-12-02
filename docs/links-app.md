@@ -5,7 +5,7 @@ instead, its navigation entry will redirect to an arbitrary URL.
 
 ## Configuration
 
-Ensure both `uncms.apps.pages` and `uncms.apps.links` are in your project's `INSTALLED_APPS`. If they weren't already, you will need to migrate:
+Ensure both `uncms.pages` and `uncms.links` are in your project's `INSTALLED_APPS`. If they weren't already, you will need to migrate:
 
 ```
 $ ./manage.py migrate

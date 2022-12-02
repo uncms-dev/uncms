@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from uncms.apps.pages.models import ContentBase
+from uncms.pages.models import ContentBase
 from uncms.models import LinkField
 
 
@@ -14,7 +14,7 @@ class Link(ContentBase):
 
     icon = 'links/img/link.png'
 
-    urlconf = 'uncms.apps.links.urls'
+    urlconf = 'uncms.links.urls'
 
     robots_index = False
 

@@ -31,9 +31,9 @@ def pytest_configure():
 
             # CMS apps
             'uncms',
-            'uncms.apps.links',
-            'uncms.apps.media',
-            'uncms.apps.pages',
+            'uncms.links',
+            'uncms.media',
+            'uncms.pages',
 
             # Testing models & such
             'tests.testing_app',
@@ -74,7 +74,7 @@ def pytest_configure():
                         'django.template.context_processors.static',
                         'django.contrib.messages.context_processors.messages',
                         'django.template.context_processors.request',
-                        'uncms.apps.pages.context_processors.pages',
+                        'uncms.pages.context_processors.pages',
                     ]
                 }
             },
@@ -93,7 +93,7 @@ def pytest_configure():
                         'django.template.context_processors.static',
                         'django.contrib.messages.context_processors.messages',
                         'django.template.context_processors.request',
-                        'uncms.apps.pages.context_processors.pages',
+                        'uncms.pages.context_processors.pages',
                     ]
                 }
             }
@@ -102,7 +102,7 @@ def pytest_configure():
             'django.contrib.sessions.middleware.SessionMiddleware',
             'django.contrib.messages.middleware.MessageMiddleware',
             'django.contrib.auth.middleware.AuthenticationMiddleware',
-            'uncms.apps.pages.middleware.PageMiddleware',
+            'uncms.pages.middleware.PageMiddleware',
         ],
         SECRET_KEY='KNOWN_FIXED_VALUE_IS_FINE',
         PUBLICATION_MIDDLEWARE_EXCLUDE_URLS=['/admin/'],

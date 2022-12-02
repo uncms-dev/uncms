@@ -12,10 +12,10 @@ from watson import search
 
 from tests.pages.factories import PageFactory
 from tests.testing_app.models import TemplateTagTestPage
-from uncms.apps.media.models import File
-from uncms.apps.pages.middleware import RequestPageManager
-from uncms.apps.pages.models import Page
-from uncms.apps.pages.templatetags.pages import (
+from uncms.media.models import File
+from uncms.pages.middleware import RequestPageManager
+from uncms.pages.models import Page
+from uncms.pages.templatetags.pages import (
     _navigation_entries,
     get_canonical_url,
     get_meta_description,

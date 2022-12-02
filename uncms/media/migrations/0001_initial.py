@@ -2,7 +2,7 @@
 import django.db.models.deletion
 from django.db import migrations, models
 
-import uncms.apps.media.models
+import uncms.media.models
 
 
 class Migration(migrations.Migration):
@@ -37,10 +37,10 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('title', models.CharField(max_length=200)),
-                ('high_resolution_mp4', uncms.apps.media.models.VideoFileRefField(related_name='+', on_delete=django.db.models.deletion.PROTECT, verbose_name='high resolution MP4', blank=True, to='media.File', null=True)),
-                ('image', uncms.apps.media.models.ImageRefField(related_name='+', on_delete=django.db.models.deletion.PROTECT, blank=True, to='media.File', null=True)),
-                ('low_resolution_mp4', uncms.apps.media.models.VideoFileRefField(related_name='+', on_delete=django.db.models.deletion.PROTECT, verbose_name='low resolution MP4', blank=True, to='media.File', null=True)),
-                ('webm', uncms.apps.media.models.VideoFileRefField(related_name='+', on_delete=django.db.models.deletion.PROTECT, verbose_name='WebM', blank=True, to='media.File', null=True)),
+                ('high_resolution_mp4', uncms.media.models.VideoFileRefField(related_name='+', on_delete=django.db.models.deletion.PROTECT, verbose_name='high resolution MP4', blank=True, to='media.File', null=True)),
+                ('image', uncms.media.models.ImageRefField(related_name='+', on_delete=django.db.models.deletion.PROTECT, blank=True, to='media.File', null=True)),
+                ('low_resolution_mp4', uncms.media.models.VideoFileRefField(related_name='+', on_delete=django.db.models.deletion.PROTECT, verbose_name='low resolution MP4', blank=True, to='media.File', null=True)),
+                ('webm', uncms.media.models.VideoFileRefField(related_name='+', on_delete=django.db.models.deletion.PROTECT, verbose_name='WebM', blank=True, to='media.File', null=True)),
             ],
             options={
                 'ordering': ('title',),

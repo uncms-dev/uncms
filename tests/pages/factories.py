@@ -4,7 +4,7 @@ from django.utils.text import slugify
 from watson import search as watson
 
 from tests.testing_app.models import EmptyTestPage
-from uncms.apps.pages.models import Page
+from uncms.pages.models import Page
 
 
 class PageFactory(factory.django.DjangoModelFactory):

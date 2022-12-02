@@ -28,7 +28,7 @@ it will default to Watson's behaviour of using the `__str__` of the object as th
 
 ## Controlling search text for content models (ContentBase derivatives)
 
-The UnCMS `Page` model is registered with `uncms.apps.pages.models.PageSearchAdapter` by default. `PageSearchAdapter` will add all textual fields from the page's content object to the blob of text that gets indexed (with a lower priority than the page title).
+The UnCMS `Page` model is registered with `uncms.pages.models.PageSearchAdapter` by default. `PageSearchAdapter` will add all textual fields from the page's content object to the blob of text that gets indexed (with a lower priority than the page title).
 
 That's sensible behaviour, but you may have inlined models that need to be searched too.
 For example, our simple sectioned content model from the [walkthrough](walkthrough.md) has most of its textual content in `ContentSection` objects.

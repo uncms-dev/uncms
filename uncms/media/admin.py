@@ -22,8 +22,8 @@ from watson.admin import SearchAdmin
 
 from uncms import permalinks
 from uncms.admin import get_related_objects_admin_urls
-from uncms.apps.media.forms import FileForm, ImageChangeForm
-from uncms.apps.media.models import File, Label
+from uncms.media.forms import FileForm, ImageChangeForm
+from uncms.media.models import File, Label
 from uncms.conf import defaults
 
 

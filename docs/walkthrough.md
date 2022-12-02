@@ -29,17 +29,17 @@ Add our core UnCMS apps to your `INSTALLED_APPS`:
 INSTALLED_APPS = [
     # .....
     'uncms',
-    'uncms.apps.pages',
-    'uncms.apps.media',
+    'uncms.pages',
+    'uncms.media',
     # Links is optional, but it's very handy to have.
-    'uncms.apps.links',
+    'uncms.links',
 ]
 ```
 
 Add our context processors to our template context processors (in `['OPTIONS']['context_processors']`):
 
 ```python
-'uncms.apps.pages.context_processors.pages',
+'uncms.pages.context_processors.pages',
 ```
 
 Add the page management middleware to your `MIDDLEWARE`:
@@ -48,7 +48,7 @@ Add the page management middleware to your `MIDDLEWARE`:
 MIDDLEWARE = [
     # ...
     'uncms.middleware.PublicationMiddleware',
-    'uncms.apps.pages.middleware.PageMiddleware',
+    'uncms.pages.middleware.PageMiddleware',
 ]
 ```
 
@@ -58,7 +58,7 @@ You may change the path part, but do not change the namespace.
 ```
 urlpatterns = [
     # ... your other stuff here ...
-    path('library/', include('uncms.apps.media.urls', namespace='media_library')),
+    path('library/', include('uncms.media.urls', namespace='media_library')),
 ]
 ```
 
@@ -76,7 +76,7 @@ Now add your `content` app to your `INSTALLED_APPS`.
 Then, add this to your `models.py`:
 
 ```python
-from uncms.apps.pages.models import ContentBase
+from uncms.pages.models import ContentBase
 from django.db import models
 
 
@@ -166,7 +166,7 @@ We've defined a section model with a title, text, and an ordering field.
 Now let's register it as an inline for MyContent:
 
 ```python
-from uncms.apps.pages.admin import page_admin
+from uncms.pages.admin import page_admin
 from django.contrib.admin import StackedInline
 
 from .models import MyContent, ContentSection
@@ -206,7 +206,7 @@ For the second part of this walkthrough, we are going to create a simple blog ap
 First, create an app called "news", add it to your `INSTALLED_APPS`, and add this to your `news/models.py`:
 
 ```python
-from uncms.apps.pages.models import ContentBase
+from uncms.pages.models import ContentBase
 
 class NewsFeed(ContentBase):
 
@@ -248,7 +248,7 @@ You will want to use them, because you should always use the batteries! We're go
 First, add these imports to your `news/models.py`:
 
 ```python
-from uncms.apps.media.models import ImageRefField
+from uncms.media.models import ImageRefField
 from uncms.models import HtmlField, PageBase
 ```
 

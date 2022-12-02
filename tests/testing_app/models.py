@@ -1,12 +1,12 @@
 # Test-only models.
 from django.db import models
 
-from uncms.apps.media.models import (
+from uncms.media.models import (
     FileRefField,
     ImageRefField,
     VideoFileRefField,
 )
-from uncms.apps.pages.models import ContentBase, Page
+from uncms.pages.models import ContentBase, Page
 from uncms.models import OnlineBase, PageBase, PublishedBase, SearchMetaBase
 from uncms.models.base import \
     PublishedBaseSearchAdapter as CMSPublishedBaseSearchAdapter

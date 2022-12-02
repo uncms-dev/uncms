@@ -1,6 +1,6 @@
 from django.urls import path
 
-from uncms.apps.media.views import ImageView
+from uncms.media.views import ImageView
 
 app_name = 'media'
 

@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.utils.html import escape
 from django_jinja import library
 
-from uncms.apps.pages.models import Page
+from uncms.pages.models import Page
 from uncms.conf import defaults
 from uncms.models import SearchMetaBase
 from uncms.utils import canonicalise_url

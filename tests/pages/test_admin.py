@@ -30,14 +30,14 @@ from tests.testing_app.models import (
     PageContent,
     PageContentWithFields,
 )
-from uncms.apps.pages.admin import (
+from uncms.pages.admin import (
     PAGE_FROM_KEY,
     PAGE_FROM_SITEMAP_VALUE,
     PAGE_TYPE_PARAMETER,
     PageAdmin,
     PageContentTypeFilter,
 )
-from uncms.apps.pages.models import Page, get_registered_content
+from uncms.pages.models import Page, get_registered_content
 
 
 class MockRequest:

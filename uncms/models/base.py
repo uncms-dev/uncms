@@ -6,7 +6,7 @@ from django.shortcuts import render
 from django.utils.crypto import constant_time_compare, salted_hmac
 from watson.search import SearchAdapter
 
-from uncms.apps.media.fields import ImageRefField
+from uncms.media.fields import ImageRefField
 from uncms.conf import defaults
 from uncms.models.managers import (
     OnlineBaseManager,

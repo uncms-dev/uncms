@@ -15,7 +15,7 @@ from tests.testing_app.models import (
     PageContent,
     PageContentWithSections,
 )
-from uncms.apps.pages.models import (
+from uncms.pages.models import (
     Page,
     PageSearchAdapter,
     PageSitemap,
