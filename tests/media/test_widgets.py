@@ -25,4 +25,12 @@ def test_raw_id_widget_rendering(client):
     # image.
     image = get_img(widget.render(name='image', value=image.pk))
     assert image
-    assert client.get(image['src']).status_code == 200
+
+    # Let's make sure the link isn't broken. First, we expect a 302 direct to
+    # the thumbnail.
+    response = client.get(image['src'])
+    assert response.status_code == 302
+
+    # And the next one should be a 200
+    response = client.get(response['Location'])
+    assert response.status_code == 200
