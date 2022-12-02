@@ -7,7 +7,6 @@ import pytest
 from bs4 import BeautifulSoup
 from django.contrib.admin.sites import AdminSite
 from django.contrib.admin.views.main import IS_POPUP_VAR
-from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -293,8 +292,7 @@ def test_media_list_shows_stylesheet(client):
     Ensure the stylesheet is correctly conditionally loaded on the media file
     list page depending on the MEDIA_LIST_GRID_VIEW setting.
     """
-    user = get_user_model().objects.create_superuser(username='admin', password='hunter2')
-    client.force_login(user)
+    client.force_login(UserFactory(superuser=True))
 
     for fancy_view in [True, False]:
         with override_settings(UNCMS={'MEDIA_LIST_GRID_VIEW': fancy_view}):
@@ -309,8 +307,7 @@ def test_file_detail_conditionally_shows_fieldsets(client):
     def has_usage_fieldset(context):
         return any(fieldset[0] == 'Usage' for fieldset in context['adminform'].fieldsets)
 
-    user = get_user_model().objects.create_superuser(username='admin', password='hunter2')
-    client.force_login(user)
+    client.force_login(UserFactory(superuser=True))
 
     response = client.get(reverse('admin:media_file_add'))
     assert response.status_code == 200
@@ -345,8 +342,7 @@ def test_file_list_type_filter(client):
     def context_pks(context):
         return sorted([obj.pk for obj in context['cl'].result_list])
 
-    user = UserFactory(superuser=True)
-    client.force_login(user)
+    client.force_login(UserFactory(superuser=True))
 
     sample_jpeg = SampleJPEGFileFactory()
     sample_png = SamplePNGFileFactory()
