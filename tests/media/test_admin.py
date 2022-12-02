@@ -17,6 +17,12 @@ from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.timezone import now
 
+from tests.factories import UserFactory
+from tests.media.factories import (
+    EmptyFileFactory,
+    SampleJPEGFileFactory,
+    SamplePNGFileFactory,
+)
 from tests.mocks import MockSuperUser
 from uncms.media.admin import FileAdmin
 from uncms.media.forms import mime_check
@@ -317,3 +323,26 @@ def test_file_detail_conditionally_shows_fieldsets(client):
     response = client.get(reverse('admin:media_file_change', args=[file.pk]))
     assert response.status_code == 200
     assert has_usage_fieldset(response.context_data) is True
+
+
+@pytest.mark.django_db
+def test_file_list_type_filter(client):
+    def context_pks(context):
+        return sorted([obj.pk for obj in context['cl'].result_list])
+
+    user = UserFactory(superuser=True)
+    client.force_login(user)
+
+    sample_jpeg = SampleJPEGFileFactory()
+    sample_png = SamplePNGFileFactory()
+    sample_not_image = EmptyFileFactory()
+
+    url = reverse('admin:media_file_changelist')
+
+    response = client.get(url)
+    assert response.status_code == 200
+    assert context_pks(response.context_data) == sorted([sample_jpeg.pk, sample_png.pk, sample_not_image.pk])
+
+    response = client.get(url, {'filetype': 'image'})
+    assert response.status_code == 200
+    assert context_pks(response.context_data) == sorted([sample_jpeg.pk, sample_png.pk])

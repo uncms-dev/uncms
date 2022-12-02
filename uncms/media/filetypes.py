@@ -1,6 +1,7 @@
 import os.path
 
 from django.contrib.staticfiles.storage import staticfiles_storage
+from django.db.models import Q
 
 # Different types of file.
 AUDIO_FILE_ICON = staticfiles_storage.url('media/img/audio-x-generic.png')
@@ -40,7 +41,22 @@ IMAGE_MIMETYPES = {
     'webp': 'image/webp',
 }
 
+
 IMAGE_FILE_EXTENSIONS = IMAGE_MIMETYPES.keys()
+
+IMAGE_DB_QUERY = Q()
+
+for ext in IMAGE_FILE_EXTENSIONS:
+    IMAGE_DB_QUERY = IMAGE_DB_QUERY | Q(file__iendswith=f'.{ext}')
+
+# see ImageRefField for details - we need this to make related popups work
+IMAGE_FILENAME_REGEX = ''.join([
+    r'\.',
+    '(',
+    "|".join(IMAGE_FILE_EXTENSIONS),
+    ')',
+    '$',
+])
 
 for ext in IMAGE_FILE_EXTENSIONS:
     FILE_ICONS[ext] = IMAGE_FILE_ICON

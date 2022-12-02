@@ -17,12 +17,14 @@ from django.template.defaultfilters import filesizeformat
 from django.template.loader import render_to_string
 from django.urls import re_path
 from django.utils.html import format_html
+from django.utils.translation import gettext_lazy as _
 from reversion.admin import VersionAdmin
 from watson.admin import SearchAdmin
 
 from uncms import permalinks
 from uncms.admin import get_related_objects_admin_urls
 from uncms.conf import defaults
+from uncms.media.filetypes import IMAGE_DB_QUERY
 from uncms.media.forms import FileForm, ImageChangeForm
 from uncms.media.models import File, Label
 
@@ -34,6 +36,24 @@ class LabelAdmin(admin.ModelAdmin):
     list_display = ('name',)
 
     search_fields = ('name',)
+
+
+class FileTypeFilter(admin.SimpleListFilter):
+    """
+    Permit filtering the media list to only show images.
+    """
+    parameter_name = 'filetype'
+    title = 'file type'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('image', _('Images')),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == 'image':
+            return queryset.filter(IMAGE_DB_QUERY)
+        return queryset
 
 
 @admin.register(File)
@@ -54,7 +74,7 @@ class FileAdmin(VersionAdmin, SearchAdmin):
     filter_horizontal = ['labels']
     list_display = ['get_preview', 'title', 'get_size', 'id']
     list_display_links = ['get_preview', 'title', 'get_size']
-    list_filter = ['labels']
+    list_filter = [FileTypeFilter, 'labels']
     readonly_fields = ['used_on']
     search_fields = ['title']
 
