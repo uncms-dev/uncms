@@ -85,18 +85,18 @@ class ImageChangeForm(FileForm):
             if extension.lower() in ('.jpeg', '.jpg'):
                 # Remove alpha channel for JPEGs - attempting to save with an
                 # alpha channel still present will throw an exception.
-                image = Image.open(content_file)
-                image.load()  # required for png.split()
-                background = Image.new('RGB', image.size, (255, 255, 255))
-                background.paste(image, mask=image.split()[3])  # 3 is the alpha channel
-                thumb_io = BytesIO()
-                # Each save of a JPEG results in a small amount of degradation;
-                # use quality=100 to limit this.
-                background.save(thumb_io, 'JPEG', quality=100)
+                with Image.open(content_file) as image:
+                    image.load()  # required for png.split()
+                    background = Image.new('RGB', image.size, (255, 255, 255))
+                    background.paste(image, mask=image.split()[3])  # 3 is the alpha channel
+                    thumb_io = BytesIO()
+                    # Each save of a JPEG results in a small amount of degradation;
+                    # use quality=100 to limit this.
+                    background.save(thumb_io, 'JPEG', quality=100)
 
-                self.cleaned_data['file'].save(
-                    new_file_name, content=ContentFile(thumb_io.getvalue()), save=False
-                )
+                    self.cleaned_data['file'].save(
+                        new_file_name, content=ContentFile(thumb_io.getvalue()), save=False
+                    )
 
             else:
                 self.cleaned_data['file'].save(new_file_name, content=content_file)
