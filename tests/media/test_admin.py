@@ -326,6 +326,21 @@ def test_file_detail_conditionally_shows_fieldsets(client):
 
 
 @pytest.mark.django_db
+def test_file_detail_preserves_filters(client):
+    # Ensure ?_tinymce query string parameter is preserved in the form action.
+    client.force_login(UserFactory(superuser=True))
+    response = client.get(reverse('admin:media_file_add'))
+    assert response.status_code == 200
+    soup = BeautifulSoup(response.content, 'html.parser')
+    assert soup.find('form').get('action') is None
+
+    response = client.get(reverse('admin:media_file_add'), {'_tinymce': '1'})
+    assert response.status_code == 200
+    soup = BeautifulSoup(response.content, 'html.parser')
+    assert soup.find('form').get('action') == '?_tinymce=1'
+
+
+@pytest.mark.django_db
 def test_file_list_type_filter(client):
     def context_pks(context):
         return sorted([obj.pk for obj in context['cl'].result_list])

@@ -1,5 +1,6 @@
 '''Admin settings for the static media management application.'''
 from functools import partial
+from urllib.parse import parse_qs, urlencode
 
 import requests
 from django.contrib import admin, messages
@@ -132,6 +133,17 @@ class FileAdmin(VersionAdmin, SearchAdmin):
             })]
         return fieldsets
 
+    def get_preserved_filters(self, request):
+        # Ensure the "_tinymce" parameter gets preserved after saving to make
+        # the popup response template work.
+        preserved_filters = super().get_preserved_filters(request)
+
+        if request.GET.get('_tinymce'):
+            filters_dict = parse_qs(preserved_filters)
+            filters_dict['_tinymce'] = request.GET['_tinymce']
+            preserved_filters = urlencode(filters_dict)
+        return preserved_filters
+
     # Custom display routines.
     @admin.display(description='size')
     def get_size(self, obj):
@@ -178,8 +190,10 @@ class FileAdmin(VersionAdmin, SearchAdmin):
     def response_add(self, request, obj, post_url_continue=None):
         '''Returns the response for a successful add action.'''
         if '_tinymce' in request.GET:
-            context = {'permalink': permalinks.create(obj),
-                       'title': obj.title}
+            context = {
+                'permalink': permalinks.create(obj),
+                'alt_text': obj.alt_text or '',
+            }
             return render(request, 'admin/media/file/filebrowser_add_success.html', context)
         return super().response_add(request, obj, post_url_continue=post_url_continue)
 
