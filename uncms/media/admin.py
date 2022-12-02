@@ -207,11 +207,11 @@ class FileAdmin(VersionAdmin, SearchAdmin):
         return super().changelist_view(request, context)
 
     def media_library_changelist_view(self, request, extra_context=None):
-        '''Renders the change list, but sets 'is_popup=True' into the template
-        context to make it render the media library sans navigation, without
-        needing _popup in the URL (which causes an exception with Jet's
-        Javascript, which assumes that if _popup is in the URL that it is a
-        related item popup).'''
+        '''
+        `media_library_changelist_view` is a minimal list view with some added
+        Javascript to pass messages up to TinyMCE when an item is clicked,
+        allowing image insertion.
+        '''
         context = extra_context or {}
         context.setdefault('changelist_template_parent', 'reversion/change_list.html')
         context['is_popup'] = True
