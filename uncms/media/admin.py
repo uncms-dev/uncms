@@ -15,7 +15,7 @@ from django.http import (
 from django.shortcuts import get_object_or_404, render
 from django.template.defaultfilters import filesizeformat
 from django.template.loader import render_to_string
-from django.urls import re_path
+from django.urls import path
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 from reversion.admin import VersionAdmin
@@ -208,8 +208,8 @@ class FileAdmin(VersionAdmin, SearchAdmin):
         urls = super().get_urls()
 
         new_urls = [
-            re_path(r'^(?P<object_id>\d+)/remote/$', self.remote_view, name='media_file_remote'),
-            re_path(r'^media-library-wysiwyg/$', self.media_library_changelist_view, name='media_file_wysiwyg_list'),
+            path('<int:object_id>/remote/', self.remote_view, name='media_file_remote'),
+            path('media-library-wysiwyg/', self.media_library_changelist_view, name='media_file_wysiwyg_list'),
         ]
 
         return new_urls + urls
