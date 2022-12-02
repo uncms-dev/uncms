@@ -12,8 +12,8 @@ from django.utils.deprecation import MiddlewareMixin
 from django.utils.functional import cached_property
 from django.views.debug import technical_404_response
 
-from uncms.pages.models import Page
 from uncms.conf import defaults
+from uncms.pages.models import Page
 
 
 class RequestPageManager:

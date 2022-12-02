@@ -31,11 +31,7 @@ from django.template.defaultfilters import capfirst
 from django.urls import path, reverse
 
 from uncms.admin import PageBaseAdmin
-from uncms.pages.models import (
-    Page,
-    PageSearchAdapter,
-    get_registered_content,
-)
+from uncms.pages.models import Page, PageSearchAdapter, get_registered_content
 
 # Used to track references to and from the JS sitemap.
 PAGE_FROM_KEY = 'from'

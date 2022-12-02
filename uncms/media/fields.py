@@ -2,8 +2,8 @@ from django.contrib import admin
 from django.contrib.admin.widgets import ForeignKeyRawIdWidget
 from django.db import models
 
-from uncms.media.widgets import ImageThumbnailWidget
 from uncms.conf import defaults
+from uncms.media.widgets import ImageThumbnailWidget
 
 
 class FileRefField(models.ForeignKey):

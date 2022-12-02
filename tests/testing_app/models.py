@@ -1,12 +1,7 @@
 # Test-only models.
 from django.db import models
 
-from uncms.media.models import (
-    FileRefField,
-    ImageRefField,
-    VideoFileRefField,
-)
-from uncms.pages.models import ContentBase, Page
+from uncms.media.models import FileRefField, ImageRefField, VideoFileRefField
 from uncms.models import OnlineBase, PageBase, PublishedBase, SearchMetaBase
 from uncms.models.base import \
     PublishedBaseSearchAdapter as CMSPublishedBaseSearchAdapter
@@ -14,6 +9,7 @@ from uncms.models.base import \
     SearchMetaBaseSearchAdapter as CMSSearchMetaBaseSearchAdapter
 from uncms.models.fields import LinkField
 from uncms.moderation.models import ModerationBase
+from uncms.pages.models import ContentBase, Page
 
 
 class PageContent(ContentBase):

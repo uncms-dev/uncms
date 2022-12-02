@@ -7,12 +7,12 @@ from django.urls import NoReverseMatch, reverse
 from reversion.admin import VersionAdmin
 from watson.admin import SearchAdmin
 
-from uncms.pages.models import Page
 from uncms.conf import defaults
 from uncms.models.base import (
     PageBaseSearchAdapter,
     SearchMetaBaseSearchAdapter,
 )
+from uncms.pages.models import Page
 
 
 def check_inline_for_admin_url(obj, inline, parent, inline_check=True):

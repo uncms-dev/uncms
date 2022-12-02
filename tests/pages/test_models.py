@@ -15,13 +15,13 @@ from tests.testing_app.models import (
     PageContent,
     PageContentWithSections,
 )
+from uncms.models.managers import publication_manager
 from uncms.pages.models import (
     Page,
     PageSearchAdapter,
     PageSitemap,
     filter_indexable_pages,
 )
-from uncms.models.managers import publication_manager
 
 
 class TestPage(TestCase):

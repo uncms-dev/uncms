@@ -1,10 +1,6 @@
 from django.test import TestCase
 
-from uncms.media.filetypes import (
-    get_icon,
-    get_icon_for_extension,
-    is_image,
-)
+from uncms.media.filetypes import get_icon, get_icon_for_extension, is_image
 
 
 class FiletypesTestCase(TestCase):

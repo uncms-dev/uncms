@@ -1,8 +1,8 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from uncms.pages.models import ContentBase
 from uncms.models import LinkField
+from uncms.pages.models import ContentBase
 
 
 class Link(ContentBase):
