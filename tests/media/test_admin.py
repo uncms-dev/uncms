@@ -35,18 +35,11 @@ class BrokenFile:
     method is called. Used to test sorl.
     """
 
-    name_requested = False
-
-    def __getattr__(self, name):
-        if name == 'file':
-            if not self.name_requested:
-                self.name_requested = True
-                return self.obj.file
-            return self.obj.file.file
-        return getattr(self.obj, name)
-
     def __init__(self, *args, **kwargs):
         self.obj = File.objects.create(**kwargs)
+
+    def __getattr__(self, name):
+        return getattr(self.obj, name)
 
 
 class TestFileAdminBase(TransactionTestCase):
