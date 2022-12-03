@@ -7,7 +7,7 @@ from django_jinja import library
 
 from uncms.conf import defaults
 from uncms.models import SearchMetaBase
-from uncms.pages.models import Page
+from uncms.pages import get_page_model
 from uncms.utils import canonicalise_url
 
 register = template.Library()
@@ -83,7 +83,7 @@ def admin_sitemap_entries(context):
     return {
         # Note that we must not use request.pages here - we want to be able
         # to render the sitemap after it has changed.
-        'pages': [sitemap_entry(Page.objects.get_homepage())]
+        'pages': [sitemap_entry(get_page_model().get_homepage())]
     }
 
 
@@ -113,10 +113,12 @@ def render_navigation(context, pages, section=None, class_prefix=None, **templat
 def get_page_url(page, view_func=None, *args, **kwargs):  # pylint:disable=keyword-arg-before-vararg
     '''Renders the URL of the given view func in the given page.'''
     url = None
+    page_model = get_page_model()
+
     if isinstance(page, int):
         try:
-            page = Page.objects.get(pk=page)
-        except Page.DoesNotExist:
+            page = page_model.objects.get(pk=page)
+        except page_model.DoesNotExist:
             url = '#'
             page = None
     if page is None:

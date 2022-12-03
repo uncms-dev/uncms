@@ -13,7 +13,7 @@ from django.utils.functional import cached_property
 from django.views.debug import technical_404_response
 
 from uncms.conf import defaults
-from uncms.pages.models import Page
+from uncms.pages import get_page_model
 
 
 class RequestPageManager:
@@ -25,13 +25,14 @@ class RequestPageManager:
         self.request = request
         self.path = self.request.path
         self.path_info = self.request.path_info
+        self.page_model = get_page_model()
 
     @cached_property
     def homepage(self):
         '''Returns the site homepage.'''
         try:
-            return Page.objects.get_homepage(prefetch_depth=defaults.PAGE_TREE_PREFETCH_DEPTH)
-        except Page.DoesNotExist:
+            return self.page_model.objects.get_homepage(prefetch_depth=defaults.PAGE_TREE_PREFETCH_DEPTH)
+        except self.page_model.DoesNotExist:
             return None
 
     @cached_property

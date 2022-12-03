@@ -162,6 +162,17 @@ See [Rendering page navigation](rendering-navigation.md) for more details.
 This controls whether a new `Page` (and anything else that inherits from OnlineBase) will have `is_online` set to True by default when creating new objects in the admin.
 Set it to `False` to make new pages be offline by default.
 
+## `PAGE_MODEL`
+
+* Type: string
+* Default: 'pages.Page'
+
+This setting should not be changed.
+In future, this will permit project-local overrides of the `Page` model,
+while continuing to use all the stock UnCMS `Page`-related features
+such as middleware, navigation, etc.
+See [#23](https://github.com/lewiscollard/uncms/issues/23).
+
 ## `PAGE_TREE_PREFETCH_DEPTH`
 
 * Type: boolean
