@@ -1,5 +1,9 @@
 # Changelog
 
+## Next release
+
+* All model `help_text`s are now translatable.
+
 ## 0.0.9
 
 * The [media app](media-app.md) now has `RestrictedFileRefField`. It gives an easy way to have a `FileRefField` which only allows certain file extensions. `ImageRefField` and `VideoRefField` are now subclasses of this.

@@ -7,6 +7,7 @@ from django.db.models import F, Q
 from django.utils import timezone
 from django.utils.encoding import force_str
 from django.utils.functional import cached_property
+from django.utils.translation import gettext_lazy as _
 from reversion.models import Version
 
 from uncms import sitemaps
@@ -111,16 +112,20 @@ class Page(PageBase):
         blank=True,
         null=True,
         db_index=True,
-        help_text='The date that this page will appear on the website.  Leave '
-                  'this blank to immediately publish this page.',
+        help_text=_(
+            'The date that this page will appear on the website.  '
+            'Leave this blank to immediately publish this page.'
+        ),
     )
 
     expiry_date = models.DateTimeField(
         blank=True,
         null=True,
         db_index=True,
-        help_text='The date that this page will be removed from the website.  '
-                  'Leave this blank to never expire this page.',
+        help_text=_(
+            'The date that this page will be removed from the website.  '
+            'Leave this blank to never expire this page.'
+        ),
     )
 
     # Navigation fields.
@@ -128,7 +133,7 @@ class Page(PageBase):
     short_title = models.CharField(
         max_length=200,
         blank=True,
-        help_text=(
+        help_text=_(
             "A shorter version of the title that will be used in site navigation. "
             "Leave blank to use the full-length title."
         ),
@@ -137,8 +142,9 @@ class Page(PageBase):
     in_navigation = models.BooleanField(
         'add to navigation',
         default=True,
-        help_text='Uncheck this box to remove this content from the site '
-                  'navigation.',
+        help_text=_(
+            'Uncheck this box to remove this content from the site navigation.'
+        ),
     )
 
     # Content fields.
@@ -146,19 +152,19 @@ class Page(PageBase):
     content_type = models.ForeignKey(
         ContentType,
         editable=False,
-        help_text='The type of page content.',
+        help_text=_('The type of page content.'),
         on_delete=models.CASCADE,
     )
 
     requires_authentication = models.BooleanField(
         default=False,
-        help_text='Visitors will need to be logged in to see this page'
+        help_text=_('Visitors will need to be logged in to see this page'),
     )
 
     hide_from_anonymous = models.BooleanField(
         'show to logged in only',
         default=False,
-        help_text="Visitors that aren't logged in won't see this page in the navigation"
+        help_text=_("Visitors that aren't logged in won't see this page in the navigation"),
     )
 
     class Meta:
