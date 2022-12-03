@@ -5,6 +5,7 @@ from io import BytesIO
 import magic
 from django import forms
 from django.core.files.base import ContentFile
+from django.utils.translation import gettext_lazy as _
 from PIL import Image
 
 from uncms.media.models import File
@@ -42,10 +43,10 @@ class FileForm(forms.ModelForm):
         # Catch if this is the initial creation or if the file is being changed.
         if not self.instance or not self.instance.file == uploaded_file:
             if not mime_check(uploaded_file):
-                raise forms.ValidationError(
+                raise forms.ValidationError(_(
                     'The file extension for this image does not seem to match its contents. '
                     'Make sure the file extension is correct and try again.'
-                )
+                ))
         return uploaded_file
 
 
