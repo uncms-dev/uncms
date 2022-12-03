@@ -1,9 +1,13 @@
+import base64
 import os.path
 from io import BytesIO
 
 import factory
 
 from uncms.media.models import File
+
+# The very minimum data for a valid GIF.
+MINIMAL_GIF_DATA = base64.b64decode(b'R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==')
 
 
 class FileFactory(factory.django.DjangoModelFactory):

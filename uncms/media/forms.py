@@ -8,14 +8,8 @@ from django.core.files.base import ContentFile
 from django.utils.translation import gettext_lazy as _
 from PIL import Image
 
+from uncms.media.filetypes import IMAGE_MIMETYPES
 from uncms.media.models import File
-
-CHECKED_MIME_TYPES = {
-    'image/jpeg',
-    'image/gif',
-    'image/png',
-    'image/tiff',
-}
 
 
 def mime_check(file):
@@ -27,7 +21,7 @@ def mime_check(file):
     guessed_filetype = magic.from_buffer(file.read(1024), mime=True)
     file.seek(0)
     claimed_filetype = file.content_type
-    if claimed_filetype in CHECKED_MIME_TYPES and not guessed_filetype == claimed_filetype:
+    if claimed_filetype in IMAGE_MIMETYPES.values() and not guessed_filetype == claimed_filetype:
         return False
     return True
 
@@ -38,6 +32,16 @@ class FileForm(forms.ModelForm):
         fields = ['title', 'file', 'attribution', 'copyright', 'alt_text', 'labels']
 
     def clean_file(self):
+        """
+        `clean_file` checks nominal images to see if they do in fact match
+        their declared contents. This comes from extensive experience of files
+        being "converted" into some other format by simply changing the file
+        extension.
+
+        For most other formats, it doesn't matter if they upload with the
+        wrong extension. With images, it means that exceptions will be raised
+        when thumbnailing them.
+        """
         uploaded_file = self.cleaned_data['file']
 
         # Catch if this is the initial creation or if the file is being changed.
