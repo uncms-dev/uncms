@@ -10,6 +10,10 @@ from uncms.media.models import File
 MINIMAL_GIF_DATA = base64.b64decode(b'R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==')
 
 
+def data_file_path(filename):
+    return os.path.join(os.path.dirname(__file__), 'data', filename)
+
+
 class FileFactory(factory.django.DjangoModelFactory):
     title = factory.Sequence(lambda n: f'File {n}')
 
@@ -26,21 +30,21 @@ class EmptyFileFactory(FileFactory):
 class SamplePNGFileFactory(FileFactory):
 
     file = factory.django.FileField(
-        from_path=os.path.join(os.path.dirname(__file__), 'data', '1920x1080.png'),
+        from_path=data_file_path('1920x1080.png'),
     )
 
 
 class SampleJPEGFileFactory(FileFactory):
 
     file = factory.django.FileField(
-        from_path=os.path.join(os.path.dirname(__file__), 'data', '1920x1080.jpg'),
+        from_path=data_file_path('1920x1080.jpg'),
     )
 
 
 class SampleWebPFileFactory(FileFactory):
 
     file = factory.django.FileField(
-        from_path=os.path.join(os.path.dirname(__file__), 'data', '1920x1080.webp'),
+        from_path=data_file_path('1920x1080.webp'),
     )
 
 
