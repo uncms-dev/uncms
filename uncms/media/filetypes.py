@@ -67,9 +67,7 @@ def is_image(filename):
     Returns True if an image's extension suggests it is a file, False
     otherwise. It does no validation of the contents of the file.
     '''
-    _, extension = os.path.splitext(filename)
-    extension = extension.lower()[1:]
-    return extension in IMAGE_FILE_EXTENSIONS
+    return normalised_file_extension(filename) in IMAGE_FILE_EXTENSIONS
 
 
 def get_icon_for_extension(extension):
