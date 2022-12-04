@@ -4,13 +4,17 @@ _WIP: development and testing guide_
 
 ## Read the philosophy guide
 
-[]
+You should read [the philosophy of UnCMS](philosophy.md) before implementing new features.
+There are certain features that will never be considered for UnCMS,
+such as multiple concurrent versions of one page.
+And features that are not useful for the overwhelming majority of projects are best implemented in your project,
+not in UnCMS.
 
 ## Testing
 
 UnCMS aims for a very high code coverage percentage.
-Eventually, the goal is to reach 100% coverage, and to enforce this in CI.
-Any new features should probably have a test.
+Eventually, the goal is to reach 100% coverage, and to enforce this in CI,
+so any new features should be fully covered by tests.
 Any bug fixes might need a regression test.
 
 You should write new tests as pytest test functions.
