@@ -350,3 +350,16 @@ def test_file_list_type_filter(client):
     response = client.get(url, {'filetype': 'image'})
     assert response.status_code == 200
     assert context_pks(response.context_data) == sorted([sample_jpeg.pk, sample_png.pk])
+
+
+@pytest.mark.django_db
+def test_file_media_library_changelist_view(client):
+    SamplePNGFileFactory()
+    client.force_login(UserFactory(superuser=True))
+
+    response = client.get(reverse('admin:media_file_wysiwyg_list'))
+    assert response.status_code == 200
+    assert response.context_data['is_media_library_iframe']
+
+    soup = BeautifulSoup(response.content, 'html.parser')
+    assert soup.find('script', id='tinymce-script')
