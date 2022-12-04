@@ -10,6 +10,7 @@ from django.test import RequestFactory, TestCase, override_settings
 from django.utils.timezone import now
 from watson import search
 
+from tests.mocks import MockSuperUser
 from tests.pages.factories import PageFactory
 from tests.testing_app.models import TemplateTagTestPage
 from uncms.media.models import File
@@ -17,6 +18,7 @@ from uncms.pages.middleware import RequestPageManager
 from uncms.pages.models import Page
 from uncms.pages.templatetags.pages import (
     _navigation_entries,
+    admin_sitemap_entries,
     get_canonical_url,
     get_meta_description,
     get_meta_robots,
@@ -383,3 +385,20 @@ def test_get_canonical_url():
 
     with override_settings(PREPEND_WWW=True):
         assert get_canonical_url({'request': request}) == 'https://www.canonicalise.example.com/air/'
+
+
+@pytest.mark.django_db
+def test_admin_sitemap_entries():
+    """
+    Ensure our sitemap is not completely broken.
+    """
+    PageFactory.create_tree(5, 4, 3)
+    request = RequestFactory().get('/admin/')
+    request.user = MockSuperUser()
+
+    context = admin_sitemap_entries({'request': request})
+    entries = context['pages']
+
+    assert len(entries[0]['children']) == 5
+    assert len(entries[0]['children'][0]['children']) == 4
+    assert len(entries[0]['children'][0]['children'][0]['children']) == 3

@@ -83,7 +83,7 @@ def admin_sitemap_entries(context):
     return {
         # Note that we must not use request.pages here - we want to be able
         # to render the sitemap after it has changed.
-        'pages': [sitemap_entry(get_page_model().get_homepage())]
+        'pages': [sitemap_entry(get_page_model().objects.get_homepage())]
     }
 
 
