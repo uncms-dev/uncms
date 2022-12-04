@@ -103,6 +103,7 @@ def pytest_configure():
             'django.contrib.messages.middleware.MessageMiddleware',
             'django.contrib.auth.middleware.AuthenticationMiddleware',
             'uncms.pages.middleware.PageMiddleware',
+            'watson.middleware.SearchContextMiddleware',
         ],
         SECRET_KEY='KNOWN_FIXED_VALUE_IS_FINE',
         PUBLICATION_MIDDLEWARE_EXCLUDE_URLS=['/admin/'],

@@ -23,12 +23,15 @@ from watson import search
 
 from tests.factories import UserFactory
 from tests.mocks import MockSuperUser
+from tests.pages.factories import PageFactory
 from tests.testing_app.admin import InlineModelInline, InlineModelNoPageInline
 from tests.testing_app.models import (
     EmptyTestPage,
     InlineModelNoPage,
     PageContent,
     PageContentWithFields,
+    PageContentWithSections,
+    Section,
 )
 from uncms.pages.admin import (
     PAGE_FROM_KEY,
@@ -777,3 +780,19 @@ def test_pageadmin_get_preserved_filters(client):
 
     # Now try posting to it. It should create a page.
     post_and_check_form(urljoin(url, action_url), title='Save yourself')
+
+
+@pytest.mark.django_db
+def test_pageadmin_recover_view(client):
+    user = UserFactory(superuser=True)
+    client.force_login(user)
+
+    with reversion.create_revision():
+        page = PageFactory.create(content=PageContentWithSections(testing='Hooray!'))
+        Section.objects.create(page=page)
+
+    page.delete()
+
+    for revision in Version.objects.all():
+        response = client.get(reverse('admin:pages_page_recover', args=[revision.pk]))
+        assert response.status_code == 200

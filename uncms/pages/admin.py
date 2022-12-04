@@ -29,6 +29,7 @@ from django.http import (
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.defaultfilters import capfirst
 from django.urls import path, reverse
+from watson.search import search_context_manager
 
 from uncms.admin import PageBaseAdmin
 from uncms.pages.models import Page, PageSearchAdapter, get_registered_content
@@ -462,6 +463,16 @@ class PageAdmin(PageBaseAdmin):
             preserved_filters = urlencode(filters_dict)
 
         return preserved_filters
+
+    def recover_view(self, request, version_id, extra_context=None):
+        """
+        Stop Watson from trying to index the page during recovery (a situation
+        where PageInstance.content does not exist).
+
+        From this unmerged PR: https://github.com/onespacemedia/cms/pull/195
+        """
+        search_context_manager.invalidate()
+        return super().recover_view(request, version_id, extra_context=extra_context)
 
     def response_add(self, request, obj, post_url_continue=None):
         '''Redirects to the sitemap if appropriate.'''
