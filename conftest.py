@@ -102,6 +102,7 @@ def pytest_configure():
             'django.contrib.sessions.middleware.SessionMiddleware',
             'django.contrib.messages.middleware.MessageMiddleware',
             'django.contrib.auth.middleware.AuthenticationMiddleware',
+            'django.middleware.clickjacking.XFrameOptionsMiddleware',
             'uncms.pages.middleware.PageMiddleware',
             'watson.middleware.SearchContextMiddleware',
         ],
@@ -112,4 +113,5 @@ def pytest_configure():
         },
         THUMBNAIL_PRESERVE_FORMAT=True,
         REPO_ROOT=os.path.abspath(os.path.dirname(__file__)),
+        X_FRAME_OPTIONS='DENY',
     )

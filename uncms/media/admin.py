@@ -19,6 +19,7 @@ from django.template.loader import render_to_string
 from django.urls import path
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
+from django.views.decorators.clickjacking import xframe_options_sameorigin
 from reversion.admin import VersionAdmin
 from watson.admin import SearchAdmin
 
@@ -80,6 +81,9 @@ class FileAdmin(VersionAdmin, SearchAdmin):
     search_fields = ['title']
 
     def get_form(self, request, obj=None, change=False, **kwargs):
+        """
+        Return ImageChangeForm with the image editor
+        """
         if obj and obj.is_image():
             kwargs['form'] = ImageChangeForm
         else:
@@ -206,6 +210,15 @@ class FileAdmin(VersionAdmin, SearchAdmin):
 
         return super().changelist_view(request, context)
 
+    # `X-Frame-Options: SAMEORIGIN` is required because this is loaded in an
+    # iframe inside TinyMCE. We don't want to require that anyone _globally_
+    # weaken their X-Frame-Options. This one is relatively harmless; the worst
+    # that could happen is that in the event of a deep pwnage chain might be
+    # able to upload something to the media library - and if someone is able
+    # to both inject the iframe *and* inject scripts into your site to
+    # interact with it, you've got all manner of other problems worse than
+    # this.
+    @xframe_options_sameorigin
     def media_library_changelist_view(self, request, extra_context=None):
         '''
         `media_library_changelist_view` is a minimal list view with some added

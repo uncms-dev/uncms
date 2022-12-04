@@ -359,6 +359,7 @@ def test_file_media_library_changelist_view(client):
 
     response = client.get(reverse('admin:media_file_wysiwyg_list'))
     assert response.status_code == 200
+    assert response.headers['X-Frame-Options'] == 'SAMEORIGIN'
     assert response.context_data['is_media_library_iframe']
 
     soup = BeautifulSoup(response.content, 'html.parser')
