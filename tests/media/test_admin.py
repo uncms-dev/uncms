@@ -7,6 +7,7 @@ import pytest
 from bs4 import BeautifulSoup
 from django.contrib.admin.sites import AdminSite
 from django.contrib.admin.views.main import IS_POPUP_VAR
+from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -21,6 +22,7 @@ from tests.media.factories import (
     EmptyFileFactory,
     SampleJPEGFileFactory,
     SamplePNGFileFactory,
+    data_file_path,
 )
 from tests.mocks import MockSuperUser
 from uncms.media.admin import FileAdmin
@@ -364,3 +366,38 @@ def test_file_media_library_changelist_view(client):
 
     soup = BeautifulSoup(response.content, 'html.parser')
     assert soup.find('script', id='tinymce-script')
+
+
+@pytest.mark.django_db
+def test_fileadmin_edit_view(client):
+    obj = SamplePNGFileFactory()
+    # check permissions
+    user = UserFactory(is_staff=True)
+    client.force_login(user)
+
+    url = reverse('admin:media_file_edit', args=[obj.pk])
+
+    response = client.get(url)
+    assert response.status_code == 403
+
+    # give it the right permission, try again
+    user.user_permissions.add(Permission.objects.get(codename='change_file'))
+    response = client.get(url)
+    assert response.status_code == 200
+
+    # Post 800x600 PNG data to the file. (We test other branches inside the
+    # form in test_forms.py.)
+    with open(data_file_path('800x600.png'), 'rb') as fd:
+        changed_data = ''.join([';base64,', base64.b64encode(fd.read()).decode('utf-8')])
+
+    response = client.post(url, data={'changed_image': changed_data})
+    assert response.status_code == 302
+    assert response['Location'] == reverse('admin:media_file_change', args=[obj.pk])
+
+    response = client.get(response['Location'])
+    assert response.status_code == 200
+
+    # Ensure its data has actually changed - the original was 1920x1080.
+    obj.refresh_from_db()
+    assert obj.width == 800
+    assert obj.height == 600

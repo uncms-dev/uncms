@@ -3,6 +3,7 @@ import os
 from io import BytesIO
 
 import magic
+import reversion
 from django import forms
 from django.core.files.base import ContentFile
 from django.utils.translation import gettext_lazy as _
@@ -54,7 +55,7 @@ class FileForm(forms.ModelForm):
         return uploaded_file
 
 
-class ImageChangeForm(FileForm):
+class ImageEditForm(forms.ModelForm):
     changed_image = forms.CharField(
         widget=forms.HiddenInput,
         required=False,
@@ -62,7 +63,7 @@ class ImageChangeForm(FileForm):
 
     class Meta:
         model = File
-        fields = ['changed_image'] + FileForm.Meta.fields
+        fields = ['changed_image']
 
     def save(self, commit=True):
         if self.cleaned_data['changed_image']:
@@ -98,12 +99,12 @@ class ImageChangeForm(FileForm):
                     # Each save of a JPEG results in a small amount of degradation;
                     # use quality=100 to limit this.
                     background.save(thumb_io, 'JPEG', quality=100)
-
-                    self.cleaned_data['file'].save(
+                    self.instance.file.save(
                         new_file_name, content=ContentFile(thumb_io.getvalue()), save=False
                     )
 
             else:
-                self.cleaned_data['file'].save(new_file_name, content=content_file)
-
-        return super().save(commit=commit)
+                self.instance.file.save(new_file_name, content=content_file)
+            with reversion.create_revision():
+                return super().save(commit=commit)
+        return self.instance

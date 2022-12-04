@@ -12,11 +12,13 @@ from django.http import (
     HttpResponse,
     HttpResponseForbidden,
     HttpResponseNotAllowed,
+    HttpResponseRedirect,
 )
 from django.shortcuts import get_object_or_404, render
 from django.template.defaultfilters import filesizeformat
 from django.template.loader import render_to_string
-from django.urls import path
+from django.template.response import TemplateResponse
+from django.urls import path, reverse
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.clickjacking import xframe_options_sameorigin
@@ -27,7 +29,7 @@ from uncms import permalinks
 from uncms.admin import get_related_objects_admin_urls
 from uncms.conf import defaults
 from uncms.media.filetypes import IMAGE_DB_QUERY
-from uncms.media.forms import FileForm, ImageChangeForm
+from uncms.media.forms import FileForm, ImageEditForm
 from uncms.media.models import File, Label
 
 
@@ -74,23 +76,12 @@ class FileAdmin(VersionAdmin, SearchAdmin):
         }),
     ]
     filter_horizontal = ['labels']
+    form = FileForm
     list_display = ['get_preview', 'title', 'get_size', 'id']
     list_display_links = ['get_preview', 'title', 'get_size']
     list_filter = [FileTypeFilter, 'labels']
     readonly_fields = ['used_on']
     search_fields = ['title']
-
-    def get_form(self, request, obj=None, change=False, **kwargs):
-        """
-        Return ImageChangeForm with the image editor
-        """
-        if obj and obj.is_image():
-            kwargs['form'] = ImageChangeForm
-        else:
-            kwargs['form'] = FileForm
-        return super().get_form(request, obj=obj, change=change, **kwargs)
-
-    # Custom actions.
 
     def add_label_action(self, request, queryset, label):
         '''Adds the label on the given queryset.'''
@@ -210,6 +201,50 @@ class FileAdmin(VersionAdmin, SearchAdmin):
 
         return super().changelist_view(request, context)
 
+    def edit_view(self, request, object_id):
+        if not self.has_change_permission(request):
+            return HttpResponseForbidden('You do not have permission to modify this file.')
+        obj = get_object_or_404(File, pk=object_id)
+        assert obj.is_image()
+
+        if request.method == 'GET':
+            context = {
+                'add': False,
+                'change': True,
+                'form': ImageEditForm(),
+                'has_add_permission': self.has_add_permission(request),
+                # checked above
+                'has_change_permission': True,
+                'has_delete_permission': self.has_delete_permission(request, obj),
+                'has_editable_inline_admin_formsets': False,
+                'has_view_permission': True,
+                'media': self.media,
+                'image_editor': True,
+                'is_edit_view': True,
+                'is_popup': False,
+                'original': obj,
+                'opts': self.model._meta,
+                'save_as': False,
+                'show_delete': False,
+                'show_save_and_add_another': False,
+                'show_save_and_continue': False,
+                'title': f'Edit {str(obj)}',
+            }
+            return TemplateResponse(request, ['admin/media/file/image_editor.html'], context)
+        form = ImageEditForm(request.POST, instance=obj)
+
+        # The form can never be invalid - either it has data, or it does not.
+        # Someone who has change permission could construct a form with
+        # garbage image data, but if they wanted to upload a nonsense file
+        # they could just use the standard upload form to do the same.
+        assert form.is_valid()
+
+        form.save()
+
+        message = _('The image “{}” was edited successfully.')
+        messages.success(request, format_html(message, str(obj)))
+        return HttpResponseRedirect(reverse('admin:media_file_change', args=[obj.pk]))
+
     # `X-Frame-Options: SAMEORIGIN` is required because this is loaded in an
     # iframe inside TinyMCE. We don't want to require that anyone _globally_
     # weaken their X-Frame-Options. This one is relatively harmless; the worst
@@ -237,6 +272,7 @@ class FileAdmin(VersionAdmin, SearchAdmin):
 
         new_urls = [
             path('<int:object_id>/remote/', self.remote_view, name='media_file_remote'),
+            path('<int:object_id>/editor/', self.edit_view, name='media_file_edit'),
             path('media-library-wysiwyg/', self.media_library_changelist_view, name='media_file_wysiwyg_list'),
         ]
 

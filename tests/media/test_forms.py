@@ -9,7 +9,7 @@ from tests.media.factories import (
     SamplePNGFileFactory,
     data_file_path,
 )
-from uncms.media.forms import FileForm, ImageChangeForm
+from uncms.media.forms import FileForm, ImageEditForm
 
 
 def test_fileform_validation():
@@ -52,15 +52,14 @@ def test_fileform_validation():
 @pytest.mark.django_db
 # Test both the "it's a JPEG" branch and the implied "not a JPEG" branches.
 @pytest.mark.parametrize('factory', [SampleJPEGFileFactory, SamplePNGFileFactory])
-def test_filechangeform_save(factory):
+def test_imageeditform_save(factory):
     original = factory()
     assert original.width == 1920
     with open(data_file_path('800x600.png'), 'rb') as fd:
         changed_data = ''.join([';base64,', base64.b64encode(fd.read()).decode('utf-8')])
-    form = ImageChangeForm(
+    form = ImageEditForm(
         instance=original,
         data={
-            'title': original.title,
             'changed_image': changed_data,
         },
     )
@@ -73,16 +72,15 @@ def test_filechangeform_save(factory):
 
 
 @pytest.mark.django_db
-def test_filechangeform_save_no_changes_branch():
+def test_imageeditform_save_no_changes_branch():
     """
     Test the "changed_data is not present" branch.
     """
     original = SamplePNGFileFactory()
     assert original.width == 1920
-    form = ImageChangeForm(
+    form = ImageEditForm(
         instance=original,
         data={
-            'title': 'changed',
             'changed_image': '',
         },
     )
@@ -90,5 +88,4 @@ def test_filechangeform_save_no_changes_branch():
     form.save()
 
     original.refresh_from_db()
-    assert original.title == 'changed'
     assert original.width == 1920
