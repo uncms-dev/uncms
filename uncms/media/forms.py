@@ -62,7 +62,7 @@ class ImageChangeForm(FileForm):
 
     class Meta:
         model = File
-        fields = ['changed_image', 'title', 'file', 'attribution', 'copyright', 'alt_text', 'labels']
+        fields = ['changed_image'] + FileForm.Meta.fields
 
     def save(self, commit=True):
         if self.cleaned_data['changed_image']:
