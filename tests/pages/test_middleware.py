@@ -6,6 +6,7 @@ from django.http import HttpResponse, HttpResponseNotFound
 from django.test import RequestFactory, TestCase
 from watson import search
 
+from tests.pages.factories import PageFactory
 from tests.testing_app.models import MiddlewareTestPage, MiddlewareURLsTestPage
 from uncms.pages.middleware import PageMiddleware, RequestPageManager
 from uncms.pages.models import Page
@@ -254,20 +255,20 @@ def test_middleware_query_count(client, django_assert_num_queries):
     Regression test to ensure that any middleware changes do not result in
     extra queries.
     """
-    class Pages:
-        pass
+    PageFactory.create_tree(2, 2)
 
-    pages = Pages()
-    _generate_pages(pages)
+    homepage = Page.objects.get_homepage()
 
     with django_assert_num_queries(4):
-        response = client.get(pages.homepage.get_absolute_url())
+        response = client.get(homepage.get_absolute_url())
     assert response.status_code == 200
 
+    top_level_page = homepage.children[0]
     with django_assert_num_queries(4):
-        response = client.get(pages.page_1.get_absolute_url())
+        response = client.get(top_level_page.get_absolute_url())
     assert response.status_code == 200
 
+    subpage = top_level_page.children[0]
     with django_assert_num_queries(4):
-        response = client.get(pages.page_2.get_absolute_url())
+        response = client.get(subpage.get_absolute_url())
     assert response.status_code == 200
