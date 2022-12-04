@@ -82,10 +82,13 @@ def test_filechangeform_save_no_changes_branch():
     form = ImageChangeForm(
         instance=original,
         data={
-            'title': original.title,
+            'title': 'changed',
             'changed_image': '',
         },
     )
     assert form.is_valid()
+    form.save()
+
     original.refresh_from_db()
+    assert original.title == 'changed'
     assert original.width == 1920
