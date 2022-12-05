@@ -10,6 +10,7 @@ from django.contrib.admin.widgets import (
     FilteredSelectMultiple,
     RelatedFieldWidgetWrapper,
 )
+from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core.exceptions import PermissionDenied
@@ -587,80 +588,6 @@ class TestPageAdmin(TestCase):
         self.assertDictEqual(json.loads(response.content.decode()), json.loads(sitemap))
         self.assertEqual(response['Content-Type'], "application/json")
 
-    def test_pageadmin_move_page_view(self):
-        request = self._build_request()
-        request.POST['direction'] = 'up'
-        response = self.page_admin.move_page_view(request, self.homepage.pk)
-        self.assertEqual(response.status_code, 200)
-
-        self.assertEqual(response.content, b"Page could not be moved, as nothing to swap with.")
-
-        request.POST['direction'] = 'down'
-        response = self.page_admin.move_page_view(request, self.homepage.pk)
-        self.assertEqual(response.status_code, 200)
-
-        self.assertEqual(response.content, b"Page could not be moved, as nothing to swap with.")
-
-        request.POST['direction'] = 'foo'
-
-        # Add some child pages.
-        with search.update_index():
-            content_type = ContentType.objects.get_for_model(PageContent)
-
-            content_page_1 = Page.objects.create(
-                title="Foo",
-                slug='foo',
-                parent=self.homepage,
-                content_type=content_type,
-            )
-
-            PageContent.objects.create(
-                page=content_page_1,
-            )
-
-            content_page_2 = Page.objects.create(
-                title="Bar",
-                slug='bar',
-                parent=self.homepage,
-                content_type=content_type,
-            )
-
-            PageContent.objects.create(
-                page=content_page_2,
-            )
-
-        self.homepage = Page.objects.get(pk=self.homepage.pk)
-        content_page_1 = Page.objects.get(pk=content_page_1.pk)
-        content_page_2 = Page.objects.get(pk=content_page_2.pk)
-
-        self.assertEqual(self.homepage.left, 1)
-        self.assertEqual(self.homepage.right, 6)
-        self.assertEqual(content_page_1.left, 2)
-        self.assertEqual(content_page_1.right, 3)
-        self.assertEqual(content_page_2.left, 4)
-        self.assertEqual(content_page_2.right, 5)
-
-        # Move the page
-        request.POST['direction'] = 'down'
-        response = self.page_admin.move_page_view(request, content_page_1.pk)
-
-        self.homepage = Page.objects.get(pk=self.homepage.pk)
-        content_page_1 = Page.objects.get(pk=content_page_1.pk)
-        content_page_2 = Page.objects.get(pk=content_page_2.pk)
-
-        self.assertEqual(self.homepage.left, 1)
-        self.assertEqual(self.homepage.right, 6)
-        self.assertEqual(content_page_1.left, 4)
-        self.assertEqual(content_page_1.right, 5)
-        self.assertEqual(content_page_2.left, 2)
-        self.assertEqual(content_page_2.right, 3)
-
-        self.assertEqual(response.status_code, 302)
-
-        request.user.has_perm = lambda x: False
-        response = self.page_admin.move_page_view(request, self.homepage.pk)
-        self.assertEqual(response.status_code, 403)
-
     def test_pagecontenttypefilter_queryset(self):
         # Ensures that the queryset returned by filtering is correct.
         request = self._build_request()
@@ -780,6 +707,67 @@ def test_pageadmin_get_preserved_filters(client):
 
     # Now try posting to it. It should create a page.
     post_and_check_form(urljoin(url, action_url), title='Save yourself')
+
+
+@pytest.mark.django_db
+def test_pageadmin_move_page_view(client):
+    def post_move(page, direction):
+        return client.post(
+            reverse('admin:pages_page_move_page', args=[page.pk]),
+            data={'direction': direction},
+        )
+
+    homepage = PageFactory()
+    user = UserFactory(is_staff=True)
+    client.force_login(user)
+
+    # Ensure permissions are being checked.
+    response = post_move(homepage, 'up')
+    assert response.status_code == 403
+
+    # Give them change permission on pages.
+    user.user_permissions.add(Permission.objects.get(codename='change_page'))
+
+    response = post_move(homepage, 'up')
+    assert response.status_code == 200
+    assert response.content == b'Page could not be moved, as nothing to swap with.'
+
+    response = post_move(homepage, 'down')
+    assert response.status_code == 200
+    assert response.content == b'Page could not be moved, as nothing to swap with.'
+
+    with pytest.raises(ValueError) as e:
+        response = post_move(homepage, 'kitties')
+    assert str(e.value) == 'Direction should be "up" or "down".'
+
+    content_page_1 = PageFactory(parent=homepage)
+    content_page_2 = PageFactory(parent=homepage)
+
+    for page in [homepage, content_page_1, content_page_2]:
+        page.refresh_from_db()
+
+    # Make sure everything is what we think it is
+    assert homepage.left == 1
+    assert homepage.right == 6
+    assert content_page_1.left == 2
+    assert content_page_1.right == 3
+    assert content_page_2.left == 4
+    assert content_page_2.right == 5
+
+    # Move the page
+    response = post_move(content_page_1, 'down')
+
+    for page in [homepage, content_page_1, content_page_2]:
+        page.refresh_from_db()
+
+    assert homepage.left == 1
+    assert homepage.right == 6
+    assert content_page_1.left == 4
+    assert content_page_1.right == 5
+    assert content_page_2.left == 2
+    assert content_page_2.right == 3
+
+    assert response.status_code == 302
 
 
 @pytest.mark.django_db
