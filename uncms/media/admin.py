@@ -174,13 +174,12 @@ class FileAdmin(VersionAdmin, SearchAdmin):
         )
 
     def used_on(self, obj=None):
-        context = {}
-
-        if obj:
-            context['related_objects'] = get_related_objects_admin_urls(obj)
-        else:
-            context['related_objects'] = []
-        return render_to_string('admin/media/includes/file_used_on.html', context)
+        return render_to_string('admin/media/includes/file_used_on.html', {
+            'related_objects': [
+                use for use in get_related_objects_admin_urls(obj)
+                if use['admin_url'] is not None
+            ],
+        })
 
     def response_add(self, request, obj, post_url_continue=None):
         '''Returns the response for a successful add action.'''
