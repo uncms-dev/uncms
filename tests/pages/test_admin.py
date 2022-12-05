@@ -783,6 +783,26 @@ def test_pageadmin_get_preserved_filters(client):
 
 
 @pytest.mark.django_db
+def test_pageadmin_publish_selected(client):
+    client.force_login(UserFactory(superuser=True))
+    page_1 = PageFactory()
+    page_2 = PageFactory(parent=page_1, is_online=False)
+    page_3 = PageFactory(parent=page_1, is_online=False)
+
+    list_url = reverse('admin:pages_page_changelist')
+    response = client.post(list_url, data={
+        'action': 'publish_selected',
+        '_selected_action': [str(page_2.pk), str(page_3.pk)]
+    })
+    assert response.status_code == 302
+    assert response['Location'] == list_url
+
+    for page in page_2, page_3:
+        page.refresh_from_db()
+        assert page.is_online is True
+
+
+@pytest.mark.django_db
 def test_pageadmin_recover_view(client):
     user = UserFactory(superuser=True)
     client.force_login(user)
@@ -796,3 +816,23 @@ def test_pageadmin_recover_view(client):
     for revision in Version.objects.all():
         response = client.get(reverse('admin:pages_page_recover', args=[revision.pk]))
         assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_pageadmin_unpublish_selected(client):
+    client.force_login(UserFactory(superuser=True))
+    page_1 = PageFactory()
+    page_2 = PageFactory(parent=page_1)
+    page_3 = PageFactory(parent=page_1)
+
+    list_url = reverse('admin:pages_page_changelist')
+    response = client.post(list_url, data={
+        'action': 'unpublish_selected',
+        '_selected_action': [str(page_2.pk), str(page_3.pk)]
+    })
+    assert response.status_code == 302
+    assert response['Location'] == list_url
+
+    for page in page_2, page_3:
+        page.refresh_from_db()
+        assert page.is_online is False

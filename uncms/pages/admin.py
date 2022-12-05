@@ -29,6 +29,7 @@ from django.http import (
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.defaultfilters import capfirst
 from django.urls import path, reverse
+from django.utils.translation import gettext_lazy as _
 from watson.search import search_context_manager
 
 from uncms.admin import PageBaseAdmin
@@ -142,7 +143,7 @@ class PageAdmin(PageBaseAdmin):
         # Add the content object.
         instances.append(obj.content)
         # Add all the content inlines.
-        for _, inline in self.content_inlines:
+        for _ignore, inline in self.content_inlines:
             # pass
             try:
                 instances.extend(inline.model._default_manager.filter(page=obj))
@@ -606,6 +607,7 @@ class PageAdmin(PageBaseAdmin):
         messages.success(request, f'Page was moved {direction}')
         return redirect(next_url)
 
+    @admin.display(description=_('Place selected %(verbose_name_plural)s online'))
     def publish_selected(self, request, queryset):
         """
         publish_selected (and also unpublish_selected) on this ModelAdmin are
@@ -620,13 +622,12 @@ class PageAdmin(PageBaseAdmin):
         for obj in queryset:
             obj.is_online = True
             obj.save()
-    publish_selected.short_description = 'Place selected %(verbose_name_plural)s online'
 
+    @admin.display(description=_('Take selected %(verbose_name_plural)s offline'))
     def unpublish_selected(self, request, queryset):
         for obj in queryset:
             obj.is_online = False
             obj.save()
-    unpublish_selected.short_description = 'Take selected %(verbose_name_plural)s offline'
 
 
 admin.site.register(Page, PageAdmin)
