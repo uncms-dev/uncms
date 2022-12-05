@@ -1,17 +1,12 @@
-import base64
-import random
-import sys
 from io import BytesIO
 
 import pytest
 from bs4 import BeautifulSoup
 from django.contrib import admin
 from django.contrib.admin.widgets import ForeignKeyRawIdWidget
-from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import Client, TransactionTestCase
+from django.test import Client
 from django.test.utils import override_settings
 from django.utils.functional import cached_property
-from django.utils.timezone import now
 from PIL import Image
 
 from tests.media.factories import (
@@ -21,108 +16,55 @@ from tests.media.factories import (
     SampleWebPFileFactory,
 )
 from tests.testing_app.models import MediaTestModel
-from uncms.media.models import File, FileRefField, Label
+from uncms.media.models import FileRefField, Label
 
 
-class TestFile(TransactionTestCase):
+@pytest.mark.django_db
+def test_file_str():
+    assert str(EmptyFileFactory(title='Bark')) == 'Bark'
 
-    def setUp(self):  # pylint:disable=duplicate-code
-        # An invalid JPEG
-        self.name_1 = '{}-{}.jpg'.format(
-            now().strftime('%Y-%m-%d_%H-%M-%S'),
-            random.randint(0, sys.maxsize)
-        )
 
-        self.obj_1 = File.objects.create(
-            title="Foo",
-            file=SimpleUploadedFile(self.name_1, b"data", content_type="image/jpeg")
-        )
+@pytest.mark.django_db
+def test_file_is_image():
+    assert SamplePNGFileFactory().is_image() is True
+    assert EmptyFileFactory().is_image() is False
 
-        # Plain text file
-        self.name_2 = '{}-{}.txt'.format(
-            now().strftime('%Y-%m-%d_%H-%M-%S'),
-            random.randint(0, sys.maxsize)
-        )
 
-        self.obj_2 = File.objects.create(
-            title="Foo",
-            file=SimpleUploadedFile(self.name_2, b"data", content_type="text/plain")
-        )
+@pytest.mark.django_db
+def test_file_get_absolute_url():
+    file = EmptyFileFactory()
+    assert file.get_absolute_url() == f'/media/{file.file.name}'
 
-        # A valid GIF.
-        self.name_3 = '{}-{}.gif'.format(
-            now().strftime('%Y-%m-%d_%H-%M-%S'),
-            random.randint(0, sys.maxsize)
-        )
 
-        base64_string = b'R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=='
-        self.obj_3 = File.objects.create(
-            title="Foo",
-            file=SimpleUploadedFile(self.name_3, base64.b64decode(base64_string), content_type="image/gif")
-        )
+@pytest.mark.django_db
+def test_file_width_and_height():
+    minimal = MinimalGIFFileFactory()
+    assert minimal.width == 0
+    assert minimal.height == 0
 
-        self.obj_4 = File.objects.create(
-            title="Foo",
-            file="abc123",
-        )
+    large = SamplePNGFileFactory()
+    assert large.width == 1920
+    assert large.height == 1080
 
-    def tearDown(self):
-        self.obj_1.file.delete(False)
-        self.obj_1.delete()
 
-        self.obj_2.file.delete(False)
-        self.obj_2.delete()
+def test_file_init():
+    field = FileRefField(to=MediaTestModel)
+    assert field.remote_field.model == 'media.File'
 
-        self.obj_3.file.delete(False)
-        self.obj_3.delete()
 
-        self.obj_4.file.delete(False)
-        self.obj_4.delete()
+@pytest.mark.django_db
+def test_filereffield_formfield():
+    obj = MediaTestModel.objects.create(
+        file=MinimalGIFFileFactory(),
+    )
 
-    def test_file_get_absolute_url(self):
-        self.assertEqual(self.obj_1.get_absolute_url(), '/media/uploads/files/{}'.format(
-            self.name_1
-        ))
+    field = obj._meta.get_field('file')
+    widget = field.formfield().widget
 
-    def test_file_unicode(self):
-        self.assertEqual(str(self.obj_1), 'Foo')
-        self.assertEqual(self.obj_1.file.name, 'uploads/files/' + self.name_1)
-
-    def test_file_is_image(self):
-        self.assertTrue(self.obj_1.is_image())
-        self.assertFalse(self.obj_2.is_image())
-
-    def test_file_width(self):
-        self.assertEqual(self.obj_1.width, 0)
-        self.assertEqual(self.obj_2.width, 0)
-        self.assertEqual(self.obj_3.width, 1)
-        self.assertEqual(self.obj_4.width, 0)
-
-    def test_file_height(self):
-        self.assertEqual(self.obj_1.height, 0)
-        self.assertEqual(self.obj_2.height, 0)
-        self.assertEqual(self.obj_3.height, 1)
-        self.assertEqual(self.obj_4.height, 0)
-
-    def test_filereffield_formfield(self):
-        obj = MediaTestModel.objects.create(
-            file=self.obj_1
-        )
-
-        field = obj._meta.get_field('file')
-        widget = field.formfield().widget
-
-        self.assertIsInstance(widget, ForeignKeyRawIdWidget)
-        self.assertEqual(widget.rel, field.remote_field)
-        self.assertEqual(widget.admin_site, admin.site)
-        self.assertIsNone(widget.db)
-
-    def test_file_init(self):
-        field = FileRefField(
-            to=MediaTestModel,
-        )
-
-        self.assertEqual(field.remote_field.model, 'media.File')
+    assert isinstance(widget, ForeignKeyRawIdWidget)
+    assert widget.rel == field.remote_field
+    assert widget.admin_site == admin.site
+    assert widget.db is None
 
 
 @pytest.mark.django_db
