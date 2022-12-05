@@ -1,64 +1,12 @@
-from dataclasses import dataclass
-
 import pytest
-from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponse, HttpResponseNotFound
-from django.test import RequestFactory, TestCase
-from watson import search
+from django.test import RequestFactory, override_settings
 
+from tests.mocks import MockRequestUser
 from tests.pages.factories import PageFactory
-from tests.testing_app.models import MiddlewareTestPage, MiddlewareURLsTestPage
+from tests.testing_app.models import MiddlewareURLsTestPage
 from uncms.pages.middleware import PageMiddleware, RequestPageManager
 from uncms.pages.models import Page
-
-
-def _generate_pages(self):
-    with search.update_index():
-        content_type = ContentType.objects.get_for_model(MiddlewareTestPage)
-
-        self.homepage = Page.objects.create(
-            title="Homepage",
-            slug='homepage',
-            content_type=content_type,
-        )
-
-        MiddlewareTestPage.objects.create(
-            page=self.homepage,
-        )
-
-        self.page_1 = Page.objects.create(
-            title='Foo',
-            slug='foo',
-            parent=self.homepage,
-            content_type=content_type,
-        )
-
-        MiddlewareTestPage.objects.create(
-            page=self.page_1,
-        )
-
-        self.page_2 = Page.objects.create(
-            title='Bar',
-            slug='bar',
-            parent=self.page_1,
-            content_type=content_type,
-        )
-
-        MiddlewareTestPage.objects.create(
-            page=self.page_2,
-        )
-
-        self.auth_page = Page.objects.create(
-            title='Auth Page',
-            slug='auth',
-            parent=self.homepage,
-            content_type=content_type,
-            requires_authentication=True,
-        )
-
-        MiddlewareTestPage.objects.create(
-            page=self.auth_page,
-        )
 
 
 @pytest.mark.django_db
@@ -183,116 +131,102 @@ def test_requestpagemanager_is_exact():
     assert page_manager.is_exact is True
 
 
-@dataclass
-class MockUser:
-    is_authenticated: bool
+@pytest.mark.django_db
+def test_pagemiddleware_process_response():  # pylint:disable=too-many-statements
+    rf = RequestFactory()
+    request = rf.get('/')
 
+    middleware = PageMiddleware(lambda: None)
 
-class TestPageMiddleware(TestCase):
+    # Ensure that non-404s are passed through.
+    response = HttpResponse()
+    assert middleware.process_response(request, response) is response
 
-    def setUp(self):
-        self.factory = RequestFactory()
+    response = HttpResponseNotFound()
+    page_request = rf.get('')
+    request.pages = RequestPageManager(page_request)
+    assert middleware.process_response(request, response) is response
 
-    def test_process_response(self):  # pylint:disable=too-many-statements
-        request = self.factory.get('/')
-        response = HttpResponse()
+    homepage = PageFactory()
+    subpage = PageFactory(parent=homepage)
 
-        middleware = PageMiddleware(lambda: None)
-        self.assertEqual(middleware.process_response(request, response), response)
-
-        response = HttpResponseNotFound()
-        page_request = self.factory.get('')
-        request.pages = RequestPageManager(page_request)
-        self.assertEqual(middleware.process_response(request, response), response)
-
-        _generate_pages(self)
-
-        request = self.factory.get('/foo/')
+    for page in [homepage, subpage]:
+        request = rf.get(page.get_absolute_url())
         request.pages = RequestPageManager(request)
         processed_response = middleware.process_response(request, response)
 
-        self.assertEqual(processed_response.status_code, 200)
-        self.assertEqual(processed_response.template_name, (
-            'testing_app/middlewaretestpage.html',
+        assert processed_response.status_code == 200
+        assert processed_response.template_name == (
+            'testing_app/emptytestpage.html',
             'testing_app/base.html',
-            'base.html'
-        ))
+            'base.html',
+        )
 
-        request = self.factory.get('/')
-        request_foo = self.factory.get('/foo/')
-        request.pages = RequestPageManager(request_foo)
-        processed_response = middleware.process_response(request, response)
+    request = rf.get('/')
+    request_foo = rf.get(subpage.get_absolute_url())
+    request.pages = RequestPageManager(request_foo)
+    processed_response = middleware.process_response(request, response)
 
-        self.assertEqual(processed_response['Location'], '/foo/')
-        self.assertEqual(processed_response.status_code, 301)
-        self.assertEqual(processed_response.content, b'')
+    assert processed_response['Location'] == subpage.get_absolute_url()
+    assert processed_response.status_code == 301
+    assert processed_response.content == b''
 
-        request = self.factory.get('/foobar/')
-        request.pages = RequestPageManager(request)
-        processed_response = middleware.process_response(request, response)
-        self.assertEqual(processed_response.status_code, 404)
+    request = rf.get('/foobar/')
+    request.pages = RequestPageManager(request)
+    processed_response = middleware.process_response(request, response)
+    assert processed_response.status_code == 404
 
-        with search.update_index():
-            content_type = ContentType.objects.get_for_model(MiddlewareURLsTestPage)
+    PageFactory(parent=homepage, slug='urls', content=MiddlewareURLsTestPage())
+    request = rf.get('/urls/')
+    request.pages = RequestPageManager(request)
+    processed_response = middleware.process_response(request, HttpResponseNotFound())
+    assert processed_response.status_code == 200
+    assert processed_response.content == b'Hello!'
 
-            page = Page.objects.create(
-                title="Foo",
-                slug='urls',
-                parent=self.homepage,
-                content_type=content_type,
-            )
+    middleware_page = PageFactory(parent=homepage, content=MiddlewareURLsTestPage())
+    request = rf.get(middleware_page.reverse('not_found'))
+    request.pages = RequestPageManager(request)
+    processed_response = middleware.process_response(request, HttpResponseNotFound())
+    assert processed_response.status_code == 404
 
-            MiddlewareURLsTestPage.objects.create(
-                page=page,
-            )
-
-        request = self.factory.get('/urls/')
-        request.pages = RequestPageManager(request)
+    request = rf.get(middleware_page.reverse('not_found'))
+    request.pages = RequestPageManager(request)
+    with override_settings(DEBUG=True):
         processed_response = middleware.process_response(request, HttpResponseNotFound())
-        self.assertEqual(processed_response.status_code, 200)
-        self.assertEqual(processed_response.content, b'Hello!')
-        with search.update_index():
-            content_type = ContentType.objects.get_for_model(MiddlewareURLsTestPage)
+    assert processed_response.status_code == 404
 
-            page = Page.objects.create(
-                title="Foo",
-                slug='raise404',
-                parent=self.homepage,
-                content_type=content_type,
-            )
-
-            MiddlewareURLsTestPage.objects.create(
-                page=page,
-            )
-
-        request = self.factory.get('/raise404/')
-        request.pages = RequestPageManager(request)
+    # Test the branch that handles a broken view (doesn't return an
+    # HttpResponse)
+    request = rf.get(middleware_page.reverse('broken_view'))
+    request.pages = RequestPageManager(request)
+    with override_settings(DEBUG=True):
         processed_response = middleware.process_response(request, HttpResponseNotFound())
-        self.assertEqual(processed_response.status_code, 404)
+    assert processed_response.status_code == 500
 
-        with self.settings(DEBUG=True):
-            request = self.factory.get('/raise404/')
-            request.pages = RequestPageManager(request)
-            processed_response = middleware.process_response(request, HttpResponseNotFound())
-            self.assertEqual(processed_response.status_code, 404)
+    # Test a page that requires authentication with a user that is not
+    # authenticated.
+    PageFactory(requires_authentication=True, slug='auth')
+    request = rf.get('/auth/')
+    request.user = MockRequestUser(is_authenticated=False)
+    request.pages = RequestPageManager(request)
+    processed_response = middleware.process_response(request, response)
+    assert processed_response.status_code == 302
+    assert processed_response['Location'] == '/accounts/login/?next=/auth/'
 
-        request = self.factory.get('/auth/')
-        request.user = MockUser(is_authenticated=False)
-        request.pages = RequestPageManager(request)
-        processed_response = middleware.process_response(request, response)
-        self.assertEqual(processed_response['Location'], '/accounts/login/?next=/auth/')
-        self.assertEqual(processed_response.status_code, 302)
+    # Test a page that requires authentication with a user that *is*
+    # authenticated.
+    request = rf.get('/auth/')
+    request.user = MockRequestUser(is_authenticated=True)
+    request.pages = RequestPageManager(request)
+    processed_response = middleware.process_response(request, response)
+    assert processed_response.status_code == 200
 
-        request = self.factory.get('/auth/')
-        request.user = MockUser(is_authenticated=True)
-        request.pages = RequestPageManager(request)
-        processed_response = middleware.process_response(request, response)
-        self.assertEqual(processed_response.status_code, 200)
-
-        request = self.factory.get('/media/')
-        request.pages = RequestPageManager(request)
-        processed_response = middleware.process_response(request, response)
-        self.assertEqual(processed_response, response)
+    # Ensure that requests to /media/ are passed through.
+    response = HttpResponseNotFound()
+    request = rf.get('/media/')
+    request.pages = RequestPageManager(request)
+    processed_response = middleware.process_response(request, response)
+    assert processed_response is response
 
 
 @pytest.mark.django_db

@@ -2,13 +2,25 @@ from django.http import Http404, HttpResponse
 from django.urls import path
 
 
-def view(request, *args, **kwargs):
-    if request.path == '/raise404/':
-        raise Http404
+def hello_view(request):
     return HttpResponse('Hello!')
 
 
+def not_found_view(request):
+    raise Http404('CANARY')
+
+
+def detail_view(request, *args, **kwargs):
+    return HttpResponse('detail view')
+
+
+def broken_view(request):
+    return None
+
+
 urlpatterns = [
-    path('', view, name='index'),
-    path('<slug:slug>/', view, name='detail'),
+    path('', hello_view, name='index'),
+    path('404/', not_found_view, name='not_found'),
+    path('broken/', broken_view, name='broken_view'),
+    path('<slug:slug>/', detail_view, name='detail'),
 ]
