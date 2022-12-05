@@ -109,7 +109,7 @@ class PageMiddleware(MiddlewareMixin):
         path_info = request.path[len(script_name):]
 
         # Continue for media
-        if request.path.startswith('/media/'):
+        if settings.MEDIA_URL and request.path.startswith(settings.MEDIA_URL):
             return response
 
         # Dispatch to the content.
