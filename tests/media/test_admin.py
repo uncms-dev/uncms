@@ -200,20 +200,6 @@ class TestFileAdminBase(TransactionTestCase):
         response = self.file_admin.response_add(self.request, self.obj_1)
         self.assertEqual(response.status_code, 200)
 
-    def test_fileadminbase_changelist_view(self):
-        self.request.user = MockSuperUser()
-        view = self.file_admin.changelist_view(self.request)
-
-        self.assertEqual(view.status_code, 200)
-        self.assertEqual(view.template_name, 'admin/media/file/change_list.html')
-        self.assertNotIn('foo', view.context_data)
-
-        view = self.file_admin.changelist_view(self.request, extra_context={'foo': 'bar'})
-
-        self.assertEqual(view.status_code, 200)
-        self.assertEqual(view.template_name, 'admin/media/file/change_list.html')
-        self.assertIn('foo', view.context_data)
-
     def test_fileadminbase_mime_check(self):
         self.assertEqual(mime_check(self.file_1), True)
         self.assertEqual(mime_check(self.file_2), False)
@@ -279,6 +265,24 @@ class LiveServerTestFileAdminBase(LiveServerTestCase):
 
         self.assertEqual(view.content, b'{"status": "ok"}')
         self.assertEqual(view.status_code, 200)
+
+
+@pytest.mark.django_db
+def test_fileadminbase_changelist_view():
+    site = AdminSite()
+    file_admin = FileAdmin(File, site)
+    request = RequestFactory().get('/')
+    request.user = MockSuperUser()
+    view = file_admin.changelist_view(request)
+
+    assert view.status_code == 200
+    assert view.template_name == 'admin/media/file/change_list.html'
+    assert 'foo' not in view.context_data
+
+    view = file_admin.changelist_view(request, extra_context={'foo': 'bar'})
+    assert view.status_code == 200
+    assert view.template_name == 'admin/media/file/change_list.html'
+    assert 'foo' in view.context_data
 
 
 @pytest.mark.django_db
