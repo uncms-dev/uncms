@@ -19,6 +19,7 @@ This is the first release of UnCMS, forked from onespacemedia-cms version 4.4.
 * Paths in `PUBLICATION_MIDDLEWARE_EXCLUDE_URLS` must now begin with a forward slash.
 * The `html` template filter now sanitises output. It is also sanitised before rendering it in the HTML editor.
 * TinyPNG support has been removed. Image size reduction is better implemented per-project with post-save hooks, if it is needed.
+* Image editing in the admin is now done on a separate page, which avoids loading a giant pile of JS when it is not needed.
 * Django Jet support has been removed, because Django Jet is dead. Not being tied to any particular admin skin, and being made with the stock Django admin as a first-class citizen, is now a core part of the UnCMS philosophy.
 * usertools dependency has been removed.
 * historylinks is no longer a requirement.
