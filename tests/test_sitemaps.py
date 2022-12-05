@@ -1,4 +1,4 @@
-from django.test import TestCase
+import pytest
 
 from tests.testing_app.models import (
     OnlineBaseModel,
@@ -19,7 +19,7 @@ from uncms.sitemaps import (
 )
 
 
-class Object:
+class SampleObject:
 
     sitemap_priority = 1
 
@@ -30,56 +30,37 @@ class Object:
         return 'Always'
 
 
-class TestSitemaps(TestCase):
+def test_searchmetabasesitemap_changefreq():
+    sitemap = SearchMetaBaseSitemap()
+    obj = SampleObject()
+    assert sitemap.changefreq(obj) == 'always'
 
-    def test_searchmetabasesitemap_changefreq(self):
-        sitemap = SearchMetaBaseSitemap()
-        obj = Object()
-        self.assertEqual(sitemap.changefreq(obj), 'always')
+    obj = SampleObject(freq=None)
+    assert sitemap.changefreq(obj) is None
 
-        obj = Object(freq=None)
-        self.assertIsNone(sitemap.changefreq(obj))
 
-    def test_searchmetabasesitemap_priority(self):
-        sitemap = SearchMetaBaseSitemap()
-        obj = Object()
-        self.assertEqual(sitemap.priority(obj), 1)
+def test_searchmetabasesitemap_priority():
+    sitemap = SearchMetaBaseSitemap()
+    obj = SampleObject()
+    assert sitemap.priority(obj) == 1
 
-    def test_register(self):
+
+def test_register():
+    register(SitemapModel)
+
+    with pytest.raises(SitemapRegistrationError):
         register(SitemapModel)
 
-        with self.assertRaises(SitemapRegistrationError):
-            register(SitemapModel)
+    assert registered_sitemaps['testing_app-sitemapmodel'].__bases__[0] == BaseSitemap
 
-        self.assertEqual(
-            registered_sitemaps['testing_app-sitemapmodel'].__bases__[0],
-            BaseSitemap
-        )
+    register(SearchMetaBaseModel)
+    assert registered_sitemaps['testing_app-searchmetabasemodel'].__bases__[0] == SearchMetaBaseSitemap
 
-        register(SearchMetaBaseModel)
+    register(OnlineBaseModel)
+    assert registered_sitemaps['testing_app-onlinebasemodel'].__bases__[0] == OnlineBaseSitemap
 
-        self.assertEqual(
-            registered_sitemaps['testing_app-searchmetabasemodel'].__bases__[0],
-            SearchMetaBaseSitemap
-        )
+    register(PublishedBaseModel)
+    assert registered_sitemaps['testing_app-publishedbasemodel'].__bases__[0] == PublishedBaseSitemap
 
-        register(OnlineBaseModel)
-
-        self.assertEqual(
-            registered_sitemaps['testing_app-onlinebasemodel'].__bases__[0],
-            OnlineBaseSitemap
-        )
-
-        register(PublishedBaseModel)
-
-        self.assertEqual(
-            registered_sitemaps['testing_app-publishedbasemodel'].__bases__[0],
-            PublishedBaseSitemap
-        )
-
-        register(PageBaseModel)
-
-        self.assertEqual(
-            registered_sitemaps['testing_app-pagebasemodel'].__bases__[0],
-            PageBaseSitemap
-        )
+    register(PageBaseModel)
+    assert registered_sitemaps['testing_app-pagebasemodel'].__bases__[0] == PageBaseSitemap
