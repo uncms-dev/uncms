@@ -11,7 +11,7 @@ def not_found_view(request):
 
 
 def detail_view(request, *args, **kwargs):
-    return HttpResponse('detail view')
+    return HttpResponse(f'detail view: {kwargs["slug"]}')
 
 
 def broken_view(request):

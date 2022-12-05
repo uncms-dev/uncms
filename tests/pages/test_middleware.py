@@ -188,6 +188,12 @@ def test_pagemiddleware_process_response():  # pylint:disable=too-many-statement
     assert processed_response.status_code == 200
     assert processed_response.content == b'Hello!'
 
+    request = rf.get(middleware_page.reverse('detail', kwargs={'slug': 'example'}))
+    request.pages = RequestPageManager(request)
+    processed_response = middleware.process_response(request, HttpResponseNotFound())
+    assert processed_response.status_code == 200
+    assert processed_response.content == b'detail view: example'
+
     request = rf.get(middleware_page.reverse('not_found'))
     request.pages = RequestPageManager(request)
     processed_response = middleware.process_response(request, HttpResponseNotFound())
@@ -268,6 +274,10 @@ def test_pagemiddleware_with_client(client):
     response = client.get(middleware_page.get_absolute_url())
     assert response.status_code == 200
     assert response.content == b'Hello!'
+
+    response = client.get(middleware_page.reverse('detail', kwargs={'slug': 'hooray'}))
+    assert response.status_code == 200
+    assert response.content == b'detail view: hooray'
 
     # Test a 404 with a URL that doesn't exist in its urlconf.
     response = client.get(urljoin(middleware_page.get_absolute_url(), 'hurf/hurrr/'))
