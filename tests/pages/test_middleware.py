@@ -1,7 +1,12 @@
+from urllib.parse import urljoin
+
 import pytest
 from django.http import HttpResponse, HttpResponseNotFound
 from django.test import RequestFactory, override_settings
+from django.urls import reverse
 
+from tests.factories import UserFactory
+from tests.media.factories import EmptyFileFactory
 from tests.mocks import MockRequestUser
 from tests.pages.factories import PageFactory
 from tests.testing_app.models import MiddlewareURLsTestPage
@@ -176,21 +181,18 @@ def test_pagemiddleware_process_response():  # pylint:disable=too-many-statement
     processed_response = middleware.process_response(request, response)
     assert processed_response.status_code == 404
 
-    PageFactory(parent=homepage, slug='urls', content=MiddlewareURLsTestPage())
+    middleware_page = PageFactory(parent=homepage, slug='urls', content=MiddlewareURLsTestPage())
     request = rf.get('/urls/')
     request.pages = RequestPageManager(request)
     processed_response = middleware.process_response(request, HttpResponseNotFound())
     assert processed_response.status_code == 200
     assert processed_response.content == b'Hello!'
 
-    middleware_page = PageFactory(parent=homepage, content=MiddlewareURLsTestPage())
     request = rf.get(middleware_page.reverse('not_found'))
     request.pages = RequestPageManager(request)
     processed_response = middleware.process_response(request, HttpResponseNotFound())
     assert processed_response.status_code == 404
 
-    request = rf.get(middleware_page.reverse('not_found'))
-    request.pages = RequestPageManager(request)
     with override_settings(DEBUG=True):
         processed_response = middleware.process_response(request, HttpResponseNotFound())
     assert processed_response.status_code == 404
@@ -227,6 +229,77 @@ def test_pagemiddleware_process_response():  # pylint:disable=too-many-statement
     request.pages = RequestPageManager(request)
     processed_response = middleware.process_response(request, response)
     assert processed_response is response
+
+
+@pytest.mark.django_db
+def test_pagemiddleware_with_client(client):
+    """
+    Further to the above tests, we don't actually care about what
+    process_response does or returns. That is an implementation detail; if
+    Django's API changes underneath us we can pass tests while being totally
+    broken in practice.
+
+    What we actually care about is whether the middleware serves up pages.
+    So let's test it with the test client.
+    """
+
+    # See what happens before we create any pages.
+    response = client.get('/')
+    assert response.status_code == 404
+
+    homepage = PageFactory()
+
+    # Test that non-404 pages are passed through. We have /admin/ in our
+    # urlconf, so let's hit that.
+    response = client.get(reverse('admin:index'))
+    assert response.status_code == 302
+
+    response = client.get('/')
+    assert response.status_code == 200
+    assert response.template_name == (
+        'testing_app/emptytestpage.html',
+        'testing_app/base.html',
+        'base.html',
+    )
+
+    # Test a page with a urlconf.
+    middleware_page = PageFactory(parent=homepage, content=MiddlewareURLsTestPage())
+    response = client.get(middleware_page.get_absolute_url())
+    assert response.status_code == 200
+    assert response.content == b'Hello!'
+
+    # Test a 404 with a URL that doesn't exist in its urlconf.
+    response = client.get(urljoin(middleware_page.get_absolute_url(), 'hurf/hurrr/'))
+    assert response.status_code == 404
+
+    # Test a view on a page that raises a 404.
+    for debug in [True, False]:
+        with override_settings(DEBUG=debug):
+            response = client.get(middleware_page.reverse('not_found'))
+        assert response.status_code == 404
+
+    # Test a view on a page that is broken and does not return an HttpResponse.
+    response = client.get(middleware_page.reverse('broken_view'))
+    assert response.status_code == 500
+
+    # Test a page that requires authentication with a user which is not
+    # authenticated.
+    PageFactory(requires_authentication=True, slug='auth')
+    response = client.get('/auth/')
+    assert response.status_code == 302
+    assert response['Location'] == '/accounts/login/?next=/auth/'
+
+    # Test a page that requires authentication with a user that *is*
+    # authenticated.
+    client.force_login(UserFactory())
+    response = client.get('/auth/')
+    assert response.status_code == 200
+
+    # Test the /media/ special case.
+    file = EmptyFileFactory()
+    response = client.get(file.get_absolute_url())
+    assert response.status_code == 200
+    assert bytes(response.streaming_content) == b''
 
 
 @pytest.mark.django_db
