@@ -108,9 +108,10 @@ class PageMiddleware(MiddlewareMixin):
         script_name = page.get_absolute_url()[:-1]
         path_info = request.path[len(script_name):]
 
-        # Continue for media
-        if settings.MEDIA_URL and request.path.startswith(settings.MEDIA_URL):
-            return response
+        # Continue for media and static files.
+        for setting in [settings.MEDIA_URL, settings.STATIC_URL]:
+            if setting and request.path.startswith(setting):
+                return response
 
         # Dispatch to the content.
         try:

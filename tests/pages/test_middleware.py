@@ -224,11 +224,12 @@ def test_pagemiddleware_process_response():  # pylint:disable=too-many-statement
     assert processed_response.status_code == 200
 
     # Ensure that requests to /media/ are passed through.
-    response = HttpResponseNotFound()
-    request = rf.get('/media/')
-    request.pages = RequestPageManager(request)
-    processed_response = middleware.process_response(request, response)
-    assert processed_response is response
+    for path in ['/media/', '/static/']:
+        response = HttpResponseNotFound()
+        request = rf.get(path)
+        request.pages = RequestPageManager(request)
+        processed_response = middleware.process_response(request, response)
+        assert processed_response is response
 
 
 @pytest.mark.django_db
