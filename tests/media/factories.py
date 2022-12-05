@@ -4,7 +4,7 @@ from io import BytesIO
 
 import factory
 
-from uncms.media.models import File
+from uncms.media.models import File, Label
 
 # The very minimum data for a valid GIF.
 MINIMAL_GIF_DATA = base64.b64decode(b'R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==')
@@ -52,3 +52,10 @@ class MinimalGIFFileFactory(FileFactory):
     file = factory.django.FileField(
         from_string=b'R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==',
     )
+
+
+class LabelFactory(factory.django.DjangoModelFactory):
+    name = factory.Sequence(lambda n: f'Label {n}')
+
+    class Meta:
+        model = Label

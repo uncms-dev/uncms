@@ -21,13 +21,14 @@ from tests.factories import UserFactory
 from tests.media.factories import (
     MINIMAL_GIF_DATA,
     EmptyFileFactory,
+    LabelFactory,
     SampleJPEGFileFactory,
     SamplePNGFileFactory,
     data_file_path,
 )
 from tests.mocks import MockSuperUser
 from uncms.media.admin import FileAdmin
-from uncms.media.models import File, Label
+from uncms.media.models import File
 
 
 class BrokenFile:
@@ -78,37 +79,30 @@ class TestFileAdminBase(TransactionTestCase):
             file=SimpleUploadedFile(self.name_2, MINIMAL_GIF_DATA, content_type="image/gif")
         )
 
-        self.label = Label.objects.create(
-            name="Foo"
-        )
-
     def tearDown(self):
         self.obj_1.file.delete(False)
         self.obj_1.delete()
 
-    def test_fileadminbase_to_field_allowed(self):
-        self.assertTrue(self.file_admin.to_field_allowed(self.request, 'id'))
-        self.assertFalse(self.file_admin.to_field_allowed(self.request, 'foo'))
-
     def test_fileadminbase_add_label_action(self):
+        label = LabelFactory()
         self.assertEqual(self.obj_1.labels.count(), 0)
-
-        self.file_admin.add_label_action(self.request, File.objects.all(), self.label)
-
+        self.file_admin.add_label_action(self.request, File.objects.all(), label)
         self.assertEqual(self.obj_1.labels.count(), 1)
 
     def test_fileadminbase_remove_label_action(self):
+        label = LabelFactory()
         self.assertEqual(self.obj_1.labels.count(), 0)
 
-        self.obj_1.labels.add(self.label)
+        self.obj_1.labels.add(label)
 
         self.assertEqual(self.obj_1.labels.count(), 1)
 
-        self.file_admin.remove_label_action(self.request, File.objects.all(), self.label)
+        self.file_admin.remove_label_action(self.request, File.objects.all(), label)
 
         self.assertEqual(self.obj_1.labels.count(), 0)
 
     def test_fileadminbase_get_actions(self):
+        LabelFactory()
         actions = self.file_admin.get_actions(self.request)
         self.assertEqual(len(actions), 3)
 
