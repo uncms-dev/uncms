@@ -101,6 +101,7 @@ class PageMiddleware(MiddlewareMixin):
         '''If the response was a 404, attempt to serve up a page.'''
         if response.status_code != 404:
             return response
+
         # Get the current page.
         page = request.pages.current
         if page is None:
@@ -129,19 +130,24 @@ class PageMiddleware(MiddlewareMixin):
                     else:
                         return redirect(script_name + new_path_info, permanent=True)
                 return response
+
+            # Redirect to the login URL if this page requires authentication.
+            # We do this after checking the page exists because we don't want
+            # to redirect and then 404 after they have logged in. But in case
+            # the callback has some side-effect which would not be desirable
+            # for logged-out users, we want to do the auth check first.
+            if page.auth_required() and not request.user.is_authenticated:
+                return redirect('{}?next={}'.format(
+                    settings.LOGIN_URL,
+                    request.path
+                ))
+
             response = callback(request, *callback_args, **callback_kwargs)
             # Validate the response.
             if not response:
                 raise ValueError("The view {0!r} didn't return an HttpResponse object.".format(
                     callback.__name__
                 ))
-
-            if request:
-                if page.auth_required() and not request.user.is_authenticated:
-                    return redirect('{}?next={}'.format(
-                        settings.LOGIN_URL,
-                        request.path
-                    ))
 
             if isinstance(response, SimpleTemplateResponse):
                 return response.render()
