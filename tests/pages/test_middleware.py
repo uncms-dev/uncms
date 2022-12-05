@@ -61,80 +61,126 @@ def _generate_pages(self):
         )
 
 
-class TestRequestPageManager(TestCase):
+@pytest.mark.django_db
+def test_requestpagemanager_is_homepage():
+    rf = RequestFactory()
+    page_manager = RequestPageManager(rf.get('/'))
+    assert page_manager.homepage is None
 
-    def setUp(self):
-        self.factory = RequestFactory()
-        self.request = self.factory.get('')
-        self.page_manager = RequestPageManager(self.request)
+    homepage = PageFactory()
+    page_manager = RequestPageManager(rf.get('/'))
+    assert page_manager.is_homepage is True
 
-    def test_homepage(self):
-        self.assertIsNone(self.page_manager.homepage)
+    other_page = PageFactory(parent=homepage)
+    page_manager = RequestPageManager(rf.get(other_page.get_absolute_url()))
+    assert page_manager.is_homepage is False
 
-        _generate_pages(self)
-        page_manager = RequestPageManager(self.request)
-        self.assertTrue(page_manager.is_homepage)
 
-    def test_breadcrumbs(self):
-        _generate_pages(self)
+@pytest.mark.django_db
+def test_requestpagemanager_breadcrumbs():
+    rf = RequestFactory()
+    request = rf.get('/')
+    page_manager = RequestPageManager(request)
+    assert page_manager.breadcrumbs == []  # pylint:disable=use-implicit-booleaness-not-comparison
 
-        self.request = self.factory.get('/')
-        page_manager = RequestPageManager(self.request)
-        self.assertListEqual(page_manager.breadcrumbs, [
-            self.homepage
-        ])
+    homepage = PageFactory()
+    subpage = PageFactory(parent=homepage)
+    subsubpage = PageFactory(parent=subpage)
 
-        self.request = self.factory.get('/foo/')
-        page_manager = RequestPageManager(self.request)
-        self.assertListEqual(page_manager.breadcrumbs, [
-            self.homepage,
-            self.page_1
-        ])
+    request = rf.get('/')
+    page_manager = RequestPageManager(request)
+    assert page_manager.breadcrumbs == [homepage]
 
-        self.request = self.factory.get('/foo/bar/')
-        page_manager = RequestPageManager(self.request)
-        self.assertListEqual(page_manager.breadcrumbs, [
-            self.homepage,
-            self.page_1,
-            self.page_2
-        ])
+    request = rf.get(subpage.get_absolute_url())
+    page_manager = RequestPageManager(request)
+    assert page_manager.breadcrumbs == [homepage, subpage]
 
-    def test_section(self):
-        self.assertIsNone(self.page_manager.section)
+    request = rf.get(subsubpage.get_absolute_url())
+    page_manager = RequestPageManager(request)
+    assert page_manager.breadcrumbs == [homepage, subpage, subsubpage]
 
-        _generate_pages(self)
 
-        self.request = self.factory.get('/foo/bar/')
-        self.page_manager = RequestPageManager(self.request)
-        self.assertEqual(self.page_manager.section, self.page_1)
+@pytest.mark.django_db
+def test_requestpagemanager_section():
+    rf = RequestFactory()
 
-    def test_subsection(self):
-        self.assertIsNone(self.page_manager.subsection)
+    page_manager = RequestPageManager(rf.get('/'))
+    assert page_manager.section is None
 
-        _generate_pages(self)
+    homepage = PageFactory()
+    subpage = PageFactory(parent=homepage)
+    subsubpage = PageFactory(parent=subpage)
 
-        self.request = self.factory.get('/foo/bar/')
-        self.page_manager = RequestPageManager(self.request)
-        self.assertEqual(self.page_manager.subsection, self.page_2)
+    request = rf.get('/')
+    page_manager = RequestPageManager(request)
+    assert page_manager.section is None
 
-    def test_current(self):
-        self.assertIsNone(self.page_manager.current)
+    for page in [subpage, subsubpage]:
+        request = rf.get(page.get_absolute_url())
+        page_manager = RequestPageManager(request)
+        assert page_manager.section == subpage
 
-        _generate_pages(self)
 
-        self.request = self.factory.get('/foo/bar/')
-        self.page_manager = RequestPageManager(self.request)
-        self.assertEqual(self.page_manager.current, self.page_2)
+@pytest.mark.django_db
+def test_requestpagemanager_subsection():
+    rf = RequestFactory()
+    page_manager = RequestPageManager(rf.get('/'))
+    assert page_manager.section is None
 
-    def test_is_exact(self):
-        _generate_pages(self)
-        self.page_manager.path = ''
-        self.page_manager.path_info = ''
-        self.assertFalse(self.page_manager.is_exact)
+    homepage = PageFactory()
+    subpage = PageFactory(parent=homepage)
+    subsubpage = PageFactory(parent=subpage)
+    subsubsubpage = PageFactory(parent=subsubpage)
 
-        self.request = self.factory.get('/foo/bar/')
-        self.page_manager = RequestPageManager(self.request)
-        self.assertTrue(self.page_manager.is_exact)
+    request = rf.get('/')
+    page_manager = RequestPageManager(request)
+    assert page_manager.subsection is None
+
+    request = rf.get(subpage.get_absolute_url())
+    page_manager = RequestPageManager(request)
+    assert page_manager.subsection is None
+
+    request = rf.get(subsubpage.get_absolute_url())
+    page_manager = RequestPageManager(request)
+    assert page_manager.subsection == subsubpage
+
+    request = rf.get(subsubsubpage.get_absolute_url())
+    page_manager = RequestPageManager(request)
+    assert page_manager.subsection == subsubpage
+
+
+@pytest.mark.django_db
+def test_requestpagemanager_current():
+    rf = RequestFactory()
+    page_manager = RequestPageManager(rf.get('/'))
+    assert page_manager.section is None
+
+    homepage = PageFactory()
+    subpage = PageFactory(parent=homepage)
+    subsubpage = PageFactory(parent=subpage)
+
+    for page in homepage, subpage, subsubpage:
+        request = rf.get(page.get_absolute_url())
+        page_manager = RequestPageManager(request)
+        assert page_manager.current == page
+
+
+@pytest.mark.django_db
+def test_requestpagemanager_is_exact():
+    rf = RequestFactory()
+
+    homepage = PageFactory()
+    subpage = PageFactory(parent=homepage)
+    subsubpage = PageFactory(parent=subpage)
+
+    page_manager = RequestPageManager(rf.get('/'))
+    page_manager.path = ''
+    page_manager.path_info = ''
+    assert page_manager.is_exact is False
+
+    request = rf.get(subsubpage.get_absolute_url())
+    page_manager = RequestPageManager(request)
+    assert page_manager.is_exact is True
 
 
 @dataclass
