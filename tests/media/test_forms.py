@@ -9,7 +9,7 @@ from tests.media.factories import (
     SamplePNGFileFactory,
     data_file_path,
 )
-from uncms.media.forms import FileForm, ImageEditForm
+from uncms.media.forms import FileForm, ImageEditForm, mime_check
 
 
 def test_fileform_validation():
@@ -89,3 +89,16 @@ def test_imageeditform_save_no_changes_branch():
 
     original.refresh_from_db()
     assert original.width == 1920
+
+
+def test_mime_check():
+    # An image whose contents match the given extension
+    file_1 = SimpleUploadedFile('sample.gif', MINIMAL_GIF_DATA, content_type="image/gif")
+    # ...and one whose contents do not...
+    file_2 = SimpleUploadedFile('sample.jpg', MINIMAL_GIF_DATA, content_type="image/jpeg")
+    # ...and one we should never check (we only care about images)
+    file_3 = SimpleUploadedFile('sample.bin', MINIMAL_GIF_DATA, content_type="application/octet-stream")
+
+    assert mime_check(file_1) is True
+    assert mime_check(file_2) is False
+    assert mime_check(file_3) is True

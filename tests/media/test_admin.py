@@ -19,6 +19,7 @@ from django.utils.timezone import now
 
 from tests.factories import UserFactory
 from tests.media.factories import (
+    MINIMAL_GIF_DATA,
     EmptyFileFactory,
     SampleJPEGFileFactory,
     SamplePNGFileFactory,
@@ -26,7 +27,6 @@ from tests.media.factories import (
 )
 from tests.mocks import MockSuperUser
 from uncms.media.admin import FileAdmin
-from uncms.media.forms import mime_check
 from uncms.media.models import File, Label
 
 
@@ -73,19 +73,10 @@ class TestFileAdminBase(TransactionTestCase):
             random.randint(0, sys.maxsize)
         )
 
-        base64_string = b'R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=='
-
         self.obj_2 = File.objects.create(
             title="Foo 2",
-            file=SimpleUploadedFile(self.name_2, base64.b64decode(base64_string), content_type="image/gif")
+            file=SimpleUploadedFile(self.name_2, MINIMAL_GIF_DATA, content_type="image/gif")
         )
-
-        # For mime_check: an image whose contents match the given extension
-        self.file_1 = SimpleUploadedFile(self.name_2, base64.b64decode(base64_string), content_type="image/gif")
-        # ...and one whose contents do not...
-        self.file_2 = SimpleUploadedFile(self.name_2, base64.b64decode(base64_string), content_type="image/jpeg")
-        # ...and one we should never check (we only care about images)
-        self.file_3 = SimpleUploadedFile(self.name_2, base64.b64decode(base64_string), content_type="text/html")
 
         self.label = Label.objects.create(
             name="Foo"
@@ -94,9 +85,6 @@ class TestFileAdminBase(TransactionTestCase):
     def tearDown(self):
         self.obj_1.file.delete(False)
         self.obj_1.delete()
-
-        # self.obj_2.file.delete(False)
-        # self.obj_2.delete()
 
     def test_fileadminbase_to_field_allowed(self):
         self.assertTrue(self.file_admin.to_field_allowed(self.request, 'id'))
@@ -199,11 +187,6 @@ class TestFileAdminBase(TransactionTestCase):
 
         response = self.file_admin.response_add(self.request, self.obj_1)
         self.assertEqual(response.status_code, 200)
-
-    def test_fileadminbase_mime_check(self):
-        self.assertEqual(mime_check(self.file_1), True)
-        self.assertEqual(mime_check(self.file_2), False)
-        self.assertEqual(mime_check(self.file_3), True)
 
 
 class LiveServerTestFileAdminBase(LiveServerTestCase):
