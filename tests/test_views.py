@@ -1,29 +1,27 @@
-from django.test import TestCase
 from django.views import generic
 
 from uncms.views import SearchMetaDetailMixin, TextTemplateView
 
 
-class TestViews(TestCase):
+def test_texttemplateview_render_to_response():
+    view = TextTemplateView()
+    view.request = {}
+    view.template_name = 'templates/base.html'
 
-    def test_texttemplateview_render_to_response(self):
-        view = TextTemplateView()
-        view.request = {}
-        view.template_name = 'templates/base.html'
+    rendered = view.render_to_response({})
 
-        rendered = view.render_to_response({})
+    assert rendered.template_name == ['templates/base.html']
+    assert rendered.status_code == 200
 
-        self.assertEqual(rendered.template_name, ['templates/base.html'])
-        self.assertEqual(rendered.status_code, 200)
 
-    def test_searchmetadetailmixin_get_context_data(self):
+def test_searchmetadetailmixin_get_context_data():
+    class Obj:
+        def get_context_data(self):
+            return {'foo': 'bar'}
 
-        class TestClass(SearchMetaDetailMixin, generic.DetailView):
-            class Obj:
-                def get_context_data(self):
-                    return {'foo': 'bar'}
-            object = Obj()
+    class TestClass(SearchMetaDetailMixin, generic.DetailView):
+        object = Obj()
 
-        context = TestClass().get_context_data()
-        self.assertIn('foo', context)
-        self.assertEqual(context['foo'], 'bar')
+    context = TestClass().get_context_data()
+    assert 'foo' in context
+    assert context['foo'] == 'bar'
