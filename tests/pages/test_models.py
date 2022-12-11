@@ -4,7 +4,7 @@ from datetime import timedelta
 import pytest
 from django.contrib.contenttypes.models import ContentType
 from django.core.management import call_command
-from django.test import TestCase
+from django.test import TransactionTestCase
 from django.utils.timezone import now
 from reversion import create_revision
 from watson import search
@@ -24,7 +24,7 @@ from uncms.pages.models import (
 )
 
 
-class TestPageComplex(TestCase):
+class TestPageComplex(TransactionTestCase):
 
     '''
     Page structure:
