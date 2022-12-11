@@ -8,7 +8,7 @@ def pytest_configure():
     settings.configure(
         DATABASES={
             'default': {
-                'ENGINE': 'django.db.backends.postgresql',
+                'ENGINE': os.environ.get('UNCMS_DB_BACKEND', 'django.db.backends.postgresql'),
                 'NAME': os.environ.get('UNCMS_DB_NAME', 'uncms_test'),
                 'USER': os.environ.get('UNCMS_DB_USER', getpass.getuser()),
                 'PASSWORD': os.environ.get('UNCMS_DB_PASSWORD'),
