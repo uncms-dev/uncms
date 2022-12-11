@@ -24,90 +24,6 @@ from uncms.pages.models import (
 )
 
 
-class TestPage(TestCase):
-
-    def setUp(self):
-        call_command('installwatson')
-
-        with search.update_index():
-            content_type = ContentType.objects.get_for_model(PageContent)
-
-            self.homepage = Page.objects.create(
-                title='Homepage',
-                slug='homepage',
-                content_type=content_type,
-            )
-
-            PageContent.objects.create(
-                page=self.homepage,
-            )
-
-            self.section = Page.objects.create(
-                parent=self.homepage,
-                title='Section',
-                content_type=content_type,
-            )
-
-            PageContent.objects.create(
-                page=self.section,
-            )
-
-            self.subsection = Page.objects.create(
-                parent=self.section,
-                title='Subsection',
-                content_type=content_type,
-            )
-
-            PageContent.objects.create(
-                page=self.subsection,
-            )
-
-            self.subsubsection = Page.objects.create(
-                parent=self.subsection,
-                title='Subsubsection',
-                content_type=content_type,
-            )
-
-            PageContent.objects.create(
-                page=self.subsubsection,
-            )
-
-    def test_children(self):
-        homepage = Page.objects.get_homepage()
-        subsection = homepage.children[0].children[0]
-        self.assertEqual(subsection.title, 'Subsection')
-        subsection = homepage.navigation[0].navigation[0]
-        self.assertEqual(subsection.title, 'Subsection')
-        subsubsection = subsection.children[0]
-        self.assertEqual(subsubsection.title, 'Subsubsection')
-        subsubsection = subsection.children[0]
-        self.assertEqual(subsubsection.title, 'Subsubsection')
-
-    def test_filter_indexable_pages(self):
-        pages = Page.objects.all()
-        self.assertEqual(len(pages), 4)
-
-        pages = filter_indexable_pages(Page.objects.all())
-        self.assertEqual(len(pages), 4)
-
-        # Turn off indexing on the homepage.
-        self.homepage.robots_index = False
-        self.homepage.save()
-
-        pages = filter_indexable_pages(Page.objects.all())
-        self.assertEqual(len(pages), 3)
-
-    def test_pagesitemap_items(self):
-        sitemap = PageSitemap()
-        self.assertEqual(len(sitemap.items()), 4)
-
-        # Turn off indexing on the homepage.
-        self.homepage.robots_index = False
-        self.homepage.save()
-
-        self.assertEqual(len(sitemap.items()), 3)
-
-
 class TestPageComplex(TestCase):
 
     '''
@@ -406,6 +322,22 @@ def test_contentbase_str():
 
 
 @pytest.mark.django_db
+def test_filter_indexable_pages():
+    homepage = PageFactory.create_tree(3)
+    assert Page.objects.all().count() == 4
+
+    pages = filter_indexable_pages(Page.objects.all())
+    assert len(pages) == 4
+
+    # Turn off indexing on the homepage.
+    homepage.robots_index = False
+    homepage.save()
+
+    pages = filter_indexable_pages(Page.objects.all())
+    assert len(pages) == 3
+
+
+@pytest.mark.django_db
 def test_page_content(django_assert_num_queries):
     """
     Guard against performance regression on Page.content.
@@ -581,6 +513,20 @@ def test_page_get_children_is_efficient(django_assert_num_queries):
 
 
 @pytest.mark.django_db
+def test_page_children():
+    homepage = PageFactory.create()
+    section = PageFactory.create(title='Section', parent=homepage)
+    subsection = PageFactory.create(title='Subsection', parent=section)
+    PageFactory.create(title='Subsubsection', parent=subsection)
+
+    homepage.refresh_from_db()
+
+    assert homepage.children[0].children[0].title == 'Subsection'
+    assert homepage.navigation[0].navigation[0].title == 'Subsection'
+    assert homepage.children[0].children[0].children[0].title == 'Subsubsection'
+
+
+@pytest.mark.django_db
 def test_page_children_does_not_invalidate_prefetches(django_assert_num_queries):
     """
     In our previous life as Onespacemedia CMS, there used to be extra filtering
@@ -631,3 +577,17 @@ def test_pagemanager_prefetch_children_args():
     assert Page.objects.prefetch_children_args(depth=1) == ['child_set']
     assert Page.objects.prefetch_children_args(depth=2) == ['child_set', 'child_set__child_set']
     assert Page.objects.prefetch_children_args(depth=3) == ['child_set', 'child_set__child_set', 'child_set__child_set__child_set']
+
+
+@pytest.mark.django_db
+def test_pagesitemap_items():
+    homepage = PageFactory.create_tree(3)
+    sitemap = PageSitemap()
+    assert Page.objects.all().count() == 4
+    assert len(sitemap.items()) == 4
+
+    # Turn off indexing on the homepage.
+    homepage.robots_index = False
+    homepage.save()
+
+    assert len(sitemap.items()) == 3

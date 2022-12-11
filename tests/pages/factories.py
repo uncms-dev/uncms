@@ -65,3 +65,5 @@ class PageFactory(factory.django.DjangoModelFactory):
                 create_children_recursive(page, nested_shape[1:])
 
         create_children_recursive(homepage, shape)
+
+        return homepage
