@@ -12,6 +12,7 @@
 * [Sitemaps](sitemaps.md)
 * [The HTML editor](html-editor.md)
 * [django-watson integration](watson-integration.md)
+* [Building a robots.txt](robots-txt.md)
 * [Configuration](configuration.md)
 * [Performance notes](performance.md)
 * [Philosophy](philosophy.md)

@@ -8,7 +8,8 @@ from uncms.conf import defaults
 def canonicalise_url(path=None):
     if path is None:
         path = '/'
-    parsed = urlparse(path)
+    # str makes it work with reverse_lazy
+    parsed = urlparse(str(path))
 
     if settings.PREPEND_WWW:
         domain = f'www.{defaults.SITE_DOMAIN}'
