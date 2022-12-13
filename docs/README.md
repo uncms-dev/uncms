@@ -26,7 +26,7 @@ It has no opinions about how your project should be structured, it has minimal o
 ## Getting started
 
 * Read the [walkthrough](walkthrough.md).
-* Clone and have a poke around the [accompanying tiny CMS project repo](https://github.com/onespacemedia/tiny-cms-project).
+* Clone and have a poke around the [accompanying tiny CMS project repo](https://github.com/lewiscollard/tiny-uncms-project).
 * Read about the [philosophy of UnCMS](philosophy.md) to see if it is a good fit for your project.
 
 ## Editing this document
