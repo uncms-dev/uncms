@@ -39,7 +39,7 @@ setup(
             'isort==4.3.21',
             'pylint==2.15.6',
             'pylint-django==2.5.3',
-            'pytest==7.1.3',
+            'pytest==7.2.0',
             'pytest-cov',
             'pytest-django==4.5.2',
         ],
