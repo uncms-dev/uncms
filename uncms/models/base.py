@@ -194,7 +194,7 @@ class SearchMetaBase(OnlineBase):
         blank=True,
         max_length=100,
         help_text=_(
-            'Title that will appear on Facebook posts. This is limited to 100 characters, '
+            'Title that will appear on social media posts. This is limited to 100 characters, '
             'but Facebook will truncate the title to 88 characters.'
         ),
     )
@@ -204,7 +204,7 @@ class SearchMetaBase(OnlineBase):
         blank=True,
         max_length=300,
         help_text=_(
-            'Description that will appear on Facebook posts. It is limited to 300 '
+            'Description that will appear on social media posts. It is limited to 300 '
             'characters, but it is recommended that you do not use anything over 200.'
         ),
     )
@@ -326,6 +326,7 @@ class PageBase(SearchMetaBase):
     # Base fields.
 
     slug = models.SlugField(
+        max_length=150,
         help_text=_(
             'A unique portion of the URL that is used to identify this '
             'specific page using human-readable keywords (e.g., about-us)'
