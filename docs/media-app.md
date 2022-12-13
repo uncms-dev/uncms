@@ -16,7 +16,7 @@ from django.urls import include, path
 
 urlpatterns = [
     # other URLs here...
-    path('library/', include('cms.apps.media.urls', namespace='media_library')),
+    path('library/', include('uncms.media.urls', namespace='media_library')),
 ]
 
 ```
