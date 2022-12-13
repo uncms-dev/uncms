@@ -304,7 +304,7 @@ def get_og_image(context, image=None):
     if image:
         return canonicalise_url(image.get_absolute_url())
 
-    return None
+    return ''
 
 
 @library.global_function
@@ -450,7 +450,7 @@ def get_twitter_image(context, image=None):
         return canonicalise_url(image.get_absolute_url())
 
     # Return image, or an empty string if nothing is working
-    return None
+    return ''
 
 
 @library.global_function
