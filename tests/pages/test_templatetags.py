@@ -16,9 +16,8 @@ from tests.testing_app.models import TemplateTagTestPage
 from uncms.media.models import File
 from uncms.pages.middleware import RequestPageManager
 from uncms.pages.models import Page
-from uncms.pages.templatetags.pages import (
+from uncms.pages.templatetags._common import (
     _navigation_entries,
-    admin_sitemap_entries,
     get_canonical_url,
     get_meta_description,
     get_meta_robots,
@@ -31,6 +30,7 @@ from uncms.pages.templatetags.pages import (
     render_breadcrumbs,
     render_navigation,
 )
+from uncms.pages.templatetags.uncms_pages import admin_sitemap_entries
 from uncms.utils import canonicalise_url
 
 

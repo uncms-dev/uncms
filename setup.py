@@ -7,14 +7,12 @@ DEPENDENCIES = [
     'requests',
     'Pillow',
     'sorl-thumbnail',
-    'Jinja2==3.1.2',
 
     'beautifulsoup4',
     'bleach>=5.0.1,<6',
     'django>=3.2,<3.3',
     'django-watson',
     'django-reversion',
-    'django-jinja==2.10.2',
     'psycopg2',
     'python-magic==0.4.15',
 ]
@@ -30,18 +28,22 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
-    description='Not quite a content management system.',
+    description='A CMS toolkit for Django, with an emphasis on speed, simplicity and familiarity.',
     install_requires=DEPENDENCIES,
     extras_require={
         'dev': [
             'factory-boy==3.2.1',
             'flake8==6.0.0',
             'isort==4.3.21',
+            'Jinja2==3.1.2',
             'pylint==2.15.6',
             'pylint-django==2.5.3',
             'pytest==7.2.0',
             'pytest-cov',
             'pytest-django==4.5.2',
+        ],
+        'jinja2': [
+            'Jinja2==3.1.2',
         ],
     },
     classifiers=[

@@ -47,38 +47,6 @@ def pytest_configure():
         ALLOWED_HOSTS=['*'],
         TEMPLATES=[
             {
-                'BACKEND': 'django_jinja.backend.Jinja2',
-                'DIRS': [
-                    os.path.join('uncms', 'templates'),
-                    os.path.join('uncms', 'tests', 'templates'),
-                ],
-                'APP_DIRS': True,
-                'OPTIONS': {
-                    'match_extension': '.html',
-                    'match_regex': r'^(?!admin/|reversion/|registration/).*',
-                    'app_dirname': 'templates',
-                    'newstyle_gettext': True,
-                    'bytecode_cache': {
-                        'name': 'default',
-                        'backend': 'django_jinja.cache.BytecodeCache',
-                        'enabled': False,
-                    },
-                    'autoescape': True,
-                    'auto_reload': False,
-                    'translation_engine': 'django.utils.translation',
-                    'context_processors': [
-                        'django.contrib.auth.context_processors.auth',
-                        'django.template.context_processors.debug',
-                        'django.template.context_processors.i18n',
-                        'django.template.context_processors.media',
-                        'django.template.context_processors.static',
-                        'django.contrib.messages.context_processors.messages',
-                        'django.template.context_processors.request',
-                        'uncms.pages.context_processors.pages',
-                    ]
-                }
-            },
-            {
                 'BACKEND': 'django.template.backends.django.DjangoTemplates',
                 'DIRS': [
                     os.path.join('uncms', 'tests', 'templates'),

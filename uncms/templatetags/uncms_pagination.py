@@ -1,12 +1,13 @@
 '''Template tags for rendering pagination.'''
 import jinja2
+from django import template
 from django.core.paginator import InvalidPage, Paginator
 from django.http import Http404
 from django.utils.html import escape
-from django_jinja import library
+
+register = template.Library()
 
 
-@library.global_function
 @jinja2.pass_context
 def paginate(context, queryset, per_page=10, key='page'):
     '''Returns a paginator object for the given queryset.'''
@@ -27,10 +28,9 @@ def paginate(context, queryset, per_page=10, key='page'):
     return page
 
 
-@library.global_function
-@library.render_with('pagination/pagination.html')
 @jinja2.pass_context
-def render_pagination(context, page_obj, pagination_key=None):
+@register.inclusion_tag('pagination/pagination.html', takes_context=True)
+def pagination(context, page_obj, pagination_key=None):
     '''Renders pagination for the given paginator object.'''
     new_context = dict(context)
     new_context.update({
@@ -41,9 +41,8 @@ def render_pagination(context, page_obj, pagination_key=None):
     return new_context
 
 
-@library.global_function
-@jinja2.pass_context
-def get_pagination_url(context, page_number):
+@register.simple_tag(takes_context=True)
+def pagination_url(context, page_number):
     '''Returns a URL for the given page number.'''
     request = context['request']
     url = request.path

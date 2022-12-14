@@ -1,7 +1,8 @@
-{% if page_obj.has_other_pages() %}
+{% load uncms_pagination %}
+{% if page_obj.has_other_pages %}
   <nav class="pgn-Pagination">
-    {% if page_obj.has_previous() %}
-      <a class="pgn-Prev" rel="prev" href="{{ get_pagination_url(page_obj.previous_page_number()) }}">
+    {% if page_obj.has_previous %}
+      <a class="pgn-Prev" rel="prev" href="{% pagination_url page_obj.previous_page_number %}">
         &laquo; Previous
       </a>
     {% else %}
@@ -9,15 +10,15 @@
     {% endif %}
 
     <div class="pgn-Items">
-      {% for page_num in paginator.page_range[:10] %}
+      {% for page_num in page_range %}
         <div class="pgn-Item">
-          <a class="pgn-Item_Action" href="{{ get_pagination_url(page_num) }}" aria-current="{% if page_num == page_obj.number %}true{% else %}false{% endif %}">{{ page_num }}</a>
+          <a class="pgn-Item_Action" href="{% pagination_url page_num %}" aria-current="{% if page_num == page_obj.number %}true{% else %}false{% endif %}">{{ page_num }}</a>
         </div>
       {% endfor %}
     </div>
 
-    {% if page_obj.has_next() %}
-      <a class="pgn-Next" rel="next" href="{{ get_pagination_url(page_obj.next_page_number()) }}">
+    {% if page_obj.has_next %}
+      <a class="pgn-Next" rel="next" href="{% pagination_url page_obj.next_page_number %}">
         Next &raquo;
       </a>
     {% endif %}

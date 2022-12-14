@@ -1,16 +1,11 @@
 '''Template tags used to render pages.'''
 import jinja2
-from django import template
-from django.urls import reverse
 from django.utils.html import escape
-from django_jinja import library
 
 from uncms.conf import defaults
 from uncms.models import SearchMetaBase
 from uncms.pages import get_page_model
 from uncms.utils import canonicalise_url
-
-register = template.Library()
 
 
 # Navigation.
@@ -52,43 +47,6 @@ def _navigation_entries(context, pages, section=None, json_safe=False):
     return entries
 
 
-@register.simple_tag(takes_context=True)
-def admin_sitemap_entries(context):
-    """
-    admin_sitemap_entries returns the full page tree, bypassing
-    any caching mechanisms, does not exclude entries that are not in the
-    navigation, and adds `can_move` and `can_view` attributes. It is intended
-    for cases where the tree might change over the course of a request, and
-    only for admin users.
-
-    You should use this tag for rendering a sitemap in the admin.
-    """
-    user = context['request'].user
-    can_change = user.has_perm('pages.change_page')
-    can_view = user.has_perm('pages.view_page') or can_change
-
-    def sitemap_entry(page):
-        return {
-            'admin_url': reverse('admin:pages_page_change', args=[page.pk]),
-            'can_move': can_change,
-            'can_view': can_view,
-            'children': [sitemap_entry(child_page) for child_page in page.get_children()],
-            'id': page.pk,
-            'in_navigation': page.in_navigation,
-            'is_homepage': page.parent_id is None,
-            'is_online': page.is_online,
-            'title': str(page),
-        }
-
-    return {
-        # Note that we must not use request.pages here - we want to be able
-        # to render the sitemap after it has changed.
-        'pages': [sitemap_entry(get_page_model().objects.get_homepage())]
-    }
-
-
-@library.global_function
-@library.render_with(defaults.NAVIGATION_TEMPLATE)
 @jinja2.pass_context
 def render_navigation(context, pages, section=None, class_prefix=None, **templates):
     '''
@@ -108,8 +66,6 @@ def render_navigation(context, pages, section=None, class_prefix=None, **templat
     }
 
 
-# Page linking.
-@library.global_function
 def get_page_url(page, view_func=None, *args, **kwargs):  # pylint:disable=keyword-arg-before-vararg
     '''Renders the URL of the given view func in the given page.'''
     url = None
@@ -134,7 +90,6 @@ def get_page_url(page, view_func=None, *args, **kwargs):  # pylint:disable=keywo
 
 
 # Page widgets.
-@library.global_function
 @jinja2.pass_context
 def get_meta_description(context, description=None):
     '''
@@ -167,7 +122,6 @@ def get_meta_description(context, description=None):
     return escape(description or '')
 
 
-@library.global_function
 @jinja2.pass_context
 def get_meta_robots(context, index=None, follow=None, archive=None):
     '''
@@ -223,7 +177,6 @@ def get_meta_robots(context, index=None, follow=None, archive=None):
     return escape(robots)
 
 
-@library.global_function
 @jinja2.pass_context
 def get_canonical_url(context):
     '''
@@ -234,7 +187,6 @@ def get_canonical_url(context):
     return escape(url)
 
 
-@library.global_function
 @jinja2.pass_context
 def get_og_title(context, title=None):
     if not title:
@@ -259,7 +211,6 @@ def get_og_title(context, title=None):
     return escape(title or '')
 
 
-@library.global_function
 @jinja2.pass_context
 def get_og_description(context, description=None):
     if not description:
@@ -275,7 +226,6 @@ def get_og_description(context, description=None):
     return escape(description or '')
 
 
-@library.global_function
 @jinja2.pass_context
 def get_og_image(context, image=None):
     image_obj = None
@@ -307,7 +257,6 @@ def get_og_image(context, image=None):
     return ''
 
 
-@library.global_function
 @jinja2.pass_context
 def get_twitter_card(context, card=None):
     choices = dict(SearchMetaBase._meta.get_field('twitter_card').choices)
@@ -336,7 +285,6 @@ def get_twitter_card(context, card=None):
     return escape(card or str(choices[0]).lower())
 
 
-@library.global_function
 @jinja2.pass_context
 def get_twitter_title(context, title=None):
     # Load from context if exists
@@ -372,7 +320,6 @@ def get_twitter_title(context, title=None):
     return escape(title or '')
 
 
-@library.global_function
 @jinja2.pass_context
 def get_twitter_description(context, description=None):
     # Load from context if exists
@@ -401,7 +348,6 @@ def get_twitter_description(context, description=None):
     return escape(description or '')
 
 
-@library.global_function
 @jinja2.pass_context
 def get_twitter_image(context, image=None):
     '''
@@ -453,8 +399,6 @@ def get_twitter_image(context, image=None):
     return ''
 
 
-@library.global_function
-@library.render_with('pages/title.html')
 @jinja2.pass_context
 def render_title(context, browser_title=None):
     '''
@@ -483,8 +427,6 @@ def render_title(context, browser_title=None):
     }
 
 
-@library.global_function
-@library.render_with('pages/breadcrumbs.html')
 @jinja2.pass_context
 def render_breadcrumbs(context, page=None, extended=False):
     '''

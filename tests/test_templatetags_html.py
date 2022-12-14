@@ -8,7 +8,7 @@ from uncms.templatetags.html import html
 @pytest.mark.django_db
 def test_html():
     assert html('') == ''
-    assert html(None) == 'None'
+    assert html(None) == ''
     assert html('Hello') == 'Hello'
     assert html('<span>Hello</span>') == '<span>Hello</span>'
 
