@@ -710,6 +710,19 @@ def test_pageadmin_get_preserved_filters(client):
 
 
 @pytest.mark.django_db
+@pytest.mark.parametrize('object_count', [1, 10])
+def test_page_admin_list_is_efficient(object_count, admin_client, django_assert_num_queries):
+    # Ensure that there are no N+1 queries on the page list. The exact queries
+    # are not relevant; any number for django_assert_num_queries that
+    # satisfies an object count of both 1 and 10 is by definition correct.
+    ContentType.objects.clear_cache()
+    PageFactory.create_tree(object_count, 3)
+    with django_assert_num_queries(8):
+        response = admin_client.get(reverse('admin:pages_page_changelist'))
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
 def test_pageadmin_move_page_view(client):
     def post_move(page, direction):
         return client.post(

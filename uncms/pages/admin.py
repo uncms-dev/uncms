@@ -68,7 +68,7 @@ class PageContentTypeFilter(admin.SimpleListFilter):
 class PageAdmin(PageBaseAdmin):
     '''Admin settings for Page models.'''
 
-    list_display = ('render_title', 'last_modified', 'content_type', 'is_online',)
+    list_display = ('render_title', 'content_type', 'is_online',)
     list_display_links = ['render_title']
 
     list_editable = ('is_online',)
@@ -289,7 +289,7 @@ class PageAdmin(PageBaseAdmin):
         # efficient. PAGE_TREE_PREFETCH_DEPTH is a hint of how deep our
         # navigation is going to be, so use that if it's present, otherwise
         # just use the parent and parent-of-parent.
-        queryset = super().get_queryset(request)
+        queryset = super().get_queryset(request).select_related('content_type')
         if defaults.ADMIN_PAGE_LIST_ARROWS:
             if defaults.PAGE_TREE_PREFETCH_DEPTH:
                 queryset = queryset.select_related(*[
