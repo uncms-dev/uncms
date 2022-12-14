@@ -33,6 +33,7 @@ from django.utils.translation import gettext_lazy as _
 from watson.search import search_context_manager
 
 from uncms.admin import PageBaseAdmin
+from uncms.conf import defaults
 from uncms.pages.models import Page, PageSearchAdapter, get_registered_content
 
 # Used to track references to and from the JS sitemap.
@@ -67,7 +68,8 @@ class PageContentTypeFilter(admin.SimpleListFilter):
 class PageAdmin(PageBaseAdmin):
     '''Admin settings for Page models.'''
 
-    list_display = ('__str__', 'last_modified', 'content_type', 'is_online',)
+    list_display = ('render_title', 'last_modified', 'content_type', 'is_online',)
+    list_display_links = ['render_title']
 
     list_editable = ('is_online',)
 
@@ -248,13 +250,13 @@ class PageAdmin(PageBaseAdmin):
             # Store the field.
             form_attrs[field.name] = form_field
         ContentForm = type('{}Form'.format(self.__class__.__name__), (forms.ModelForm,), form_attrs)
-        defaults = {'form': ContentForm}
-        defaults.update(kwargs)
+        form_defaults = {'form': ContentForm}
+        form_defaults.update(kwargs)
 
         self.prepopulated_fields = {'slug': ('title',), }
         self.fieldsets[0][1]['fields'] = ('title', 'slug', 'parent')
 
-        PageForm = super().get_form(request, obj=obj, change=change, **defaults)
+        PageForm = super().get_form(request, obj=obj, change=change, **form_defaults)
 
         # HACK: Need to limit parents field based on object. This should be
         # done in formfield_for_foreignkey, but that method does not know
@@ -281,6 +283,22 @@ class PageAdmin(PageBaseAdmin):
 
         # Return the completed form.
         return PageForm
+
+    def get_queryset(self, request):
+        # select_related parents of pages so that checking for the parent is
+        # efficient. PAGE_TREE_PREFETCH_DEPTH is a hint of how deep our
+        # navigation is going to be, so use that if it's present, otherwise
+        # just use the parent and parent-of-parent.
+        queryset = super().get_queryset(request)
+        if defaults.ADMIN_PAGE_LIST_ARROWS:
+            if defaults.PAGE_TREE_PREFETCH_DEPTH:
+                queryset = queryset.select_related(*[
+                    '__'.join(['parent'] * (defaults.PAGE_TREE_PREFETCH_DEPTH + 1))
+                    for i in range(defaults.PAGE_TREE_PREFETCH_DEPTH)
+                ])
+            else:
+                queryset = queryset.select_related('parent', 'parent__parent')
+        return queryset
 
     def save_model(self, request, obj, form, change):
         '''Saves the model and adds its content fields.'''
@@ -474,6 +492,42 @@ class PageAdmin(PageBaseAdmin):
         """
         search_context_manager.invalidate()
         return super().recover_view(request, version_id, extra_context=extra_context)
+
+    @admin.display(description=_('Page'))
+    def render_title(self, obj):
+        """
+        `render_title` renders arrows in the page title to indicate the depth
+        and parent of the page.
+
+        For example, if we have a home page, a top-level page called "Cats"
+        with three children "Black" "Tabby" and "Calico", their titles will be
+        displayed as:
+
+        Home
+        → Cats
+        → → Black
+        → → Tabby
+        → → Calico
+        """
+        if not defaults.ADMIN_PAGE_LIST_ARROWS:
+            return str(obj)
+
+        canary = 0
+        fmt = str(obj)
+        parent = obj.parent
+        while parent:
+            fmt = f'→ {fmt}'
+            parent = parent.parent
+            canary += 1
+            if canary > 20:
+                # More than 20 level deep navigation probably implies a
+                # problem and that our page tree is garbaged. In the legit
+                # case, it means they don't have arrows shown for more than
+                # 20 level deep pages. In the case where it has gotten
+                # garbaged, we don't deprive them of the use of the admin to
+                # fix it :)
+                break
+        return fmt
 
     def response_add(self, request, obj, post_url_continue=None):
         '''Redirects to the sitemap if appropriate.'''

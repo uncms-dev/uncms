@@ -13,6 +13,7 @@ class AppSettings:
     present, a sensible default will be returned.
     """
     default_settings = {
+        'ADMIN_PAGE_LIST_ARROWS': True,
         # Options for HTML output filtering.
         'BLEACH_OPTIONS': {
             'tags': {

@@ -24,6 +24,7 @@
 
 .uncms-sitemap__item-moves {
   display: flex;
+  align-self: flex-start;
   margin-right: 8px;
 }
 

@@ -14,6 +14,28 @@ UNCMS = {
 }
 ```
 
+## `ADMIN_PAGE_LIST_ARROWS`
+
+* Type: boolean
+* Default: `True`
+
+By default, the admin page list will show arrows next to the page title to indicate the depth and parent of the current page.
+For example, if you have a home page "Home", with a child called "Cats", and that child has children called "Black", "Tabby" and "Calico",
+their titles will be displayed as:
+
+```
+Home
+→ Cats
+→ → Black
+→ → Tabby
+→ → Calico
+```
+
+While some efforts are made to ensure this is efficient
+(`PAGE_TREE_PREFETCH_DEPTH` below is obeyed to chain `select_related` on the parents to ensure it happens in a single query),
+with extremely deep and wide page trees you may find that this becomes inefficient.
+If so, set this to `False`.
+
 ## `BLEACH_OPTIONS`
 
 * Type: dictionary (Bleach `clean` keyword arguments)
