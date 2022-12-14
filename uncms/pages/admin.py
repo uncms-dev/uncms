@@ -47,7 +47,7 @@ PAGE_TYPE_PARAMETER = 'type'
 
 class PageContentTypeFilter(admin.SimpleListFilter):
     '''Enables filtering of pages by their content type.'''
-    title = 'page type'
+    title = _('page type')
 
     parameter_name = 'page_type'
 
