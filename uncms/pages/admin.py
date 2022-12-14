@@ -68,7 +68,7 @@ class PageContentTypeFilter(admin.SimpleListFilter):
 class PageAdmin(PageBaseAdmin):
     '''Admin settings for Page models.'''
 
-    list_display = ('render_title', 'content_type', 'is_online',)
+    list_display = ('render_title', 'render_content_type', 'is_online',)
     list_display_links = ['render_title']
 
     list_editable = ('is_online',)
@@ -492,6 +492,14 @@ class PageAdmin(PageBaseAdmin):
         """
         search_context_manager.invalidate()
         return super().recover_view(request, version_id, extra_context=extra_context)
+
+    @admin.display(description=_('Content type'), ordering='content_type__model')
+    def render_content_type(self, obj):
+        if not obj.content_type:
+            # no-covered because this can only happen in really weird
+            # situations
+            return None  # pragma: no cover
+        return capfirst(obj.content_type.model_class()._meta.verbose_name)
 
     @admin.display(description=_('Page'))
     def render_title(self, obj):
