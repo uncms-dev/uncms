@@ -5,6 +5,8 @@ from django.core.paginator import InvalidPage, Paginator
 from django.http import Http404
 from django.utils.html import escape
 
+from uncms.templatetags._common import get_pagination_context
+
 register = template.Library()
 
 
@@ -28,17 +30,10 @@ def paginate(context, queryset, per_page=10, key='page'):
     return page
 
 
-@jinja2.pass_context
 @register.inclusion_tag('pagination/pagination.html', takes_context=True)
 def pagination(context, page_obj, pagination_key=None):
     '''Renders pagination for the given paginator object.'''
-    new_context = dict(context)
-    new_context.update({
-        'page_obj': page_obj,
-        'paginator': page_obj.paginator,
-        'pagination_key': pagination_key or getattr(page_obj, '_pagination_key', 'page')
-    })
-    return new_context
+    return get_pagination_context(context['request'], page_obj, pagination_key=pagination_key)
 
 
 @register.simple_tag(takes_context=True)

@@ -2,7 +2,7 @@ import pytest
 from django.contrib.contenttypes.models import ContentType
 
 from tests.testing_app.models import HTMLModel
-from uncms.templatetags.html import html
+from uncms.templatetags.uncms_html import html
 
 
 @pytest.mark.django_db

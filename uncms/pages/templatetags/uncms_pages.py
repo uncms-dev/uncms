@@ -2,6 +2,19 @@ from django import template
 from django.urls import reverse
 
 from uncms.pages import get_page_model
+from uncms.pages.templatetags._common import (
+    get_canonical_url,
+    get_meta_description,
+    get_meta_robots,
+    get_og_description,
+    get_og_image,
+    get_og_title,
+    get_twitter_card,
+    get_twitter_description,
+    get_twitter_image,
+    get_twitter_title,
+    render_navigation,
+)
 
 register = template.Library()
 
@@ -41,8 +54,43 @@ def admin_sitemap_entries(context):
     }
 
 
+@register.simple_tag(takes_context=True)
+def canonical_url(context):
+    return get_canonical_url(context)
+
+
+@register.simple_tag(takes_context=True)
+def meta_description(context):
+    return get_meta_description(context)
+
+
+@register.simple_tag(takes_context=True)
+def meta_robots(context):
+    return get_meta_robots(context)
+
+
+@register.inclusion_tag('pages/navigation/navigation.html', takes_context=True)
+def navigation(context, pages, section=None, class_prefix=None, **templates):
+    return render_navigation(context, pages, section=section, class_prefix=class_prefix, **templates)
+
+
+@register.simple_tag(takes_context=True)
+def og_description(context):
+    return get_og_description(context)
+
+
+@register.simple_tag(takes_context=True)
+def og_image(context):
+    return get_og_image(context)
+
+
+@register.simple_tag(takes_context=True)
+def og_title(context):
+    return get_og_title(context)
+
+
 @register.inclusion_tag('pages/title.html', takes_context=True)
-def render_title(context, browser_title=None):
+def title(context, browser_title=None):
     """
     Renders the title of the current page:
 
@@ -70,3 +118,23 @@ def render_title(context, browser_title=None):
             ''
         ),
     }
+
+
+@register.simple_tag(takes_context=True)
+def twitter_card(context):
+    return get_twitter_card(context)
+
+
+@register.simple_tag(takes_context=True)
+def twitter_description(context):
+    return get_twitter_description(context)
+
+
+@register.simple_tag(takes_context=True)
+def twitter_image(context):
+    return get_twitter_image(context)
+
+
+@register.simple_tag(takes_context=True)
+def twitter_title(context):
+    return get_twitter_title(context)

@@ -1,5 +1,6 @@
 {% load uncms_pagination %}
-{% if page_obj.has_other_pages %}
+
+{% if page_obj and page_obj.has_other_pages %}
   <nav class="pgn-Pagination">
     {% if page_obj.has_previous %}
       <a class="pgn-Prev" rel="prev" href="{% pagination_url page_obj.previous_page_number %}">
