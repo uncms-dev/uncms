@@ -3,8 +3,9 @@
 Once you have created some [pages](pages-app.md), rendering your navigation in your base template is simple.
 
 ```
+{% load pages %}
 <nav>
-  {{ render_navigation(pages.homepage.navigation) }}
+  {% render_navigation pages.homepage.navigation %}
 </nav>
 ```
 
@@ -19,8 +20,9 @@ For example, it is quite common to want to render a list of subpages for the cur
 So you can do something like this (we'll get onto what the `class_prefix` argument does later):
 
 ```
+  {% load pages %}
   <div class="sidebar">
-    {{ render_navigation(pages.current.navigation, class_prefix="subpage-navigation") }}
+    {% render_navigation pages.current.navigation class_prefix="subpage-navigation" %}
   </aside>
 ```
 
