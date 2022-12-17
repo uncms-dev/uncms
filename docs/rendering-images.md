@@ -2,17 +2,23 @@
 
 ## Before you continue
 
-You will want to add `THUMBNAIL_PRESERVE_FORMAT = True` to your configuration file.
+You will want to add `THUMBNAIL_PRESERVE_FORMAT = True` to your Django settings.
 By default, if you do not specify an output format, the Sorl thumbnail backend will generate a JPEG file,
 regardless of your source format.
 
-## Using `render_image`
+## Using `{% image %}`
 
-To render images in your template, use the `render_image` template function.
-It will render your images in multiple sizes for different devices using `srcset`,
+To render images in your template, use the `{% image %}` template tag from the `uncms_images` library.
+The simplest example is this:
+
+```
+{% load uncms_images %}
+{% image some_file_object width=600 %}
+```
+It will render an image from your [media library](media-library.md) in multiple sizes for different devices using `srcset`,
 and also in WebP format for browsers that support it.
 
-You must specify at least one of these keyword arguments:
+You must specify an UnCMS File object as an argument, and at least one of these keyword arguments:
 
 * `width`, an integer:
 the width to thumbnail the image to.
@@ -54,12 +60,6 @@ rather than (e.g.) greyscaling them with CSS.
 This defaults to `auto`, which will use the original colourspace for the image.
 * `sizes`: the `sizes` attribute for the `<source>` tags. Defaults to `100vw`.
 
-The simplest example is this:
-
-```
-{{ render_image(some_file_object, width=600, height=400) }}
-```
-
 ## How it works
 
 First, depending on the width and/or height you have requested,
@@ -77,7 +77,7 @@ This approach was directly inspired by the now-unmaintained [django-lazy-image](
 
 ## Customising image rendering
 
-Other than the many options for `render_image`,
+Other than the many options for `{% image %}`,
 you can customise image rendering either with CSS
 (targeting sensible [BEM class names](https://getbem.com/naming/)),
 or by overriding the default image rendering template.
@@ -135,7 +135,7 @@ or classes and attributes to the ones which already exist.
 * `after_picture_tag`: empty extension block after the closing `<picture>` tag
 
 For example, you might not like (for whatever reason) the fact that images always request that browsers load them lazily by default,
-and do not want to specify `lazy=False` every time you use `render_image`.
+and do not want to specify `lazy=False` every time you use `{% image %}`.
 In this case, you would want an `UNCMS` configuration dictionary that looked like this:
 
 ```
