@@ -2,33 +2,41 @@
 
 A collection of template tags are included with the pages module, mostly for the purposes of simplifying SEO.
 
-## TL;DR
+## Page metadata tags
+
+### TL;DR
 
 The `<head>` of your document should look like this:
 
 ```
-    <meta name="robots" content="{% meta_robots %}">
-    <meta name="description" content="{% meta_description %}">
-    <!-- Open Graph data -->
-    <meta property="og:title" content="{% og_title %}">
-    <meta property="og:url" content="{% canonical_url %}">
-    <meta property="og:type" content="website">
-    <meta property="og:description" content="{% og_description %}">
-    <meta property="og:image" content="{% og_image %}">
+{% load uncms_pages %}
+<meta name="robots" content="{% meta_robots %}">
+<meta name="description" content="{% meta_description %}">
 
-    <!-- Twitter card data -->
-    <meta name="twitter:card" content="{% twitter_card %}" />
-    <meta name="twitter:site" content="" />
-    <meta name="twitter:title" content="{% twitter_title %}" />
-    <meta name="twitter:description" content="{% twitter_description %}" />
-    <meta name="twitter:image" content="{% twitter_image %}" />
+<meta property="og:title" content="{% og_title %}">
+<meta property="og:url" content="{% canonical_url %}">
+<meta property="og:type" content="website">
+<meta property="og:description" content="{% og_description %}">
+<meta property="og:image" content="{% og_image %}">
 
-    <title>{% block title %}{% title %}{% endblock %}</title>
+<meta name="twitter:card" content="{% twitter_card %}" />
+<meta name="twitter:title" content="{% twitter_title %}" />
+<meta name="twitter:description" content="{% twitter_description %}" />
+<meta name="twitter:image" content="{% twitter_image %}" />
+
+<link rel="canonical" href="{% canonical_url %}" />
+
+<title>{% block title %}{% title %}{% endblock %}</title>
 ```
 
-## Page metadata functions
+Or,
+much more simply,
+if you are happy with the way UnCMS behaves by default,
+you can include `pages/head_meta.html` which will do this all for you:
 
-
+```
+{% include 'pages/head_meta.html' %}
+```
 
 ### `{% title %}`
 

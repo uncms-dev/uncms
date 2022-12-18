@@ -65,8 +65,8 @@ def meta_description(context):
 
 
 @register.simple_tag(takes_context=True)
-def meta_robots(context):
-    return get_meta_robots(context)
+def meta_robots(context, index=None, follow=None, archive=None):
+    return get_meta_robots(context, index=index, follow=follow, archive=archive)
 
 
 @register.inclusion_tag('pages/navigation/navigation.html', takes_context=True)

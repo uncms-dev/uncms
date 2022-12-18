@@ -432,7 +432,7 @@ Now that we have a `get_absolute_url` on our news article, we can add a `news/ar
   <ul>
     {% for object in object_list %}
       <li>
-        <a href="{{ object.get_absolute_url() }}">{{ object.title }}</a>
+        <a href="{{ object.get_absolute_url }}">{{ object.title }}</a>
       </li>
     {% endfor %}
   </ul>
@@ -449,7 +449,7 @@ And now that we can actually make our way to it, an article detail template at `
 
   {% if object.image %}
     <p>
-      <img src="{{ object.image.get_absolute_url() }}" alt="">
+      <img src="{{ object.image.get_absolute_url }}" alt="">
     </p>
   {% endif %}
 
@@ -505,27 +505,10 @@ But it's nice knowing that we have the option if we need it.
 ## Let's fix your base template
 
 Finally, many times we mentioned about all of that SEO and OpenGraph goodness that would be available in your page's context if we used certain helper models and helper views.
-Let's get our template functions into the `<head>` of our site's base template:
+Put this into the `<head>` of our site's base template:
 
 ```
-<meta name="description" content="{{ get_meta_description() }}">
-<meta name="robots" content="{{ get_meta_robots() }}">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- Open Graph data -->
-<meta property="og:title" content="{{ get_og_title() }}">
-<meta property="og:url" content="{{ get_canonical_url() }}">
-<meta property="og:type" content="website">
-<meta property="og:description" content="{{ get_og_description() }}">
-<meta property="og:image" content="{{ get_og_image() }}">
-
-<!-- Twitter card data -->
-<meta name="twitter:card" content="{{ get_twitter_card() }}" />
-<meta name="twitter:site" content="" />
-<meta name="twitter:title" content="{{ get_twitter_title() }}" />
-<meta name="twitter:description" content="{{ get_twitter_description() }}" />
-<meta name="twitter:image" content="{{ get_twitter_image() }}" />
-
-<title>{% block title %}{{ render_title() }}{% endblock %}</title>
+{% include 'pages/head_meta.html' %}
 ```
 
 ## Next steps

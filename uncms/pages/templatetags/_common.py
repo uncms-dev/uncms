@@ -124,24 +124,12 @@ def get_meta_description(context, description=None):
 
 @jinja2.pass_context
 def get_meta_robots(context, index=None, follow=None, archive=None):
-    '''
-    Renders the content of the meta robots tag for the current page::
+    """
+    Returns the content of the meta robots tag for the current page::
+    """
 
-        {{ get_meta_robots() }}
-
-    You can override the meta robots by setting boolean context variables called
-    'robots_index', 'robots_archive' and 'robots_follow'::
-
-        {% with robots_follow = 1 %}
-            {% get_meta_robots() %}
-        {% endwith %}
-
-    You can also provide the meta robots as three boolean arguments to this
-    tag in the order 'index', 'follow' and 'archive'::
-
-        {% get_meta_robots(1, 1, 1) %}
-    '''
-    # Override with context variables.
+    # Override with context variables. These will be set by any detail view
+    # which inherits from SearchMetaDetailMixin.
     if index is None:
         index = context.get('robots_index')
     if follow is None:
@@ -174,7 +162,7 @@ def get_meta_robots(context, index=None, follow=None, archive=None):
         follow and 'FOLLOW' or 'NOFOLLOW',
         archive and 'ARCHIVE' or 'NOARCHIVE',
     ))
-    return escape(robots)
+    return robots
 
 
 @jinja2.pass_context

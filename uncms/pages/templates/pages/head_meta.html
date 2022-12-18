@@ -1,0 +1,18 @@
+{% load uncms_pages %}
+<meta name="robots" content="{% meta_robots %}">
+<meta name="description" content="{% meta_description %}">
+
+<meta property="og:title" content="{% og_title %}">
+<meta property="og:url" content="{% canonical_url %}">
+<meta property="og:type" content="website">
+<meta property="og:description" content="{% og_description %}">
+<meta property="og:image" content="{% og_image %}">
+
+<meta name="twitter:card" content="{% twitter_card %}" />
+<meta name="twitter:title" content="{% twitter_title %}" />
+<meta name="twitter:description" content="{% twitter_description %}" />
+<meta name="twitter:image" content="{% twitter_image %}" />
+
+<link rel="canonical" href="{% canonical_url %}" />
+
+<title>{% title %}</title>
