@@ -1,4 +1,4 @@
-from django.template.defaultfilters import date, linebreaksbr
+from django.template import defaultfilters
 from django.templatetags.static import static
 from django.urls import reverse
 from jinja2 import Environment
@@ -20,8 +20,15 @@ def sensible_defaults(**options):
         'static': static,
         'url': lambda viewname, *args, **kwargs: reverse(viewname, args=args, kwargs=kwargs),
     })
-    env.filters.update({
-        'date': date,
-        'linebreaksbr': linebreaksbr,
-    })
+
+    for django_filter in [
+        'date',
+        'filesizeformat',
+        'floatformat',
+        'linebreaks',
+        'linebreaksbr',
+        'time',
+        'urlize',
+    ]:
+        env.filters[django_filter] = getattr(defaultfilters, django_filter)
     return env
