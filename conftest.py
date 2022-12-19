@@ -1,7 +1,28 @@
 import getpass
 import os
 
+import pytest
 from django.conf import settings
+
+DJANGO_TEMPLATE_CONFIG = {
+    'BACKEND': 'django.template.backends.django.DjangoTemplates',
+    'DIRS': [
+        os.path.join('uncms', 'tests', 'templates'),
+    ],
+    'APP_DIRS': True,
+    'OPTIONS': {
+        'context_processors': [
+            'django.contrib.auth.context_processors.auth',
+            'django.template.context_processors.debug',
+            'django.template.context_processors.i18n',
+            'django.template.context_processors.media',
+            'django.template.context_processors.static',
+            'django.contrib.messages.context_processors.messages',
+            'django.template.context_processors.request',
+            'uncms.pages.context_processors.pages',
+        ]
+    }
+}
 
 
 def pytest_configure():
@@ -45,27 +66,7 @@ def pytest_configure():
         ],
         ROOT_URLCONF='tests.urls',
         ALLOWED_HOSTS=['*'],
-        TEMPLATES=[
-            {
-                'BACKEND': 'django.template.backends.django.DjangoTemplates',
-                'DIRS': [
-                    os.path.join('uncms', 'tests', 'templates'),
-                ],
-                'APP_DIRS': True,
-                'OPTIONS': {
-                    'context_processors': [
-                        'django.contrib.auth.context_processors.auth',
-                        'django.template.context_processors.debug',
-                        'django.template.context_processors.i18n',
-                        'django.template.context_processors.media',
-                        'django.template.context_processors.static',
-                        'django.contrib.messages.context_processors.messages',
-                        'django.template.context_processors.request',
-                        'uncms.pages.context_processors.pages',
-                    ]
-                }
-            }
-        ],
+        TEMPLATES=[DJANGO_TEMPLATE_CONFIG],
         MIDDLEWARE=[
             'django.contrib.sessions.middleware.SessionMiddleware',
             'django.contrib.messages.middleware.MessageMiddleware',
@@ -83,3 +84,27 @@ def pytest_configure():
         REPO_ROOT=os.path.abspath(os.path.dirname(__file__)),
         X_FRAME_OPTIONS='DENY',
     )
+
+
+@pytest.fixture
+def use_jinja2(settings):
+    settings.TEMPLATES = [
+        DJANGO_TEMPLATE_CONFIG,
+        {
+            'BACKEND': 'django.template.backends.jinja2.Jinja2',
+            'APP_DIRS': True,
+            'OPTIONS': {
+                'context_processors': [
+                    'django.contrib.auth.context_processors.auth',
+                    'django.template.context_processors.debug',
+                    'django.template.context_processors.i18n',
+                    'django.template.context_processors.media',
+                    'django.template.context_processors.static',
+                    'django.contrib.messages.context_processors.messages',
+                    'django.template.context_processors.request',
+                    'uncms.pages.context_processors.pages',
+                ],
+                'environment': 'uncms.jinja2_environment.all.environment',
+            },
+        },
+    ]

@@ -38,6 +38,12 @@ you can include `pages/head_meta.html` which will do this all for you:
 {% include 'pages/head_meta.html' %}
 ```
 
+Or for [Jinja2](using-jinja2.md):
+
+```
+{% include 'pages/head_meta.jinja2' %}
+```
+
 ### `{% title %}`
 
 * **Load with:** `{% load uncms_pages %}`
