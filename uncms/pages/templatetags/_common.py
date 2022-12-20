@@ -1,8 +1,15 @@
-'''Template tags used to render pages.'''
+"""
+Template tags used to render pages.
+
+The body of the code is broken out into this "common" file because we support
+Jinja2. Both Jinja2 and Django template functions & filters shall be thin
+wrappers around these.
+"""
 import jinja2
 from django.utils.html import escape
 
 from uncms.conf import defaults
+from uncms.media.models import File
 from uncms.models import SearchMetaBase
 from uncms.pages import get_page_model
 from uncms.utils import canonicalise_url
@@ -49,14 +56,9 @@ def _navigation_entries(context, pages, section=None, json_safe=False):
 
 @jinja2.pass_context
 def render_navigation(context, pages, section=None, class_prefix=None, **templates):
-    '''
+    """
     Renders a navigation list for the given pages.
-
-    The pages should all be a subclass of PageBase, and possess a get_absolute_url() method.
-
-    You can also specify an alias for the navigation, at which point it will be set in the
-    context rather than rendered.
-    '''
+    """
     return {
         'navigation': _navigation_entries(context, pages, section),
         'prefix': class_prefix or defaults.NAVIGATION_CLASS_PREFIX,
@@ -67,7 +69,9 @@ def render_navigation(context, pages, section=None, class_prefix=None, **templat
 
 
 def get_page_url(page, view_func=None, *args, **kwargs):  # pylint:disable=keyword-arg-before-vararg
-    '''Renders the URL of the given view func in the given page.'''
+    """
+    Returns the URL of the given view func in the given page.
+    """
     url = None
     page_model = get_page_model()
 
@@ -92,23 +96,9 @@ def get_page_url(page, view_func=None, *args, **kwargs):  # pylint:disable=keywo
 # Page widgets.
 @jinja2.pass_context
 def get_meta_description(context, description=None):
-    '''
-    Renders the content of the meta description tag for the current page::
-
-        {{ get_meta_description() }}
-
-    You can override the meta description by setting a context variable called
-    'meta_description'::
-
-        {% with meta_description = 'foo' %}
-            {{ get_meta_description() }}
-        {% endwith %}
-
-    You can also provide the meta description as an argument to this tag::
-
-        {{ get_meta_description('foo') %}
-
-    '''
+    """
+    Renders the content of the meta description tag for the current page.
+    """
     if description is None:
         description = context.get('meta_description')
 
@@ -176,27 +166,27 @@ def get_canonical_url(context):
 
 
 @jinja2.pass_context
-def get_og_title(context, title=None):
-    if not title:
-        obj = context.get('object', None)
+def get_og_title(context):
+    # Always prefer a title override from the context.
+    if context.get('og_title'):
+        return context['og_title']
 
-        if obj:
-            title = getattr(obj, 'og_title', None) or getattr(obj, 'title', None)
+    # See if the current object has either an og_title or title attribute,
+    # in that order.
+    obj = context.get('object', None)
+    if obj:
+        for field_name in ['og_title', 'title']:
+            title = getattr(obj, field_name, None)
+            if title:
+                return title
 
-    if not title:
-        title = context.get('og_title')
+    request = context['request']
+    page = request.pages.current
 
-    if not title or title == '':
-        request = context['request']
-        page = request.pages.current
+    if page:
+        return page.og_title or page.browser_title or page.title
 
-        if page:
-            title = page.og_title
-
-        if not title:
-            title = context.get('title') or (page and page.title) or (page and page.browser_title)
-
-    return escape(title or '')
+    return context.get('title', '')
 
 
 @jinja2.pass_context
@@ -215,50 +205,51 @@ def get_og_description(context, description=None):
 
 
 @jinja2.pass_context
-def get_og_image(context, image=None):
-    image_obj = None
+def get_og_image(context):
+    """
+    Returns an OpenGraph image URL guessed from the current template context.
+    """
+    # See if it is in the context, most likely placed there by
+    # SearchMetaDetailMixin.
+    if context.get('og_image'):
+        return canonicalise_url(context['og_image'].get_absolute_url())
 
-    if not image:
-        image_obj = context.get('og_image')
+    # Has there been an 'og_image_url' placed in the context? Prefer that.
+    # That allows views to place a fallback for when administrators have not
+    # explicitly specified one.
+    if context.get('og_image_url'):
+        return canonicalise_url(context['og_image_url'])
 
-    if not image and not image_obj:
-        obj = context.get('object')
+    obj = context.get('object')
 
-        if obj:
-            field = getattr(obj, 'image', None) or getattr(obj, 'photo', None) or getattr(obj, 'logo', None)
+    if obj:
+        for field_name in ['image', 'photo']:
+            field = getattr(obj, field_name, None)
 
-            image_obj = field if field else None
+            # Only return this if it is an UnCMS `File` - we don't want to
+            # guess much more than this.
+            if isinstance(field, File):
+                return canonicalise_url(field.get_absolute_url())
 
-    if not image_obj:
-        request = context['request']
-        page = request.pages.current
+    page = context['request'].pages.current
 
-        if page:
-            image_obj = page.og_image
-
-    if image_obj:
-        return canonicalise_url(image_obj.get_absolute_url())
-
-    if image:
-        return canonicalise_url(image.get_absolute_url())
+    if page and page.og_image:
+        return canonicalise_url(page.og_image.get_absolute_url())
 
     return ''
 
 
 @jinja2.pass_context
-def get_twitter_card(context, card=None):
+def get_twitter_card(context):
     choices = dict(SearchMetaBase._meta.get_field('twitter_card').choices)
 
-    # Load from context if exists
-    if not card:
-        card = context.get('twitter_card')
+    card = context.get('twitter_card')
 
     # If we are still None, look at page content
     if not card:
-        # Get current page from request
-        request = context['request']
-        current_page = request.pages.current
-        homepage = request.pages.homepage
+        pages = context['request'].pages
+        current_page = pages.current
+        homepage = pages.homepage
 
         # Use either the current page twitter card, or the homepage twitter card
         if current_page:
@@ -274,117 +265,79 @@ def get_twitter_card(context, card=None):
 
 
 @jinja2.pass_context
-def get_twitter_title(context, title=None):
-    # Load from context if exists
-    if not title:
-        title = context.get('twitter_title')
+def get_twitter_title(context):
+    # Always prefer an override from the context.
+    if context.get('twitter_title'):
+        return context['twitter_title']
 
-    # Check the object if we still have nothing
-    if not title:
-        obj = context.get('object', None)
+    # If explicit "title" has been set in the context, then fall back to that.
+    # It should take precedence over looking at the current object or the
+    # currently active page.
+    if context.get('title'):
+        return context['title']
 
-        if obj:
-            title = getattr(obj, 'twitter_title', None) or getattr(obj, 'title', None)
+    # If there is an object in the context, check it for the "twitter_title"
+    # and "title" fields in that order.
+    obj = context.get('object')
+    if obj:
+        for field in ['twitter_title', 'title']:
+            title = getattr(obj, field, None)
+            if title:
+                return title
 
-    # If we are still None, look at page content
-    if not title:
-        # Get current page from request
-        request = context['request']
-        current_page = request.pages.current
-        homepage = request.pages.homepage
+    # If we still haven't found one, look at the current page.
+    current_page = context['request'].pages.current
 
-        # Use either the current page twitter title, or the homepage twitter title
-        if current_page:
-            title = current_page.twitter_title
+    # Use the current page's Twitter title if it has one set.
+    if current_page and current_page.twitter_title:
+        return current_page.twitter_title
 
-        if not title and homepage:
-            title = homepage.twitter_title
-
-        # If everything fails, fallback to OG tag title
-        if not title:
-            title = get_og_title(context)
-
-    # Return title, or an empty string if nothing is working
-    return escape(title or '')
+    return get_og_title(context)
 
 
 @jinja2.pass_context
-def get_twitter_description(context, description=None):
-    # Load from context if exists
-    if not description:
-        description = context.get('twitter_description')
+def get_twitter_description(context):
+    if context.get('twitter_description'):
+        return context['twitter_description']
 
-    # If we are still None, look at page content
-    if not description:
-        # Get current page from request
-        request = context['request']
-        current_page = request.pages.current
-        homepage = request.pages.homepage
+    # Check twitter_description on the current object. No other fallbacks are
+    # needed - we can rely on the get_og_description fallback to be more
+    # thorough.
+    obj = context.get('object')
+    if obj and getattr(obj, 'twitter_description', None):
+        return obj.twitter_description
 
-        # Use either the current page twitter description, or the homepage twitter description
-        if current_page:
-            description = current_page.twitter_description
+    # Check the current page for a Twitter description.
+    current_page = context['request'].pages.current
+    if current_page and current_page.twitter_description:
+        return current_page.twitter_description
 
-        if not description and homepage:
-            description = homepage.twitter_description
-
-        # If everything fails, fallback to OG tag title
-        if not description:
-            description = get_og_description(context)
-
-    # Return description, or an empty string if nothing is working
-    return escape(description or '')
+    # Fall back to OpenGraph.
+    return get_og_description(context)
 
 
 @jinja2.pass_context
-def get_twitter_image(context, image=None):
-    '''
+def get_twitter_image(context):
+    """
     Returns an appropriate Twitter image for the current page, falling back
     to the Open Graph image if it is set.
-    '''
-    image_obj = None
+    """
 
-    # Load from context if exists
-    if not image:
-        image = context.get('twitter_image')
+    # Prefer any explicit override in the context, including that set by
+    # SearchMetaDetailMixin.
+    if context.get('twitter_image'):
+        return canonicalise_url(context['twitter_image'].get_absolute_url())
 
-    # Check the object if we still have nothing
-    if not image:
-        obj = context.get('object')
+    obj = context.get('object')
+    if obj and getattr(obj, 'twitter_image', None):
+        return canonicalise_url(obj.twitter_image.get_absolute_url())
 
-        if obj:
-            field = getattr(obj, 'image', None) or getattr(obj, 'photo', None) or getattr(obj, 'logo', None)
+    current_page = context['request'].pages.current
+    if current_page and current_page.twitter_image:
+        return canonicalise_url(current_page.twitter_image.get_absolute_url())
 
-            image_obj = field if field else None
-
-    # Get current page from request
-    request = context['request']
-
-    # If we are still None, look at page content
-    if not image and not image_obj:
-        current_page = request.pages.current
-        homepage = request.pages.homepage
-
-        # Use either the current page twitter image, or the homepage twitter image
-        if current_page:
-            image = current_page.twitter_image
-
-        if not image and homepage:
-            image = homepage.twitter_image
-
-        # If everything fails, fallback to OG tag title
-        if not image:
-            return get_og_image(context)
-
-    # If its a file object, load the URL manually
-    if image_obj:
-        return canonicalise_url(image_obj.get_absolute_url())
-
-    if image:
-        return canonicalise_url(image.get_absolute_url())
-
-    # Return image, or an empty string if nothing is working
-    return ''
+    # Use OpenGraph image for fallbacks.
+    return get_og_image(context)
 
 
 @jinja2.pass_context

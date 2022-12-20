@@ -171,12 +171,13 @@ It is a thin wrapper around `Page.reverse`.
 Returns the canonical URL for the currently viewed URL.
 It merely ensures that any query string junk does not cause a page to be indexed more than once by search engines.
 
-## OpenGraph (Facebook and others) functions
+## OpenGraph functions (for Facebook and others)
 * **Load with:** `{% load uncms_pages %}`
 * **[Jinja2](using-jinja2.md) equivalent:** `{{ get_og_title() }}`, `{{ get_og_image() }}`, `{{ get_og_description() }}`
 
 
 `{% og_title %}`, `{% og_description %}` and `{% og_image %}` render the OpenGraph title, description, and image for the current object.
+It is widely used by social media sites and apps (including Facebook) to display link previews.
 
 You will want to use them like so:
 
@@ -191,7 +192,12 @@ You will want to use them like so:
 
 `{% og_title %}` is smart enough to fall back to the current object's browser title override or `title` attribute.
 
-`{% og_image %}` checks the OpenGraph image field of the current object, then falls back to the `image`, `photo` and `logo` field on the current object, in that order.
+`{% og_image %}` checks for an image to use as an OpenGraph image in the following order:
+
+* if `og_image` is in the context, assume it's an [UnCMS File object](media-library.md) and return its URL
+* if `og_image_url` is in the context, assume it is an arbitrary URL with a path part and return a canonicalised version of that URL; you may place `og_image_url` into the context to force an OpenGraph image override using a field which is not an UnCMS File (such as a Django `ImageField`)
+* if `object` is in the context (standard for views that inherit from Django's `DetailView`), check the object's `image` and `photo` attributes, in that order; it will return the first of those which are an UnCMS File
+* the OpenGraph image of the current page, if it is set
 
 ## Twitter card functions
 

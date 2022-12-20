@@ -9,6 +9,7 @@ from uncms.pages.templatetags._common import (
     get_og_description,
     get_og_image,
     get_og_title,
+    get_page_url,
     get_twitter_card,
     get_twitter_description,
     get_twitter_image,
@@ -87,6 +88,11 @@ def og_image(context):
 @register.simple_tag(takes_context=True)
 def og_title(context):
     return get_og_title(context)
+
+
+@register.simple_tag
+def page_url(page, view_func=None, *args, **kwargs):  # pylint:disable=keyword-arg-before-vararg
+    return get_page_url(page, view_func=view_func, *args, **kwargs)
 
 
 @register.inclusion_tag('pages/title.html', takes_context=True)
