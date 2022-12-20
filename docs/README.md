@@ -6,13 +6,16 @@ with an emphasis on speed, simplicity, and familiarity.
 
 ## Requirements
 
-UnCMS assumes Jinja2 templating with [django-jinja](https://github.com/niwinz/django-jinja) and a PostgreSQL database.
+UnCMS works best with a PostgreSQL database.
+Other databases probably work, but have not been extensively tested.
 
 ## Features
 
-UnCMS comes with just enough features for building the normal small-to-medium-sized content-heavy websites,
+UnCMS comes with just enough features for building small-to-medium-sized content-heavy websites,
 and leaves other decisions to your project.
-It has no opinions about how your project should be structured, it has minimal opinions about how the admin looks, and it plays well with your existing models.
+It has no opinions about how your project should be structured,
+it has minimal opinions about how your admin area looks,
+and it plays well with your existing models.
 
 * Hierarchal [page management](pages-app.md) and [navigation menus](rendering-navigation.md) with no depth limit.
 * [Publication controls](publication-control.md) with online preview.
@@ -22,9 +25,11 @@ It has no opinions about how your project should be structured, it has minimal o
 * Version control and rollback (via [django-reversion](https://github.com/etianen/django-reversion)).
 * Full-text search with relevance ranking (via [django-watson](https://github.com/etianen/django-watson)).
 * Many [helper models](helpers.md) and views for SEO-friendly user-visible models.
+* [Support](using-jinja2.md) for Jinja2 templating.
 
 ## Getting started
 
+* Read the [philosophy of UnCMS](philosophy.md) to decide if it is a good fit for you.
 * Read the [walkthrough](walkthrough.md).
 * Clone and have a poke around the [accompanying tiny CMS project repo](https://github.com/lewiscollard/tiny-uncms-project).
 * Read about the [philosophy of UnCMS](philosophy.md) to see if it is a good fit for your project.

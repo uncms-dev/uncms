@@ -31,7 +31,7 @@ The `<head>` of your document should look like this:
 
 Or,
 much more simply,
-if you are happy with the way UnCMS behaves by default,
+if you are happy with the way UnCMS behaves by default and you do not wish to override any of these blocks in templates that inherit from your base template,
 you can include `pages/head_meta.html` which will do this all for you:
 
 ```
