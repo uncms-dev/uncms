@@ -95,21 +95,18 @@ def get_page_url(page, view_func=None, *args, **kwargs):  # pylint:disable=keywo
 
 # Page widgets.
 @jinja2.pass_context
-def get_meta_description(context, description=None):
+def get_meta_description(context):
     """
     Renders the content of the meta description tag for the current page.
     """
-    if description is None:
-        description = context.get('meta_description')
+    if context.get('meta_description'):
+        return context['meta_description']
 
-    if description is None:
-        request = context['request']
-        page = request.pages.current
+    page = context['request'].pages.current
+    if page and page.meta_description:
+        return page.meta_description
 
-        if page:
-            description = page.meta_description
-
-    return escape(description or '')
+    return ''
 
 
 @jinja2.pass_context
@@ -161,8 +158,7 @@ def get_canonical_url(context):
     Returns the canonical URL of the current page, normalised for the correct
     protocol, path and PREPEND_WWW setting.
     '''
-    url = canonicalise_url(context['request'].path)
-    return escape(url)
+    return canonicalise_url(context['request'].path)
 
 
 @jinja2.pass_context
