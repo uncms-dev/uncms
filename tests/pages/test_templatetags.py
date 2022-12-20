@@ -29,6 +29,7 @@ from uncms.pages.templatetags.uncms_pages import (
     admin_sitemap_entries,
     meta_description,
     meta_robots,
+    navigation,
     og_image,
     og_title,
     page_url,
@@ -51,16 +52,17 @@ def test_render_breadcrumbs():
 
 
 @pytest.mark.django_db
-def test_render_navigation():
+@pytest.mark.parametrize('test_function', [render_navigation, navigation])
+def test_navigation(test_function):
     PageFactory.create_tree(1, 3)
     request = request_with_pages()
     request.user = MockRequestUser(is_authenticated=True)
 
-    navigation = render_navigation({
+    nav = test_function({
         'request': request,
     }, request.pages.current.navigation)
 
-    assert len(navigation) > 0
+    assert len(nav) > 0
 
 
 def test_navigation_entries(simple_page_tree):
@@ -69,9 +71,9 @@ def test_navigation_entries(simple_page_tree):
     request.user = MockRequestUser(is_authenticated=True)
     request.pages = RequestPageManager(request)
 
-    navigation = _navigation_entries({'request': request}, request.pages.current.navigation)
+    nav = _navigation_entries({'request': request}, request.pages.current.navigation)
 
-    assert navigation == [
+    assert nav == [
         {
             'url': '/section/',
             'page': simple_page_tree.section,
@@ -101,8 +103,8 @@ def test_navigation_entries(simple_page_tree):
     ]
 
     # Test is_json response.
-    navigation = _navigation_entries({'request': request}, request.pages.current.navigation, json_safe=True)
-    assert navigation == [
+    nav = _navigation_entries({'request': request}, request.pages.current.navigation, json_safe=True)
+    assert nav == [
         {
             'url': '/section/',
             'here': False,
@@ -129,11 +131,11 @@ def test_navigation_entries(simple_page_tree):
     ]
 
     # Test with section specified.
-    navigation = _navigation_entries({
+    nav = _navigation_entries({
         'request': request,
         'pages': request.pages,
     }, request.pages.current.navigation, section=simple_page_tree.subsubsection)
-    assert navigation == [
+    assert nav == [
         {
             'url': '/section/subsection/subsubsection/',
             'page': simple_page_tree.subsubsection,
@@ -173,9 +175,9 @@ def test_navigation_entries(simple_page_tree):
     # Section page isn't visible to non logged in users
     request.user = MockRequestUser(is_authenticated=False)
 
-    navigation = _navigation_entries({'request': request}, request.pages.current.navigation)
+    nav = _navigation_entries({'request': request}, request.pages.current.navigation)
 
-    assert navigation == []
+    assert nav == []
 
 
 @pytest.mark.django_db
