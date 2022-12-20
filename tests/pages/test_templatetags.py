@@ -1,26 +1,15 @@
-import base64
-import random
-import sys
-from dataclasses import dataclass
-
 import pytest
-from django.contrib.contenttypes.models import ContentType
-from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import RequestFactory, TestCase, override_settings
-from django.utils.timezone import now
-from watson import search
+from django.test import RequestFactory, override_settings
 
 from tests.media.factories import MinimalGIFFileFactory
-from tests.mocks import MockSuperUser, request_with_pages
+from tests.mocks import MockRequestUser, MockSuperUser, request_with_pages
 from tests.pages.factories import PageFactory
 from tests.testing_app.models import (
     ImageFieldModel,
     PageBaseModel,
     TemplateTagTestPage,
 )
-from uncms.media.models import File
 from uncms.pages.middleware import RequestPageManager
-from uncms.pages.models import Page
 from uncms.pages.templatetags._common import (
     _navigation_entries,
     get_canonical_url,
@@ -38,6 +27,7 @@ from uncms.pages.templatetags._common import (
 )
 from uncms.pages.templatetags.uncms_pages import (
     admin_sitemap_entries,
+    meta_description,
     meta_robots,
     og_image,
     og_title,
@@ -50,126 +40,33 @@ from uncms.pages.templatetags.uncms_pages import (
 from uncms.utils import canonicalise_url
 
 
-@dataclass
-class MockUser:
-    is_authenticated: bool
+@pytest.mark.django_db
+def test_render_breadcrumbs():
+    output = render_breadcrumbs({'request': request_with_pages()}, extended=True)
+    assert len(output) > 0
+
+    PageFactory.create_tree(1, 3)
+    output = render_breadcrumbs({'request': request_with_pages()})
+    assert len(output) > 0
 
 
-class TestTemplatetags(TestCase):
+@pytest.mark.django_db
+def test_render_navigation():
+    PageFactory.create_tree(1, 3)
+    request = request_with_pages()
+    request.user = MockRequestUser(is_authenticated=True)
 
-    def setUp(self):
-        self.factory = RequestFactory()
-        self.request = self.factory.get('/')
+    navigation = render_navigation({
+        'request': request,
+    }, request.pages.current.navigation)
 
-        File.objects.all().delete()
-
-        # A valid GIF.
-        self.name_1 = '{}-{}.gif'.format(
-            now().strftime('%Y-%m-%d_%H-%M-%S'),
-            random.randint(0, sys.maxsize)
-        )
-
-        base64_string = b'R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=='
-        self.obj_1 = File.objects.create(
-            title="Foo",
-            file=SimpleUploadedFile(self.name_1, base64.b64decode(base64_string), content_type="image/gif")
-        )
-
-        with search.update_index():
-            content_type = ContentType.objects.get_for_model(TemplateTagTestPage)
-
-            self.homepage = Page.objects.create(
-                title="Homepage",
-                slug='homepage',
-                content_type=content_type,
-            )
-
-            TemplateTagTestPage.objects.create(
-                page=self.homepage,
-            )
-
-            self.section = Page.objects.create(
-                parent=self.homepage,
-                title="Section",
-                slug='section',
-                content_type=content_type,
-                hide_from_anonymous=True
-            )
-
-            TemplateTagTestPage.objects.create(
-                page=self.section,
-            )
-
-            self.subsection = Page.objects.create(
-                parent=self.section,
-                title="Subsection",
-                slug='subsection',
-                content_type=content_type,
-            )
-
-            TemplateTagTestPage.objects.create(
-                page=self.subsection,
-            )
-
-            self.subsubsection = Page.objects.create(
-                parent=self.subsection,
-                title="Subsubsection",
-                slug='subsubsection',
-                content_type=content_type,
-            )
-
-            TemplateTagTestPage.objects.create(
-                page=self.subsubsection,
-            )
-
-    def tearDown(self):
-        self.obj_1.file.delete(False)
-        self.obj_1.delete()
-
-    def test_render_navigation(self):
-        request = self.factory.get('/')
-        request.user = MockUser(is_authenticated=True)
-        request.pages = RequestPageManager(request)
-
-        navigation = render_navigation({
-            'request': request
-        }, request.pages.current.navigation)
-
-        self.assertTrue(len(navigation) > 0)
-
-    def test_render_breadcrumbs(self):
-        class Object:
-            current = None
-
-        self.request.pages = Object()
-
-        output = render_breadcrumbs({'request': self.request}, extended=True)
-        self.assertTrue(len(output) > 0)
-
-        request = self.factory.get('/')
-        request.user = MockUser(is_authenticated=True)
-        request.pages = RequestPageManager(request)
-        output = render_breadcrumbs({'request': request})
-        self.assertTrue(len(output) > 0)
-
-    def test_get_meta_description(self):
-        request = self.factory.get('/')
-        request.pages = RequestPageManager(request)
-
-        self.assertEqual(get_meta_description({}, description='Check 1'), 'Check 1')
-
-        self.homepage.meta_description = 'Check 2'
-        self.homepage.save()
-
-        self.assertEqual(get_meta_description({
-            'request': request,
-        }), 'Check 2')
+    assert len(navigation) > 0
 
 
 def test_navigation_entries(simple_page_tree):
     factory = RequestFactory()
     request = factory.get('/')
-    request.user = MockUser(is_authenticated=True)
+    request.user = MockRequestUser(is_authenticated=True)
     request.pages = RequestPageManager(request)
 
     navigation = _navigation_entries({'request': request}, request.pages.current.navigation)
@@ -274,7 +171,7 @@ def test_navigation_entries(simple_page_tree):
     ]
 
     # Section page isn't visible to non logged in users
-    request.user = MockUser(is_authenticated=False)
+    request.user = MockRequestUser(is_authenticated=False)
 
     navigation = _navigation_entries({'request': request}, request.pages.current.navigation)
 
@@ -381,6 +278,25 @@ def test_meta_robots(meta_robots_func):
     assert meta_robots_func({
         'pages': request.pages,
     }) == 'INDEX, FOLLOW, ARCHIVE'
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize('test_function', [get_meta_description, meta_description])
+def test_meta_description(test_function):
+    context = {'request': request_with_pages()}
+    assert test_function(context) == ''
+
+    homepage = PageFactory()
+    context['request'] = request_with_pages()
+    assert test_function(context) == ''
+
+    homepage.meta_description = 'Page description'
+    homepage.save()
+    context['request'] = request_with_pages()
+    assert test_function(context) == 'Page description'
+
+    context['meta_description'] = 'Context override'
+    assert test_function(context) == 'Context override'
 
 
 @pytest.mark.django_db
