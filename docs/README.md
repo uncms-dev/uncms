@@ -1,5 +1,11 @@
 # UnCMS documentation
 
+!> **Warning**: UnCMS is alpha software.
+It is subject to change at no notice,
+and version numbers will give no indication of breaking changes until version 1 is released.
+Some functionality might be catastrophically broken.
+At this time, it is recommended only for the brave.
+
 UnCMS is a collection of Django extensions that add content-management facilities to Django projects.
 It is not a CMS, but rather a toolkit that will help you build one,
 with an emphasis on speed, simplicity, and familiarity.
@@ -31,8 +37,7 @@ and it plays well with your existing models.
 
 * Read the [philosophy of UnCMS](philosophy.md) to decide if it is a good fit for you.
 * Read the [walkthrough](walkthrough.md).
-* Clone and have a poke around the [accompanying tiny CMS project repo](https://github.com/lewiscollard/tiny-uncms-project).
-* Read about the [philosophy of UnCMS](philosophy.md) to see if it is a good fit for your project.
+* Clone and have a poke around the [accompanying tiny UnCMS project repo](https://github.com/lewiscollard/tiny-uncms-project).
 
 ## Editing this document
 
