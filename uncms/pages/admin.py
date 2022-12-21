@@ -534,7 +534,7 @@ class PageAdmin(PageBaseAdmin):
                 # 20 level deep pages. In the case where it has gotten
                 # garbaged, we don't deprive them of the use of the admin to
                 # fix it :)
-                break
+                break  # pragma: no cover
         return fmt
 
     def response_add(self, request, obj, post_url_continue=None):

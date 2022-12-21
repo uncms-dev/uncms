@@ -16,7 +16,7 @@ from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpResponseRedirect
 from django.http.request import QueryDict
-from django.test import RequestFactory, TestCase
+from django.test import RequestFactory, TestCase, override_settings
 from django.urls import reverse
 from django.utils.text import slugify
 from reversion.models import Version
@@ -720,6 +720,30 @@ def test_page_admin_list_is_efficient(object_count, admin_client, django_assert_
     with django_assert_num_queries(8):
         response = admin_client.get(reverse('admin:pages_page_changelist'))
     assert response.status_code == 200
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize('use_arrows', [True, False])
+# does not give interesting behaviour, just covers a branch
+@pytest.mark.parametrize('prefetch_depth', [True, False])
+def test_pageadmin_list_arrows(use_arrows, prefetch_depth, admin_client):
+    PageFactory.create_tree(2, 2)
+    with override_settings(UNCMS={'ADMIN_PAGE_LIST_ARROWS': use_arrows, 'PAGE_TREE_PREFETCH_DEPTH': prefetch_depth}):
+        response = admin_client.get(reverse('admin:pages_page_changelist'))
+    assert response.status_code == 200
+    # less effort than poking around in the template context
+    soup = BeautifulSoup(response.content, 'html.parser')
+    title_columns = [
+        element.get_text()
+        for element in soup.select('.field-render_title')
+    ]
+    assert title_columns[0].startswith('→ Page') is False
+
+    for top_level_index in [1, 4]:
+        assert title_columns[top_level_index].startswith('→ Page') is use_arrows
+
+    for second_level_index in [2, 3, 5, 6]:
+        assert title_columns[second_level_index].startswith('→ → Page') is use_arrows
 
 
 @pytest.mark.django_db
