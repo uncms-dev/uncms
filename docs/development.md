@@ -7,6 +7,8 @@ _WIP: development and testing guide_
 You should read [the philosophy of UnCMS](philosophy.md) before implementing new features.
 There are certain features that will never be considered for UnCMS,
 such as multiple concurrent versions of one page.
+For example, having the "same" page in two different languages will never be supported.
+Publication workflows that require having draft versions and published versions of the same page will never be supported.
 And features that are not useful for the overwhelming majority of projects are best implemented in your project,
 not in UnCMS.
 
@@ -14,7 +16,7 @@ not in UnCMS.
 
 UnCMS aims for a very high code coverage percentage.
 Eventually, the goal is to reach 100% coverage, and to enforce this in CI,
-so any new features should be fully covered by tests.
+so any new features should have full line test coverage.
 Any bug fixes might need a regression test.
 
 You should write new tests as pytest test functions.
@@ -26,10 +28,10 @@ it might be best to rewrite that test as a test function.
 
 With overridden methods of subclasses of standard Django classes,
 it is best to test functionality at a higher level,
-rather than test the functionality itself.
-This means that the test will fail if Django's API changes in future,
-which gives you confidence that it will work across Django upgrades.
-Often, the Django view is the best place to write the test.
+rather than test individual functions.
+This gives you more confidence that the test will remain relevant if Django's API changes in future (or fail loudly if it is not relevant),
+which gives you confidence that the thing your tests are across Django upgrades.
+Often, a Django view is the best thing to test.
 
 For example, the ModelAdmin for the File model in the [media app](media-app.md) contains an override of `get_fieldsets`,
 to conditionally show or hide the "Usage" fieldset depending on whether a new file is being created or if we are editing an existing one.
@@ -42,6 +44,3 @@ and then peek into the fieldsets from the template context.
 Another example, also from the media app, is that the stylesheet for the fancy grid view on the list page is conditionally shown or hidden based on a setting.
 The simplest way to test that this is working is to use BeautifulSoup to look at the rendered HTML,
 and see if there is an appropriate `<link>` tag in it.
-
-Generally, if you find yourself making mocks for an HTTP request,
-it is a sign that you are trying to test at too low a level.

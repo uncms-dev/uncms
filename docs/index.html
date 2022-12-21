@@ -12,6 +12,17 @@
     .markdown-section em {
       color: inherit;
     }
+
+    .app-name-link {
+      display: block;
+      padding-left: 15px;
+
+      text-align: left;
+    }
+    .app-name-link img {
+      width: 125px;
+      height: 43px;
+    }
   </style>
 </head>
 <body>
@@ -20,7 +31,8 @@
     window.$docsify = {
       name: 'UnCMS',
       repo: 'https://github.com/lewiscollard/uncms',
-      loadSidebar: true
+      loadSidebar: true,
+      logo: '/logo.png'
     }
   </script>
   <script src="//unpkg.com/docsify@4/lib/docsify.min.js"></script>
