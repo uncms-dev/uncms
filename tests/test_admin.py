@@ -1,6 +1,6 @@
 import pytest
 from django.contrib.admin.sites import AdminSite
-from django.test import RequestFactory, TestCase
+from django.test import RequestFactory
 
 from tests.media.factories import MinimalGIFFileFactory
 from tests.testing_app.admin import RealPageBaseAdmin
@@ -8,38 +8,35 @@ from tests.testing_app.models import OnlineBaseModel, PageBaseModel
 from uncms.admin import OnlineBaseAdmin, SEOQualityControlFilter
 
 
-class AdminTest(TestCase):
+@pytest.mark.django_db
+def test_onlinebaseadmin_publish_selected():
+    page_admin = OnlineBaseAdmin(OnlineBaseModel, AdminSite())
 
-    def setUp(self):
-        factory = RequestFactory()
-        self.request = factory.get('/')
+    obj = OnlineBaseModel.objects.create(
+        is_online=False,
+    )
+    assert obj.is_online is False
 
-        self.site = AdminSite()
-        self.page_admin = OnlineBaseAdmin(OnlineBaseModel, self.site)
+    page_admin.publish_selected(RequestFactory().get('/'), OnlineBaseModel.objects.all())
 
-    def test_onlinebaseadmin_publish_selected(self):
-        obj = OnlineBaseModel.objects.create(
-            is_online=False,
-        )
+    obj.refresh_from_db()
+    assert obj.is_online is True
 
-        self.assertFalse(obj.is_online)
 
-        self.page_admin.publish_selected(self.request, OnlineBaseModel.objects.all())
+@pytest.mark.django_db
+def test_onlinebaseadmin_unpublish_selected():
+    page_admin = OnlineBaseAdmin(OnlineBaseModel, AdminSite())
 
-        obj = OnlineBaseModel.objects.get(pk=obj.pk)
-        self.assertTrue(obj.is_online)
+    obj = OnlineBaseModel.objects.create(
+        is_online=True,
+    )
 
-    def test_onlinebaseadmin_unpublish_selected(self):
-        obj = OnlineBaseModel.objects.create(
-            is_online=True,
-        )
+    assert obj.is_online is True
 
-        self.assertTrue(obj.is_online)
+    page_admin.unpublish_selected(RequestFactory().get('/'), OnlineBaseModel.objects.all())
 
-        self.page_admin.unpublish_selected(self.request, OnlineBaseModel.objects.all())
-
-        obj = OnlineBaseModel.objects.get(pk=obj.pk)
-        self.assertFalse(obj.is_online)
+    obj.refresh_from_db()
+    assert obj.is_online is False
 
 
 @pytest.mark.django_db
