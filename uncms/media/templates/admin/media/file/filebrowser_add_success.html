@@ -12,12 +12,11 @@
       }
 
       var permalink = "{{ permalink }}";
-      var altText = "{{ alt_text }}"
 
       tinymce.focus()
       tinymce.selection.setContent(tinymce.dom.createHTML('img', {
         src: "{{ permalink }}",
-        alt: "{{ alt_text}}",
+        alt: null,
       }));
 
       // Get the active editor open window
