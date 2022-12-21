@@ -16,14 +16,14 @@ from uncms.pages.models import Page
 
 
 def check_inline_for_admin_url(obj, inline, parent, inline_check=True):
-    '''
-    A function used to get the admin URL for an obj.
+    """
+    A function used to get the admin URL for an inline obj.
 
     Takes the object itself, an inline object and the class of the
     parent model.
 
     If no change URL is found, None is returned.
-    '''
+    """
     # We obviously need the object to be the same type of object
     # as the inline's parent to at least get anywhere useful. We
     # catch thisstraight away and immediately return if so to save
@@ -83,7 +83,7 @@ def check_inline_for_admin_url(obj, inline, parent, inline_check=True):
 
 
 def get_admin_url(obj):
-    '''
+    """
     Guesses the admin URL for an object.
 
     If the object has its own change view, then that will be returned.
@@ -93,7 +93,7 @@ def get_admin_url(obj):
 
     Failing that, it will see if it is an inline registered to a Page
     (with page_admin.register_content_inline).
-    '''
+    """
     # Import here to avoid circular imports
     from uncms.pages.admin import page_admin  # pylint:disable=import-outside-toplevel,cyclic-import
 
@@ -140,7 +140,6 @@ def get_admin_url(obj):
 
         if url:
             return url
-    # You can use the same logic that tests for a ContentBaseInline page to test for a ContentBae page
 
     # If none of the above work then we're really out of options. Just
     # return None and let our caller handle this.
