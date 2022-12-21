@@ -4,6 +4,7 @@ from django.db.models import Q
 from django.db.models.deletion import get_candidate_relations_to_delete
 from django.db.utils import DEFAULT_DB_ALIAS
 from django.urls import NoReverseMatch, reverse
+from django.utils.translation import gettext_lazy as _
 from reversion.admin import VersionAdmin
 from watson.admin import SearchAdmin
 
@@ -129,7 +130,7 @@ def get_admin_url(obj):
     # If we've made it here, then obj is neither an object with an admin
     # change URL nor is it an inline of a registered model with an admin
     # change URL. Lets check inlines registered with page_admin.
-    for _, inline in page_admin.content_inlines:
+    for _ignore, inline in page_admin.content_inlines:
         # page_admin.content_inlines is a list of tuples. The first value
         # is the ContentType and the second is the inline InlineModelAdmin
         # used to register the model.
@@ -174,17 +175,17 @@ class SEOQualityControlFilter(admin.SimpleListFilter):
         list_filter = [SEOQualityControlFilter]
     '''
 
-    title = 'quality control'
+    title = _('quality control')
 
     parameter_name = 'seo_quality_control'
 
     def lookups(self, request, model_admin):
         return (
-            ('no-meta-description', 'No meta description'),
-            ('no-browser-title', 'No browser title'),
-            ('incomplete-opengraph-fields', 'Incomplete Open Graph fields'),
-            ('no-og-image', 'No Open Graph image'),
-            ('incomplete-twitter-fields', 'Incomplete Twitter card fields'),
+            ('no-meta-description', _('No meta description')),
+            ('no-browser-title', _('No browser title')),
+            ('incomplete-opengraph-fields', _('Incomplete Open Graph fields')),
+            ('no-og-image', _('No Open Graph image')),
+            ('incomplete-twitter-fields', _('Incomplete Twitter card fields')),
         )
 
     def queryset(self, request, queryset):
@@ -218,7 +219,7 @@ class OnlineBaseAdmin(PublishedBaseAdmin):
 
     list_filter = ('is_online',)
 
-    PUBLICATION_FIELDS = ('Publication', {
+    PUBLICATION_FIELDS = (_('Publication'), {
         'fields': ('is_online',),
         'classes': ('collapse',),
     })
@@ -249,17 +250,17 @@ class SearchMetaBaseAdmin(OnlineBaseAdmin, VersionAdmin, SearchAdmin):
 
     list_filter = OnlineBaseAdmin.list_filter + (SEOQualityControlFilter,)
 
-    SEO_FIELDS = ('SEO', {
+    SEO_FIELDS = (_('SEO'), {
         'fields': ('browser_title', 'meta_description', 'sitemap_priority', 'sitemap_changefreq', 'robots_index', 'robots_follow', 'robots_archive',),
         'classes': ('collapse',),
     })
 
-    OPENGRAPH_FIELDS = ('Open Graph', {
+    OPENGRAPH_FIELDS = (_('Open Graph'), {
         'fields': ('og_title', 'og_description', 'og_image'),
         'classes': ('collapse',)
     })
 
-    OPENGRAPH_TWITTER_FIELDS = ('Twitter card', {
+    OPENGRAPH_TWITTER_FIELDS = (_('Twitter card'), {
         'fields': ('twitter_card', 'twitter_title', 'twitter_description', 'twitter_image'),
         'classes': ('collapse',)
     })
