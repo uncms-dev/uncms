@@ -2,16 +2,47 @@ from hashlib import sha256
 from io import BytesIO
 
 import pytest
+from django.conf import settings
+from django.contrib.auth.models import Permission
 from django.test.utils import override_settings
 from django.urls import reverse
 from PIL import Image
 
+from tests.factories import UserFactory
 from tests.media.factories import (
     EmptyFileFactory,
     SampleJPEGFileFactory,
     SamplePNGFileFactory,
 )
 from uncms.models.base import path_token_generator
+
+
+@pytest.mark.django_db
+def test_file_redirect_view(client):
+    def is_login_url(url):
+        return url.startswith(settings.LOGIN_URL)
+
+    obj = EmptyFileFactory()
+    url = reverse('media_library:file_redirect', args=[obj.pk])
+
+    response = client.get(url)
+    assert response.status_code == 302
+    assert is_login_url(response['Location'])
+
+    user = UserFactory()
+    client.force_login(user)
+
+    response = client.get(url)
+    assert response.status_code == 403
+
+    user.is_staff = True
+    user.user_permissions.add(Permission.objects.get(codename='view_file'))
+    user.save()
+
+    response = client.get(url)
+    assert response.status_code == 302
+    assert is_login_url(response['Location']) is False
+    assert response['Location'] == obj.get_absolute_url()
 
 
 @pytest.mark.django_db

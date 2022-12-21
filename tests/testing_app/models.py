@@ -86,23 +86,6 @@ class SearchMetaBaseSearchAdapter(CMSSearchMetaBaseSearchAdapter):
     pass
 
 
-class PermalinksModel(models.Model):
-
-    def __str__(self):
-        return 'Foo'
-
-    def get_absolute_url(self):
-        return '/foo/'
-
-
-class HTMLModel(models.Model):
-    def __str__(self):
-        return 'Foo'
-
-    def get_absolute_url(self):
-        return '/foo/'
-
-
 class LinkFieldModel(models.Model):
 
     link = LinkField()

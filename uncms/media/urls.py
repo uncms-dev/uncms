@@ -1,6 +1,6 @@
 from django.urls import path
 
-from uncms.media.views import ImageView
+from uncms.media.views import AdminFileRedirectView, ImageView
 
 app_name = 'media'
 
@@ -10,4 +10,5 @@ urlpatterns = [
         ImageView.as_view(),
         name='image_view',
     ),
+    path('redirect/<int:pk>/', AdminFileRedirectView.as_view(), name='file_redirect'),
 ]

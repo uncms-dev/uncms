@@ -131,6 +131,16 @@ This looks much better for something that is not informationally-dense,
 but it may not play well with non-standard admin skins.
 Set this to `False` if it looks weird in your admin, or if you prefer a standard table list view.
 
+## `MEDIA_URLS_NAMESPACE`
+
+* Type: string
+* Default: `'media_library'`
+
+The recommended configuration in this documentation is to register the [media library](media-library.md) URLs under the `'media_library'` namespace.
+If you are too smart to copy-and-paste examples from the documentation,
+or otherwise need to use a different namespace for the media library views,
+you may change it with this setting.
+
 ## `NAVIGATION_CLASS_PREFIX`
 
 * Type: string

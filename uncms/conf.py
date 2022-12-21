@@ -66,6 +66,7 @@ class AppSettings:
         'IMAGE_WIDTHS': [400, 768, 1024],
         'MEDIA_FILE_MODEL': 'media.File',
         'MEDIA_LIST_GRID_VIEW': True,
+        'MEDIA_URLS_NAMESPACE': 'media_library',
         'NAVIGATION_CLASS_PREFIX': 'navigation',
         'NAVIGATION_TEMPLATE': 'pages/navigation/navigation.html',
         'NAVIGATION_ITEM_TEMPLATE': 'pages/navigation/navigation_item.html',

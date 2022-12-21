@@ -25,7 +25,6 @@ from django.views.decorators.clickjacking import xframe_options_sameorigin
 from reversion.admin import VersionAdmin
 from watson.admin import SearchAdmin
 
-from uncms import permalinks
 from uncms.admin import get_related_objects_admin_urls
 from uncms.conf import defaults
 from uncms.media.filetypes import IMAGE_DB_QUERY
@@ -153,7 +152,7 @@ class FileAdmin(VersionAdmin, SearchAdmin):
         '''Generates a thumbnail of the image, falling back to an appropriate
         icon if it is not an image file or if thumbnailing fails.'''
         icon = obj.icon
-        permalink = permalinks.create(obj)
+        permalink = obj.get_temporary_url()
         if obj.is_image():
             thumbnail = obj.get_thumbnail(width=200, fmt='webp')
             return format_html(
@@ -185,7 +184,7 @@ class FileAdmin(VersionAdmin, SearchAdmin):
         '''Returns the response for a successful add action.'''
         if '_tinymce' in request.GET:
             context = {
-                'permalink': permalinks.create(obj),
+                'permalink': obj.get_temporary_url(),
                 'alt_text': obj.alt_text or '',
             }
             return render(request, 'admin/media/file/filebrowser_add_success.html', context)

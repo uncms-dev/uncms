@@ -8,7 +8,6 @@ from bs4 import BeautifulSoup
 from django.contrib.admin.sites import AdminSite
 from django.contrib.admin.views.main import IS_POPUP_VAR
 from django.contrib.auth.models import Permission
-from django.contrib.contenttypes.models import ContentType
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.http import Http404
@@ -127,10 +126,7 @@ class TestFileAdminBase(TransactionTestCase):
         preview = self.file_admin.get_preview(self.obj_2)
 
         self.assertIn(
-            '<img class="uncms-thumbnail" uncms:permalink="/r/{}-{}/"'.format(
-                ContentType.objects.get_for_model(File).pk,
-                self.obj_2.pk
-            ),
+            f'<img class="uncms-thumbnail" uncms:permalink="/library/redirect/{self.obj_2.pk}/"',
             preview,
         )
 
@@ -154,11 +150,7 @@ class TestFileAdminBase(TransactionTestCase):
         )
         preview = self.file_admin.get_preview(obj)
 
-        self.assertEqual(preview, '<img class="uncms-fallback-icon" uncms:permalink="/r/{}-{}/" src="/static/media/img/text-x-generic-template.png" width="56" height="66" alt="" title="Foo"/>'.format(
-            ContentType.objects.get_for_model(File).pk,
-            obj.pk
-        ))
-
+        self.assertEqual(preview, f'<img class="uncms-fallback-icon" uncms:permalink="/library/redirect/{obj.pk}/" src="/static/media/img/text-x-generic-template.png" width="56" height="66" alt="" title="Foo"/>')
         obj.delete()
 
     def test_fileadminbase_response_add(self):

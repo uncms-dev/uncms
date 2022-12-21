@@ -7,11 +7,8 @@ from uncms.html import process_html
 
 def html(text):
     '''
-    Processes HTML text.
-
-    The text is checked for permalinks embedded in <a> tags, expanding the
-    permalinks to their referenced URL. Images containing a permalink source
-    are checked for size and thumbnailed as appropriate.
+    Runs the given HTML through UNCMS['HTML_OUTPUT_FORMATTERS'] and then
+    UNCMS['HTML_CLEANERS'].
     '''
     if not text:
         return ''

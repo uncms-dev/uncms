@@ -33,6 +33,11 @@ def format_html(text):
     media_model_id = ContentType.objects.get_for_model(media_model).id
     old_prefix = f'/r/{media_model_id}-'
 
+    # Prefix for UnCMS-era temporary URLs. Create an unsaved instance of
+    # a media file so we can get its preview URL.
+    new_prefix = media_model(id=0).get_temporary_url()
+    new_prefix = new_prefix[:new_prefix.index('0')]
+
     soup = BeautifulSoup(text, 'html.parser')
 
     for image in soup.find_all('img'):
@@ -41,13 +46,13 @@ def format_html(text):
 
         image_id = None
 
-        if image['src'].startswith(old_prefix):
-            image_id = image['src'][len(old_prefix):].rstrip('/')
-        else:
-            # Coverage is smoking something and cannot see that this line is
-            # in fact covered - stick "assert 0" in here to see the test fail
-            # :)
-            continue  # pragma: no cover
+        for prefix in old_prefix, new_prefix:
+            if image['src'].startswith(prefix):
+                image_id = image['src'][len(prefix):].rstrip('/')
+                break
+
+        if not image_id:
+            continue
 
         try:
             obj = media_model.objects.get(pk=image_id)

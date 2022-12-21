@@ -108,6 +108,14 @@ class File(models.Model):
     def get_absolute_url(self):
         return self.file.url
 
+    def get_temporary_url(self):
+        """
+        get_temporary_url returns a temporary URL that can be used to save a
+        reference to this image in the database, and which will be expanded
+        later in <img> tags by the default HTML output formatter.
+        """
+        return reverse(f'{defaults.MEDIA_URLS_NAMESPACE}:file_redirect', args=[self.pk])
+
     @cached_property
     def icon(self):
         return get_icon(self.file.name)
@@ -142,7 +150,7 @@ class File(models.Model):
         if width == 'auto' and height == 'auto':
             raise ValueError('no dimensions provided - specify either height or width')
 
-        url = reverse('media_library:image_view', kwargs={
+        url = reverse(f'{defaults.MEDIA_URLS_NAMESPACE}:image_view', kwargs={
             'pk': self.pk,
             'width': str(width),
             'height': str(height),

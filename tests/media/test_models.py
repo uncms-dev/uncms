@@ -36,6 +36,16 @@ def test_file_get_absolute_url():
     assert file.get_absolute_url() == f'/media/{file.file.name}'
 
 
+@pytest.mark.django_db()
+def test_file_get_temporary_url(admin_client):
+    file = EmptyFileFactory()
+    url = file.get_temporary_url()
+    assert url == f'/library/redirect/{file.pk}/'
+    response = admin_client.get(url)
+    assert response.status_code == 302
+    assert response['Location'] == file.get_absolute_url()
+
+
 @pytest.mark.django_db
 def test_file_width_and_height():
     minimal = MinimalGIFFileFactory()

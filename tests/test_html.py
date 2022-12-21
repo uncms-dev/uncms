@@ -13,6 +13,7 @@ def test_format_html():
     image_with_alt = SamplePNGFileFactory(alt_text='Alt text &')
 
     old_prefix = f'/r/{ContentType.objects.get_for_model(File).id}-'
+    new_prefix = '/library/redirect/'
 
     # Test some validation branches.
     html = (
@@ -24,6 +25,9 @@ def test_format_html():
         f'<p><img src="{old_prefix}nonsense"></p>'
         # This will be ignored because pk #0 can't exist.
         f'<p><img src="{old_prefix}0"></p>'
+        # This will be ignored because it only starts with the prefix. This
+        # should not cause an exception :)
+        f'<p><img src="{new_prefix}"></p>'
     )
 
     assert format_html(html).strip() == (
@@ -31,12 +35,17 @@ def test_format_html():
         '<p><img src="/nothing.jpg"/></p>'
         f'<p><img src="{old_prefix}nonsense"/></p>'
         f'<p><img src="{old_prefix}0"/></p>'
+        f'<p><img src="{new_prefix}"/></p>'
     )
 
     html = (
         # Test with no alt text to ensure it gets an empty string and not
         # None or a missing value
         f'<p><img title="&amp;" src="{old_prefix}{image.pk}"></p>'
+        # test not being fussy about trailing / in the URL
+        f'<p><img src="{old_prefix}{image.pk}/"/></p>'
+        # test new-style URL prefixes
+        f'<p><img src="{new_prefix}{image.pk}/"></p>'
         # Test copying alt text onto the image.
         f'<p><img src="{old_prefix}{image_with_alt.pk}"></p>'
         # Don't overwrite an existing alt text.
@@ -45,6 +54,8 @@ def test_format_html():
 
     assert format_html(html).strip() == (
         f'<p><img alt="" src="{image.file.url}" title="&amp;"/></p>'
+        f'<p><img alt="" src="{image.file.url}"/></p>'
+        f'<p><img alt="" src="{image.file.url}"/></p>'
         f'<p><img alt="Alt text &amp;" src="{image_with_alt.file.url}"/></p>'
         f'<p><img alt="Override" src="{image_with_alt.file.url}"/></p>'
     )

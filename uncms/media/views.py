@@ -1,4 +1,5 @@
 from django.apps import apps
+from django.contrib.auth.mixins import UserPassesTestMixin
 from django.http import Http404, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
 from django.views.generic import RedirectView
@@ -6,6 +7,27 @@ from sorl.thumbnail import get_thumbnail
 
 from uncms.conf import defaults
 from uncms.models.base import path_token_generator
+
+
+class AdminFileRedirectView(UserPassesTestMixin, RedirectView):
+    """
+    AdminMediaRedirectView redirects to the File object given in the keyword
+    argument `pk`. It is intended for temporary image references in the HTML
+    editor in the admin, which can later be switched out on the front-end with
+    a real image URL. This allows changing the image later on without needing
+    to edit every HTML page that has it embedded.
+    """
+
+    def test_func(self):
+        return (
+            self.request.user.is_authenticated and
+            self.request.user.is_staff and
+            self.request.user.has_perm('media.view_file')
+        )
+
+    def get_redirect_url(self, *args, **kwargs):
+        obj = get_object_or_404(apps.get_model(defaults.MEDIA_FILE_MODEL), pk=kwargs['pk'])
+        return obj.get_absolute_url()
 
 
 class ImageView(RedirectView):
