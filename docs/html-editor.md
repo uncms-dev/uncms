@@ -19,9 +19,8 @@ class Article(models.Model)
 
 That's it!
 
-When rendering the HTML on the front-end of your site, you probably want to filter your HTML through the `html` template filter.
-This will expand permalinks and set alt text, attribution etc on the images in your WYSIWYG editor
-(if they were inserted through the media library plugin mentioned above).
+When rendering the HTML on the front-end of your site, you will want to filter your HTML through the `html` template filter.
+This will expand image references and add alt text where it is missing to the images in your HTML editor.
 Extra output processors may be specified with the [`HTML_OUTPUT_FORMATTERS`](configuration.md?id=html_output_formatters) configuration option.
 
 It will also clean the HTML by filtering it through [Bleach](https://github.com/mozilla/bleach), which will remove any nasties such as `<script>`.

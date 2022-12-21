@@ -72,7 +72,7 @@ you must include `'uncms.html.clean_html'` in this list.
 This is intended for_post-processing_, not for sanitisation;
 for the latter, see the `HTML_CLEANERS` option.
 
-By default, it will run `'uncms.html.format_html'`, which expands permalinks and rewrites images.
+By default, it will run `'uncms.html.format_html'`, which rewrites image references as inserted by the default [HTML editor](html-editor.md).
 This list is _not_ additive to the defaults;
 if you wish to retain the default HTML processing while adding your own output formatters,
 you must include `'uncms.html.format_html'` in this list.

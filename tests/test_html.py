@@ -1,123 +1,53 @@
-import base64
-import random
-import sys
-from unittest import mock
-
+import pytest
 from django.contrib.contenttypes.models import ContentType
-from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import TestCase
-from django.test.utils import override_settings
-from django.utils.timezone import now
+from django.test import override_settings
 
-from uncms.html import clean_all, clean_html, process_html
+from tests.media.factories import SamplePNGFileFactory
+from uncms.html import clean_all, clean_html, format_html
 from uncms.media.models import File
 
 
-class TestHTML(TestCase):
-    def setUp(self):
-        self.name = '{}-{}.gif'.format(
-            now().strftime('%Y-%m-%d_%H-%M-%S'),
-            random.randint(0, sys.maxsize)
-        )
+@pytest.mark.django_db
+def test_format_html():
+    image = SamplePNGFileFactory()
+    image_with_alt = SamplePNGFileFactory(alt_text='Alt text &')
 
-        base64_string = b'R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=='
-        self.image = File.objects.create(
-            title="Foo",
-            file=SimpleUploadedFile(self.name, base64.b64decode(base64_string),
-                                    content_type="image/gif")
-        )
+    old_prefix = f'/r/{ContentType.objects.get_for_model(File).id}-'
 
-        self.image_copyright = File.objects.create(
-            title="Foo c",
-            file=SimpleUploadedFile(self.name, base64.b64decode(base64_string),
-                                    content_type="image/gif"),
-            copyright="Foo copyright"
-        )
+    # Test some validation branches.
+    html = (
+        # No "src" attribute should not cause an exception.
+        '<p><img></p>'
+        # This will be ignored because it doesn't start with the right prefix.
+        '<p><img src="/nothing.jpg"></p>'
+        # This will be ignored because it's a non-int PK.
+        f'<p><img src="{old_prefix}nonsense"></p>'
+        # This will be ignored because pk #0 can't exist.
+        f'<p><img src="{old_prefix}0"></p>'
+    )
 
-        self.image_attribution = File.objects.create(
-            title="Foo a",
-            file=SimpleUploadedFile(self.name, base64.b64decode(base64_string),
-                                    content_type="image/gif"),
-            attribution="Foo attribution"
-        )
+    assert format_html(html).strip() == (
+        '<p><img/></p>'
+        '<p><img src="/nothing.jpg"/></p>'
+        f'<p><img src="{old_prefix}nonsense"/></p>'
+        f'<p><img src="{old_prefix}0"/></p>'
+    )
 
-        # An invalid JPEG
-        self.invalid_jpeg_name = '{}-{}.jpg'.format(
-            now().strftime('%Y-%m-%d_%H-%M-%S'),
-            random.randint(0, sys.maxsize)
-        )
+    html = (
+        # Test with no alt text to ensure it gets an empty string and not
+        # None or a missing value
+        f'<p><img title="&amp;" src="{old_prefix}{image.pk}"></p>'
+        # Test copying alt text onto the image.
+        f'<p><img src="{old_prefix}{image_with_alt.pk}"></p>'
+        # Don't overwrite an existing alt text.
+        f'<p><img alt="Override" src="{old_prefix}{image_with_alt.pk}"></p>'
+    )
 
-        self.invalid_jpeg = File.objects.create(
-            title="Foo",
-            file=SimpleUploadedFile(self.invalid_jpeg_name, b"data",
-                                    content_type="image/jpeg")
-        )
-
-    def tearDown(self):
-        self.image.file.delete(False)
-        self.image.delete()
-
-        self.image_copyright.file.delete(False)
-        self.image_copyright.delete()
-
-        self.image_attribution.file.delete(False)
-        self.image_attribution.delete()
-
-        self.invalid_jpeg.file.delete(False)
-        self.invalid_jpeg.delete()
-
-    def test_process(self):
-        string = ''
-        self.assertEqual(process_html(string), string)
-
-        string = '<a href="/">Link</a>'
-        self.assertEqual(process_html(string), string)
-
-        string = '<img src="test.png">'
-        self.assertEqual(process_html(string), string)
-
-        string = '<img>'
-        self.assertEqual(process_html(string), string)
-
-        content_type = ContentType.objects.get_for_model(File).pk
-        string = '<img src="/r/{}-{}/" width="10" height="10"/>'.format(
-            content_type,
-            self.image.pk
-        )
-        output = process_html(string)
-
-        self.assertIn('src="/media/cache/', output)
-        self.assertIn('height="10"', output)
-        self.assertIn('width="10"', output)
-        self.assertIn('title="Foo"', output)
-
-        with mock.patch('uncms.html.get_thumbnail', side_effect=IOError):
-            output = process_html(string)
-
-        self.assertEqual(output,
-                         '<img height="10" src="/media/uploads/files/' + self.name + '" title="Foo" width="10">')
-
-        content_type = ContentType.objects.get_for_model(File).pk
-        string = '<img src="/r/{}-{}/"/>'.format(
-            content_type,
-            self.image.pk
-        )
-        self.assertEqual(process_html(string),
-                         '<img src="' + self.image.file.url + '" title="Foo">')
-
-        string = '<img src="/r/{}-{}/"/>'.format(
-            content_type,
-            self.image_copyright.pk
-        )
-        self.assertEqual(process_html(string),
-                         '<img src="' + self.image_copyright.file.url + '" title="&copy; Foo copyright. ">')
-
-        string = '<img src="/r/{}-{}/"/>'.format(
-            content_type,
-            self.image_attribution.pk
-        )
-        self.assertEqual(process_html(string),
-                         '<img src="' + self.image_attribution.file.url + '" title="Foo attribution">')
+    assert format_html(html).strip() == (
+        f'<p><img alt="" src="{image.file.url}" title="&amp;"/></p>'
+        f'<p><img alt="Alt text &amp;" src="{image_with_alt.file.url}"/></p>'
+        f'<p><img alt="Override" src="{image_with_alt.file.url}"/></p>'
+    )
 
 
 def example_processor(html):
