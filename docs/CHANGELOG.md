@@ -38,8 +38,8 @@ This is the first release of UnCMS, forked from onespacemedia-cms version 4.4.
 * Configuration is now handled in a single `UNCMS` dictionary in your config file. `WYSIWYG_OPTIONS` and `PUBLICATION_MIDDLEWARE_EXCLUDE_URLS` now have sensible defaults. If you have changed any of the defaults you may wish to move them into the `UNCMS` configuration dictionary. See [Configuration](configuration.md) for more.
 * It is now possible to use a different key for path signing, rather than `SECRET_KEY`.
 * Paths in `PUBLICATION_MIDDLEWARE_EXCLUDE_URLS` must now begin with a forward slash.
-* `get_canonical_url` template tag now always returns an HTTPS URL except when `settings.DEBUG == False`.
-* `get_canonical_url` now uses `settings.UNCMS['SITE_DOMAIN']`, and this is now a required setting. (`SITE_DOMAIN` was de facto required in the past, but UnCMS would start without it.)
+* `canonical_url` template tag now always returns an HTTPS URL except when `settings.DEBUG == False`.
+* `canonical_url` now uses `settings.UNCMS['SITE_DOMAIN']`, and this is now a required setting. (`SITE_DOMAIN` was de facto required in the past, but UnCMS would start without it.)
 
 ### Admin
 
@@ -59,6 +59,7 @@ This is the first release of UnCMS, forked from onespacemedia-cms version 4.4.
 
 * Non-Postgres databases are probably supported. Postgres-specific raw SQL queries have been removed, and tests seem to pass with the `sqlite3` backend.
 * `PageMiddleware` now checks for the page requiring authentication _before_ rendering the page. If any view inside a page had a side-effect _and_ `requires_authentication` was used for access control, this could have been a security issue.
-* usertools dependency has been removed.
+* usertools dependency has been removed; how users are handled should be implemented per-project.
+* psycopg2 is no longer a requirement, as other databases should be supported. It is still a requirement when using the `[dev]` extra.
 * historylinks is no longer a requirement.
 * _Probably_ fix the long-standing bug where the page tree gets randomly mangled.
