@@ -9,7 +9,7 @@ authors = [
     { name="Lewis Collard", email="lewiscollard@gmail.com" },
 ]
 readme = "README.md"
-description = "A CMS toolkit for Django, emphasising speed, simplicity and familiarity."
+description = "A CMS toolkit for Django, emphasising simplicity, speed, and familiarity."
 requires-python = ">=3.8"
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -33,6 +33,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
+    "build==0.9.0",
     "flake8==6.0.0",
     "factory-boy==3.2.1",
     "isort==4.3.21",
