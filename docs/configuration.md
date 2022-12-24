@@ -89,20 +89,15 @@ you must include `'uncms.html.format_html'` in this list.
 
 The template to use when [rendering images](rendering-images.md).
 
-## `IMAGE_WIDTHS`
+## `IMAGE_USE_WEBP`
 
-* Type: list of integers (image widths)
-* Default: `[400, 768, 1024]`
+* Type: boolean
+* Default: `True`
 
 When [rendering images](rendering-images.md),
-extra sizes other than the ones you have requested will be placed into the `srcset` in the HTML output.
-This allows you to render a guessed largest size at which you want it rendered,
-and to have lower-resolution versions output too for smaller devices.
-Browsers will choose the most appropriate one for their display.
-
-These sizes are expressed as widths.
-This will work as expected for thumbnails where you have specified only a height and ask for the width to be calculated automatically;
-these sizes apply
+WebP versions will be output in a `<source>` element, for browsers that support it.
+This is a Web-optimised format supported by almost all browsers and gives substantial size reductions over PNG and JPEG.
+To turn this off for whatever reason, set this to `False`.
 
 ## `MEDIA_FILE_MODEL`
 

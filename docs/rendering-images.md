@@ -15,8 +15,10 @@ The simplest example is this:
 {% load uncms_images %}
 {% image some_file_object width=600 %}
 ```
-It will render an image from your [media library](media-library.md) in multiple sizes for different devices using `srcset`,
+This will render your image in its original format at 600 pixels wide (height calculated automatically),
 and also in WebP format for browsers that support it.
+It will add `aspect-ratio` inline CSS to ensure that the image is pre-sized appropriately by browsers,
+and will add the `loading="lazy"` attribute so that most browsers will not render it until it is close to the viewport.
 
 You must specify an UnCMS File object as an argument, and at least one of these keyword arguments:
 
@@ -33,10 +35,6 @@ There are several additional options that you may want to use:
 This will default to the `alt_text` field of the `File`, or the empty string if that is not present.
 If an explicit empty string (`''`) has been specified, it will be the empty string, and will not fall back to the `alt_text` for the image.
 To improve the experience for screen readers, you should use an explicit empty string for images that are purely decorative.
-* `webp`, boolean:
-whether to output WebP versions of the image.
-This is a Web-optimised format supported by almost all browsers and gives substantial size reductions over PNG and JPEG.
-Defaults to `True`.
 * `lazy`, boolean:
 whether to use `loading="lazy"` on the rendered image.
 You almost always want to use this option,
@@ -58,17 +56,12 @@ If you are displaying images in monochrome on your site,
 you can obtain substantial image size reductions by specifying `GRAY` for this option,
 rather than (e.g.) greyscaling them with CSS.
 This defaults to `auto`, which will use the original colourspace for the image.
-* `sizes`: the `sizes` attribute for the `<source>` tags. Defaults to `100vw`.
 
 ## How it works
 
-First, depending on the width and/or height you have requested,
+Depending on the width and/or height you have requested,
 an initial thumbnail size is calculated, along with a generated signed URL containing thumbnailing parameters.
 When visited, this URL thumbnails the image, and 302-redirects the user agent to the thumbnail's static file.
-
-Secondly, for every value in the `UNCMS['IMAGE_WIDTHS']` values,
-a URL is generated for each of the formats that will be output into a `<source>`,
-using the same out-of-initial-request thumbnailing as above.
 
 The trick here is that resizing images - which is usually a very expensive operation - is performed outside the initial request/response cycle.
 Rendering images has _very little_ impact on time-to-first-byte performance of your page;

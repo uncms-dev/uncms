@@ -63,7 +63,7 @@ class AppSettings:
         'HTML_OUTPUT_FORMATTERS': ['uncms.html.format_html'],
         'IMAGE_CLASS_PREFIX': 'image',
         'IMAGE_TEMPLATE': 'media/multi_format_image.html',
-        'IMAGE_WIDTHS': [400, 768, 1024],
+        'IMAGE_USE_WEBP': True,
         'MEDIA_FILE_MODEL': 'media.File',
         'MEDIA_LIST_GRID_VIEW': True,
         'MEDIA_URLS_NAMESPACE': 'media_library',

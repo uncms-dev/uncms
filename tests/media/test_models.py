@@ -13,7 +13,6 @@ from tests.media.factories import (
     EmptyFileFactory,
     MinimalGIFFileFactory,
     SamplePNGFileFactory,
-    SampleWebPFileFactory,
 )
 from tests.testing_app.models import MediaTestModel
 from uncms.media.models import FileRefField, Label
@@ -164,13 +163,7 @@ class MultiFormatSoupParser:
         for source_tag in self.soup.find_all('source'):
             formats[source_tag['type']] = []
             for source in source_tag['srcset'].split(', '):
-                source_parts = source.split(' ')
-                assert len(source_parts) == 2
-                # int has the side-effect of raising ValueError if it is not
-                # an integer :)
-                formats[source_tag['type']].append(
-                    (source_parts[0], int(source_parts[1].rstrip('w'))),
-                )
+                formats[source_tag['type']].append(source.split(' ')[0])
         return formats
 
     @cached_property
@@ -186,13 +179,6 @@ class MultiFormatSoupParser:
         return self.img_tag.get('loading')
 
     @cached_property
-    def sizes_attributes(self):
-        return [
-            element['sizes']
-            for element in self.soup.find_all('source')
-        ]
-
-    @cached_property
     def style_attribute(self):
         return self.img_tag.get('style')
 
@@ -200,7 +186,7 @@ class MultiFormatSoupParser:
         client = Client()
 
         for fmt, sources in self.srcsets.items():
-            for url, width in sources:
+            for url in sources:
                 response = client.get(url)
                 assert response.status_code == 302
 
@@ -212,46 +198,23 @@ class MultiFormatSoupParser:
                     expect_content_type = fmt
                 assert response['Content-Type'] == expect_content_type
 
-                response_content = response.getvalue()
-                image = Image.open(BytesIO(response_content))
-                assert image.size[0] == width
-
 
 @pytest.mark.django_db
 def test_file_render_multi_format_obeys_formats(django_assert_num_queries):
     # Basic test: does it output webp and png?
     image = SamplePNGFileFactory()
+    # bonus test: ensure this never uses a database query (you're doing
+    # something wrong if you regress on this)
     with django_assert_num_queries(0):
         parsed = MultiFormatSoupParser(image.render_multi_format(width=800, height=600))
-    assert list(parsed.srcsets) == ['image/png', 'image/webp']
     parsed.validate_srcsets()
+    assert list(parsed.srcsets) == ['image/png', 'image/webp']
 
-    # Does it output only PNG when asked?
-    parsed = MultiFormatSoupParser(image.render_multi_format(width=800, height=600, webp=False))
+    # Ensure the implicit "WebP is not enabled" branch is visited.
+    with override_settings(UNCMS={'IMAGE_USE_WEBP': False}):
+        parsed = MultiFormatSoupParser(image.render_multi_format(width=800, height=600))
+    parsed.validate_srcsets()
     assert list(parsed.srcsets) == ['image/png']
-    parsed.validate_srcsets()
-
-    # If we have or have not specified webp
-    image = SampleWebPFileFactory()
-    for use_webp in [True, False]:
-        parsed = MultiFormatSoupParser(image.render_multi_format(width=800, height=600, webp=use_webp))
-        assert list(parsed.srcsets) == ['image/webp']
-
-
-@pytest.mark.django_db
-@override_settings(UNCMS={'IMAGE_WIDTHS': [900, 901, 1024]})
-def test_file_render_multi_format_sizing():
-    # Ensure that deduplication works - that no width in IMAGE_WIDTHS is
-    # ever added to an srcset if it is larger than the requested width
-    image = SamplePNGFileFactory()
-    parsed = MultiFormatSoupParser(image.render_multi_format(width=900))
-    assert list(parsed.srcsets) == ['image/png', 'image/webp']
-    for sources in parsed.srcsets.values():
-        assert len(sources) == 1
-        assert sources[0][1] == 900
-
-    # and while we're here...
-    parsed.validate_srcsets()
 
 
 @pytest.mark.django_db
@@ -298,16 +261,6 @@ def test_file_render_multi_format_obeys_aspect():
 
     parsed = MultiFormatSoupParser(image.render_multi_format(width=960, aspect=False))
     assert parsed.style_attribute is None
-
-
-@pytest.mark.django_db
-def test_file_render_multi_format_obeys_sizes_attribute():
-    image = SamplePNGFileFactory()
-    parsed = MultiFormatSoupParser(image.render_multi_format(width=960))
-    assert parsed.sizes_attributes == ['100vw', '100vw']
-
-    parsed = MultiFormatSoupParser(image.render_multi_format(width=960, sizes_attribute='50vw'))
-    assert parsed.sizes_attributes == ['50vw', '50vw']
 
 
 @pytest.mark.django_db

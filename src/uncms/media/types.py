@@ -35,6 +35,8 @@ class ThumbnailGroup:
 
     @property
     def srcset(self):
+        if len(self.sizes) == 1:
+            return self.sizes[0].url
         return ', '.join([
             f'{size.url} {size.width}w'
             for size in self.sizes

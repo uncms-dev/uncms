@@ -190,9 +190,7 @@ class File(models.Model):
             quality=None,
             aspect=True,
             alt_text=None,
-            webp=True,
             lazy=True,
-            sizes_attribute='100vw',
     ):
         # Don't try and render a broken image or non-image. Nothing sensible
         # to do here, so render nothing.
@@ -217,9 +215,6 @@ class File(models.Model):
 
         always_args = {'colorspace': colorspace, 'quality': quality}
 
-        # Calculate our initial format, preserving the format. This will give
-        # us an expected ratio for calculating all of our other sizes which
-        # allows us to dedupe based on width alone.
         initial_thumb = self.get_thumbnail(
             width=width,
             height=height,
@@ -232,7 +227,7 @@ class File(models.Model):
         multi = MultiThumbnail()
         multi.add_size(original_mimetype, initial_thumb)
 
-        if webp:
+        if defaults.IMAGE_USE_WEBP:
             multi.add_size('image/webp', self.get_thumbnail(
                 width=width,
                 height=height,
@@ -240,37 +235,12 @@ class File(models.Model):
                 **always_args,
             ))
 
-        for default_width in defaults.IMAGE_WIDTHS:
-            # IMAGE_WIDTHS are merely suggested widths; don't upscale past the
-            # initial requested thumbnail width. We don't handle the
-            # *same* size case here (hence >, rather than >=); that is handled
-            # by MultiThumbnail's deduplication.
-            if default_width > initial_thumb.width:
-                continue
-            height = round(default_width * initial_thumb.height_ratio)
-            multi.add_size(original_mimetype, self.get_thumbnail(
-                width=default_width,
-                height=round(default_width * initial_thumb.height_ratio),
-                **always_args,
-            ))
-
-            if webp:
-                # In the unusual case that our source image is already a
-                # WebP, we can let MultiThumbnail take care of duplicates.
-                multi.add_size('image/webp', self.get_thumbnail(
-                    width=default_width,
-                    height=round(default_width * initial_thumb.height_ratio),
-                    fmt='webp',
-                    **always_args,
-                ))
-
         # Add the "ratio" attribute so browsers can pre-size the image
         # appropriately.
         if aspect:
             context['aspect_ratio'] = initial_thumb.aspect_ratio_string
 
         context['formats'] = multi
-        context['sizes_attribute'] = sizes_attribute
         return render_to_string(defaults.IMAGE_TEMPLATE, context)
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
