@@ -1,12 +1,11 @@
-# UnCMS: not quite a content management system for Django
+# UnCMS: a developer's CMS toolkit for Django
 
-**Warning: UnCMS is in alpha. It is currently recommended only for the fearless. Do not put it in to production.**
+**Warning: UnCMS is in alpha. It is recommended only for the curious and fearless. Do not use it in production.**
 
-UnCMS is a collection of Django extensions that add content-management facilities
-to Django projects.
+UnCMS is a developer's CMS toolkit for Django, emphasising simplicity, speed, and familiarity.
 
-Resources
-=========
+## Resources
 
 * [Documentation](https://lewiscollard.github.io/uncms/)
 * [Code](http://github.com/lewiscollard/uncms)
+* [Homepage](https://uncms.dev/)
