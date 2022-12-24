@@ -1,4 +1,6 @@
-recursive-include uncms/templates *
-recursive-include uncms/static *
-recursive-include uncms/apps/*/templates *
-recursive-include uncms/apps/*/static *
+recursive-include src/uncms/jinja2 *
+recursive-include src/uncms/templates *
+recursive-include src/uncms/static *
+recursive-include src/uncms/*/templates *
+recursive-include src/uncms/*/static *
+recursive-include src/uncms/*/jinja2 *
