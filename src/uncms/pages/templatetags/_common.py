@@ -48,7 +48,7 @@ def _navigation_entries(context, pages, section=None, json_safe=False):
     # Add the section.
     if section:
         section_entry = page_entry(section)
-        section_entry['here'] = context['pages'].current == section_entry['page']
+        section_entry['here'] = context['request'].pages.current == section_entry['page']
         entries = [section_entry] + list(entries)
 
     return entries
@@ -125,7 +125,7 @@ def get_meta_robots(context, index=None, follow=None, archive=None):
         archive = context.get('robots_archive')
 
     # Try to get the values from the current page.
-    page = context['pages'].current
+    page = context['request'].pages.current
 
     if page:
         if index is None:

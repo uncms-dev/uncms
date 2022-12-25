@@ -66,10 +66,8 @@ def test_navigation(test_function):
 
 
 def test_navigation_entries(simple_page_tree):
-    factory = RequestFactory()
-    request = factory.get('/')
+    request = request_with_pages()
     request.user = MockRequestUser(is_authenticated=True)
-    request.pages = RequestPageManager(request)
 
     nav = _navigation_entries({'request': request}, request.pages.current.navigation)
 
@@ -133,7 +131,6 @@ def test_navigation_entries(simple_page_tree):
     # Test with section specified.
     nav = _navigation_entries({
         'request': request,
-        'pages': request.pages,
     }, request.pages.current.navigation, section=simple_page_tree.subsubsection)
     assert nav == [
         {
@@ -246,15 +243,14 @@ def test_meta_robots(meta_robots_func):
 
     rf = RequestFactory()
 
-    request = rf.get('/')
-    request.pages = RequestPageManager(request)
+    request = request_with_pages()
 
     assert meta_robots_func({
-        'pages': request.pages,
+        'request': request,
     }, True, True, True) == 'INDEX, FOLLOW, ARCHIVE'
 
     assert meta_robots_func({
-        'pages': request.pages,
+        'request': request,
         'robots_index': True,
         'robots_follow': True,
         'robots_archive': True,
@@ -265,20 +261,17 @@ def test_meta_robots(meta_robots_func):
     homepage.robots_archive = False
     homepage.save()
 
-    request = rf.get('/')
-    request.pages = RequestPageManager(request)
+    request = request_with_pages()
 
     assert meta_robots_func({
-        'pages': request.pages,
+        'request': request,
     }) == 'NOINDEX, NOFOLLOW, NOARCHIVE'
 
     homepage.delete()
 
-    request = rf.get('/')
-    request.pages = RequestPageManager(request)
-
+    request = request_with_pages()
     assert meta_robots_func({
-        'pages': request.pages,
+        'request': request,
     }) == 'INDEX, FOLLOW, ARCHIVE'
 
 
