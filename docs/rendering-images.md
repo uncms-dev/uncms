@@ -20,6 +20,8 @@ and also in WebP format for browsers that support it.
 It will add `aspect-ratio` inline CSS to ensure that the image is pre-sized appropriately by browsers,
 and will add the `loading="lazy"` attribute so that most browsers will not render it until it is close to the viewport.
 
+If you are [using Jinja2](using-jinja2.md), the equivalent global function is `render_image`.
+
 You must specify an UnCMS File object as an argument, and at least one of these keyword arguments:
 
 * `width`, an integer:

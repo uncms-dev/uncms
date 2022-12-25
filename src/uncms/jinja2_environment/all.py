@@ -4,12 +4,14 @@ from django.urls import reverse
 from jinja2 import Environment
 
 from uncms.jinja2_environment.base import BASE_FILTERS
+from uncms.jinja2_environment.media import MEDIA_GLOBALS
 from uncms.jinja2_environment.pages import PAGES_GLOBALS
 
 
 def environment(**options):
     env = Environment(**options)
-    env.globals.update(PAGES_GLOBALS)
+    for globals_dict in [PAGES_GLOBALS, MEDIA_GLOBALS]:
+        env.globals.update(globals_dict)
     env.filters.update(BASE_FILTERS)
     return env
 
