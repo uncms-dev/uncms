@@ -10,7 +10,7 @@ authors = [
 ]
 readme = "README.md"
 description = "A CMS toolkit for Django, emphasising simplicity, speed, and familiarity."
-requires-python = ">=3.8"
+requires-python = ">=3.6"
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Framework :: Django :: 3.2",
