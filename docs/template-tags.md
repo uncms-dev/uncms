@@ -137,13 +137,16 @@ Renders the site navigation for the given set of pages.
 
 See [rendering navigation](rendering-navigation.md) for more.
 
-### `get_page_url(page, view_func=None, *args, **kwargs)`
+### `{% page_url [page] [view_func] *args **kwargs %}`
+
+* **Load with:** `{% load uncms_pages %}`
+* **[Jinja2](using-jinja2.md) equivalent:** `{{ get_page_url() }}`
 
 Resolves the URL of a route defined in a page's `urlconf`, passing positional and/or keyword arguments to the resolver.
 It is a thin wrapper around `Page.reverse`.
 
 ```
-{{ get_page_url(pages.current, 'article_detail', slug=article.slug) }}
+{% page_url pages.current 'article_detail' slug=article.slug %}
 ```
 
 ### `{% canonical_url %}`
