@@ -1,18 +1,18 @@
-from django.test import TestCase
+import pytest
 
 from uncms.forms import HtmlWidget
 from uncms.models.fields import HtmlField, LinkResolutionError, resolve_link
 
 
-class TestFields(TestCase):
+def test_resolve_link():
+    assert resolve_link('http://www.example.com/foo/') == 'http://www.example.com/foo/'
+    assert resolve_link('www.example.com/foo/') == 'http://www.example.com/foo/'
+    assert resolve_link('www.example.com') == 'http://www.example.com/'
+    assert resolve_link('/foo/') == '/foo/'
+    with pytest.raises(LinkResolutionError):
+        resolve_link('foo/')
 
-    def testResolveLink(self):
-        self.assertEqual(resolve_link('http://www.example.com/foo/'), 'http://www.example.com/foo/')
-        self.assertEqual(resolve_link('www.example.com/foo/'), 'http://www.example.com/foo/')
-        self.assertEqual(resolve_link('www.example.com'), 'http://www.example.com/')
-        self.assertEqual(resolve_link('/foo/'), '/foo/')
-        self.assertRaises(LinkResolutionError, lambda: resolve_link('foo/'))
 
-    def testHtmlField(self):
-        field = HtmlField()
-        self.assertIsInstance(field.formfield().widget, HtmlWidget)
+def test_html_field():
+    field = HtmlField()
+    assert isinstance(field.formfield().widget, HtmlWidget)
