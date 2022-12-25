@@ -2,12 +2,12 @@
 
 ## 0.0.1
 
-This is the first public release of UnCMS, forked from onespacemedia-cms version 4.4.
+This is the first public release of UnCMS, forked from onespacemedia-cms version 4.4.4.
 It is intended for the fearless and curious.
 
 ### The big one
 
-* Rename! 🥳 This project is now UnCMS, because it is not a CMS. It now has a documented philosophy and a maintainer.
+* Rename! 🥳 This project is now UnCMS, because it is not a CMS. It now has a documented [philosophy](philosophy.md) and a maintainer.
 
 ### New features
 

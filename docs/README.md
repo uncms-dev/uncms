@@ -1,4 +1,4 @@
-# UnCMS documentation
+# UnCMS
 
 !> **Warning**: UnCMS is alpha software.
 It is subject to change at no notice,
