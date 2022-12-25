@@ -6,9 +6,7 @@ and version numbers will give no indication of breaking changes until version 1 
 Some functionality might be catastrophically broken.
 At this time, it is recommended only for the brave.
 
-UnCMS is a collection of Django extensions that add content-management facilities to Django projects.
-It is not a CMS, but rather a toolkit that will help you build one,
-with an emphasis on speed, simplicity, and familiarity.
+UnCMS is a developer's CMS toolkit for Django emphasising simplicity, speed, and familiarity.
 
 ## Requirements
 
