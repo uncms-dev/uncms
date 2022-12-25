@@ -58,7 +58,8 @@ it might well be added.
 ## Performance matters
 
 Having a [performant UnCMS site](performance.md) should not depend on hot-rodding tricks such as caching.
-Local development should be as fast and as easy to set up as production development.
+Local development should be as performant as production development,
+and setup of a performant local development environment should be as simple as possible.
 
 Of course, it should always play nicely with caching tools and other hot-rodding tricks, too.
 
