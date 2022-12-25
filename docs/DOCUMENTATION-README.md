@@ -1,6 +1,6 @@
 # About this documentation
 
-This documentation lives at https://onespacemedia.github.io/cms/.
+This documentation lives at https://docs.uncms.dev/.
 If you are reading this documentation in the GitHub repository, you almost certainly don't want to be.
 
 ## Editing this documentation
