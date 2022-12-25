@@ -5,7 +5,6 @@ The body of the code is broken out into this "common" file because we support
 Jinja2. Both Jinja2 and Django template functions & filters shall be thin
 wrappers around these.
 """
-import jinja2
 from django.utils.html import escape
 
 from uncms.conf import defaults
@@ -54,7 +53,6 @@ def _navigation_entries(context, pages, section=None, json_safe=False):
     return entries
 
 
-@jinja2.pass_context
 def render_navigation(context, pages, section=None, class_prefix=None, **templates):
     """
     Renders a navigation list for the given pages.
@@ -94,7 +92,6 @@ def get_page_url(page, view_func=None, *args, **kwargs):  # pylint:disable=keywo
 
 
 # Page widgets.
-@jinja2.pass_context
 def get_meta_description(context):
     """
     Renders the content of the meta description tag for the current page.
@@ -109,7 +106,6 @@ def get_meta_description(context):
     return ''
 
 
-@jinja2.pass_context
 def get_meta_robots(context, index=None, follow=None, archive=None):
     """
     Returns the content of the meta robots tag for the current page::
@@ -152,7 +148,6 @@ def get_meta_robots(context, index=None, follow=None, archive=None):
     return robots
 
 
-@jinja2.pass_context
 def get_canonical_url(context):
     '''
     Returns the canonical URL of the current page, normalised for the correct
@@ -161,7 +156,6 @@ def get_canonical_url(context):
     return canonicalise_url(context['request'].path)
 
 
-@jinja2.pass_context
 def get_og_title(context):
     # Always prefer a title override from the context.
     if context.get('og_title'):
@@ -185,7 +179,6 @@ def get_og_title(context):
     return context.get('title', '')
 
 
-@jinja2.pass_context
 def get_og_description(context, description=None):
     if not description:
         description = context.get('og_description')
@@ -200,7 +193,6 @@ def get_og_description(context, description=None):
     return escape(description or '')
 
 
-@jinja2.pass_context
 def get_og_image(context):
     """
     Returns an OpenGraph image URL guessed from the current template context.
@@ -235,7 +227,6 @@ def get_og_image(context):
     return ''
 
 
-@jinja2.pass_context
 def get_twitter_card(context):
     choices = dict(SearchMetaBase._meta.get_field('twitter_card').choices)
 
@@ -260,7 +251,6 @@ def get_twitter_card(context):
     return escape(card or str(choices[0]).lower())
 
 
-@jinja2.pass_context
 def get_twitter_title(context):
     # Always prefer an override from the context.
     if context.get('twitter_title'):
@@ -291,7 +281,6 @@ def get_twitter_title(context):
     return get_og_title(context)
 
 
-@jinja2.pass_context
 def get_twitter_description(context):
     if context.get('twitter_description'):
         return context['twitter_description']
@@ -312,7 +301,6 @@ def get_twitter_description(context):
     return get_og_description(context)
 
 
-@jinja2.pass_context
 def get_twitter_image(context):
     """
     Returns an appropriate Twitter image for the current page, falling back
@@ -336,7 +324,6 @@ def get_twitter_image(context):
     return get_og_image(context)
 
 
-@jinja2.pass_context
 def render_title(context, browser_title=None):
     '''
     Renders the title of the current page::
@@ -364,7 +351,6 @@ def render_title(context, browser_title=None):
     }
 
 
-@jinja2.pass_context
 def render_breadcrumbs(context, page=None, extended=False):
     '''
     Renders the breadcrumbs trail for the current page::

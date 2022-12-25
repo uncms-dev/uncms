@@ -1,5 +1,4 @@
 '''Template tags for rendering pagination.'''
-import jinja2
 from django import template
 from django.core.paginator import InvalidPage, Paginator
 from django.http import Http404
@@ -10,7 +9,6 @@ from uncms.templatetags._common import get_pagination_context
 register = template.Library()
 
 
-@jinja2.pass_context
 def paginate(context, queryset, per_page=10, key='page'):
     '''Returns a paginator object for the given queryset.'''
     request = context['request']

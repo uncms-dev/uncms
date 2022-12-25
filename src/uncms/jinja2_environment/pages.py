@@ -10,10 +10,9 @@ def render_title(context):
 
 
 PAGES_GLOBALS = {
-    key: getattr(pages_common, key)
+    key: jinja2.pass_context(getattr(pages_common, key))
     for key in [
         'get_canonical_url',
-        'get_page_url',
         'get_meta_description',
         'get_meta_robots',
         'get_og_title',
@@ -27,4 +26,6 @@ PAGES_GLOBALS = {
     ]
 }
 
+
 PAGES_GLOBALS['render_title'] = render_title
+PAGES_GLOBALS['get_page_url'] = pages_common.get_page_url
