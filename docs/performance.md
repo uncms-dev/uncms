@@ -28,6 +28,30 @@ In particular, rendering your navigation in your 404 page causes the navigation 
 
 For better results, strip down your 404 page to its absolute minimum.
 
+## Use `request.pages` wherever you can
+
+It is almost always faster to retrieve a page via `request.pages` than it is to fetch it from the database.
+Let us take the example of some model on your site, which has a `ForeignKey` to a page on your site called `page_field`.
+You wish to render a link to this page.
+The obvious thing would be to use `obj.page_field.get_absolute_url()`.
+But this must look up the page's parent, and that page's parent, all the way up to the homepage, to generate its URL.
+
+Yet, we already know what a page's link should be!
+We probably just rendered it in the navigation a fraction of a second ago,
+and the navigation uses the `pages` annotation (a `RequestPageManager`) added to the request by the pages middleware.
+What if we could get the page's node from there?
+
+Well, you very much can!
+`RequestPageManager` (AKA `request.pages`) has a `get_page` method.
+This can take a page as an argument,
+or a page ID.
+It will return the page's entry in `request.pages`;
+most importantly, this will return its entry _with its ancestors already fetched from the database_.
+So, if instead, you turn your `obj.page_field.get_absolute_url()` call into `request.pages.get_page(obj.page_field_id).get_absolute_url()`
+(note using `page_field_id` rather than `page_field` to dodge another query),
+you can ordinarily render a link to a page with zero database queries.
+This can give big speed gains when you have many such links on a page.
+
 ## You _may_ want to increase the `PAGE_TREE_PREFETCH_DEPTH` option
 
 By default, child pages are prefetched 2 levels deep from the home page.
