@@ -30,7 +30,7 @@ class PathTokenGenerator:
     def check_token(self, token, path):
         return constant_time_compare(
             token,
-            salted_hmac(self.key_salt, path).hexdigest()[::2]
+            salted_hmac(self.key_salt, path, secret=defaults.PATH_SIGNING_SECRET).hexdigest()[::2],
         )
 
     def make_token(self, path):

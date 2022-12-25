@@ -9,6 +9,7 @@ from tests.testing_app.models import (
     SearchMetaBaseModel,
     SearchMetaBaseSearchAdapter,
 )
+from uncms.models.base import PathTokenGenerator
 
 
 @pytest.mark.django_db
@@ -19,6 +20,7 @@ def test_onlinebase_get_preview_url():
 
     with override_settings(UNCMS={'PATH_SIGNING_SECRET': 'bonk'}):
         assert obj.get_preview_url() == '/?preview=1e4643d03f930d8c78bc'
+        assert PathTokenGenerator().check_token('1e4643d03f930d8c78bc', '/') is True
 
 
 @pytest.mark.django_db
