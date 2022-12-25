@@ -6,6 +6,6 @@ UnCMS is a developer's CMS toolkit for Django emphasising simplicity, speed, and
 
 ## Resources
 
-* [Documentation](https://lewiscollard.github.io/uncms/)
-* [Code](http://github.com/lewiscollard/uncms)
+* [Documentation](https://docs.uncms.dev/)
+* [Code](https://github.com/uncms-dev/uncms)
 * [Homepage](https://uncms.dev/)

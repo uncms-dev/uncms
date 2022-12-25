@@ -198,7 +198,7 @@ This setting should not be changed.
 In future, this will permit project-local overrides of the `Page` model,
 while continuing to use all the stock UnCMS `Page`-related features
 such as middleware, navigation, etc.
-See [#23](https://github.com/lewiscollard/uncms/issues/23).
+See [#23](https://github.com/uncms-dev/uncms/issues/23).
 
 ## `PAGE_TREE_PREFETCH_DEPTH`
 

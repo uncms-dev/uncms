@@ -52,4 +52,6 @@ jinja2 = [
 ]
 
 [project.urls]
-"Homepage" = "https://uncms.dev/"
+"homepage" = "https://uncms.dev/"
+"documentation" = "https://docs.uncms.dev/"
+"repository" = "https://github.com/uncms-dev/uncms"
