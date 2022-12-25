@@ -1,5 +1,9 @@
 # Changelog
 
+## Next release
+
+* Remove a random vendored jQuery.
+
 ## 0.0.1
 
 This is the first public release of UnCMS, forked from onespacemedia-cms version 4.4.4.
