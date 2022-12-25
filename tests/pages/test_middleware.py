@@ -7,11 +7,12 @@ from django.urls import reverse
 
 from tests.factories import UserFactory
 from tests.media.factories import EmptyFileFactory
-from tests.mocks import MockRequestUser
+from tests.mocks import MockRequestUser, request_with_pages
 from tests.pages.factories import PageFactory
 from tests.testing_app.models import MiddlewareURLsTestPage
 from uncms.pages.middleware import PageMiddleware, RequestPageManager
 from uncms.pages.models import Page
+from uncms.pages.templatetags.uncms_pages import render_navigation
 
 
 @pytest.mark.django_db
@@ -134,6 +135,44 @@ def test_requestpagemanager_is_exact():
     request = rf.get(subsubpage.get_absolute_url())
     page_manager = RequestPageManager(request)
     assert page_manager.is_exact is True
+
+
+@pytest.mark.django_db
+def test_requestpagemanager_get_page():
+    request = RequestFactory().get('/')
+    # No pages should return None, rather than raising an exception.
+    assert RequestPageManager(request).get_page(5) is None
+
+    homepage = PageFactory.create_tree(5, 5)
+    for find in [homepage, homepage.id]:
+        assert RequestPageManager(request).get_page(find) == homepage
+
+    subpage = PageFactory(parent=homepage)
+    for find in [subpage, subpage.id]:
+        assert RequestPageManager(request).get_page(find) == subpage
+
+    subsubpage = PageFactory(parent=homepage)
+    for find in [subsubpage, subsubpage.id]:
+        assert RequestPageManager(request).get_page(find) == subsubpage
+
+    assert RequestPageManager(request).get_page(-6) is None
+
+
+@pytest.mark.django_db
+def test_requestpagemanager_get_page_is_efficient(django_assert_num_queries):
+    homepage = PageFactory.create_tree(5, 5)
+    subsubpage = PageFactory(parent=PageFactory(parent=homepage))
+    request = request_with_pages()
+
+    # Render navigation, as we probably always will on any page on the site.
+    render_navigation({'request': request}, pages=request.pages.homepage.navigation)
+
+    with django_assert_num_queries(0):
+        assert request.pages.get_page(subsubpage) == subsubpage
+        # Make sure referencing the parent doesn't create a query, otherwise
+        # this is pointless :)
+        assert request.pages.get_page(subsubpage).parent.title.startswith('Page')
+        assert request.pages.get_page(subsubpage).parent.parent.title.startswith('Page')
 
 
 @pytest.mark.django_db

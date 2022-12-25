@@ -88,6 +88,29 @@ class RequestPageManager:
         '''Whether the current page exactly matches the request URL.'''
         return self.current.get_absolute_url() == self.path
 
+    def get_page(self, page):
+        def find_recursive(children, find_id):
+            if not children:
+                return None
+
+            for child in children:
+                if child.id == find_id:
+                    return child
+                found = find_recursive(child.children, find_id)
+                if found:
+                    return found
+            return None
+
+        if not self.homepage:
+            return None
+
+        if isinstance(page, self.page_model):
+            page_id = page.pk
+        else:
+            page_id = int(page)
+
+        return find_recursive([self.homepage], page_id)
+
 
 class PageMiddleware(MiddlewareMixin):
 
