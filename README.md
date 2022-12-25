@@ -2,7 +2,7 @@
 
 **Warning: UnCMS is in alpha. It is recommended only for the curious and fearless. Do not use it in production.**
 
-UnCMS is a developer's CMS toolkit for Django, emphasising simplicity, speed, and familiarity.
+UnCMS is a developer's CMS toolkit for Django emphasising simplicity, speed, and familiarity.
 
 ## Resources
 
