@@ -2,7 +2,7 @@
 
 ## 0.0.1
 
-This is the first release of UnCMS, forked from onespacemedia-cms version 4.4.
+This is the first public release of UnCMS, forked from onespacemedia-cms version 4.4.
 It is intended for the fearless and curious.
 
 ### The big one
@@ -11,7 +11,7 @@ It is intended for the fearless and curious.
 
 ### New features
 
-* Massive upgrades to the default navigation templates and tags make the navigation system much more usable as-is. The rendered template now renders sub-items to arbitrary depth, and provides a sensible BEM naming convention for HTML classes that make it possible to target it with sensible CSS. There are now numerous extension points within the templates and in the `render_navigation` template function. There is still no default styling, but a deliberately-ugly sample stylesheet is provided as a starting point. See [Rendering page navigation](rendering-navigation.md) in the documentation for more.
+* Massive upgrades to the default navigation templates and tags make the navigation system much more usable as-is. The rendered template now renders sub-items to arbitrary depth, and provides a sensible BEM naming convention for HTML classes that make it possible to target it with sensible CSS. There are now numerous extension points within the templates and in the `{% navigation %}` template tag. There is still no default styling, but a deliberately-ugly sample stylesheet is provided as a starting point. See [Rendering page navigation](rendering-navigation.md) in the documentation for more.
 * Rendering page navigation has gained some massive efficiencies (partly as a consequence of removing page localisation). Tweaking the `PAGE_TREE_PREFETCH_DEPTH` option for your site can mean that the number of database queries required to render your navigation is the same as the total _depth_ of your page tree.
 * Rendering links to pages referenced in a `ForeignKey` can be made much more efficient by using `RequestPageManager.get_page(page_or_page_id)`. If you have already rendered your navigation (and picked an appropriate `PAGE_TREE_PREFETCH_DEPTH`), this will usually cause zero database queries to be made.
 * There is now a multi-format image rendering template tag for rendering your images on the front-end of your site. It has many benefits if you choose to use it, such as having _no_ impact on time-to-first byte, WebP support, and so on. See [rendering images](rendering-images.md) in the documentation for more.
