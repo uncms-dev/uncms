@@ -1,8 +1,9 @@
 # Changelog
 
-## 1.0.0
+## 0.0.1
 
 This is the first release of UnCMS, forked from onespacemedia-cms version 4.4.
+It is intended for the fearless and curious.
 
 ### The big one
 
