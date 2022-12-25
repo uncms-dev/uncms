@@ -36,9 +36,10 @@ INSTALLED_APPS = [
 ]
 ```
 
-Add our context processors to our template context processors (in `['OPTIONS']['context_processors']`):
+Add two necessary context processors to our template context processors (in `['OPTIONS']['context_processors']`):
 
 ```python
+'django.template.context_processors.request',
 'uncms.pages.context_processors.pages',
 ```
 
