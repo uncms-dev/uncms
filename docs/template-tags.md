@@ -137,23 +137,6 @@ Renders the site navigation for the given set of pages.
 
 See [rendering navigation](rendering-navigation.md) for more.
 
-
-### `render_breadcrumbs(page=None, extended=False)`
-
-Renders the breadcrumbs trail for the current page:
-
-```
-{{ render_breadcrumbs() }}
-```
-
-This will use the template `pages/breadcrumbs.html`, which you will probably want to override in your project.
-
-To override and extend the breadcrumb trail within page applications, add the `extended` flag to the tag and add your own breadcrumbs underneath:
-
-```
-{{ render_breadcrumbs(extended=1) }}
-```
-
 ### `get_page_url(page, view_func=None, *args, **kwargs)`
 
 Resolves the URL of a route defined in a page's `urlconf`, passing positional and/or keyword arguments to the resolver.
