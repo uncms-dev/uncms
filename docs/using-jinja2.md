@@ -3,6 +3,8 @@
 UnCMS has extensive support for using Jinja2 as your template engine,
 using Django's built-in Jinja2 backend.
 
+You will need version 3 of Jinja2.
+
 Here is a sample entry for your `TEMPLATES` setting in Django:
 
 
