@@ -13,6 +13,10 @@ UnCMS is a developer's CMS toolkit for Django emphasising simplicity, speed, and
 UnCMS works best with a PostgreSQL database.
 Other databases probably work, but have not been extensively tested.
 
+## Installation
+
+`pip install uncms`
+
 ## Features
 
 UnCMS comes with just enough features for building small-to-medium-sized content-heavy websites,

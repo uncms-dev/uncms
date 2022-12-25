@@ -4,6 +4,10 @@ This walkthrough will take you through setting up UnCMS on an existing project, 
 If you prefer to learn from code than learn from a wall of text,
 you probably want to look at the companion [tiny CMS project repo](https://github.com/lewiscollard/tiny-uncms-project).
 
+## Install UnCMS
+
+`pip install uncms`
+
 ## Django settings
 
 We'll need to add a few settings that UnCMS depends on.
