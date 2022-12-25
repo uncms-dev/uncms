@@ -241,8 +241,6 @@ def test_admin_sitemap_entries():
 def test_meta_robots(meta_robots_func):
     homepage = PageFactory()
 
-    rf = RequestFactory()
-
     request = request_with_pages()
 
     assert meta_robots_func({
