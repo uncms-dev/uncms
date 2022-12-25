@@ -7,12 +7,14 @@ First, you will need a URL route in your root `urls.py`. You will want something
 
 ```python
 from django.contrib.sitemaps import views as sitemaps_views
+from django.urls import path
+
 from uncms.sitemaps import registered_sitemaps
 
 urlpatterns = [
     # ...your URLS here...
-    url(r'^sitemap.xml$', sitemaps_views.index, {'sitemaps': registered_sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
-    url(r'^sitemap-(?P<section>.+)\.xml$', sitemaps_views.sitemap, {'sitemaps': registered_sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
+    path('sitemap.xml', sitemaps_views.index, {'sitemaps': registered_sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
+    path('sitemap-<str:section>.xml', sitemaps_views.sitemap, {'sitemaps': registered_sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
 ]
 ```
 
