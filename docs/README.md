@@ -39,7 +39,7 @@ and it plays well with your existing models.
 
 * Read the [philosophy of UnCMS](philosophy.md) to decide if it is a good fit for you.
 * Read the [walkthrough](walkthrough.md).
-* Clone and have a poke around the [accompanying tiny UnCMS project repo](https://github.com/lewiscollard/tiny-uncms-project).
+* Clone and have a poke around the [accompanying tiny UnCMS project repo](https://github.com/uncms-dev/tiny-uncms-project).
 
 ## Editing this document
 

@@ -2,7 +2,7 @@
 
 This walkthrough will take you through setting up UnCMS on an existing project, and it will introduce several core UnCMS concepts.
 If you prefer to learn from code than learn from a wall of text,
-you probably want to look at the companion [tiny CMS project repo](https://github.com/lewiscollard/tiny-uncms-project).
+you probably want to look at the companion [tiny UnCMS project repo](https://github.com/uncms-dev/tiny-uncms-project).
 
 ## Install UnCMS
 
@@ -102,7 +102,7 @@ That's what derivatives of `ContentBase` are. Anything that inherits from `Conte
 _There is no explicit registration of content models_; it just works.
 
 ?> **Note:** We've named this model MyContent.
-In our companion <a href="https://github.com/lewiscollard/tiny-uncms-project">tiny CMS project</a>, we've named it simply "Content".
+In our companion <a href="https://github.com/uncms-dev/tiny-uncms-project">tiny UnCMS project</a>, we've named it simply "Content".
 We use "MyContent" here to avoid confusion between the concept of a "content model", and our model that is named "Content".
 
 `introduction` is, of course, a standard Django field, which we'll use this later in our template.
@@ -518,7 +518,7 @@ Put this into the `<head>` of our site's base template:
 
 ## Next steps
 
-If you haven't already, you'll want to clone the [tiny CMS project](https://github.com/lewiscollard/tiny-uncms-project) and have a look around.
+If you haven't already, you'll want to clone the [tiny UnCMS project](https://github.com/uncms-dev/tiny-uncms-project) and have a look around.
 It's a slightly-more-fleshed out version of the example we've written here. It has an absurd comment-to-code ratio and serves as a mini walkthrough all by itself.
 
 If you're the reading type, you'll want to read [more about the pages system](pages-app.md).
