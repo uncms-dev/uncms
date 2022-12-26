@@ -1,53 +1,37 @@
+import pytest
 from django.contrib.admin.sites import AdminSite
-from django.test import RequestFactory, TestCase
+from django.test import RequestFactory
 
+from tests.mocks import MockRequestUser
 from tests.testing_app.models import ModerationModel
 from uncms.moderation.admin import ModerationAdminBase
 
 
-class MockUser:
-    pk = 1
+@pytest.mark.django_db
+def test_formfield_for_choice_field_has_permission():
+    moderation_admin = ModerationAdminBase(ModerationModel, AdminSite())
+    obj = ModerationModel.objects.create()
+    request = RequestFactory().get('/')
+    request.user = MockRequestUser(is_authenticated=True, permission=True, is_staff=True)
 
-    def __init__(self, permission):
-        self.permission = permission
+    formfield = moderation_admin.formfield_for_choice_field(
+        obj._meta.get_field('status'),
+        request
+    )
 
-    def has_perm(self, perm):
-        return self.permission
+    assert formfield.choices == [(1, 'Draft'), (2, 'Submitted for approval'), (3, 'Approved')]
 
 
-class TestModerationAdmin(TestCase):
+@pytest.mark.django_db
+def test_formfield_for_choice_field_has_no_permission():
+    moderation_admin = ModerationAdminBase(ModerationModel, AdminSite())
+    obj = ModerationModel.objects.create()
+    request = RequestFactory().get('/')
+    request.user = MockRequestUser(is_authenticated=True, permission=False, is_staff=True)
 
-    def setUp(self):
-        self.site = AdminSite()
-        self.moderation_admin = ModerationAdminBase(ModerationModel, self.site)
+    formfield = moderation_admin.formfield_for_choice_field(
+        obj._meta.get_field('status'),
+        request
+    )
 
-        self.object = ModerationModel.objects.create()
-
-        self.factory = RequestFactory()
-        self.request = self.factory.get('/')
-
-    def test_formfield_for_choice_field_has_permission(self):
-        self.request.user = MockUser(True)
-
-        formfield = self.moderation_admin.formfield_for_choice_field(
-            self.object._meta.get_field('status'),
-            self.request
-        )
-
-        self.assertListEqual(
-            formfield.choices,
-            [(1, 'Draft'), (2, 'Submitted for approval'), (3, 'Approved')]
-        )
-
-    def test_formfield_for_choice_field_has_no_permission(self):
-        self.request.user = MockUser(False)
-
-        formfield = self.moderation_admin.formfield_for_choice_field(
-            self.object._meta.get_field('status'),
-            self.request
-        )
-
-        self.assertListEqual(
-            formfield.choices,
-            [(1, 'Draft'), (2, 'Submitted for approval')]
-        )
+    assert formfield.choices == [(1, 'Draft'), (2, 'Submitted for approval')]
