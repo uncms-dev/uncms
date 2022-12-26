@@ -1,7 +1,7 @@
 import pytest
 from django.contrib.auth.models import AnonymousUser
 from django.template.response import SimpleTemplateResponse
-from django.test import RequestFactory, TestCase
+from django.test import RequestFactory
 from django.test.utils import override_settings
 
 from tests.factories import UserFactory
@@ -9,32 +9,31 @@ from tests.pages.factories import PageFactory
 from uncms.middleware import PublicationMiddleware
 
 
-class MiddlewareTest(TestCase):
+def test_publicationmiddleware_process_request():
+    request = RequestFactory().get('/?preview=a')
+    request.user = AnonymousUser()
+    publication_middleware = PublicationMiddleware(lambda: None)
+    publication_middleware.process_request(request)
 
-    def setUp(self):
-        self.factory = RequestFactory()
-        self.request = self.factory.get('/?preview=a')
-        self.request.user = AnonymousUser()
 
-    def test_publicationmiddleware_process_request(self):
-        publication_middleware = PublicationMiddleware(lambda: None)
-        publication_middleware.process_request(self.request)
+def test_publicationmiddleware_process_response():
+    # pylint:disable=duplicate-code
+    class Context(dict):
+        pass
 
-    def test_publicationmiddleware_process_response(self):
-        # pylint:disable=duplicate-code
-        class Context(dict):
-            pass
+    request = RequestFactory().get('/?preview=a')
+    request.user = AnonymousUser()
 
-        context = Context()
-        context['page_obj'] = Context()
-        context['page_obj'].has_other_pages = lambda: False
+    context = Context()
+    context['page_obj'] = Context()
+    context['page_obj'].has_other_pages = lambda: False
 
-        response = SimpleTemplateResponse('pagination/pagination.html', context)
-        publication_middleware = PublicationMiddleware(lambda: None)
+    response = SimpleTemplateResponse('pagination/pagination.html', context)
+    publication_middleware = PublicationMiddleware(lambda: None)
 
-        response = publication_middleware.process_response(self.request, response)
+    response = publication_middleware.process_response(request, response)
 
-        self.assertEqual(response.status_code, 200)
+    assert response.status_code == 200
 
 
 @pytest.mark.django_db
