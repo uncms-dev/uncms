@@ -1,4 +1,5 @@
 import pytest
+from bs4 import BeautifulSoup
 from django.contrib.contenttypes.models import ContentType
 from django.test import override_settings
 
@@ -40,7 +41,7 @@ def test_format_html():
 
     html = (
         # Test with no alt text to ensure it gets an empty string and not
-        # None or a missing value
+        # None or a missing value. Also, test copying attributes like "title"
         f'<p><img title="&amp;" src="{old_prefix}{image.pk}"></p>'
         # test not being fussy about trailing / in the URL
         f'<p><img src="{old_prefix}{image.pk}/"/></p>'
@@ -50,15 +51,26 @@ def test_format_html():
         f'<p><img src="{old_prefix}{image_with_alt.pk}"></p>'
         # Don't overwrite an existing alt text.
         f'<p><img alt="Override" src="{old_prefix}{image_with_alt.pk}"></p>'
+        # Preserve existing style attributes
+        f'<p><img src="{old_prefix}{image.pk}" style="transform: rotate(180deg)"></p>'
+        # Preserve class attributes
+        f'<p><img class="left" src="{old_prefix}{image.pk}"></p>'
     )
 
-    assert format_html(html).strip() == (
-        f'<p><img alt="" src="{image.file.url}" title="&amp;"/></p>'
-        f'<p><img alt="" src="{image.file.url}"/></p>'
-        f'<p><img alt="" src="{image.file.url}"/></p>'
-        f'<p><img alt="Alt text &amp;" src="{image_with_alt.file.url}"/></p>'
-        f'<p><img alt="Override" src="{image_with_alt.file.url}"/></p>'
-    )
+    soup = BeautifulSoup(format_html(html), 'html.parser')
+    picture_tags = soup.find_all('picture')
+    assert len(picture_tags) == 7
+
+    img_tags = [picture_tag.find('img') for picture_tag in picture_tags]
+
+    assert img_tags[0]['title'] == '&'
+    assert img_tags[0]['alt'] == ''
+    assert img_tags[1]['src'] == image.get_absolute_url()
+    assert img_tags[2]['src'] == image.get_absolute_url()
+    assert img_tags[3]['alt'] == 'Alt text &'
+    assert img_tags[4]['alt'] == 'Override'
+    assert img_tags[5]['style'] == 'aspect-ratio: 1280 / 720; transform: rotate(180deg)'
+    assert img_tags[6]['class'] == ['image__image', 'left']
 
 
 def example_processor(html):

@@ -54,13 +54,31 @@ def format_html(text):
         if not image_id:
             continue
 
+        # Don't throw an exception if the given image does not exist.
         try:
             obj = media_model.objects.get(pk=image_id)
         except (media_model.DoesNotExist, ValueError):
             continue
-        image['src'] = obj.get_absolute_url()
-        if not image.get('alt'):
-            image['alt'] = obj.alt_text or ''
+
+        new_image = BeautifulSoup(obj.render_multi_format(
+            width=defaults.HTML_IMAGE_WIDTH,
+            # Copy over alt text if it is present. If it is an explicit empty
+            # string, obey it - if it is not present it will be None, which
+            # render_multi_format treats as "replace with alt text from the
+            # File model".
+            alt_text=image.get('alt_text'),
+            extra_styles=image.get('style'),
+            # Copy over "class" - note BS4 returns an array for element['class']
+            extra_classes=' '.join(image.get('class', [])),
+            # Copy over all attributes except "style" and "class" (those are
+            # handled above)
+            extra_attributes={
+                key: value
+                for key, value in image.attrs.items()
+                if key not in ['class', 'style', 'src']
+            },
+        ), 'html.parser')
+        image.replace_with(new_image)
 
     return str(soup)
 

@@ -2,6 +2,7 @@
 
 ## Next release
 
+* The `html` template filter now uses the multi-format image renderer to downsize images.
 * Remove a random vendored jQuery.
 
 ## 0.0.1

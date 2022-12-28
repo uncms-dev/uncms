@@ -20,17 +20,22 @@ class Article(models.Model)
 That's it!
 
 When rendering the HTML on the front-end of your site, you will want to filter your HTML through the `html` template filter.
-This will expand image references and add alt text where it is missing to the images in your HTML editor.
-Extra output processors may be specified with the [`HTML_OUTPUT_FORMATTERS`](configuration.md?id=html_output_formatters) configuration option.
 
-It will also clean the HTML by filtering it through [Bleach](https://github.com/mozilla/bleach), which will remove any nasties such as `<script>`.
-You may wish to override which tags and attributes are allowed with the [`BLEACH_OPTIONS`](configuration.md?id=bleach_options) configuration option.
-Alternatively, you may use the [`HTML_CLEANERS`](configuration.md?id=html_cleaners) option to add extra HTML sanitisers,
-or to remove HTML sanitisation altogether.
 
 ```
 {{ object.content|html }}
 ```
+
+This will expand image references and add alt text where it is missing to the images in your HTML editor.
+It will also thumbnail images to the width specified in the [`HTML_IMAGE_WIDTH`](configuration.md?id=html_image_width) configuration option
+(including generating optional WebP versions for browsers which support it).
+
+Extra HTML output processors may be specified with [`HTML_OUTPUT_FORMATTERS`](configuration.md?id=html_output_formatters).
+
+The `html` filter will also clean the HTML by filtering it through [Bleach](https://github.com/mozilla/bleach), which will remove any nasties such as `<script>`.
+You may wish to override which tags and attributes are allowed with the [`BLEACH_OPTIONS`](configuration.md?id=bleach_options) configuration option.
+Alternatively, you may change the [`HTML_CLEANERS`](configuration.md?id=html_cleaners) option to add extra HTML sanitisers,
+or to remove HTML sanitisation altogether.
 
 There may be circumstances in which you want to use the HTML editing widget, but not use `HtmlField` on your model.
 In this unusual case, use `uncms.fields.HtmlWidget` in your form class.

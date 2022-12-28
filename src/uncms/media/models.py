@@ -191,6 +191,11 @@ class File(models.Model):
             aspect=True,
             alt_text=None,
             lazy=True,
+            # intentionally undocumented for the {% image %} tag, probably only
+            # best for internal use
+            extra_styles=None,
+            extra_classes=None,
+            extra_attributes=None,
     ):
         # Don't try and render a broken image or non-image. Nothing sensible
         # to do here, so render nothing.
@@ -203,6 +208,7 @@ class File(models.Model):
             'original': self,
             'lazy': lazy,
             'class_prefix': defaults.IMAGE_CLASS_PREFIX,
+            'extra_attributes': extra_attributes,
         }
 
         # If an explicit empty alt text has been specified, then obey that
@@ -237,10 +243,16 @@ class File(models.Model):
 
         # Add the "ratio" attribute so browsers can pre-size the image
         # appropriately.
+        style_parts = []
         if aspect:
-            context['aspect_ratio'] = initial_thumb.aspect_ratio_string
+            style_parts.append(f'aspect-ratio: {initial_thumb.aspect_ratio_string}')
+        if extra_styles:
+            style_parts.append(extra_styles)
 
+        context['style_attribute'] = '; '.join(style_parts)
         context['formats'] = multi
+        context['extra_classes'] = extra_classes or ''
+        context['extra_styles'] = extra_styles or ''
         return render_to_string(defaults.IMAGE_TEMPLATE, context)
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):

@@ -5,11 +5,12 @@
     <source type="{{ format }}" srcset="{{ images.srcset }}">
   {% endfor %}
   <img
-    class="{% block img_tag_classes %}{{ class_prefix }}__image {% block extra_img_tag_classes %}{% endblock %}{% endblock %}"
+    class="{% block img_tag_classes %}{{ class_prefix }}__image {{ extra_classes }} {% block extra_img_tag_classes %}{% endblock %}{% endblock %}"
     alt="{{ alt_text }}"
     src="{{ original_url }}"
     {% if lazy %}{% block img_tag_lazy_attribute %}loading="lazy"{% endblock %}{% endif %}
-    {% if aspect_ratio %}{% block img_tag_style_attribute %}style="aspect-ratio: {{ aspect_ratio }}"{% endblock %}{% endif %}
+    {% if style_attribute %}{% block img_tag_style_attribute %}style="{{ style_attribute }}"{% endblock %}{% endif %}
+    {% if extra_attributes %}{% for key, value in extra_attributes.items %}{{ key }}="{{ value }}" {% endfor %}{% endif %}
     {% block extra_img_tag_attributes %}{% endblock %}
   >
   {% block inside_picture_tag_bottom %}{% endblock %}

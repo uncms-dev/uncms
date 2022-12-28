@@ -61,6 +61,7 @@ class AppSettings:
         },
         'HTML_CLEANERS': ['uncms.html.clean_html'],
         'HTML_OUTPUT_FORMATTERS': ['uncms.html.format_html'],
+        'HTML_IMAGE_WIDTH': 1280,
         'IMAGE_CLASS_PREFIX': 'image',
         'IMAGE_TEMPLATE': 'media/multi_format_image.html',
         'IMAGE_USE_WEBP': True,

@@ -171,6 +171,10 @@ class MultiFormatSoupParser:
         return self.img_tag['alt']
 
     @cached_property
+    def classes(self):
+        return self.img_tag.get('class')
+
+    @cached_property
     def img_tag(self):
         return self.soup.find('img')
 
@@ -261,6 +265,27 @@ def test_file_render_multi_format_obeys_aspect():
 
     parsed = MultiFormatSoupParser(image.render_multi_format(width=960, aspect=False))
     assert parsed.style_attribute is None
+
+
+@pytest.mark.django_db
+def test_file_render_multi_format_preserves_extra_styles():
+    image = SamplePNGFileFactory()
+    parsed = MultiFormatSoupParser(image.render_multi_format(width=800, height=600, extra_styles='transform: rotate(180deg)'))
+    assert parsed.style_attribute == 'aspect-ratio: 800 / 600; transform: rotate(180deg)'
+
+    parsed = MultiFormatSoupParser(image.render_multi_format(width=800, height=600, lazy=False, extra_styles='transform: rotate(180deg)', aspect=False))
+    assert parsed.style_attribute == 'transform: rotate(180deg)'
+
+
+@pytest.mark.django_db
+def test_file_render_multi_format_preserves_extra_classes():
+    image = SamplePNGFileFactory()
+
+    parsed = MultiFormatSoupParser(image.render_multi_format(width=800, height=600))
+    assert parsed.classes == ['image__image']
+
+    parsed = MultiFormatSoupParser(image.render_multi_format(width=800, height=600, extra_classes='nonsense'))
+    assert parsed.classes == ['image__image', 'nonsense']
 
 
 @pytest.mark.django_db

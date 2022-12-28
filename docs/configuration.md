@@ -63,6 +63,19 @@ This list is _not_ additive to the defaults;
 if you wish to retain the default HTML cleaning while adding your own cleaner functions,
 you must include `'uncms.html.clean_html'` in this list.
 
+## `HTML_IMAGE_WIDTH`
+
+* Type: integer
+* Default: 1280
+
+When formatting HTML from the [HTML editor](html-editor.md),
+the UnCMS `html` template filter will replace images with thumbnailed versions.
+This is to save you from resizing them to a sensible size yourself before inserting them
+(which encourages the sensible practice of always having high-resolution master versions in the library).
+Images will be thumbnailed to a width specified by the `HTML_IMAGE_WIDTH` option.
+You may adjust this value if you know you will need to display them at larger widths than this,
+or if you know you will only be displaying it at sizes smaller than this.
+
 ## `HTML_OUTPUT_FORMATTERS`
 
 * Type: list of strings (dotted names of HTML output formatting functions)
