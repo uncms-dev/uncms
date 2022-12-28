@@ -221,18 +221,9 @@ class File(models.Model):
 
         always_args = {'colorspace': colorspace, 'quality': quality}
 
-        initial_thumb = self.get_thumbnail(
-            width=width,
-            height=height,
-            fmt='source',
-            **always_args,
-        )
-
-        original_mimetype = IMAGE_MIMETYPES[self.file_extension]
-
         multi = MultiThumbnail()
-        multi.add_size(original_mimetype, initial_thumb)
 
+        # Do WebP first - browsers will look at the srcset in the given order.
         if defaults.IMAGE_USE_WEBP:
             multi.add_size('image/webp', self.get_thumbnail(
                 width=width,
@@ -241,11 +232,20 @@ class File(models.Model):
                 **always_args,
             ))
 
+        original_thumb = self.get_thumbnail(
+            width=width,
+            height=height,
+            fmt='source',
+            **always_args,
+        )
+
+        multi.add_size(IMAGE_MIMETYPES[self.file_extension], original_thumb)
+
         # Add the "ratio" attribute so browsers can pre-size the image
         # appropriately.
         style_parts = []
         if aspect:
-            style_parts.append(f'aspect-ratio: {initial_thumb.aspect_ratio_string}')
+            style_parts.append(f'aspect-ratio: {original_thumb.aspect_ratio_string}')
         if extra_styles:
             style_parts.append(extra_styles)
 

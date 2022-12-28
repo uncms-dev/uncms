@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.3
+
+* WebP rendering was broken in actual browsers. It is not anymore. (The "alpha" warning everywhere in this documentation is real.)
+
 ## 0.0.2
 
 * The `html` template filter now uses the multi-format image renderer to downsize images.

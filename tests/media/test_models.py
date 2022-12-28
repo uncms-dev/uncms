@@ -212,7 +212,9 @@ def test_file_render_multi_format_obeys_formats(django_assert_num_queries):
     with django_assert_num_queries(0):
         parsed = MultiFormatSoupParser(image.render_multi_format(width=800, height=600))
     parsed.validate_srcsets()
-    assert list(parsed.srcsets) == ['image/png', 'image/webp']
+    # This order is important - webp must go first because we want browsers to
+    # look at it first.
+    assert list(parsed.srcsets) == ['image/webp', 'image/png']
 
     # Ensure the implicit "WebP is not enabled" branch is visited.
     with override_settings(UNCMS={'IMAGE_USE_WEBP': False}):

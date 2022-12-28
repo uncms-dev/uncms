@@ -1,3 +1,4 @@
+from collections import OrderedDict
 from dataclasses import dataclass
 
 
@@ -57,7 +58,7 @@ class MultiThumbnail:
     """
 
     def __init__(self):
-        self.formats = {}
+        self.formats = OrderedDict()
 
     def add_size(self, mime_type: str, thumbnail: Thumbnail):
         self.formats.setdefault(mime_type, ThumbnailGroup())
