@@ -127,6 +127,11 @@ class FileAdmin(VersionAdmin, SearchAdmin):
             })]
         return fieldsets
 
+    def get_form(self, request, obj=None, change=False, **kwargs):
+        # Patch in the "user" argument required by FileForm.
+        form = super().get_form(request, obj=obj, change=change, **kwargs)
+        return partial(form, user=request.user)
+
     def get_preserved_filters(self, request):
         # Ensure the "_tinymce" parameter gets preserved after saving to make
         # the popup response template work.

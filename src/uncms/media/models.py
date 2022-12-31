@@ -93,6 +93,7 @@ class File(models.Model):
 
     class Meta:
         ordering = ['-date_added', '-pk']
+        permissions = [('upload_dangerous_files', _('Can upload dangerous files'))]
 
     def __str__(self):
         return self.title

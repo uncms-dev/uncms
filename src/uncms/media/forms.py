@@ -5,12 +5,17 @@ from io import BytesIO
 import magic
 import reversion
 from django import forms
+from django.apps import apps
 from django.core.files.base import ContentFile
 from django.utils.translation import gettext_lazy as _
 from PIL import Image
 
-from uncms.media.filetypes import IMAGE_MIMETYPES
-from uncms.media.models import File
+from uncms.conf import defaults
+from uncms.media.filetypes import (
+    IMAGE_MIMETYPES,
+    is_image,
+    normalised_file_extension,
+)
 
 
 def mime_check(file):
@@ -29,19 +34,37 @@ def mime_check(file):
 
 class FileForm(forms.ModelForm):
     class Meta:
-        model = File
+        # make swappable
+        model = apps.get_model(defaults.MEDIA_FILE_MODEL)
         fields = ['title', 'file', 'attribution', 'copyright', 'alt_text', 'labels']
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user')
+        super().__init__(*args, **kwargs)
 
     def clean_file(self):
         """
-        `clean_file` checks nominal images to see if they do in fact match
-        their declared contents. This comes from extensive experience of files
-        being "converted" into some other format by simply changing the file
-        extension.
+        `clean_file` checks that the given file is allowed to be uploaded
+        based on the file extension. This is to prevent e.g. a .html file
+        being uploaded; a less-privileged user might be able to cause a
+        privilege escalation by uploading a .html file with malicious JS in
+        it, then tricking a more-privileged user into visiting the URL, which
+        could result in a privilege escalation.
+
+        The default is to only allow images to be uploaded, unless the user
+        has an explicit permission to upload dangerous files, or they are a
+        superuser, in which case they can cause any amount of destruction like
+        deleting everything on the site.
+
+        It also checks nominal images to see if they do in fact match their
+        declared contents. This comes from extensive experience of files being
+        "converted" into some other format by changing the file extension.
 
         For most other formats, it doesn't matter if they upload with the
         wrong extension. With images, it means that exceptions will be raised
-        when thumbnailing them.
+        when thumbnailing them. Note that this trusts the MIME type coming
+        from the client; this is intended to prevent deliberate uploading of
+        the wrong file type.
         """
         uploaded_file = self.cleaned_data['file']
 
@@ -52,7 +75,32 @@ class FileForm(forms.ModelForm):
                     'The file extension for this image does not seem to match its contents. '
                     'Make sure the file extension is correct and try again.'
                 ))
+
+            # Check that the user can upload files of this type.
+            if not self.user_can_upload_file(self.user, uploaded_file):
+                _ignore, extension = os.path.splitext(uploaded_file.name)
+                raise forms.ValidationError(
+                    _('You do not have permission to upload "{extension}" files.').format(extension=extension),
+                )
         return uploaded_file
+
+    @classmethod
+    def user_can_upload_file(cls, user, file):
+        # Only permit a value of "*" if it is the only value - this reduces
+        # the risk of accidentally configuring it this way.
+        if list(defaults.MEDIA_UPLOAD_ALLOWED_EXTENSIONS) == ['*']:
+            return True
+
+        # Allow the permissions bypass if it is enabled. Note the comparison
+        # is `is True`, to avoid accidental misconfiguration. Note also
+        # our form's app label - this should make it swappable.
+        if defaults.MEDIA_UPLOAD_PERMISSIONS_BYPASS is True and user.has_perm(f'{cls._meta.model._meta.app_label}.upload_dangerous_files'):
+            return True
+
+        if is_image(file.name) and defaults.MEDIA_UPLOAD_ALWAYS_ALLOW_IMAGES is True:
+            return True
+
+        return normalised_file_extension(file.name) in defaults.MEDIA_UPLOAD_ALLOWED_EXTENSIONS
 
 
 class ImageEditForm(forms.ModelForm):
@@ -62,7 +110,8 @@ class ImageEditForm(forms.ModelForm):
     )
 
     class Meta:
-        model = File
+        # make swappable
+        model = apps.get_model(defaults.MEDIA_FILE_MODEL)
         fields = ['changed_image']
 
     def save(self, commit=True):

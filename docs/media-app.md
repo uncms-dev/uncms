@@ -21,6 +21,20 @@ urlpatterns = [
 
 ```
 
+## Configuring allowed file types
+
+By default, UnCMS will only allow files with image extensions to be uploaded in the admin,
+unless a user has the "upload dangerous files" permission, in which case they can upload any file at all
+(this permission is also implied by a user having the "superuser" flag).
+You can change this behaviour with three configuration options:
+
+* To add extra file types which should be allowed, change [`MEDIA_UPLOAD_ALLOWED_EXTENSIONS`](configuration.md?id=MEDIA_UPLOAD_ALLOWED_EXTENSIONS).
+* To turn off the "always allow images" option, change [`MEDIA_UPLOAD_ALWAYS_ALLOW_IMAGES`](configuration.md?id=MEDIA_UPLOAD_ALWAYS_ALLOW_IMAGES).
+* To turn off the "permissions can bypass file upload restrictions" behaviour, change [`MEDIA_UPLOAD_PERMISSIONS_BYPASS`](configuration.md?id=MEDIA_UPLOAD_PERMISSIONS_BYPASS).
+
+Note that these restrictions only apply to files uploaded through the Django administration interface;
+you will need to implement your own restrictions if you are allowing uploads to the media library from elsewhere.
+
 ## Models
 
 ### File

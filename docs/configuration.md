@@ -139,6 +139,40 @@ This looks much better for something that is not informationally-dense,
 but it may not play well with non-standard admin skins.
 Set this to `False` if it looks weird in your admin, or if you prefer a standard table list view.
 
+## `MEDIA_UPLOAD_ALLOWED_EXTENSIONS`
+
+* Type: list of strings (file extensions without leading ".")
+* Default: `[]`
+
+By default, UnCMS will only allow admin users to upload files with image-like file extensions to the [media library](media-app.md) if they do not have an explicit permission to upload any type of file.
+If there are other file extensions you would like to allow,
+you can specify them here.
+The given file extensions should not have the leading dot.
+
+To allow any file extension, use `'*'`; for this to work, it must be the only value in the list.
+
+## `MEDIA_UPLOAD_ALWAYS_ALLOW_IMAGES`
+
+* Type: boolean
+* Default: `True`
+
+Regardless of the value of `MEDIA_UPLOAD_ALLOWED_EXTENSIONS`,
+admin users will always be allowed to upload files with image-like file extensions when this option is `True`,
+which is the default.
+To disable this behaviour, set this configuration item to `False`.
+
+## `MEDIA_UPLOAD_PERMISSIONS_BYPASS`
+
+* Type: boolean
+* Default: `True`
+
+Regardless of any values for `MEDIA_UPLOAD_ALWAYS_ALLOW_IMAGES` and `MEDIA_UPLOAD_ALLOWED_EXTENSIONS`,
+users with the `media.upload_dangerous_files` permission
+(including superusers, which have all permissions)
+will always be allowed to upload any kind of file to the [media library](media-app.md).
+To force even these users to only allow images and/or files with known file extensions,
+set this configuration item to `False`.
+
 ## `MEDIA_URLS_NAMESPACE`
 
 * Type: string

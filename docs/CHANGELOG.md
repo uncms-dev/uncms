@@ -1,5 +1,9 @@
 # Changelog
 
+## Next release
+
+* There are restrictions on what files can be uploaded to the [media library](media-app.md). For non-superusers, and those without the new `media.upload_dangerous_files` permission, it defaults to image files only.
+
 ## 0.0.3
 
 * WebP rendering was broken in actual browsers. It is not anymore. (The "alpha" warning everywhere in this documentation is real.)

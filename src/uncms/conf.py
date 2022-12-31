@@ -57,7 +57,7 @@ class AppSettings:
                 'td': ['rowspan', 'colspan'],
                 'ul': ['type'],
                 'video': ['controls', 'height', 'width'],
-            }
+            },
         },
         'HTML_CLEANERS': ['uncms.html.clean_html'],
         'HTML_OUTPUT_FORMATTERS': ['uncms.html.format_html'],
@@ -67,6 +67,9 @@ class AppSettings:
         'IMAGE_USE_WEBP': True,
         'MEDIA_FILE_MODEL': 'media.File',
         'MEDIA_LIST_GRID_VIEW': True,
+        'MEDIA_UPLOAD_ALLOWED_EXTENSIONS': [],
+        'MEDIA_UPLOAD_ALWAYS_ALLOW_IMAGES': True,
+        'MEDIA_UPLOAD_PERMISSIONS_BYPASS': True,
         'MEDIA_URLS_NAMESPACE': 'media_library',
         'NAVIGATION_CLASS_PREFIX': 'navigation',
         'NAVIGATION_TEMPLATE': 'pages/navigation/navigation.html',

@@ -374,3 +374,15 @@ def test_fileadmin_edit_view(client):
     obj.refresh_from_db()
     assert obj.width == 800
     assert obj.height == 600
+
+
+@pytest.mark.django_db
+def test_media_get_form(client):
+    # Test the get_form override - rather than testing the function directly,
+    # which is silly, ensure that the form in the context has the attributes
+    # we are expecting.
+    user = UserFactory(superuser=True)
+    client.force_login(user)
+    response = client.get(reverse('admin:media_file_add'))
+    assert response.status_code == 200
+    assert response.context_data['adminform'].form.user == user
