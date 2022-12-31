@@ -158,7 +158,7 @@ First, let's create the template `pages/navigation/navigation_item_extended.html
 
 {% block link_inside_bottom %}
   {# be kind, rewind! always use super when extending #}
-  {{ super() }}
+  {{ block.super }}
   {% if entry.children %}⬇{% endif %}
 {% endblock %}
 ```
