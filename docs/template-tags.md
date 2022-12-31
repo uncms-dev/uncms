@@ -131,7 +131,7 @@ Renders the site navigation for the given set of pages.
 ```
 {% load pages %}
 <nav>
-  {% render_navigation pages.homepage.navigation %}
+  {% navigation pages.homepage.navigation %}
 </nav>
 ```
 
