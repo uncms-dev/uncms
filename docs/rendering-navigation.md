@@ -5,13 +5,13 @@ Once you have created some [pages](pages-app.md), rendering your navigation in y
 ```
 {% load pages %}
 <nav>
-  {% render_navigation pages.homepage.navigation %}
+  {% navigation pages.homepage.navigation %}
 </nav>
 ```
 
 That's it!
 It is worth looking at this tag for a moment before we continue on to how to style and customise the main menu.
-`render_navigation` will render a navigation template with a list of page nodes.
+`navigation` will render a navigation template with a list of page nodes.
 `pages.homepage.navigation` means "all pages that are children of the homepage that have the `in_navigation` field set to True".
 So, this example usage of the tag will render a navigation tree for your entire site.
 
@@ -22,7 +22,7 @@ So you can do something like this (we'll get onto what the `class_prefix` argume
 ```
   {% load pages %}
   <div class="sidebar">
-    {% render_navigation pages.current.navigation class_prefix="subpage-navigation" %}
+    {% navigation pages.current.navigation class_prefix="subpage-navigation" %}
   </aside>
 ```
 
@@ -73,7 +73,7 @@ Its styling rules are intended to give you a base for implementing your own.
 You can customise the class name in two ways:
 
 * by setting the `NAVIGATION_CLASS_PREFIX` [configuration option] (which defaults to `navigation`), or
-* by supplying the `class_prefix` option to `render_navigation`
+* by supplying the `class_prefix` option to `navigation`
 
 This will only change the prefixes.
 Should you decide that you find the class naming style entirely intolerable,
@@ -83,11 +83,11 @@ you may proceed to override templates.
 
 For more advanced customisation, you might want to override the templates used to render the navigation.
 TO give maximum flexibility, you may specify which template to use either in global settings (under the `UNCMS` dictionary)
-or, for all except the top-level navigation template, as a keyword argument parameter to `render_navigation`.
+or, for all except the top-level navigation template, as a keyword argument parameter to `navigation`.
 
 ### `pages/navigation/navigation.html`
 
-* `render_navigation` parameter: none (cannot be overridden this way)
+* `navigation` parameter: none (cannot be overridden this way)
 * Setting key: `NAVIGATION_TEMPLATE`
 
 This renders all navigation items inside a `<ul>` tag.
@@ -99,7 +99,7 @@ It has the following extension points as blocks in the template:
 
 ### `pages/navigation/navigation_item.html`
 
-* `render_navigation` parameter: `item_template`
+* `navigation` parameter: `item_template`
 * Setting key: `NAVIGATION_ITEM_TEMPLATE`
 
 This renders a single top-level navigation item inside an `<li>` tag.
@@ -116,7 +116,7 @@ It has the following extension points as blocks in the template:
 
 ### `pages/navigation/navigation_submenu.html`
 
-* `render_navigation` parameter: `submenu_template`
+* `navigation` parameter: `submenu_template`
 * Setting key: `NAVIGATION_SUBMENU_TEMPLATE`
 
 This renders a navigation submenu (which may be nested arbitarily deep) within a `<ul>` tag.
@@ -128,7 +128,7 @@ It has the following extension points as blocks in the template:
 
 ### `pages/navigation/navigation_submenu_item.html`
 
-* `render_navigation` parameter: `submenu_item_template`
+* `navigation` parameter: `submenu_item_template`
 * Setting key: `NAVIGATION_SUBMENU_ITEM_TEMPLATE`
 
 This renders a navigation item for a single navigation submenu item within an `<li>` element.
@@ -163,10 +163,10 @@ First, let's create the template `pages/navigation/navigation_item_extended.html
 {% endblock %}
 ```
 
-Now, we can either specify this template in our `render_navigation` call...
+Now, we can either specify this template in our `navigation` call...
 
 ```
-{{ render_navigation(pages.homepage.navigation, item_template="pages/navigation/navigation_item_extended.html") }}
+{% navigation pages.homepage.navigation item_template="pages/navigation/navigation_item_extended.html" %}
 ```
 
 ...or we can add this to our UnCMS configuration dictionary in our Django settings:
