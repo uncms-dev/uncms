@@ -3,7 +3,7 @@
 Once you have created some [pages](pages-app.md), rendering your navigation in your base template is simple.
 
 ```
-{% load pages %}
+{% load uncms_pages %}
 <nav>
   {% navigation pages.homepage.navigation %}
 </nav>
@@ -20,10 +20,10 @@ For example, it is quite common to want to render a list of subpages for the cur
 So you can do something like this (we'll get onto what the `class_prefix` argument does later):
 
 ```
-  {% load pages %}
-  <div class="sidebar">
-    {% navigation pages.current.navigation class_prefix="subpage-navigation" %}
-  </aside>
+{% load uncms_pages %}
+<aside class="sidebar">
+  {% navigation pages.current.navigation class_prefix="subpage-navigation" %}
+</aside>
 ```
 
 Of course, the UnCMS [philosophy](philosophy.md) is to have no opinions on what the front end of your site should look like.
