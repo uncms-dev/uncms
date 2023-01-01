@@ -1,8 +1,11 @@
 from django import template
 from django.urls import reverse
 
+from uncms.conf import defaults
 from uncms.pages import get_page_model
 from uncms.pages.templatetags._common import (
+    get_breadcrumbs_context,
+    get_breadcrumbs_obj,
     get_canonical_url,
     get_meta_description,
     get_meta_robots,
@@ -55,9 +58,19 @@ def admin_sitemap_entries(context):
     }
 
 
+@register.inclusion_tag(defaults.BREADCRUMBS_TEMPLATE.format(extension='html'), takes_context=True)
+def breadcrumbs(context, breadcrumbs_obj=None, *, auto_extend=True, show_tail=None, class_prefix='breadcrumbs'):
+    return get_breadcrumbs_context(context, breadcrumbs_obj, auto_extend=auto_extend, show_tail=show_tail, class_prefix=class_prefix)
+
+
 @register.simple_tag(takes_context=True)
 def canonical_url(context):
     return get_canonical_url(context)
+
+
+@register.simple_tag(takes_context=True)
+def get_breadcrumbs(context, *, breadcrumb_list=None, auto_extend=True, extend_with=None):
+    return get_breadcrumbs_obj(context, breadcrumb_list=breadcrumb_list, auto_extend=auto_extend, extend_with=extend_with)
 
 
 @register.simple_tag(takes_context=True)

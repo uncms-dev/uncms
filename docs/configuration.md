@@ -49,6 +49,39 @@ If you do, use this configuration setting.
 
 This option corresponds directly to keyword arguments accepted by the [`bleach.clean`](https://bleach.readthedocs.io/en/latest/clean.html) function.
 
+## `BREADCRUMBS_CLASS_PREFIX`
+
+* Type: string
+* Default: `'breadcrumbs'`
+
+[Breadcrumbs](rendering-breadcrumbs.md) use a sensible BEM class naming convention in their rendered HTML,
+e.g. `breadcrumbs` for the containing element,
+`breadcrumbs__item` for an item,
+`breadcrumbs__item-link` for a link within an item,
+etc.
+Note the shared `breadcrumbs` prefix.
+To globally change which class name prefix is used, change `BREADCRUMBS_CLASS_PREFIX` to something else.
+
+## `BREADCRUMBS_SHOW_TAIL`
+
+* Type: boolean
+* Default: `False`
+
+By default, [rendering breadcrumbs](rendering-breadcrumbs.md) will not show the "tail" item,
+i.e. add the current page to the end of the trail.
+Opinions differ on whether you should do this.
+This can be overridden per invocation of `{% breadcrumbs %}`,
+but if you would like to show the tail item by default set `BREADCRUMBS_SHOW_TAIL` to `True`.
+
+## `BREADCRUMBS_TEMPLATE`
+
+* Type: string
+* Default: `'pages/breadcrumbs.{extension}'`
+
+This is the template which will be used to [render breadcrumbs](rendering-breadcrumbs.md).
+`{extension}` will be replaced with the appropriate file extension,
+depending on whether you are using Django templates (`.html`) or [Jinja2](using-jinja2.md) (`.jinja2`).
+
 ## `HTML_CLEANERS`
 
 * Type: list of strings (dotted names of cleaner functions)

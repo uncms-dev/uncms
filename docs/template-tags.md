@@ -122,6 +122,31 @@ tag in the order 'index', 'follow' and 'archive':
 
 ## Navigation functions
 
+### `{% breadcrumbs [breadcrumbs_obj] auto_extend=True show_tail=None class_prefix='breadcrumbs' %}`
+
+* **Load with:** `{% load uncms_pages %}`
+* **[Jinja2](using-jinja2.md) equivalent:** `{{ render_breadcrumbs() }}`
+
+Renders a breadcrumb trail for the current page (and, if present, the current object),
+or for the `uncms.pages.types.Breadcrumbs` given by `breadcrumbs_obj`.
+
+```
+{% load uncms_pages %}
+{% breadcrumbs show_tail=True %}
+```
+
+See [Rendering breadcrumbs](rendering-breadcrumbs.md) for more.
+
+### `{% get_breadcrumbs breadcrumb_list=None auto_extend=True extend_with=None %}`
+
+* **Load with:** `{% load uncms_pages %}`
+* **[Jinja2](using-jinja2.md) equivalent:** `{{ get_breadcrumbs() }}`
+
+Gets a `uncms.pages.types.Breadcrumbs` object for the objects given in `breadcrumb_list`,
+extended with items in `extend_with`,
+and auto-extended by the current `object` in the page context if `auto_extend` is True.
+See the advanced usage section in [Rendering breadcrumbs](rendering-breadcrumbs.md) for more.
+
 ### `{% navigation pages [section] %}`
 
 * **Load with:** `{% load uncms_pages %}`
@@ -129,13 +154,13 @@ tag in the order 'index', 'follow' and 'archive':
 Renders the site navigation for the given set of pages.
 
 ```
-{% load pages %}
+{% load uncms_pages %}
 <nav>
   {% navigation pages.homepage.navigation %}
 </nav>
 ```
 
-See [rendering navigation](rendering-navigation.md) for more.
+See [Rendering page navigation](rendering-navigation.md) for more.
 
 ### `{% page_url [page] [view_func] *args **kwargs %}`
 

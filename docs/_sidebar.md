@@ -2,6 +2,7 @@
 * [Getting started: the walkthrough](walkthrough.md)
 * [The Pages app](pages-app.md)
 ** [Rendering page navigation](rendering-navigation.md)
+** [Rendering breadcrumbs](rendering-breadcrumbs.md)
 * [Template tags](template-tags.md)
 * [The Media app](media-app.md)
 ** [Rendering images](rendering-images.md)

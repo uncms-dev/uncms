@@ -1,3 +1,6 @@
+import inspect
+
+import django.template
 import pytest
 from django.test import RequestFactory, override_settings
 
@@ -9,9 +12,14 @@ from tests.testing_app.models import (
     PageBaseModel,
     TemplateTagTestPage,
 )
+from uncms.jinja2_environment.pages import \
+    get_breadcrumbs as get_breadcrumbs_jinja2
+from uncms.jinja2_environment.pages import render_breadcrumbs
 from uncms.pages.middleware import RequestPageManager
 from uncms.pages.templatetags._common import (
     _navigation_entries,
+    get_breadcrumbs_context,
+    get_breadcrumbs_obj,
     get_canonical_url,
     get_meta_description,
     get_meta_robots,
@@ -22,11 +30,12 @@ from uncms.pages.templatetags._common import (
     get_twitter_description,
     get_twitter_image,
     get_twitter_title,
-    render_breadcrumbs,
     render_navigation,
 )
 from uncms.pages.templatetags.uncms_pages import (
     admin_sitemap_entries,
+    breadcrumbs,
+    get_breadcrumbs,
     meta_description,
     meta_robots,
     navigation,
@@ -39,16 +48,6 @@ from uncms.pages.templatetags.uncms_pages import (
     twitter_title,
 )
 from uncms.utils import canonicalise_url
-
-
-@pytest.mark.django_db
-def test_render_breadcrumbs():
-    output = render_breadcrumbs({'request': request_with_pages()}, extended=True)
-    assert len(output) > 0
-
-    PageFactory.create_tree(1, 3)
-    output = render_breadcrumbs({'request': request_with_pages()})
-    assert len(output) > 0
 
 
 @pytest.mark.django_db
@@ -200,6 +199,117 @@ def test_render_navigation_is_efficient_with_deeper_trees(django_assert_num_quer
 
     with django_assert_num_queries(4):
         render_navigation({'request': request}, request.pages.homepage.navigation)
+
+
+@pytest.mark.django_db
+def test_breadcrumbs_django_and_jinja_render_identically(use_jinja2):
+    """
+    Ensure that Django and Jinja2 versions of the breadcrumbs templates render
+    identically.
+    """
+    subsubpage = PageFactory(title='Subsubpage', parent=PageFactory(parent=PageFactory()))
+    obj = PageBaseModel.objects.create(title='Object')
+
+    context = {
+        'request': request_with_pages(subsubpage.get_absolute_url()),
+        'object': obj,
+    }
+
+    jinja_rendered = render_breadcrumbs(context)
+    django_rendered = django.template.Template(
+        '{% load uncms_pages %}{% breadcrumbs %}',
+    ).render(django.template.Context(context))
+
+    assert jinja_rendered.strip() == django_rendered.strip()
+
+    jinja_rendered = render_breadcrumbs(context)
+    django_rendered = django.template.Template(
+        '{% load uncms_pages %}{% breadcrumbs %}',
+    ).render(django.template.Context(context))
+
+
+@pytest.mark.parametrize('django_function, jinja2_function', [
+    (get_breadcrumbs, get_breadcrumbs_jinja2),
+    (render_breadcrumbs, breadcrumbs),
+])
+def test_django_and_jinja_function_parity(django_function, jinja2_function):
+    assert inspect.signature(django_function) == inspect.signature(jinja2_function)
+
+
+@pytest.mark.parametrize('test_function', [breadcrumbs, get_breadcrumbs_context])
+@pytest.mark.django_db
+def test_breadcrumbs(test_function):
+    subsubpage = PageFactory(title='Subsubpage', parent=PageFactory(parent=PageFactory()))
+    context = {'request': request_with_pages(subsubpage.get_absolute_url())}
+
+    returned_context = test_function(context)
+    assert len(returned_context['breadcrumbs']) == 2
+    assert returned_context['class_prefix'] == 'breadcrumbs'
+    assert returned_context['breadcrumbs'][0].url == subsubpage.parent.parent.get_absolute_url()
+    assert returned_context['breadcrumbs'][1].url == subsubpage.parent.get_absolute_url()
+
+    returned_context = test_function(context, class_prefix='breadcrumbs-test')
+    assert len(returned_context['breadcrumbs']) == 2
+    assert returned_context['class_prefix'] == 'breadcrumbs-test'
+
+    returned_context = test_function(context, show_tail=True)
+    assert len(returned_context['breadcrumbs']) == 3
+    assert returned_context['class_prefix'] == 'breadcrumbs'
+    assert returned_context['breadcrumbs'][2].url == subsubpage.get_absolute_url()
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize('test_function', [get_breadcrumbs_obj, get_breadcrumbs, get_breadcrumbs_jinja2])
+def test_get_breadcrumbs_obj(test_function):
+    subsubpage = PageFactory(title='Subsubpage', parent=PageFactory(parent=PageFactory()))
+    request = request_with_pages(subsubpage.get_absolute_url())
+
+    def assert_page_items(crumbs_obj):
+        assert crumbs_obj.items[0].url == request.pages.homepage.get_absolute_url()
+        assert crumbs_obj.items[1].url == subsubpage.parent.get_absolute_url()
+        assert crumbs_obj.items[2].url == subsubpage.get_absolute_url()
+        assert crumbs_obj.items[2].title == subsubpage.title
+
+    context = {'request': request}
+    breadcrumbs_obj = test_function(context)
+    assert_page_items(breadcrumbs_obj)
+
+    # Make sure auto-extending with "object" from the context works.
+    obj = PageBaseModel.objects.create(title='Object')
+    context = {'request': request, 'object': obj}
+    breadcrumbs_obj = test_function(context)
+    assert_page_items(breadcrumbs_obj)
+    assert len(breadcrumbs_obj.items) == 4
+    assert breadcrumbs_obj.items[3].title == 'Object'
+
+    # Ensure that bypassing auto extend works
+    breadcrumbs_obj = test_function(context, auto_extend=False)
+    assert_page_items(breadcrumbs_obj)
+    assert len(breadcrumbs_obj.items) == 3
+
+    # Ensure that manually adding objects to extend the breadcrumbs works.
+    obj_2 = PageBaseModel.objects.create(title='Object 2')
+    context = {'request': request, 'object': obj}
+    breadcrumbs_obj = test_function(context, auto_extend=False, extend_with=obj_2)
+    assert_page_items(breadcrumbs_obj)
+    assert len(breadcrumbs_obj.items) == 4
+    assert breadcrumbs_obj.items[3].title == 'Object 2'
+
+    # We also want to be able to pass through a list or iterable of objects.
+    obj_3 = PageBaseModel.objects.create(title='Object 3')
+    context = {'request': request, 'object': obj}
+    breadcrumbs_obj = test_function(context, auto_extend=False, extend_with=[obj_2, obj_3])
+    assert_page_items(breadcrumbs_obj)
+    assert len(breadcrumbs_obj.items) == 5
+    assert breadcrumbs_obj.items[3].title == 'Object 2'
+    assert breadcrumbs_obj.items[4].title == 'Object 3'
+
+    context = {'request': request, 'object': obj}
+    manual_breadcrumbs = [obj, obj_2]
+    breadcrumbs_obj = test_function(context, breadcrumb_list=manual_breadcrumbs, auto_extend=False)
+    assert len(breadcrumbs_obj.items) == 2
+    assert breadcrumbs_obj.items[0].title == 'Object'
+    assert breadcrumbs_obj.items[1].title == 'Object 2'
 
 
 @override_settings(UNCMS={'SITE_DOMAIN': 'canonicalise.example.com'})

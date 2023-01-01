@@ -11,6 +11,7 @@ from uncms.conf import defaults
 from uncms.media.models import File
 from uncms.models import SearchMetaBase
 from uncms.pages import get_page_model
+from uncms.pages.types import Breadcrumbs
 from uncms.utils import canonicalise_url
 
 
@@ -63,6 +64,44 @@ def render_navigation(context, pages, section=None, class_prefix=None, **templat
         'item_template': templates.get('item_template', defaults.NAVIGATION_ITEM_TEMPLATE),
         'submenu_template': templates.get('submenu_template', defaults.NAVIGATION_SUBMENU_TEMPLATE),
         'submenu_item_template': templates.get('submenu_item_template', defaults.NAVIGATION_SUBMENU_ITEM_TEMPLATE),
+    }
+
+
+def get_breadcrumbs_obj(context, *, breadcrumb_list=None, auto_extend=True, extend_with=None):
+    if breadcrumb_list is None:
+        items = context['request'].pages.breadcrumbs
+    else:
+        items = breadcrumb_list
+
+    if auto_extend and 'object' in context:
+        obj_extension = context['object']
+    else:
+        obj_extension = []
+
+    return Breadcrumbs.from_objects(items, obj_extension, extend_with or [])
+
+
+def get_breadcrumbs_context(context, breadcrumbs_obj=None, *, auto_extend=True, show_tail=None, class_prefix=None):
+    if not breadcrumbs_obj:
+        breadcrumbs_obj = get_breadcrumbs_obj(context, auto_extend=auto_extend)
+
+    if show_tail is None:
+        show_tail = defaults.BREADCRUMBS_SHOW_TAIL
+
+    items = breadcrumbs_obj.items
+
+    # Never show a completely empty breadcrumb trail, if we have a home page.
+    if not show_tail:
+        items = items[:-1]
+
+    if class_prefix is None:
+        class_prefix = defaults.BREADCRUMBS_CLASS_PREFIX
+
+    return {
+        'count': len(items),
+        'breadcrumbs': items,
+        'show_tail': show_tail,
+        'class_prefix': class_prefix,
     }
 
 
@@ -348,37 +387,4 @@ def render_title(context, browser_title=None):
     return {
         'title': browser_title or context.get('title') or (page and page.browser_title) or (page and page.title) or '',
         'site_title': (homepage and homepage.browser_title) or (homepage and homepage.title) or '',
-    }
-
-
-def render_breadcrumbs(context, page=None, extended=False):
-    '''
-    Renders the breadcrumbs trail for the current page::
-
-        {% breadcrumbs %}
-
-    To override and extend the breadcrumb trail within page applications, add
-    the 'extended' flag to the tag and add your own breadcrumbs underneath::
-
-        {% breadcrumbs extended=1 %}
-
-    '''
-    request = context['request']
-    # Render the tag.
-    page = page or request.pages.current
-    if page:
-        breadcrumb_list = [{
-            'short_title': breadcrumb.short_title or breadcrumb.title,
-            'title': breadcrumb.title,
-            'url': breadcrumb.get_absolute_url(),
-            'last': False,
-            'page': breadcrumb,
-        } for breadcrumb in request.pages.breadcrumbs]
-    else:
-        breadcrumb_list = []
-    if not extended:
-        breadcrumb_list[-1]['last'] = True
-    # Render the breadcrumbs.
-    return {
-        'breadcrumbs': breadcrumb_list,
     }
