@@ -338,10 +338,6 @@ class PageBase(SearchMetaBase):
     )
 
     def __str__(self):  # pylint:disable=invalid-str-returned
-        """
-        Returns the short title of this page, falling back to the standard
-        title.
-        """
         return self.title
 
     def get_context_data(self):
