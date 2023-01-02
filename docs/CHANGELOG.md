@@ -1,6 +1,6 @@
 # Changelog
 
-## Next release
+## 0.0.4
 
 * The previously minimally-functional breadcrumb template tags have been [upgraded](rendering-breadcrumbs.md) to be much more useful out of the box.
 * There are restrictions on what files can be uploaded to the [media library](media-app.md). For non-superusers, and those without the new `media.upload_dangerous_files` permission, it defaults to image files only.
