@@ -44,3 +44,15 @@ and then peek into the fieldsets from the template context.
 Another example, also from the media app, is that the stylesheet for the fancy grid view on the list page is conditionally shown or hidden based on a setting.
 The simplest way to test that this is working is to use BeautifulSoup to look at the rendered HTML,
 and see if there is an appropriate `<link>` tag in it.
+
+## Jinja2
+
+If you add new template tags, it is a very good idea to make sure there is a Jinja2 global function which does the same thing
+(except where this does not make sense, such as for enhancements to `/admin/`).
+If you have added templates, it is also a good idea to ensure there are Jinja2
+To keep it maintainable,
+Jinja2 global functions should take the same arguments,
+and templates should be byte-for-byte identical with their Django equivalents.
+It's a good idea to write tests to ensure parity between Django and Jinja2;
+see [this commit](https://github.com/uncms-dev/uncms/commit/e509b38af17630e75429a433511f5758bbdfd997) for ideas,
+or just ask for help from the maintainer.
