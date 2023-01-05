@@ -623,27 +623,26 @@ class TestPageAdmin(TestCase):
         # length is correct.
         self.assertNotEqual(queryset.count(), Page.objects.all().count())
 
-    def test_pagecontenttypefilter_lookups(self):
-        # Add some pages with different content types.
-        with search.update_index():
-            content_type = ContentType.objects.get_for_model(PageContent)
-            content_type_2 = ContentType.objects.get_for_model(PageContentWithFields)
 
-            self._make_page('John', content_type)
-            self._make_page('Paul', content_type)
-            self._make_page('Ringo', content_type_2)
-        request = self._build_request()
-        filterer = PageContentTypeFilter(request, {}, Page, self.page_admin)
-        lookups = filterer.lookups(request, Page.objects.all())
-        # Make sure that something has been returned...
-        self.assertTrue(len(lookups) > 0)
+@pytest.mark.django_db
+def test_pagecontenttypefilter_lookups():
+    page_admin = PageAdmin(Page, AdminSite())
 
-        # ...and that they are of the correct content type.
-        self.assertTrue(len(lookups) == len(get_registered_content()))
+    # Add some pages with different content types. (The repetition in this
+    # array is intentional!)
+    for content_cls in [PageContent, PageContent, PageContentWithFields]:
+        PageFactory(content=content_cls())
 
-        # Ensure that the lookup names have been ordered.
-        lookup_names = [lookup[1] for lookup in lookups]
-        self.assertEqual(lookup_names, sorted(lookup_names))
+    request = RequestFactory().get('/')
+    filterer = PageContentTypeFilter(request, {}, Page, page_admin)
+    lookups = filterer.lookups(request, Page.objects.all())
+
+    # Make sure our lookups look kinda correct.
+    assert len(lookups) == len(get_registered_content())
+
+    # Ensure that the lookup names have been ordered.
+    lookup_names = [lookup[1] for lookup in lookups]
+    assert lookup_names == sorted(lookup_names)
 
 
 @pytest.mark.django_db
