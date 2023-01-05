@@ -1,5 +1,9 @@
 # Changelog
 
+## Next release
+
+* Unit tests have been further rationalised.
+
 ## 0.0.4
 
 * The previously minimally-functional breadcrumb template tags have been [upgraded](rendering-breadcrumbs.md) to be much more useful out of the box.

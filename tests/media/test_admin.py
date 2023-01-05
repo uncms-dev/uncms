@@ -1,7 +1,5 @@
 # pylint:disable=duplicate-code
 import base64
-import random
-import sys
 
 import pytest
 from bs4 import BeautifulSoup
@@ -9,18 +7,17 @@ from django.contrib.admin.sites import AdminSite
 from django.contrib.admin.views.main import IS_POPUP_VAR
 from django.contrib.auth.models import Permission
 from django.contrib.messages.storage.fallback import FallbackStorage
-from django.core.files.uploadedfile import SimpleUploadedFile
 from django.http import Http404
-from django.test import LiveServerTestCase, RequestFactory, TransactionTestCase
+from django.test import RequestFactory
 from django.test.utils import override_settings
 from django.urls import reverse
-from django.utils.timezone import now
 
 from tests.factories import UserFactory
 from tests.media.factories import (
-    MINIMAL_GIF_DATA,
     EmptyFileFactory,
+    FileFactory,
     LabelFactory,
+    MinimalGIFFileFactory,
     SampleJPEGFileFactory,
     SamplePNGFileFactory,
     data_file_path,
@@ -30,216 +27,9 @@ from uncms.media.admin import FileAdmin
 from uncms.media.models import File
 
 
-class BrokenFile:
-
-    """
-    A special class designed to raise an IOError the second time it's `file`
-    method is called. Used to test sorl.
-    """
-
-    def __init__(self, *args, **kwargs):
-        self.obj = File.objects.create(**kwargs)
-
-    def __getattr__(self, name):
-        return getattr(self.obj, name)
-
-
-class TestFileAdminBase(TransactionTestCase):
-
-    def setUp(self):
-        self.site = AdminSite()
-        self.file_admin = FileAdmin(File, self.site)
-
-        File.objects.all().delete()
-
-        self.factory = RequestFactory()
-        self.request = self.factory.get('/')
-        self.request.user = MockSuperUser()
-
-        # An invalid JPEG
-        self.name_1 = '{}-{}.jpg'.format(
-            now().strftime('%Y-%m-%d_%H-%M-%S'),
-            random.randint(0, sys.maxsize)
-        )
-
-        self.obj_1 = File.objects.create(
-            title="Foo",
-            file=SimpleUploadedFile(self.name_1, b"data", content_type="image/jpeg")
-        )
-
-        # A valid GIF.
-        self.name_2 = '{}-{}.gif'.format(
-            now().strftime('%Y-%m-%d_%H-%M-%S'),
-            random.randint(0, sys.maxsize)
-        )
-
-        self.obj_2 = File.objects.create(
-            title="Foo 2",
-            file=SimpleUploadedFile(self.name_2, MINIMAL_GIF_DATA, content_type="image/gif")
-        )
-
-    def tearDown(self):
-        self.obj_1.file.delete(False)
-        self.obj_1.delete()
-
-    def test_fileadminbase_add_label_action(self):
-        label = LabelFactory()
-        self.assertEqual(self.obj_1.labels.count(), 0)
-        self.file_admin.add_label_action(self.request, File.objects.all(), label)
-        self.assertEqual(self.obj_1.labels.count(), 1)
-
-    def test_fileadminbase_remove_label_action(self):
-        label = LabelFactory()
-        self.assertEqual(self.obj_1.labels.count(), 0)
-
-        self.obj_1.labels.add(label)
-
-        self.assertEqual(self.obj_1.labels.count(), 1)
-
-        self.file_admin.remove_label_action(self.request, File.objects.all(), label)
-
-        self.assertEqual(self.obj_1.labels.count(), 0)
-
-    def test_fileadminbase_get_actions(self):
-        LabelFactory()
-        actions = self.file_admin.get_actions(self.request)
-        self.assertEqual(len(actions), 3)
-
-        self.request = self.factory.get('/?{}'.format(IS_POPUP_VAR))
-        self.request.user = MockSuperUser()
-        actions = self.file_admin.get_actions(self.request)
-        self.assertEqual(len(actions), 0)
-
-    def test_fileadminbase_get_size(self):
-        # Why this has to use a unicode space, I don't know..
-        self.assertEqual(self.file_admin.get_size(self.obj_1), '4\xa0bytes')
-
-        obj = File.objects.create(
-            title="Foo",
-            file='media/not/a/real.file'
-        )
-
-        self.assertEqual(self.file_admin.get_size(obj), '0 bytes')
-
-    def test_fileadminbase_get_preview(self):
-        # We can't do an `assertEqual` here as the generated src URL is dynamic.
-        preview = self.file_admin.get_preview(self.obj_2)
-
-        self.assertIn(
-            f'<img class="uncms-thumbnail" uncms:permalink="/library/redirect/{self.obj_2.pk}/"',
-            preview,
-        )
-
-        self.assertIn(
-            'width="200" height="200" alt="" title="Foo 2"/>',
-            preview,
-        )
-
-        obj = BrokenFile(
-            title="Foo",
-            file='media/not/a/real.png'
-        )
-
-        preview = self.file_admin.get_preview(obj)
-
-        assert preview.startswith('<img class="uncms-thumbnail"')
-
-        obj = File.objects.create(
-            title="Foo",
-            file='media/not/a/real.file'
-        )
-        preview = self.file_admin.get_preview(obj)
-
-        self.assertEqual(preview, f'<img class="uncms-fallback-icon" uncms:permalink="/library/redirect/{obj.pk}/" src="/static/media/img/text-x-generic-template.png" width="56" height="66" alt="" title="Foo"/>')
-        obj.delete()
-
-    def test_fileadminbase_response_add(self):
-        # Allow the messages framework to work.
-        setattr(self.request, 'session', 'session')
-        messages = FallbackStorage(self.request)
-        setattr(self.request, '_messages', messages)
-        self.request.user = MockSuperUser()
-
-        response = self.file_admin.response_add(self.request, self.obj_1)
-        self.assertEqual(response.status_code, 302)
-
-        self.request = self.factory.get('/?_tinymce')
-        self.request.user = MockSuperUser()
-        setattr(self.request, 'session', 'session')
-        messages = FallbackStorage(self.request)
-        setattr(self.request, '_messages', messages)
-        self.request.user = MockSuperUser()
-        self.request.pages = {}
-
-        response = self.file_admin.response_add(self.request, self.obj_1)
-        self.assertEqual(response.status_code, 200)
-
-
-class LiveServerTestFileAdminBase(LiveServerTestCase):
-
-    def setUp(self):
-        self.site = AdminSite()
-        self.file_admin = FileAdmin(File, self.site)
-
-        self.factory = RequestFactory()
-        self.request = self.factory.get('/')
-        self.request.user = MockSuperUser
-
-        # An invalid JPEG
-        self.name_1 = '{}-{}.jpg'.format(
-            now().strftime('%Y-%m-%d_%H-%M-%S'),
-            random.randint(0, sys.maxsize)
-        )
-
-        self.obj_1 = File.objects.create(
-            title="Foo",
-            file=SimpleUploadedFile(self.name_1, b"data", content_type="image/jpeg")
-        )
-
-    def tearDown(self):
-        self.obj_1.file.delete(False)
-        self.obj_1.delete()
-
-    def test_fileadminbase_remote_view(self):
-        self.request.user = MockSuperUser()
-        view = self.file_admin.remote_view(self.request, self.obj_1.pk)
-
-        # 405: Method not allowed. We have to POST to this view.
-        self.assertEqual(view.status_code, 405)
-
-        self.request.method = 'POST'
-
-        # No URL supplied.
-        with self.assertRaises(Http404):
-            view = self.file_admin.remote_view(self.request, self.obj_1.pk)
-
-        # No permissions.
-        self.request.user.has_perm = lambda x: False
-
-        view = self.file_admin.remote_view(self.request, self.obj_1.pk)
-        self.assertEqual(view.status_code, 403)
-
-        self.request.user.has_perm = lambda x: True
-
-        # Allow the messages framework to work.
-        setattr(self.request, 'session', 'session')
-        messages = FallbackStorage(self.request)
-        setattr(self.request, '_messages', messages)
-        self.request.user = MockSuperUser()
-
-        self.request.POST = {
-            'url': self.live_server_url + '/static/media/img/text-x-generic.png'
-        }
-        view = self.file_admin.remote_view(self.request, self.obj_1.pk)
-
-        self.assertEqual(view.content, b'{"status": "ok"}')
-        self.assertEqual(view.status_code, 200)
-
-
 @pytest.mark.django_db
 def test_fileadminbase_changelist_view():
-    site = AdminSite()
-    file_admin = FileAdmin(File, site)
+    file_admin = FileAdmin(File, AdminSite())
     request = RequestFactory().get('/')
     request.user = MockSuperUser()
     view = file_admin.changelist_view(request)
@@ -252,6 +42,139 @@ def test_fileadminbase_changelist_view():
     assert view.status_code == 200
     assert view.template_name == 'admin/media/file/change_list.html'
     assert 'foo' in view.context_data
+
+
+@pytest.mark.django_db
+def test_fileadmin_add_label_action():
+    file_admin = FileAdmin(File, AdminSite())
+
+    obj = EmptyFileFactory()
+    label = LabelFactory()
+    assert obj.labels.count() == 0
+
+    file_admin.add_label_action(RequestFactory().get('/'), File.objects.all(), label)
+    assert obj.labels.count() == 1
+
+
+@pytest.mark.django_db
+def test_fileadmin_get_actions():
+    site = AdminSite()
+    rf = RequestFactory()
+    file_admin = FileAdmin(File, site)
+    LabelFactory()
+
+    request = rf.get('/')
+    request.user = MockSuperUser()
+    actions = file_admin.get_actions(request)
+    assert len(actions) == 3
+
+    request = rf.get('/?{}'.format(IS_POPUP_VAR))
+    request.user = MockSuperUser()
+    actions = file_admin.get_actions(request)
+    assert len(actions) == 0
+
+
+@pytest.mark.django_db
+def test_fileadmin_get_preview():
+    file_admin = FileAdmin(File, AdminSite())
+
+    obj = SamplePNGFileFactory(title='Kittens')
+    preview = file_admin.get_preview(obj)
+    # We can't do an `assertEqual` here as the generated src URL is dynamic.
+    assert preview.startswith(
+        f'<img class="uncms-thumbnail" uncms:permalink="/library/redirect/{obj.pk}/"'
+    )
+    assert preview.endswith('width="200" height="112" alt="" title="Kittens"/>')
+
+    obj = FileFactory(file='media/not/a/real.png')
+    preview = file_admin.get_preview(obj)
+    assert preview.startswith('<img class="uncms-thumbnail"')
+
+    obj = FileFactory(title="Canary", file='media/not/a/real.file')
+    preview = file_admin.get_preview(obj)
+    assert preview == f'<img class="uncms-fallback-icon" uncms:permalink="/library/redirect/{obj.pk}/" src="/static/media/img/text-x-generic-template.png" width="56" height="66" alt="" title="Canary"/>'
+
+
+@pytest.mark.django_db
+def test_fileadmin_get_size():
+    file_admin = FileAdmin(File, AdminSite())
+
+    seven_bytes = FileFactory(file__data='abcdefg')
+    assert file_admin.get_size(seven_bytes) == '7\xa0bytes'
+
+    bad_file = FileFactory(file='media/not/a/real.file')
+    assert file_admin.get_size(bad_file) == '0 bytes'
+
+
+def test_fileadmin_remote_view(live_server):
+    file_admin = FileAdmin(File, AdminSite())
+    obj = EmptyFileFactory()
+
+    request = RequestFactory().get('/')
+    request.user = MockSuperUser
+
+    request.user = MockSuperUser()
+    response = file_admin.remote_view(request, obj)
+    # 405: Method not allowed. We have to POST to this view.
+    assert response.status_code == 405
+
+    request.method = 'POST'
+
+    # No URL supplied.
+    with pytest.raises(Http404):
+        file_admin.remote_view(request, obj.pk)
+
+    # No permissions.
+    request.user.has_perm = lambda x: False
+
+    response = file_admin.remote_view(request, obj.pk)
+    assert response.status_code == 403
+
+    request.user.has_perm = lambda x: True
+
+    # Allow the messages framework to work.
+    request.session = 'session'
+    request._messages = FallbackStorage(request)
+    request.user = MockSuperUser()
+
+    request.POST = {
+        'url': live_server.url + '/static/media/img/text-x-generic.png'
+    }
+    response = file_admin.remote_view(request, obj.pk)
+    assert response.content == b'{"status": "ok"}'
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_fileadmin_remove_label_action():
+    file_admin = FileAdmin(File, AdminSite())
+
+    label = LabelFactory()
+    obj = EmptyFileFactory()
+    assert obj.labels.count() == 0
+
+    obj.labels.add(label)
+    assert obj.labels.count() == 1
+
+    file_admin.remove_label_action(RequestFactory().get('/'), File.objects.all(), label)
+    assert obj.labels.count() == 0
+
+
+@pytest.mark.django_db
+def test_fileadmin_response_add():
+    file_admin = FileAdmin(File, AdminSite())
+    obj = EmptyFileFactory()
+
+    for url, status_code in [('/', 302), ('/?_tinymce', 200)]:
+        request = RequestFactory().get(url)
+        # Allow the messages framework to work.
+        request.session = 'session'
+        request._messages = FallbackStorage(request)
+        request.user = MockSuperUser()
+        request.pages = None
+
+        response = file_admin.response_add(request, obj)
+        assert response.status_code == status_code
 
 
 @pytest.mark.django_db
@@ -281,10 +204,7 @@ def test_file_detail_conditionally_shows_fieldsets(client):
     assert response.status_code == 200
     assert has_usage_fieldset(response.context_data) is False
 
-    file = File.objects.create(
-        title="Foo",
-        file=SimpleUploadedFile('Sample', b"data", content_type='image/jpeg')
-    )
+    file = MinimalGIFFileFactory()
     response = client.get(reverse('admin:media_file_change', args=[file.pk]))
     assert response.status_code == 200
     assert has_usage_fieldset(response.context_data) is True
