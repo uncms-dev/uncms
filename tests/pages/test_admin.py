@@ -1,4 +1,3 @@
-# pylint:disable=attribute-defined-outside-init
 import json
 from urllib.parse import urlencode, urljoin, urlparse
 
@@ -12,7 +11,6 @@ from django.contrib.admin.widgets import (
 )
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpResponseRedirect
 from django.http.request import QueryDict
@@ -43,10 +41,6 @@ from uncms.pages.admin import (
 from uncms.pages.models import Page, get_registered_content
 
 
-class MockRequest:
-    pass
-
-
 class TestPageAdmin(TestCase):
 
     maxDiff = None
@@ -61,23 +55,10 @@ class TestPageAdmin(TestCase):
             slug='homepage',
         )
 
-    def _build_request(self, page_type=None, method="GET"):
-        request = MockRequest()
+    def _build_request(self, page_type=None):
+        request = AdminRequestFactory().get('/')
         request.user = MockSuperUser()
-        request.pages = MockRequest()
-        request.pages.homepage = self.homepage
         request.GET = QueryDict('', mutable=True)
-        request.POST = QueryDict('', mutable=True)
-        request.COOKIES = {}
-        request.META = {
-            'SCRIPT_NAME': ''
-        }
-        request.method = method
-        request.path = '/'
-        request.resolver_match = False
-        request.session = {}
-        messages = FallbackStorage(request)
-        setattr(request, '_messages', messages)
 
         if page_type:
             request.GET['type'] = page_type

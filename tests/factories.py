@@ -4,6 +4,8 @@ from django.contrib.auth.models import Permission
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.test import RequestFactory
 
+from uncms.pages.middleware import RequestPageManager
+
 
 class UserFactory(factory.django.DjangoModelFactory):
     username = factory.Sequence(lambda n: f'user{n}')
@@ -38,4 +40,5 @@ class AdminRequestFactory(RequestFactory):
         req = super().request(**request)
         req.session = 'session'
         req._messages = FallbackStorage(req)
+        req.pages = RequestPageManager(req)
         return req
