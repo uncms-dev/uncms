@@ -20,7 +20,6 @@ from django.test import RequestFactory, TestCase, override_settings
 from django.urls import reverse
 from django.utils.text import slugify
 from reversion.models import Version
-from watson import search
 
 from tests.factories import UserFactory
 from tests.mocks import MockSuperUser
@@ -56,18 +55,11 @@ class TestPageAdmin(TestCase):
         self.site = AdminSite()
         self.page_admin = PageAdmin(Page, self.site)
 
-        with search.update_index():
-            content_type = ContentType.objects.get_for_model(PageContent)
-
-            self.homepage = Page.objects.create(
-                title="Homepage",
-                slug='homepage',
-                content_type=content_type,
-            )
-
-            PageContent.objects.create(
-                page=self.homepage,
-            )
+        self.homepage = PageFactory(
+            content=PageContent(),
+            title='Homepage',
+            slug='homepage',
+        )
 
     def _build_request(self, page_type=None, method="GET"):
         request = MockRequest()
@@ -91,19 +83,6 @@ class TestPageAdmin(TestCase):
             request.GET['type'] = page_type
 
         return request
-
-    def _make_page(self, title, content_type):
-        ''' Little helper to create a page whose parent is the homepage. '''
-        content_page = Page.objects.create(
-            title=title,
-            slug=slugify(title),
-            parent=self.homepage,
-            content_type=content_type,
-        )
-
-        content_type.model_class().objects.create(
-            page=content_page,
-        )
 
     def test_pageadmin_get_object(self):
         factory = RequestFactory()
@@ -181,19 +160,7 @@ class TestPageAdmin(TestCase):
             page_type=ContentType.objects.get_for_model(PageContentWithFields).pk
         )
 
-        with search.update_index():
-            content_type = ContentType.objects.get_for_model(PageContentWithFields)
-
-            self.content_page = Page.objects.create(
-                title="Content page",
-                slug='content_page',
-                parent=self.homepage,
-                content_type=content_type,
-            )
-
-            PageContentWithFields.objects.create(
-                page=self.content_page,
-            )
+        PageFactory(content=PageContentWithFields())
 
         pagecontent_fields = [
             (None, {
@@ -261,29 +228,6 @@ class TestPageAdmin(TestCase):
         self.assertEqual(self.page_admin.get_fieldsets(request), pagecontent_fields)
         self.assertEqual(self.page_admin.get_fieldsets(request2), pagecontentwithfields_fields)
 
-    def test_pageadmin_get_all_children(self):
-        self.assertListEqual(self.page_admin.get_all_children(self.homepage), [])
-
-        # Add a child page.
-        with search.update_index():
-            content_type = ContentType.objects.get_for_model(PageContentWithFields)
-
-            self.content_page = Page.objects.create(
-                title="Content page",
-                slug='content_page',
-                parent=self.homepage,
-                content_type=content_type,
-            )
-
-            PageContentWithFields.objects.create(
-                page=self.content_page,
-            )
-
-        # The `children` attribute is cached as long as we use the original
-        # reference, so get the Page again.
-        self.homepage = Page.objects.get(slug='homepage')
-        self.assertListEqual(self.page_admin.get_all_children(self.homepage), [self.content_page])
-
     def test_pageadmin_get_breadcrumbs(self):
         self.assertListEqual(self.page_admin.get_breadcrumbs(self.homepage), [self.homepage])
 
@@ -311,21 +255,9 @@ class TestPageAdmin(TestCase):
         request = self._build_request()
 
         # Test a page with a content model with fields.
-        with search.update_index():
-            content_type = ContentType.objects.get_for_model(PageContentWithFields)
+        content_page = PageFactory(parent=self.homepage, content=PageContentWithFields())
 
-            self.content_page = Page.objects.create(
-                title="Content page",
-                slug='content_page',
-                parent=self.homepage,
-                content_type=content_type,
-            )
-
-            PageContentWithFields.objects.create(
-                page=self.content_page,
-            )
-
-        form = self.page_admin.get_form(request, obj=self.content_page)
+        form = self.page_admin.get_form(request, obj=content_page)
 
         keys = ['title', 'slug', 'parent', 'description', 'inline_model',
                 'publication_date', 'expiry_date',
@@ -342,19 +274,19 @@ class TestPageAdmin(TestCase):
         self.assertIsInstance(form.base_fields['inline_model'].widget, RelatedFieldWidgetWrapper)
 
         setattr(PageContentWithFields, 'filter_horizontal', ['inline_model'])
-        form = self.page_admin.get_form(request, obj=self.content_page)
+        form = self.page_admin.get_form(request, obj=content_page)
         self.assertIsInstance(form.base_fields['inline_model'].widget, FilteredSelectMultiple)
 
         # No homepage.
         self.assertEqual(form.base_fields['parent'].choices, [(self.homepage.pk, 'Homepage')])
 
         request.pages.homepage = None
-        form = self.page_admin.get_form(request, obj=self.content_page)
+        form = self.page_admin.get_form(request, obj=content_page)
 
         self.assertListEqual(form.base_fields['parent'].choices, [('', '---------')])
 
         # Trigger the `content_cls.DoesNotExist` exception.
-        content_cls = self.page_admin.get_page_content_cls(request, self.content_page)
+        content_cls = self.page_admin.get_page_content_cls(request, content_page)
 
         class Obj:
 
@@ -368,7 +300,7 @@ class TestPageAdmin(TestCase):
             def __init__(self, page, *args, **kwargs):
                 self.page = page
 
-        obj = Obj(self.content_page)
+        obj = Obj(content_page)
         self.page_admin.get_form(request, obj=obj)
 
     def test_pageadmin_save_model(self):
@@ -562,23 +494,11 @@ class TestPageAdmin(TestCase):
         self.assertEqual(response['Content-Type'], "application/json")
 
         # Add a child page.
-        with search.update_index():
-            content_type = ContentType.objects.get_for_model(PageContentWithFields)
-
-            self.content_page = Page.objects.create(
-                title="Content page",
-                slug='content_page',
-                parent=self.homepage,
-                content_type=content_type,
-            )
-
-            PageContentWithFields.objects.create(
-                page=self.content_page,
-            )
+        content_page = PageFactory(title='Content page', content=PageContentWithFields(), parent=self.homepage)
 
         request.pages.homepage = Page.objects.get(slug='homepage')
         response = self.page_admin.sitemap_json_view(request)
-        sitemap = '{"createHomepageUrl": "/admin/pages/page/add/?from=sitemap", "addUrl": "/admin/pages/page/add/?from=sitemap&parent=__id__", "canAdd": true, "changeUrl": "/admin/pages/page/__id__/change/?from=sitemap", "entries": [{"isOnline": true, "canDelete": true, "title": "Homepage", "canChange": true, "id": ' + str(self.homepage.pk) + ', "moveUrl": "/admin/pages/page/move-page/' + str(self.homepage.pk) + '/", "children": [{"isOnline": true, "canDelete": true, "title": "Content page", "canChange": true, "id": ' + str(self.content_page.pk) + ', "moveUrl": "/admin/pages/page/move-page/' + str(self.content_page.pk) + '/", "children": []}]}], "deleteUrl": "/admin/pages/page/__id__/delete/?from=sitemap"}'
+        sitemap = '{"createHomepageUrl": "/admin/pages/page/add/?from=sitemap", "addUrl": "/admin/pages/page/add/?from=sitemap&parent=__id__", "canAdd": true, "changeUrl": "/admin/pages/page/__id__/change/?from=sitemap", "entries": [{"isOnline": true, "canDelete": true, "title": "Homepage", "canChange": true, "id": ' + str(self.homepage.pk) + ', "moveUrl": "/admin/pages/page/move-page/' + str(self.homepage.pk) + '/", "children": [{"isOnline": true, "canDelete": true, "title": "Content page", "canChange": true, "id": ' + str(content_page.pk) + ', "moveUrl": "/admin/pages/page/move-page/' + str(content_page.pk) + '/", "children": []}]}], "deleteUrl": "/admin/pages/page/__id__/delete/?from=sitemap"}'
         self.assertDictEqual(json.loads(response.content.decode()), json.loads(sitemap))
         self.assertEqual(response['Content-Type'], "application/json")
 
@@ -593,13 +513,9 @@ class TestPageAdmin(TestCase):
         request = self._build_request()
 
         # Add some pages with different content types.
-        with search.update_index():
-            content_type = ContentType.objects.get_for_model(PageContent)
-            content_type_2 = ContentType.objects.get_for_model(PageContentWithFields)
-
-            self._make_page('Food', content_type)
-            self._make_page('Barred', content_type)
-            self._make_page('Bazooka', content_type_2)
+        PageFactory(content=PageContent())
+        PageFactory(content=PageContent())
+        PageFactory(content=PageContentWithFields())
 
         # Test with no filters. Should be the same as Page.objects.all().
         filterer = PageContentTypeFilter(request, {}, Page, self.page_admin)
@@ -643,6 +559,21 @@ def test_pagecontenttypefilter_lookups():
     # Ensure that the lookup names have been ordered.
     lookup_names = [lookup[1] for lookup in lookups]
     assert lookup_names == sorted(lookup_names)
+
+
+@pytest.mark.django_db
+def test_pageadmin_get_all_children():
+    page_admin = PageAdmin(Page, AdminSite())
+    homepage = PageFactory(slug='homepage')
+    assert page_admin.get_all_children(homepage) == []  # pylint:disable=use-implicit-booleaness-not-comparison
+
+    # Add a child page.
+    subpage = PageFactory(parent=homepage)
+
+    # The `children` attribute is cached as long as we use the original
+    # reference, so get the Page again.
+    homepage = Page.objects.get(slug='homepage')
+    assert page_admin.get_all_children(homepage) == [subpage]
 
 
 @pytest.mark.django_db
