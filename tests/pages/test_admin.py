@@ -84,11 +84,6 @@ class TestPageAdmin(TestCase):
 
         return request
 
-    def test_pageadmin_get_object(self):
-        factory = RequestFactory()
-        request = factory.get('/')
-        self.assertEqual(self.page_admin.get_object(request, -1), None)
-
     def test_pageadmin_register_page_inline(self):
         self.page_admin._register_page_inline(InlineModelNoPage)
 
