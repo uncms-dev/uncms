@@ -72,6 +72,7 @@ def pytest_configure():
             'django.contrib.messages.middleware.MessageMiddleware',
             'django.contrib.auth.middleware.AuthenticationMiddleware',
             'django.middleware.clickjacking.XFrameOptionsMiddleware',
+            'uncms.middleware.PublicationMiddleware',
             'uncms.pages.middleware.PageMiddleware',
             'watson.middleware.SearchContextMiddleware',
         ],

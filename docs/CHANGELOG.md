@@ -1,5 +1,9 @@
 # Changelog
 
+## Next release
+
+* There is now a system check for required middleware and context processors; UnCMS will fail loudly and early if these are not present.
+
 ## 0.0.5
 
 * The `media.upload_dangerous_files` permission added in 0.0.4 caused a model state change that was not reflected in a migration. This has been added.
