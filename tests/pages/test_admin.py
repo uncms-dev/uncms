@@ -380,18 +380,6 @@ class TestPageAdmin(TestCase):
 
         response = self.page_admin.change_view(request, str(self.homepage.pk))
 
-    def test_pageadmin_revision_view(self):
-        request = self._build_request()
-
-        # Create an initial revision.
-        with reversion.create_revision():
-            self.homepage.content.save()
-
-        versions = Version.objects.get_for_object(self.homepage.content)
-
-        response = self.page_admin.revision_view(request, str(self.homepage.pk), (versions[0].pk))
-        self.assertEqual(response.status_code, 200)
-
     def test_pageadmin_add_view(self):  # pragma: no cover
         request = self._build_request()
         response = self.page_admin.add_view(request)
@@ -740,6 +728,24 @@ def test_pageadmin_response_change():
     response = page_admin.response_change(request, page)
     assert response.status_code == 302
     assert response['Location'] == '/admin/pages/page/'
+
+
+@pytest.mark.django_db
+def test_pageadmin_revision_view():
+    page_admin = PageAdmin(Page, AdminSite())
+    page = PageFactory()
+
+    request = AdminRequestFactory().get('/')
+    request.user = MockSuperUser()
+
+    # Create an initial revision.
+    with reversion.create_revision():
+        page.content.save()
+
+    versions = Version.objects.get_for_object(page.content)
+
+    response = page_admin.revision_view(request, str(page.pk), (versions[0].pk))
+    assert response.status_code == 200
 
 
 @pytest.mark.django_db
