@@ -25,7 +25,8 @@ UNCMS = {
 ```
 
 This is the _only_ required setting in this dictionary, because it cannot always be guessed.
-It is used by template functions to turn relative /urls/ into `https://actual.absolute/urls/`:
+It is used by template tags to turn relative /urls/ into `https://actual.absolute/urls/`.
+It is safe to set this to `'example.com'` - or any other value - if you do not know what your domain will be yet.
 
 Add our core UnCMS apps to your `INSTALLED_APPS`:
 
