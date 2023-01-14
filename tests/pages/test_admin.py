@@ -21,7 +21,7 @@ from django.urls import reverse
 from django.utils.text import slugify
 from reversion.models import Version
 
-from tests.factories import UserFactory
+from tests.factories import AdminRequestFactory, UserFactory
 from tests.mocks import MockSuperUser
 from tests.pages.factories import PageFactory
 from tests.testing_app.admin import InlineModelInline, InlineModelNoPageInline
@@ -443,42 +443,12 @@ class TestPageAdmin(TestCase):
             response = self.page_admin.add_view(request)
 
     def test_pageadmin_response_add(self):
-        factory = RequestFactory()
-        request = factory.get('/')
-
-        setattr(request, 'session', 'session')
-        messages = FallbackStorage(request)
-        setattr(request, '_messages', messages)
+        request = AdminRequestFactory().get('/')
         request.user = MockSuperUser()
 
         response = self.page_admin.response_add(request, self.homepage)
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response['Location'], '/admin/pages/page/')
-
-    def test_pageadmin_response_change(self):
-        factory = RequestFactory()
-        request = factory.get('/')
-
-        setattr(request, 'session', 'session')
-        messages = FallbackStorage(request)
-        setattr(request, '_messages', messages)
-        request.user = MockSuperUser()
-
-        response = self.page_admin.response_change(request, self.homepage)
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response['Location'], '/admin/pages/page/')
-
-    def test_pageadmin_delete_view(self):
-        factory = RequestFactory()
-        request = factory.get('/')
-
-        setattr(request, 'session', 'session')
-        messages = FallbackStorage(request)
-        setattr(request, '_messages', messages)
-        request.user = MockSuperUser()
-
-        response = self.page_admin.delete_view(request, str(self.homepage.pk))
-        self.assertEqual(response.status_code, 200)
 
     def test_pageadmin_sitemap_json_view(self):
         # pylint:disable=fixme
@@ -508,37 +478,6 @@ class TestPageAdmin(TestCase):
         self.assertDictEqual(json.loads(response.content.decode()), json.loads(sitemap))
         self.assertEqual(response['Content-Type'], "application/json")
 
-    def test_pagecontenttypefilter_queryset(self):
-        # Ensures that the queryset returned by filtering is correct.
-        request = self._build_request()
-
-        # Add some pages with different content types.
-        PageFactory(content=PageContent())
-        PageFactory(content=PageContent())
-        PageFactory(content=PageContentWithFields())
-
-        # Test with no filters. Should be the same as Page.objects.all().
-        filterer = PageContentTypeFilter(request, {}, Page, self.page_admin)
-        queryset = filterer.queryset(request, Page.objects.all())
-        self.assertEqual(queryset.count(), Page.objects.all().count())
-
-        # Test with a content type filter. It should return a subset of the
-        # pages.
-        content_type_id = ContentType.objects.get_for_model(PageContent).id
-        parameters = {'page_type': content_type_id}
-        filterer = PageContentTypeFilter(request, parameters, Page, self.page_admin)
-        queryset = filterer.queryset(request, Page.objects.all())
-        self.assertEqual(
-            queryset.count(),
-            Page.objects.filter(
-                content_type_id=content_type_id
-            ).count()
-        )
-        # The above will not be sufficient - we need to ensure that it is not
-        # the same as the unfiltered queryset, not merely that the filtered
-        # length is correct.
-        self.assertNotEqual(queryset.count(), Page.objects.all().count())
-
 
 @pytest.mark.django_db
 def test_pagecontenttypefilter_lookups():
@@ -559,6 +498,47 @@ def test_pagecontenttypefilter_lookups():
     # Ensure that the lookup names have been ordered.
     lookup_names = [lookup[1] for lookup in lookups]
     assert lookup_names == sorted(lookup_names)
+
+
+@pytest.mark.django_db
+def test_pagecontenttypefilter_queryset():
+    # Ensures that the queryset returned by filtering is correct.
+    page_admin = PageAdmin(Page, AdminSite())
+    request = RequestFactory().get('/')
+
+    # Add some pages with different content types.
+    PageFactory(content=PageContent())
+    PageFactory(content=PageContent())
+    PageFactory(content=PageContentWithFields())
+
+    # Test with no filters. Should be the same as Page.objects.all().
+    filterer = PageContentTypeFilter(request, {}, Page, page_admin)
+    queryset = filterer.queryset(request, Page.objects.all())
+    assert queryset.count() == Page.objects.all().count()
+
+    # Test with a content type filter. It should return a subset of the
+    # pages.
+    content_type_id = ContentType.objects.get_for_model(PageContent).id
+    parameters = {'page_type': content_type_id}
+    filterer = PageContentTypeFilter(request, parameters, Page, page_admin)
+    queryset = filterer.queryset(request, Page.objects.all())
+    assert queryset.count() == Page.objects.filter(content_type_id=content_type_id).count()
+    # The above will not be sufficient - we need to ensure that it is not
+    # the same as the unfiltered queryset, not merely that the filtered
+    # length is correct.
+    assert queryset.count() != Page.objects.all().count()
+
+
+@pytest.mark.django_db
+def test_pageadmin_delete_view():
+    page_admin = PageAdmin(Page, AdminSite())
+
+    homepage = PageFactory()
+    request = AdminRequestFactory().get('/')
+    request.user = MockSuperUser()
+
+    response = page_admin.delete_view(request, str(homepage.pk))
+    assert response.status_code == 200
 
 
 @pytest.mark.django_db
@@ -771,6 +751,19 @@ def test_pageadmin_recover_view(client):
     for revision in Version.objects.all():
         response = client.get(reverse('admin:pages_page_recover', args=[revision.pk]))
         assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_pageadmin_response_change():
+    page_admin = PageAdmin(Page, AdminSite())
+    page = PageFactory()
+
+    request = AdminRequestFactory().get('/')
+    request.user = MockSuperUser()
+
+    response = page_admin.response_change(request, page)
+    assert response.status_code == 302
+    assert response['Location'] == '/admin/pages/page/'
 
 
 @pytest.mark.django_db

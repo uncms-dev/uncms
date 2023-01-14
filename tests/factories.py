@@ -1,6 +1,8 @@
 import factory
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
+from django.contrib.messages.storage.fallback import FallbackStorage
+from django.test import RequestFactory
 
 
 class UserFactory(factory.django.DjangoModelFactory):
@@ -25,3 +27,15 @@ class UserFactory(factory.django.DjangoModelFactory):
                     content_type__app_label=app_label,
                     codename=permission_name,
                 ))
+
+
+class AdminRequestFactory(RequestFactory):
+    """
+    A subclass of RequestFactory which sets the session and _messages
+    attributes required for doing anything with Django admin views.
+    """
+    def request(self, **request):
+        req = super().request(**request)
+        req.session = 'session'
+        req._messages = FallbackStorage(req)
+        return req

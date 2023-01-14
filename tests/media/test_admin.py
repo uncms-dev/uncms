@@ -8,11 +8,10 @@ from django.contrib.admin.views.main import IS_POPUP_VAR
 from django.contrib.auth.models import Permission
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.http import Http404
-from django.test import RequestFactory
 from django.test.utils import override_settings
 from django.urls import reverse
 
-from tests.factories import UserFactory
+from tests.factories import AdminRequestFactory, UserFactory
 from tests.media.factories import (
     EmptyFileFactory,
     FileFactory,
@@ -30,7 +29,7 @@ from uncms.media.models import File
 @pytest.mark.django_db
 def test_fileadminbase_changelist_view():
     file_admin = FileAdmin(File, AdminSite())
-    request = RequestFactory().get('/')
+    request = AdminRequestFactory().get('/')
     request.user = MockSuperUser()
     view = file_admin.changelist_view(request)
 
@@ -52,14 +51,14 @@ def test_fileadmin_add_label_action():
     label = LabelFactory()
     assert obj.labels.count() == 0
 
-    file_admin.add_label_action(RequestFactory().get('/'), File.objects.all(), label)
+    file_admin.add_label_action(AdminRequestFactory().get('/'), File.objects.all(), label)
     assert obj.labels.count() == 1
 
 
 @pytest.mark.django_db
 def test_fileadmin_get_actions():
     site = AdminSite()
-    rf = RequestFactory()
+    rf = AdminRequestFactory()
     file_admin = FileAdmin(File, site)
     LabelFactory()
 
@@ -110,7 +109,7 @@ def test_fileadmin_remote_view(live_server):
     file_admin = FileAdmin(File, AdminSite())
     obj = EmptyFileFactory()
 
-    request = RequestFactory().get('/')
+    request = AdminRequestFactory().get('/')
     request.user = MockSuperUser
 
     request.user = MockSuperUser()
@@ -130,13 +129,7 @@ def test_fileadmin_remote_view(live_server):
     response = file_admin.remote_view(request, obj.pk)
     assert response.status_code == 403
 
-    request.user.has_perm = lambda x: True
-
-    # Allow the messages framework to work.
-    request.session = 'session'
-    request._messages = FallbackStorage(request)
     request.user = MockSuperUser()
-
     request.POST = {
         'url': live_server.url + '/static/media/img/text-x-generic.png'
     }
@@ -156,7 +149,7 @@ def test_fileadmin_remove_label_action():
     obj.labels.add(label)
     assert obj.labels.count() == 1
 
-    file_admin.remove_label_action(RequestFactory().get('/'), File.objects.all(), label)
+    file_admin.remove_label_action(AdminRequestFactory().get('/'), File.objects.all(), label)
     assert obj.labels.count() == 0
 
 
@@ -166,7 +159,7 @@ def test_fileadmin_response_add():
     obj = EmptyFileFactory()
 
     for url, status_code in [('/', 302), ('/?_tinymce', 200)]:
-        request = RequestFactory().get(url)
+        request = AdminRequestFactory().get(url)
         # Allow the messages framework to work.
         request.session = 'session'
         request._messages = FallbackStorage(request)
