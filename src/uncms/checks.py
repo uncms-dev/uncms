@@ -1,5 +1,8 @@
+import re
+
 from django.conf import settings
 from django.core import checks
+from django.urls import NoReverseMatch, reverse
 from django.utils.translation import gettext_lazy as _
 
 from uncms.conf import defaults
@@ -22,6 +25,34 @@ def check_site_domain(app_configs, **kwargs):
 
 
 @checks.register
+def check_publication_middleware_exclude_urls(app_configs, **kwargs):
+    errors = []
+    # easy misconfiguration option that can cause everything to break
+    if not isinstance(defaults.PUBLICATION_MIDDLEWARE_EXCLUDE_URLS, (list, tuple)):
+        errors.append(checks.Error(
+            _('UNCMS["PUBLICATION_MIDDLEWARE_EXCLUDE_URLS"] must be a list or tuple'),
+            id='uncms.003',
+        ))
+
+    try:
+        admin_url = reverse('admin:index')
+    # They're not using the Django admin, so like, OK.
+    except NoReverseMatch:  # pragma: no cover
+        pass
+    else:
+        is_excluded = any(
+            re.match(item, admin_url)
+            for item in defaults.PUBLICATION_MIDDLEWARE_EXCLUDE_URLS
+        )
+        if not is_excluded:
+            errors.append(checks.Error(
+                _('"{path}" does not seem to be excluded from publication management by UNCMS["PUBLICATION_MIDDLEWARE_EXCLUDE_URLS"]. This will make it impossible to edit offline objects!').format(path=admin_url),
+                id='uncms.003',
+            ))
+    return errors
+
+
+@checks.register
 def check_django_settings(app_configs, **kwargs):
     errors = []
     required_middleware = [
@@ -32,7 +63,7 @@ def check_django_settings(app_configs, **kwargs):
         if middleware not in settings.MIDDLEWARE:
             errors.append(checks.Error(
                 _("'{middleware}' must be in settings.MIDDLEWARE for UnCMS to work").format(middleware=middleware),
-                id='uncms.002',
+                id='uncms.004',
             ))
 
     for template_engine in settings.TEMPLATES:
@@ -42,7 +73,7 @@ def check_django_settings(app_configs, **kwargs):
         if required not in processors:
             errors.append(checks.Error(
                 _("'{processor}' must be in your template engine's 'context_processors'.").format(processor=required),
-                id='uncms.003',
+                id='uncms.005',
             ))
         # ...and this one is not, but we usually refer to "pages" rather than
         # "request.pages" in the docs, so we'll just warn for that.
@@ -50,7 +81,6 @@ def check_django_settings(app_configs, **kwargs):
         if recommended not in processors:
             errors.append(checks.Warning(
                 _("'{processor}' should be in your template engine's 'context_processors'.").format(processor=recommended),
-                id='uncms.004',
+                id='uncms.006',
             ))
-
     return errors

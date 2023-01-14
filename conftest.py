@@ -77,7 +77,6 @@ def pytest_configure():
             'watson.middleware.SearchContextMiddleware',
         ],
         SECRET_KEY='KNOWN_FIXED_VALUE_IS_FINE',
-        PUBLICATION_MIDDLEWARE_EXCLUDE_URLS=['/admin/'],
         UNCMS={
             'SITE_DOMAIN': 'example.com',
         },
