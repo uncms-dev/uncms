@@ -7,4 +7,5 @@ class UnCMSAppConfig(AppConfig):
 
     def ready(self):
         # import used for the side effect of registering checks
-        from uncms import checks  # pylint:disable=unused-import,import-outside-toplevel  # noqa
+        # pylint:disable=unused-import,import-outside-toplevel
+        from uncms import checks  # noqa

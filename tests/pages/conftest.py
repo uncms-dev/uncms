@@ -7,10 +7,10 @@ import pytest
 def simple_page_tree(db):
     # pylint:disable=import-outside-toplevel
     from django.contrib.contenttypes.models import ContentType
-
-    from uncms.pages.models import Page
-    from tests.testing_app.models import EmptyTestPage
     from watson import search
+
+    from tests.testing_app.models import EmptyTestPage
+    from uncms.pages.models import Page
 
     @dataclass
     class SimplePageTree:

@@ -69,7 +69,12 @@ def register(model, sitemap_cls=None):
 
     # These imports need to be here to avoid raising an exception when models
     # are registered in the module containing an AppConfig.
-    from uncms.models import OnlineBase, PageBase, PublishedBase, SearchMetaBase  # pylint:disable=import-outside-toplevel
+    from uncms.models import (  # pylint:disable=import-outside-toplevel
+        OnlineBase,
+        PageBase,
+        PublishedBase,
+        SearchMetaBase,
+    )
 
     # Generate the registration key.
     registration_key = '{app_label}-{model_name}'.format(

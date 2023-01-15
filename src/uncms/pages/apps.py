@@ -8,6 +8,7 @@ class PagesAppConfig(AppConfig):
     default_auto_field = 'django.db.models.AutoField'
 
     def ready(self):
-        from uncms.pages.models import PageSearchAdapter  # pylint:disable=import-outside-toplevel
+        # pylint:disable=import-outside-toplevel
+        from uncms.pages.models import PageSearchAdapter
         Page = self.get_model('Page')
         watson.register(Page, PageSearchAdapter)

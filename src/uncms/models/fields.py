@@ -12,7 +12,8 @@ class HtmlField(models.TextField):
 
     def formfield(self, **kwargs):
         '''Returns a HtmlWidget.'''
-        from uncms.forms import HtmlWidget  # pylint:disable=import-outside-toplevel
+        # pylint:disable=import-outside-toplevel
+        from uncms.forms import HtmlWidget
 
         kwargs['widget'] = HtmlWidget
         return super().formfield(**kwargs)
