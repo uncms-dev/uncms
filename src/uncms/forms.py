@@ -12,7 +12,7 @@ class HtmlWidget(forms.Textarea):
 
     def get_media(self):
         js = [
-            staticfiles_storage.url('cms/js/tinymce/tinymce.min.js'),
+            staticfiles_storage.url('uncms/vendor/trumbowyg/trumbowyg.js'),
             staticfiles_storage.url('cms/js/wysiwyg.js'),
         ]
 
