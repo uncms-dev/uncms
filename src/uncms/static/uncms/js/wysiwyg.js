@@ -3,20 +3,23 @@ window.uncms = window.uncms || {};
 window.uncms.activateEditor = function(element) {
     // activateEditor activates a single text editor on the given element.
 
-    // Generate base settings for TinyMCE & merge with per-editor settings
+    // Generate base settings for Trumbowyg & merge with per-editor settings
     // (normally global settings)
 
-    const settings = {
-        selector: "#" + element.getAttribute("id")
-    };
+    const settings = JSON.parse(element.dataset.wysiwygSettings);
 
-    const extendedSettings = Object.assign(
-        settings,
-        JSON.parse(element.dataset.wysiwygSettings)
-    );
+    settings.plugins = settings.plugins || {};
+    settings.plugins.upload = settings.plugins.upload || {};
+    settings.plugins.upload = {
+        serverPath: element.dataset.wysiwygUploadUrl,
+        // If someone has defined this in their UnCMS config, allow them to
+        // override it this way.
+        ...settings.plugins.upload,
+    }
+    console.log(settings)
 
     // Init editor
-    window.tinymce.init(extendedSettings);
+    window.django.jQuery(element).trumbowyg(settings);
 };
 
 window.uncms.activateEditors = function(parentElement) {

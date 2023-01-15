@@ -1,0 +1,15 @@
+.trumbowyg-box {
+  /*
+  this stops trumbowyg running into its label, which is positioned to the
+  left with "float" in the Current Year
+  */
+  clear: both;
+}
+
+.trumbowyg-box ul li {
+  /*
+  styles inside Trumbowyg are not isolated - the Django styles can leak in
+  even with the resetCss option and one of those is list-style on ul li
+  */
+  list-style: initial !important;
+}
