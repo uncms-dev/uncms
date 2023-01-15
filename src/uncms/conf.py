@@ -1,3 +1,5 @@
+import copy
+
 from django.conf import settings
 
 
@@ -86,24 +88,35 @@ class AppSettings:
         'PUBLICATION_MIDDLEWARE_EXCLUDE_URLS': [r'^/admin/'],
         'SITE_DOMAIN': None,
         'WYSIWYG_OPTIONS': {
-            'height': 500,
-            'plugins': [
-                'advlist autolink link image lists charmap hr anchor pagebreak',
-                'wordcount visualblocks visualchars code fullscreen cmsimage hr',
+            'autogrow': True,
+            'btns': [
+                ['viewHTML'],
+                ['formatting'],
+                ['strong', 'em', 'del'],
+                ['superscript', 'subscript'],
+                ['link'],
+                ['insertImage', 'upload'],
+                ['unorderedList', 'orderedList'],
+                ['table'],
+                ['horizontalRule'],
+                ['removeformat'],
+                ['fullscreen'],
             ],
-            'toolbar1': 'code | cut copy pastetext | undo redo | bullist numlist | link unlink anchor cmsimage | blockquote',
-            'menubar': False,
-            'toolbar_items_size': 'small',
-            'block_formats': 'Paragraph=p;Header 2=h2;Header 3=h3;Header 4=h4;Header 5=h5;Header 6=h6;',
-            'convert_urls': False,
-            'paste_as_text': True,
-            'image_advtab': True,
+            'minimalLinks': True,
+            'removeFormatPasted': True,
+            'resetCss': True,
         },
+        'WYSIWYG_OPTIONS_EXTRA': {},
     }
 
     def __getattr__(self, attname):
         conf_dict = getattr(settings, 'UNCMS', {})
         return conf_dict.get(attname, self.default_settings[attname])
+
+    def get_wysiwyg_options(self):
+        options = copy.deepcopy(self.WYSIWYG_OPTIONS)
+        options.update(self.WYSIWYG_OPTIONS_EXTRA)
+        return options
 
 
 defaults = AppSettings()

@@ -1,6 +1,5 @@
 '''Admin settings for the static media management application.'''
 from functools import partial
-from urllib.parse import parse_qs, urlencode
 
 import requests
 from django.contrib import admin, messages
@@ -13,22 +12,22 @@ from django.http import (
     HttpResponseForbidden,
     HttpResponseNotAllowed,
     HttpResponseRedirect,
+    JsonResponse,
 )
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404
 from django.template.defaultfilters import filesizeformat
 from django.template.loader import render_to_string
 from django.template.response import TemplateResponse
 from django.urls import path, reverse
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
-from django.views.decorators.clickjacking import xframe_options_sameorigin
 from reversion.admin import VersionAdmin
 from watson.admin import SearchAdmin
 
 from uncms.admin import get_related_objects_admin_urls
 from uncms.conf import defaults
 from uncms.media.filetypes import IMAGE_DB_QUERY
-from uncms.media.forms import FileForm, ImageEditForm
+from uncms.media.forms import FileForm, ImageEditForm, ImageUploadForm
 from uncms.media.models import File, Label
 
 
@@ -132,17 +131,6 @@ class FileAdmin(VersionAdmin, SearchAdmin):
         form = super().get_form(request, obj=obj, change=change, **kwargs)
         return partial(form, user=request.user)
 
-    def get_preserved_filters(self, request):
-        # Ensure the "_tinymce" parameter gets preserved after saving to make
-        # the popup response template work.
-        preserved_filters = super().get_preserved_filters(request)
-
-        if request.GET.get('_tinymce'):
-            filters_dict = parse_qs(preserved_filters)
-            filters_dict['_tinymce'] = request.GET['_tinymce']
-            preserved_filters = urlencode(filters_dict)
-        return preserved_filters
-
     # Custom display routines.
     @admin.display(description='size')
     def get_size(self, obj):
@@ -184,16 +172,6 @@ class FileAdmin(VersionAdmin, SearchAdmin):
                 if use['admin_url'] is not None
             ],
         })
-
-    def response_add(self, request, obj, post_url_continue=None):
-        '''Returns the response for a successful add action.'''
-        if '_tinymce' in request.GET:
-            context = {
-                'permalink': obj.get_temporary_url(),
-                'alt_text': obj.alt_text or '',
-            }
-            return render(request, 'admin/media/file/filebrowser_add_success.html', context)
-        return super().response_add(request, obj, post_url_continue=post_url_continue)
 
     def changelist_view(self, request, extra_context=None):
         '''Renders the change list.'''
@@ -248,35 +226,13 @@ class FileAdmin(VersionAdmin, SearchAdmin):
         messages.success(request, format_html(message, str(obj)))
         return HttpResponseRedirect(reverse('admin:media_file_change', args=[obj.pk]))
 
-    # `X-Frame-Options: SAMEORIGIN` is required because this is loaded in an
-    # iframe inside TinyMCE. We don't want to require that anyone _globally_
-    # weaken their X-Frame-Options. This one is relatively harmless; the worst
-    # that could happen is that in the event of a deep pwnage chain might be
-    # able to upload something to the media library - and if someone is able
-    # to both inject the iframe *and* inject scripts into your site to
-    # interact with it, you've got all manner of other problems worse than
-    # this.
-    @xframe_options_sameorigin
-    def media_library_changelist_view(self, request, extra_context=None):
-        '''
-        `media_library_changelist_view` is a minimal list view with some added
-        Javascript to pass messages up to TinyMCE when an item is clicked,
-        allowing image insertion.
-        '''
-        context = extra_context or {}
-        context.setdefault('changelist_template_parent', 'reversion/change_list.html')
-        context['is_popup'] = True
-        context['is_media_library_iframe'] = True
-
-        return self.changelist_view(request, extra_context=context)
-
     def get_urls(self):
         urls = super().get_urls()
 
         new_urls = [
-            path('<int:object_id>/remote/', self.remote_view, name='media_file_remote'),
-            path('<int:object_id>/editor/', self.edit_view, name='media_file_edit'),
-            path('media-library-wysiwyg/', self.media_library_changelist_view, name='media_file_wysiwyg_list'),
+            path('<int:object_id>/remote/', self.admin_site.admin_view(self.remote_view), name='media_file_remote'),
+            path('<int:object_id>/editor/', self.admin_site.admin_view(self.edit_view), name='media_file_edit'),
+            path('upload-api/', self.admin_site.admin_view(self.upload_api_view), name='media_file_image_upload'),
         ]
 
         return new_urls + urls
@@ -305,3 +261,20 @@ class FileAdmin(VersionAdmin, SearchAdmin):
             str(obj)
         ))
         return HttpResponse('{"status": "ok"}', content_type='application/json')
+
+    def upload_api_view(self, request):
+        if not self.has_add_permission(request):
+            return HttpResponseForbidden('You do not have permission to modify this file.')
+        form = ImageUploadForm(data=request.POST, files=request.FILES, user=request.user)
+        if not form.is_valid():
+            # it'd make more sense to return a status code here, but the
+            # Trumbowyg upload plugin just wants a success true/false key
+            return JsonResponse({
+                'success': False,
+            })
+
+        form.save()
+        return JsonResponse({
+            'success': True,
+            'file': form.instance.get_temporary_url(),
+        })

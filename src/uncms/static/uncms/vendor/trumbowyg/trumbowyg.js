@@ -8,6 +8,7 @@
  *         Twitter : @AlexandreDemode
  *         Website : alex-d.fr
  */
+
 jQuery.trumbowyg = {
     langs: {
         en: {

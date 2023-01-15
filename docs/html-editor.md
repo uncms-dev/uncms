@@ -1,11 +1,11 @@
 # The HTML editor
 
-UnCMS comes with a <abbr title="What You See Is What You Get">WYSIWYG</abbr> HTML editor that you can use on your models to provide rich-text editing in your admin using TinyMCE v4.
-UnCMS does not use this internally (as it has no opinions about what your page content should look like),
+UnCMS comes with a <abbr title="What You See Is What You Get">WYSIWYG</abbr> HTML editor that you can use on your models to provide rich-text editing in your admin, using [Trumbowyg](https://alex-d.github.io/Trumbowyg/).
+UnCMS does not use this internally (because it has no opinions about what your page content should look like),
 but it's included with UnCMS because almost every website requires it.
 
 Use `uncms.models.HtmlField` to add HTML editing to your admin.
-`HtmlField` is a subclass of `TextField` which overrides the widget with a TinyMCE text editor.
+`HtmlField` is a subclass of `TextField` which overrides the widget with a Trumbowyg text editor.
 Other than the widget, it works just like a `TextField`:
 
 ```python

@@ -3,22 +3,27 @@ window.uncms = window.uncms || {};
 window.uncms.activateEditor = function(element) {
     // activateEditor activates a single text editor on the given element.
 
-    // Generate base settings for Trumbowyg & merge with per-editor settings
-    // (normally global settings)
-
+    // These settings come from UNCMS['WYSIWYG_OPTIONS'].
     const settings = JSON.parse(element.dataset.wysiwygSettings);
+
+    // We need a CSRF token. As we're being used in a Django form, we
+    // definitely have a CSRF token somewhere on the page and hopefully under
+    // this name.
+    const csrfToken = document.querySelector("input[name='csrfmiddlewaretoken']").value
 
     settings.plugins = settings.plugins || {};
     settings.plugins.upload = settings.plugins.upload || {};
     settings.plugins.upload = {
         serverPath: element.dataset.wysiwygUploadUrl,
-        // If someone has defined this in their UnCMS config, allow them to
-        // override it this way.
+        fileFieldName: "file",
+        headers: {
+            "X-CSRFToken": csrfToken,
+        },
+        // If someone has defined this in their UnCMS config, allow this to
+        // take precedence.
         ...settings.plugins.upload,
     }
-    console.log(settings)
 
-    // Init editor
     window.django.jQuery(element).trumbowyg(settings);
 };
 

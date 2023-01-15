@@ -11,20 +11,6 @@ def test_htmlwidget_init():
     assert isinstance(widget, HtmlWidget)
 
 
-def test_htmlwidget_get_media():
-    widget = HtmlWidget()
-
-    media = widget.get_media()
-
-    assert media.__dict__ == {
-        '_css_lists': [{'screen': ['/static/cms/css/tinymce-tweak.css']}],
-        '_js_lists': [[
-            '/static/cms/js/tinymce/tinymce.min.js',
-            '/static/cms/js/wysiwyg.js',
-        ]],
-    }
-
-
 def test_htmlwidget_render():
     widget = HtmlWidget()
     rendered = widget.render('foo', 'bar')

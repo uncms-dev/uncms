@@ -6,7 +6,6 @@ from bs4 import BeautifulSoup
 from django.contrib.admin.sites import AdminSite
 from django.contrib.admin.views.main import IS_POPUP_VAR
 from django.contrib.auth.models import Permission
-from django.contrib.messages.storage.fallback import FallbackStorage
 from django.http import Http404
 from django.test.utils import override_settings
 from django.urls import reverse
@@ -158,16 +157,12 @@ def test_fileadmin_response_add():
     file_admin = FileAdmin(File, AdminSite())
     obj = EmptyFileFactory()
 
-    for url, status_code in [('/', 302), ('/?_tinymce', 200)]:
-        request = AdminRequestFactory().get(url)
-        # Allow the messages framework to work.
-        request.session = 'session'
-        request._messages = FallbackStorage(request)
-        request.user = MockSuperUser()
-        request.pages = None
+    request = AdminRequestFactory().get('/')
+    # Allow the messages framework to work.
+    request.user = MockSuperUser()
 
-        response = file_admin.response_add(request, obj)
-        assert response.status_code == status_code
+    response = file_admin.response_add(request, obj)
+    assert response.status_code == 302
 
 
 @pytest.mark.django_db
@@ -204,21 +199,6 @@ def test_file_detail_conditionally_shows_fieldsets(client):
 
 
 @pytest.mark.django_db
-def test_file_detail_preserves_filters(client):
-    # Ensure ?_tinymce query string parameter is preserved in the form action.
-    client.force_login(UserFactory(superuser=True))
-    response = client.get(reverse('admin:media_file_add'))
-    assert response.status_code == 200
-    soup = BeautifulSoup(response.content, 'html.parser')
-    assert soup.find('form', attrs={'id': 'file_form'}).get('action') is None
-
-    response = client.get(reverse('admin:media_file_add'), {'_tinymce': '1'})
-    assert response.status_code == 200
-    soup = BeautifulSoup(response.content, 'html.parser')
-    assert soup.find('form', attrs={'id': 'file_form'}).get('action') == '?_tinymce=1'
-
-
-@pytest.mark.django_db
 def test_file_list_type_filter(client):
     def context_pks(context):
         return sorted([obj.pk for obj in context['cl'].result_list])
@@ -238,20 +218,6 @@ def test_file_list_type_filter(client):
     response = client.get(url, {'filetype': 'image'})
     assert response.status_code == 200
     assert context_pks(response.context_data) == sorted([sample_jpeg.pk, sample_png.pk])
-
-
-@pytest.mark.django_db
-def test_file_media_library_changelist_view(client):
-    SamplePNGFileFactory()
-    client.force_login(UserFactory(superuser=True))
-
-    response = client.get(reverse('admin:media_file_wysiwyg_list'))
-    assert response.status_code == 200
-    assert response.headers['X-Frame-Options'] == 'SAMEORIGIN'
-    assert response.context_data['is_media_library_iframe']
-
-    soup = BeautifulSoup(response.content, 'html.parser')
-    assert soup.find('script', id='tinymce-script')
 
 
 @pytest.mark.django_db

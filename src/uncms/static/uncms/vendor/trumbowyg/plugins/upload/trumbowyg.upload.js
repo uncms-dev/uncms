@@ -10,6 +10,7 @@
  *          Twitter : @Aleksandr_ru
  *          Website : aleksandr.ru
  */
+
 (function ($) {
     'use strict';
 
