@@ -210,12 +210,12 @@ def test_file_detail_preserves_filters(client):
     response = client.get(reverse('admin:media_file_add'))
     assert response.status_code == 200
     soup = BeautifulSoup(response.content, 'html.parser')
-    assert soup.find('form').get('action') is None
+    assert soup.find('form', attrs={'id': 'file_form'}).get('action') is None
 
     response = client.get(reverse('admin:media_file_add'), {'_tinymce': '1'})
     assert response.status_code == 200
     soup = BeautifulSoup(response.content, 'html.parser')
-    assert soup.find('form').get('action') == '?_tinymce=1'
+    assert soup.find('form', attrs={'id': 'file_form'}).get('action') == '?_tinymce=1'
 
 
 @pytest.mark.django_db
