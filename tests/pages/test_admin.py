@@ -204,9 +204,6 @@ class TestPageAdmin(TestCase):
         self.assertEqual(self.page_admin.get_fieldsets(request), pagecontent_fields)
         self.assertEqual(self.page_admin.get_fieldsets(request2), pagecontentwithfields_fields)
 
-    def test_pageadmin_get_breadcrumbs(self):
-        self.assertListEqual(self.page_admin.get_breadcrumbs(self.homepage), [self.homepage])
-
     def test_pageadmin_get_form(self):
         request = self._build_request(
             page_type=ContentType.objects.get_for_model(PageContent).pk
@@ -521,6 +518,13 @@ def test_pageadmin_get_all_children():
 
 
 @pytest.mark.django_db
+def test_pageadmin_get_breadcrumbs():
+    page_admin = PageAdmin(Page, AdminSite())
+    subpage = PageFactory(parent=PageFactory())
+    assert page_admin.get_breadcrumbs(subpage) == [subpage.parent, subpage]
+
+
+@pytest.mark.django_db
 def test_pageadmin_get_preserved_filters(client):
     """
     Make sure that filters are being preserved. Testing get_preserved_filters
@@ -585,7 +589,7 @@ def test_pageadmin_get_preserved_filters(client):
 
 @pytest.mark.django_db
 @pytest.mark.parametrize('object_count', [1, 10])
-def test_page_admin_list_is_efficient(object_count, admin_client, django_assert_num_queries):
+def test_pageadmin_list_is_efficient(object_count, admin_client, django_assert_num_queries):
     # Ensure that there are no N+1 queries on the page list. The exact queries
     # are not relevant; any number for django_assert_num_queries that
     # satisfies an object count of both 1 and 10 is by definition correct.
