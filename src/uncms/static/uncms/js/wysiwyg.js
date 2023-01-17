@@ -23,6 +23,11 @@ window.uncms.activateEditor = function(element) {
         // take precedence.
         ...settings.plugins.upload,
     }
+    settings.plugins.imagelibrary = settings.plugins.imagelibrary || {};
+    settings.plugins.imagelibrary = {
+        imageListApiUrl: element.dataset.wysiwygImageListUrl,
+        ...settings.plugins.imagelibrary,
+    }
 
     window.django.jQuery(element).trumbowyg(settings);
 };

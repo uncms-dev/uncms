@@ -95,7 +95,7 @@ class AppSettings:
                 ['strong', 'em', 'del'],
                 ['superscript', 'subscript'],
                 ['link'],
-                ['insertImage', 'upload'],
+                ['insertImage', 'imagelibrary', 'upload'],
                 ['unorderedList', 'orderedList'],
                 ['table'],
                 ['horizontalRule'],

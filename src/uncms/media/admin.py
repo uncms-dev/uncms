@@ -232,10 +232,29 @@ class FileAdmin(VersionAdmin, SearchAdmin):
         new_urls = [
             path('<int:object_id>/remote/', self.admin_site.admin_view(self.remote_view), name='media_file_remote'),
             path('<int:object_id>/editor/', self.admin_site.admin_view(self.edit_view), name='media_file_edit'),
-            path('upload-api/', self.admin_site.admin_view(self.upload_api_view), name='media_file_image_upload'),
+            path('upload-api/', self.admin_site.admin_view(self.upload_api_view), name='media_file_image_upload_api'),
+            path('list-api/', self.admin_site.admin_view(self.list_api_view), name='media_file_image_list_api'),
         ]
 
         return new_urls + urls
+
+    def list_api_view(self, request):
+        if not self.has_view_permission(request):
+            return HttpResponseForbidden('You do not have permission to list files.')
+
+        response = JsonResponse(
+            [
+                {
+                    'title': obj.title,
+                    'url': obj.get_temporary_url(),
+                    'thumbnail': obj.get_thumbnail(width=300, fmt="webp").url,
+                    'alt_text': obj.alt_text,
+                }
+                for obj in self.get_queryset(request).filter(IMAGE_DB_QUERY)
+            ],
+            safe=False,
+        )
+        return response
 
     def remote_view(self, request, object_id):
         if not self.has_change_permission(request):
