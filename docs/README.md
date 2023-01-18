@@ -27,7 +27,7 @@ and it plays well with your existing models.
 
 * Hierarchal [page management](pages-app.md) and [navigation menus](rendering-navigation.md) with no depth limit.
 * [Publication controls](publication-control.md) with online preview.
-* Pre-configured [WYSIWYG editor](html-editor.md) widgets (using TinyMCE).
+* Pre-configured [WYSIWYG HTML editor](html-editor.md) widgets (using [Trumbowyg](https://alex-d.github.io/Trumbowyg/)).
 * [Image and file management](media-app.md), with easy embedding via WYSIWYG editors or pure model fields.
 * Internal / external links in menus (via bundled optional [links app](links-app.md)).
 * Version control and rollback (via [django-reversion](https://github.com/etianen/django-reversion)).

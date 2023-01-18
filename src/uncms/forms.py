@@ -32,7 +32,7 @@ class HtmlWidget(forms.Textarea):
             'uncms/js/wysiwyg.js',
             # Must be last, as this `noconflict`s jQuery
             'admin/js/jquery.init.js',
-        ]
+        ] + defaults.WYSIWYG_EXTRA_SCRIPTS
 
         css = {
             'screen': [
@@ -40,7 +40,7 @@ class HtmlWidget(forms.Textarea):
                 'uncms/vendor/trumbowyg/plugins/table/ui/trumbowyg.table.css',
                 'uncms/js/trumbowyg-imagelibrary/ui/trumbowyg.imagelibrary.css',
                 'uncms/css/trumbowyg-tweak.css',
-            ],
+            ] + defaults.WYSIWYG_EXTRA_STYLESHEETS,
         }
 
     def render(self, name, value, attrs=None, renderer=None):

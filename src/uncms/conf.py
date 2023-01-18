@@ -106,7 +106,9 @@ class AppSettings:
             'removeFormatPasted': True,
             'resetCss': True,
         },
-        'WYSIWYG_OPTIONS_EXTRA': {},
+        'WYSIWYG_EXTRA_OPTIONS': {},
+        'WYSIWYG_EXTRA_SCRIPTS': [],
+        'WYSIWYG_EXTRA_STYLESHEETS': [],
     }
 
     def __getattr__(self, attname):
@@ -115,7 +117,7 @@ class AppSettings:
 
     def get_wysiwyg_options(self):
         options = copy.deepcopy(self.WYSIWYG_OPTIONS)
-        options.update(self.WYSIWYG_OPTIONS_EXTRA)
+        options.update(self.WYSIWYG_EXTRA_OPTIONS)
         return options
 
 

@@ -32,6 +32,7 @@
                 imagelibrary: "Insert image from library",
                 imagelibraryModalTitle: "Image library",
                 imagelibraryLoading: "Loading...",
+                imageLibraryUpload: "Upload new image",
             }
         },
 
@@ -59,8 +60,11 @@
                                 trumbowyg.closeModal();
                             });
 
+                            const uploadButton = trumbowyg.buildModalBtn(modal, "imageLibraryUpload");
+                            const cancelButton = trumbowyg.buildModalBtn(modal, "reset");
+
                             const fetchOptions = {
-                                credentials: "include"
+                                credentials: "include",
                             };
 
                             window.fetch(
@@ -75,7 +79,6 @@
                                 const gridElement = createElementShortcut('ul', {
                                     classes: [`${baseClass}__grid`]
                                 })
-                                gridElement.classList.add()
                                 for (const item of items) {
                                     const imageElement = createElementShortcut('img', {
                                         classes: [`${baseClass}__item-image`],
@@ -87,8 +90,12 @@
                                     const itemElement = createElementShortcut('li', {classes: [`${baseClass}__item`]});
                                     itemElement.appendChild(imageElement)
 
-                                    itemElement.addEventListener('click', function () {
-                                        alert(item.url)
+                                    // Insert the image when the item is clicked.
+                                    itemElement.addEventListener("click", function () {
+                                        trumbowyg.execCmd("insertImage", item.url, false, true);
+                                        const $img = $("img[src='" + item.url + "']:not([alt])", trumbowyg.$box);
+                                        $img.attr("alt", item.altText || "");
+                                        trumbowyg.closeModal();
                                     })
 
                                     gridElement.append(itemElement)
@@ -101,7 +108,7 @@
                                 }
                             })
                         },
-                        html: 'X'
+                        text: 'X'
                     })
                 }
             }

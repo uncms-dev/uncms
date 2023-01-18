@@ -19,10 +19,14 @@ class AdminFileRedirectView(UserPassesTestMixin, RedirectView):
     """
 
     def test_func(self):
+        model_meta = apps.get_model(defaults.MEDIA_FILE_MODEL)._meta
+        change_permission = f'{model_meta.app_label}.change_{model_meta.model_name}'
+        view_permission = f'{model_meta.app_label}.view_{model_meta.model_name}'
+
         return (
             self.request.user.is_authenticated and
             self.request.user.is_staff and
-            self.request.user.has_perm('media.view_file')
+            (self.request.user.has_perm(view_permission) or self.request.user.has_perm(change_permission))
         )
 
     def get_redirect_url(self, *args, **kwargs):

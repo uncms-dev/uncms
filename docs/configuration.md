@@ -337,5 +337,55 @@ URLs will be canonicalised as `www.www.example.com`, which you probably do not w
 * Default: too large to put here; see `uncms/conf.py`
 
 These are options for the optional [HTML editor](html-editor.md).
-These map directly onto TinyMCE options.
-A full set of options is available in the [TinyMCE documentation](https://www.tiny.cloud/docs-4x/configure/integration-and-setup/).
+These map directly onto Trumbowyg's options.
+A full set of options is available in the [Trumbowyg documentation](https://alex-d.github.io/Trumbowyg/documentation/).
+To only override certain options, rather than the entire configuration, see `WYSIWYG_EXTRA_OPTIONS`.
+
+## `WYSIWYG_EXTRA_OPTIONS`
+
+* Type: dictionary
+* Default: `{}`
+
+This allows you to override specific options in the HTML editor's configuration.
+For example, you may not want UnCMS's default of using the `autogrow` option for the HTML editor.
+To change this behaviour, you could put this in your settings:
+
+```python
+UNCMS = {
+    # your other options here
+    'WYSIWYG_EXTRA_OPTIONS': {
+        'autogrow': False,
+    },
+}
+```
+
+Note that this will only merge _top level_ options.
+For example, this will replace your _entire_ toolbar with `customButton` and not add `customButton` to the existing toolbar:
+
+```python
+UNCMS = {
+    # your other options here
+    'WYSIWYG_EXTRA_OPTIONS': {
+        'btns': [
+            ['customButton'],
+        ],
+    },
+}
+```
+
+## `WYSIWYG_EXTRA_SCRIPTS`
+
+* Type: list
+* Default: `[]`
+
+This option allows you to add extra scripts to load with the [HTML editor](html-editor.md).
+This might be useful for loading custom Trumbowyg plugins;
+by default, UnCMS only ships with a minimal set of plugins that are considered to be useful for _every_ site.
+
+## `WYSIWYG_EXTRA_STYLESHEETS`
+
+* Type: list
+* Default: `[]`
+
+This option allows you to add extra stylesheets to load with the [HTML editor](html-editor.md).
+This might be useful for loading custom plugins.

@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 from django.contrib.admin.sites import AdminSite
 from django.contrib.admin.views.main import IS_POPUP_VAR
 from django.contrib.auth.models import Permission
-from django.http import Http404
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test.utils import override_settings
 from django.urls import reverse
 
@@ -15,6 +15,7 @@ from tests.media.factories import (
     EmptyFileFactory,
     FileFactory,
     LabelFactory,
+    MINIMAL_GIF_DATA,
     MinimalGIFFileFactory,
     SampleJPEGFileFactory,
     SamplePNGFileFactory,
@@ -104,37 +105,80 @@ def test_fileadmin_get_size():
     assert file_admin.get_size(bad_file) == '0 bytes'
 
 
-def test_fileadmin_remote_view(live_server):
-    file_admin = FileAdmin(File, AdminSite())
-    obj = EmptyFileFactory()
+@pytest.mark.django_db
+def test_fileadmin_image_list_api_view(client):
+    file_1 = SamplePNGFileFactory()
+    file_2 = SamplePNGFileFactory(alt_text='Alt text test')
+    user = UserFactory()
+    client.force_login(user)
 
-    request = AdminRequestFactory().get('/')
-    request.user = MockSuperUser
+    # Ensure non-staff members can't fetch it
+    url = reverse('admin:media_file_image_list_api')
+    response = client.get(url)
+    assert response.status_code == 302
+    assert response['Location'].startswith('/admin/login/')
 
-    request.user = MockSuperUser()
-    response = file_admin.remote_view(request, obj)
-    # 405: Method not allowed. We have to POST to this view.
-    assert response.status_code == 405
-
-    request.method = 'POST'
-
-    # No URL supplied.
-    with pytest.raises(Http404):
-        file_admin.remote_view(request, obj.pk)
-
-    # No permissions.
-    request.user.has_perm = lambda x: False
-
-    response = file_admin.remote_view(request, obj.pk)
+    # Check underpermissioned staff users
+    user.is_staff = True
+    user.save()
+    response = client.get(url)
     assert response.status_code == 403
+    assert response.content == b'Forbidden'
 
-    request.user = MockSuperUser()
-    request.POST = {
-        'url': live_server.url + '/static/media/img/text-x-generic.png'
-    }
-    response = file_admin.remote_view(request, obj.pk)
-    assert response.content == b'{"status": "ok"}'
+    # Test with the correct permissions.
+    user.user_permissions.add(Permission.objects.get(codename='view_file'))
+    response = client.get(url)
     assert response.status_code == 200
+    response_json = response.json()
+    assert response_json[0]['url'] == f'/library/redirect/{file_2.pk}/'
+    assert response_json[0]['title'] == file_2.title
+    assert response_json[0]['altText'] == 'Alt text test'
+
+    assert response_json[1]['url'] == f'/library/redirect/{file_1.pk}/'
+    assert response_json[1]['title'] == file_1.title
+    assert response_json[1]['altText'] is None
+
+    # Ensure that both the thumbnails & image URLs work.
+    for item in response_json:
+        for key in ['url', 'thumbnail']:
+            # Ensure we're redirected to something...
+            response = client.get(item[key])
+            assert response.status_code == 302
+            # ...which actually exists.
+            response = client.get(response['Location'])
+            assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_fileadmin_image_upload_api_view(client):
+    user = UserFactory()
+    client.force_login(user)
+    url = reverse('admin:media_file_image_upload_api')
+    with open(data_file_path('1920x1080.png'), 'rb') as fd:
+        image_data = fd.read()
+    data = {
+        'title': 'Example',
+        'file': SimpleUploadedFile(name='sample.png', content=image_data, content_type='image/png'),
+    }
+
+    response = client.post(url, data=data)
+    assert response.status_code == 302
+    assert response['location'].startswith('/admin/login/')
+    assert File.objects.count() == 0
+
+    user.is_staff = True
+    user.save()
+    response = client.post(url, data=data)
+    assert response.status_code == 403
+    assert response.content == b'Forbidden'
+    assert File.objects.count() == 0
+
+    # give it the right permission, try again
+    user.user_permissions.add(Permission.objects.get(codename='add_file'))
+    response = client.post(url, data=data).json()
+    print(response)
+    assert response['success'] is True
+    assert File.objects.get().title == 'Example'
 
 
 @pytest.mark.django_db

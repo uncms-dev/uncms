@@ -1,16 +1,9 @@
-'''Admin settings for the static media management application.'''
 from functools import partial
 
-import requests
 from django.contrib import admin, messages
 from django.contrib.admin.views.main import IS_POPUP_VAR
-from django.core.files import File as DjangoFile
-from django.core.files.temp import NamedTemporaryFile
 from django.http import (
-    Http404,
-    HttpResponse,
     HttpResponseForbidden,
-    HttpResponseNotAllowed,
     HttpResponseRedirect,
     JsonResponse,
 )
@@ -230,17 +223,16 @@ class FileAdmin(VersionAdmin, SearchAdmin):
         urls = super().get_urls()
 
         new_urls = [
-            path('<int:object_id>/remote/', self.admin_site.admin_view(self.remote_view), name='media_file_remote'),
             path('<int:object_id>/editor/', self.admin_site.admin_view(self.edit_view), name='media_file_edit'),
-            path('upload-api/', self.admin_site.admin_view(self.upload_api_view), name='media_file_image_upload_api'),
-            path('list-api/', self.admin_site.admin_view(self.list_api_view), name='media_file_image_list_api'),
+            path('upload-api/', self.admin_site.admin_view(self.image_upload_api_view), name='media_file_image_upload_api'),
+            path('image-list-api/', self.admin_site.admin_view(self.image_list_api_view), name='media_file_image_list_api'),
         ]
 
         return new_urls + urls
 
-    def list_api_view(self, request):
+    def image_list_api_view(self, request):
         if not self.has_view_permission(request):
-            return HttpResponseForbidden('You do not have permission to list files.')
+            return HttpResponseForbidden('Forbidden')
 
         response = JsonResponse(
             [
@@ -248,7 +240,7 @@ class FileAdmin(VersionAdmin, SearchAdmin):
                     'title': obj.title,
                     'url': obj.get_temporary_url(),
                     'thumbnail': obj.get_thumbnail(width=300, fmt="webp").url,
-                    'alt_text': obj.alt_text,
+                    'altText': obj.alt_text,
                 }
                 for obj in self.get_queryset(request).filter(IMAGE_DB_QUERY)
             ],
@@ -256,40 +248,16 @@ class FileAdmin(VersionAdmin, SearchAdmin):
         )
         return response
 
-    def remote_view(self, request, object_id):
-        if not self.has_change_permission(request):
-            return HttpResponseForbidden('You do not have permission to modify this file.')
-
-        if request.method != 'POST':
-            return HttpResponseNotAllowed(['POST'])
-
-        image_url = request.POST.get('url', None)
-
-        if not image_url:
-            raise Http404('No URL supplied.')
-
-        # Pull down the remote image and save it as a temporary file.
-        img_temp = NamedTemporaryFile()
-        img_temp.write(requests.get(image_url, timeout=10).content)
-        img_temp.flush()
-
-        obj = get_object_or_404(File, pk=object_id)
-        obj.file.save(image_url.split('/')[-1], DjangoFile(img_temp))
-
-        messages.success(request, 'The file "{}" was changed successfully. You may edit it again below.'.format(
-            str(obj)
-        ))
-        return HttpResponse('{"status": "ok"}', content_type='application/json')
-
-    def upload_api_view(self, request):
+    def image_upload_api_view(self, request):
         if not self.has_add_permission(request):
-            return HttpResponseForbidden('You do not have permission to modify this file.')
+            return HttpResponseForbidden(b'Forbidden')
         form = ImageUploadForm(data=request.POST, files=request.FILES, user=request.user)
         if not form.is_valid():
             # it'd make more sense to return a status code here, but the
             # Trumbowyg upload plugin just wants a success true/false key
             return JsonResponse({
                 'success': False,
+                'detail': form.errors.as_json(),
             })
 
         form.save()

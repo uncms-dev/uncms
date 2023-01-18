@@ -6,6 +6,7 @@
 * There is now a system check for required middleware and context processors; UnCMS will fail loudly and early if these are not present.
 * A system check now ensures that the `PUBLICATION_MIDDLEWARE_EXCLUDE_URLS` config item includes your site's Django admin. Previously, if you had moved your admin to another location for some reason, this would cause offline objects to not appear in your admin. Another system check ensures that `PUBLICATION_MIDDLEWARE_EXCLUDE_URLS` is a list or tuple and _not_ a string; this misconfiguration could also cause it to break silently.
 * Add compatibility for Django 4.x series, in anticipation of 4.2 LTS. Tests now pass; this might not necessarily be the same as it _working_.
+* `FileAdmin.remote_view` was retired; it was unused. This allowed replacing an existing image file with one from a URL, but not uploading from a remote URL. The latter would have been useful, and may be implemented at some future time.
 
 ## 0.0.5
 
