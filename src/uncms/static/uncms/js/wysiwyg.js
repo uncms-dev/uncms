@@ -2,6 +2,11 @@ window.uncms = window.uncms || {};
 
 window.uncms.activateEditor = function(element) {
     // activateEditor activates a single text editor on the given element.
+    if (element.dataset.wysiwygActivated) {
+        return;
+    }
+
+    element.dataset.wysiwygActivated = "true";
 
     // These settings come from UNCMS['WYSIWYG_OPTIONS'].
     const settings = JSON.parse(element.dataset.wysiwygSettings);

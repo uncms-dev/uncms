@@ -18,3 +18,8 @@
   /* Override Django's unstyling of tables */
   border: 1px solid var(--border-color) !important;
 }
+
+.trumbowyg-imagelibrary-icons {
+  /* Icon used for reference by xlink. */
+  display: none;
+}

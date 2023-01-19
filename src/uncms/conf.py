@@ -91,7 +91,10 @@ class AppSettings:
             'autogrow': False,
             'btns': [
                 ['viewHTML'],
-                ['formatting'],
+                {"formatting": {
+                    "dropdown": ['p', 'blockquote', 'h1', 'h2', 'h3', 'h4'],
+                    "ico": 'p'
+                }},
                 ['strong', 'em', 'del'],
                 ['superscript', 'subscript'],
                 ['link'],

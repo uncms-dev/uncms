@@ -30,7 +30,7 @@ class HtmlWidget(forms.Textarea):
             'uncms/vendor/trumbowyg/plugins/upload/trumbowyg.upload.js',
             'uncms/vendor/trumbowyg/plugins/table/trumbowyg.table.js',
             'uncms/js/wysiwyg.js',
-        ] +  defaults.WYSIWYG_EXTRA_SCRIPTS + [
+        ] + defaults.WYSIWYG_EXTRA_SCRIPTS + [
             # Must be last, as this `noconflict`s jQuery and Trumbowyg thinks
             # it is always available as `window.jQuery`.
             'admin/js/jquery.init.js',
