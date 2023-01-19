@@ -331,30 +331,20 @@ if you wish to canonicalise to `www.`, set Django's `PREPEND_WWW` setting to `Tr
 Note that if you _do_ specify a `www.` prefix and you have `PREPEND_WWW` set to `True`,
 URLs will be canonicalised as `www.www.example.com`, which you probably do not want.
 
-## `WYSIWYG_OPTIONS`
-
-* Type: dictionary
-* Default: too large to put here; see `uncms/conf.py`
-
-These are options for the optional [HTML editor](html-editor.md).
-These map directly onto Trumbowyg's options.
-A full set of options is available in the [Trumbowyg documentation](https://alex-d.github.io/Trumbowyg/documentation/).
-To only override certain options, rather than the entire configuration, see `WYSIWYG_EXTRA_OPTIONS`.
-
 ## `WYSIWYG_EXTRA_OPTIONS`
 
 * Type: dictionary
 * Default: `{}`
 
 This allows you to override specific options in the HTML editor's configuration.
-For example, you may not want UnCMS's default of using the `autogrow` option for the HTML editor.
+For example, you may want to use Trumbowyg's `autogrow` option for the HTML editor.
 To change this behaviour, you could put this in your settings:
 
 ```python
 UNCMS = {
     # your other options here
     'WYSIWYG_EXTRA_OPTIONS': {
-        'autogrow': False,
+        'autogrow': True,
     },
 }
 ```
@@ -389,3 +379,13 @@ by default, UnCMS only ships with a minimal set of plugins that are considered t
 
 This option allows you to add extra stylesheets to load with the [HTML editor](html-editor.md).
 This might be useful for loading custom plugins.
+
+## `WYSIWYG_OPTIONS`
+
+* Type: dictionary
+* Default: too large to put here; see `uncms/conf.py`
+
+These are options for the optional [HTML editor](html-editor.md).
+These map directly onto Trumbowyg's options.
+A full set of options is available in the [Trumbowyg documentation](https://alex-d.github.io/Trumbowyg/documentation/).
+To only override certain options, rather than the entire configuration, see `WYSIWYG_EXTRA_OPTIONS` above.

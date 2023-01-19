@@ -30,9 +30,11 @@ class HtmlWidget(forms.Textarea):
             'uncms/vendor/trumbowyg/plugins/upload/trumbowyg.upload.js',
             'uncms/vendor/trumbowyg/plugins/table/trumbowyg.table.js',
             'uncms/js/wysiwyg.js',
-            # Must be last, as this `noconflict`s jQuery
+        ] +  defaults.WYSIWYG_EXTRA_SCRIPTS + [
+            # Must be last, as this `noconflict`s jQuery and Trumbowyg thinks
+            # it is always available as `window.jQuery`.
             'admin/js/jquery.init.js',
-        ] + defaults.WYSIWYG_EXTRA_SCRIPTS
+        ]
 
         css = {
             'screen': [
@@ -48,6 +50,7 @@ class HtmlWidget(forms.Textarea):
         attrs = attrs or {}
         attrs['class'] = 'wysiwyg'
         attrs['required'] = False
+        attrs['rows'] = 30
         attrs['data-wysiwyg-upload-url'] = reverse('admin:media_file_image_upload_api')
         attrs['data-wysiwyg-image-list-url'] = reverse('admin:media_file_image_list_api')
         attrs['data-wysiwyg-settings'] = json.dumps(defaults.get_wysiwyg_options())

@@ -51,6 +51,7 @@
                             const modal = trumbowyg.openModal(
                                 trumbowyg.lang.imagelibraryModalTitle,
                                 mainElement,
+                                true,
                             );
 
                             modal.on("tbwconfirm", function () {
@@ -60,8 +61,7 @@
                                 trumbowyg.closeModal();
                             });
 
-                            const uploadButton = trumbowyg.buildModalBtn(modal, "imageLibraryUpload");
-                            const cancelButton = trumbowyg.buildModalBtn(modal, "reset");
+                            const prefix = trumbowyg.o.prefix;
 
                             const fetchOptions = {
                                 credentials: "include",
@@ -76,9 +76,12 @@
                                     return;
                                 }
                                 const items = await response.json();
-                                const gridElement = createElementShortcut('ul', {
-                                    classes: [`${baseClass}__grid`]
+                                const gridElement = createElementShortcut('div', {
+                                    classes: [`${baseClass}__grid`],
+                                    tabindex: "0",
                                 })
+
+                                let firstItemElement = null;
                                 for (const item of items) {
                                     const imageElement = createElementShortcut('img', {
                                         classes: [`${baseClass}__item-image`],
@@ -87,28 +90,50 @@
                                         loading: 'lazy',
                                     });
 
-                                    const itemElement = createElementShortcut('li', {classes: [`${baseClass}__item`]});
+                                    // Using `<button>` gives us
+                                    // click-on-enter
+                                    const itemElement = createElementShortcut('button', {
+                                        classes: [`${baseClass}__item`],
+                                        type: 'button',
+                                    });
                                     itemElement.appendChild(imageElement)
 
                                     // Insert the image when the item is clicked.
-                                    itemElement.addEventListener("click", function () {
+                                    itemElement.addEventListener("click", function (event) {
+                                        event.preventDefault();
                                         trumbowyg.execCmd("insertImage", item.url, false, true);
                                         const $img = $("img[src='" + item.url + "']:not([alt])", trumbowyg.$box);
                                         $img.attr("alt", item.altText || "");
                                         trumbowyg.closeModal();
                                     })
 
-                                    gridElement.append(itemElement)
+                                    gridElement.append(itemElement);
 
-                                    // Re-use our loading div for the list.
-                                    mainElement.innerText = '';
-                                    mainElement.classList.remove(loadingClass)
-                                    mainElement.classList.add(baseClass)
-                                    mainElement.appendChild(gridElement)
+                                    // We'll focus this when our list is built.
+                                    firstItemElement = firstItemElement || itemElement;
                                 }
-                            })
+                                // Re-use our loading div for the list.
+                                mainElement.innerText = '';
+                                mainElement.classList.remove(loadingClass);
+                                mainElement.classList.add(baseClass);
+                                mainElement.appendChild(gridElement);
+
+                                if (firstItemElement) {
+                                    firstItemElement.focus();
+                                }
+                                /*
+                                There's no way to get the form with just the
+                                cancel button. But we don't really want to
+                                re-implement that behaviour, so just remove the
+                                "Confirm" button.
+                                */
+                                document.querySelector('.trumbowyg-imagelibrary')
+                                    .closest('.trumbowyg-modal-box')
+                                    .querySelector('.trumbowyg-modal-submit')
+                                    .remove();
+                            });
                         },
-                        text: 'X'
+                        text: trumbowyg.lang.imageLibrary,
                     })
                 }
             }

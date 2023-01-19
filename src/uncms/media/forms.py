@@ -107,6 +107,11 @@ class ImageUploadForm(FileForm):
     """
     A variant of FileForm which only permits uploading images. This is
     intended for use with the admin WYSIWYG upload view.
+
+    The frontend uploader has a single "description" field, which it passes
+    through as "alt". We use that for both the image's description and "Title"
+    field if it is present. Otherwise, we set the "Title" field from the file
+    name and save an empty alt text.
     """
     # named such by Trumbowyg with no override
     alt = forms.CharField(

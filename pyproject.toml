@@ -19,7 +19,6 @@ classifiers = [
 ]
 
 dependencies = [
-    "requests",
     "Pillow",
     "sorl-thumbnail",
     "beautifulsoup4",
@@ -29,7 +28,6 @@ dependencies = [
     "django-reversion",
     "python-magic>=0.4.15",
 ]
-
 
 [project.optional-dependencies]
 dev = [

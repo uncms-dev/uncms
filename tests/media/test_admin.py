@@ -15,7 +15,6 @@ from tests.media.factories import (
     EmptyFileFactory,
     FileFactory,
     LabelFactory,
-    MINIMAL_GIF_DATA,
     MinimalGIFFileFactory,
     SampleJPEGFileFactory,
     SamplePNGFileFactory,
@@ -157,8 +156,7 @@ def test_fileadmin_image_upload_api_view(client):
     with open(data_file_path('1920x1080.png'), 'rb') as fd:
         image_data = fd.read()
     data = {
-        'title': 'Example',
-        'file': SimpleUploadedFile(name='sample.png', content=image_data, content_type='image/png'),
+        'file': SimpleUploadedFile(name='Sample PNG.png', content=image_data, content_type='image/png'),
     }
 
     response = client.post(url, data=data)
@@ -166,6 +164,9 @@ def test_fileadmin_image_upload_api_view(client):
     assert response['location'].startswith('/admin/login/')
     assert File.objects.count() == 0
 
+    data['file'].seek(0)
+
+    # Test staff with insufficient permission
     user.is_staff = True
     user.save()
     response = client.post(url, data=data)
@@ -173,12 +174,31 @@ def test_fileadmin_image_upload_api_view(client):
     assert response.content == b'Forbidden'
     assert File.objects.count() == 0
 
+    data['file'].seek(0)
+
     # give it the right permission, try again
     user.user_permissions.add(Permission.objects.get(codename='add_file'))
     response = client.post(url, data=data).json()
-    print(response)
     assert response['success'] is True
-    assert File.objects.get().title == 'Example'
+    latest_file = File.objects.order_by('-id').first()
+    assert latest_file.title == 'Sample PNG'
+    assert latest_file.alt_text == ''
+
+    # Manually add alt text/title (the Trumbowyg uploader has one field for
+    # "description" which can be used for both)
+    data['file'].seek(0)
+    data['alt'] = 'Manual alt/title'
+    response = client.post(url, data=data).json()
+    assert response['success'] is True
+    latest_file = File.objects.order_by('-id').first()
+    assert latest_file.title == 'Manual alt/title'
+    assert latest_file.alt_text == 'Manual alt/title'
+
+    # Test branches that deal with a non-image
+    data['file'] = SimpleUploadedFile(name='Text file.txt', content=b'Dear John,', content_type='text/plain')
+    response = client.post(url, data=data).json()
+    assert response['success'] is False
+    assert response['detail']['file'][0]['message'] == 'Text file.txt does not appear to be an image file.'
 
 
 @pytest.mark.django_db

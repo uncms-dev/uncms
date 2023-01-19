@@ -1,7 +1,7 @@
 .trumbowyg-box {
   /*
-  This stops trumbowyg running into its label, which is positioned to the
-  left with "float" in the Current Year
+  This stops trumbowyg running into Django's label; Django positions them to
+  left, using "float" in the Current Year
   */
   clear: both;
 }

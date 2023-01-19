@@ -25,7 +25,6 @@ That's it!
 
 When rendering the HTML on the front-end of your site, you will want to filter your HTML through the `html` template filter.
 
-
 ```
 {% load uncms_html %}
 {{ object.content|html }}
@@ -45,4 +44,5 @@ or to remove HTML sanitisation altogether.
 There may be circumstances in which you want to use the HTML editing widget, but not use `HtmlField` on your model.
 In this unusual case, use `uncms.fields.HtmlWidget` in your form class.
 
-If you wish to add extra capabilities or options to your editor, you will want to look at the `WYSIWYG_OPTIONS` [configuration option](configuration.md).
+If you wish to add extra capabilities or options to your editor,
+you will want to look at the `WYSIWYG_EXTRA_OPTIONS`, `WYSIWYG_EXTRA_SCRIPTS`, and `WYSIWYG_EXTRA_STYLESHEETS` [configuration options](configuration.md).

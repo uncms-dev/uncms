@@ -257,7 +257,7 @@ class FileAdmin(VersionAdmin, SearchAdmin):
             # Trumbowyg upload plugin just wants a success true/false key
             return JsonResponse({
                 'success': False,
-                'detail': form.errors.as_json(),
+                'detail': form.errors.get_json_data(),
             })
 
         form.save()
