@@ -14,5 +14,5 @@ uploads
 .coverage
 htmlcov
 .vscode/
-vendor/
+/vendor
 scripts/release.sh

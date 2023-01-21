@@ -1,0 +1,55 @@
+.trumbowyg-imagelibrary,
+.trumbowyg-imagelibrary-loader {
+    height: 300px;
+    margin-bottom: 13px;
+}
+
+.trumbowyg-imagelibrary-loader {
+    align-items: center;
+    display: flex;
+    font-style: italic;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.trumbowyg-imagelibrary {
+    padding: 3px 5px;
+    overflow-y: scroll;
+}
+
+.trumbowyg-imagelibrary-loader::before {
+    /* this will do! */
+    content: '⌛';
+    display: block;
+    /* but make the emoji look a little more grown-up or something */
+    filter: grayscale(100%) brightness(75%);
+    font-size: 20px;
+    font-style: initial;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.trumbowyg-imagelibrary__grid {
+   display: grid;
+   gap: 2px;
+   grid-template-columns: repeat(4, 1fr);
+   /* reset from Django's inherited <ul> */
+   padding-left: 0;
+}
+
+.trumbowyg-imagelibrary__item {
+    background-color: var(--darkened-bg);
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    list-style: none;
+    padding: 0;
+}
+
+.trumbowyg-imagelibrary__item-image {
+    /* most photos from professional cameras are 3:2. There is also 16:9 and
+    3:4 as common aspect ratios, so this happens to be a nice in-between */
+    aspect-ratio: 3 / 2;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}

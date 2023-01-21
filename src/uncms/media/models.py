@@ -124,6 +124,15 @@ class File(models.Model):
     def is_image(self):
         return is_image(self.file.name)
 
+    def get_admin_thumbnail(self):
+        """
+        Returns a thumbnail suitable for use in the admin area. This is here
+        because it is used in a couple of places, and it is good to ensure
+        that the same parameters are being used both times to prevent needless
+        thumbnail regeneration.
+        """
+        return self.get_thumbnail(width=200, fmt='webp')
+
     def get_dimensions(self):
         try:
             with self.file.storage.open(self.file.name, 'rb') as f:

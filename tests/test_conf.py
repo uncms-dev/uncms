@@ -21,6 +21,13 @@ def test_conf_get_attr():
         assert uncms.conf.defaults.MEDIA_FILE_MODEL == 'imaginary.File'
 
 
+def test_conf_get_wysiwyg_options():
+    assert uncms.conf.defaults.get_wysiwyg_options()['resetCss'] is True
+    with override_settings(UNCMS={'WYSIWYG_EXTRA_OPTIONS': {'resetCss': False, 'nonsense': True}}):
+        assert uncms.conf.defaults.get_wysiwyg_options()['resetCss'] is False
+        assert uncms.conf.defaults.get_wysiwyg_options()['nonsense'] is True
+
+
 def test_all_config_items_are_documented():
     """
     Ensure all configuration items are documented in docs/configuration.md

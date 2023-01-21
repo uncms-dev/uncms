@@ -1,0 +1,37 @@
+.trumbowyg-box {
+  /*
+  This stops trumbowyg running into Django's label; Django positions them to
+  left, using "float" in the Current Year
+  */
+  clear: both;
+}
+
+.trumbowyg-box li {
+  /* Django sets all <li>s to a smaller font size by default. */
+  font-size: inherit;
+}
+
+.trumbowyg-box ul li {
+  /*
+  Styles inside Trumbowyg are not isolated - the Django styles can leak in
+  even with the resetCss option and one of those is list-style on ul li
+  */
+  list-style: initial !important;
+}
+
+.trumbowyg-box table td {
+  /* Override Django's unstyling of tables */
+  border: 1px solid var(--border-color) !important;
+}
+
+.trumbowyg-imagelibrary-icons {
+  /* Icon used for reference by xlink. */
+  display: none;
+}
+
+.trumbowyg-modal-box .trumbowyg-modal-button.trumbowyg-modal-submit {
+  /*
+  Match Django style somewhat better.
+  */
+  background-color: var(--default-button-bg);
+}

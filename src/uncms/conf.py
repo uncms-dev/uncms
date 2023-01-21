@@ -86,24 +86,38 @@ class AppSettings:
         'PUBLICATION_MIDDLEWARE_EXCLUDE_URLS': [r'^/admin/'],
         'SITE_DOMAIN': None,
         'WYSIWYG_OPTIONS': {
-            'height': 500,
-            'plugins': [
-                'advlist autolink link image lists charmap hr anchor pagebreak',
-                'wordcount visualblocks visualchars code fullscreen cmsimage hr',
+            'autogrow': False,
+            'btns': [
+                ['viewHTML'],
+                {"formatting": {
+                    "dropdown": ['p', 'blockquote', 'h1', 'h2', 'h3', 'h4'],
+                    "ico": 'p'
+                }},
+                ['strong', 'em', 'del'],
+                ['superscript', 'subscript'],
+                ['link'],
+                ['imagelibrary', 'upload'],
+                ['unorderedList', 'orderedList'],
+                ['table'],
+                ['horizontalRule'],
+                ['removeformat'],
+                ['fullscreen'],
             ],
-            'toolbar1': 'code | cut copy pastetext | undo redo | bullist numlist | link unlink anchor cmsimage | blockquote',
-            'menubar': False,
-            'toolbar_items_size': 'small',
-            'block_formats': 'Paragraph=p;Header 2=h2;Header 3=h3;Header 4=h4;Header 5=h5;Header 6=h6;',
-            'convert_urls': False,
-            'paste_as_text': True,
-            'image_advtab': True,
+            'minimalLinks': True,
+            'removeFormatPasted': True,
+            'resetCss': True,
         },
+        'WYSIWYG_EXTRA_OPTIONS': {},
+        'WYSIWYG_EXTRA_SCRIPTS': [],
+        'WYSIWYG_EXTRA_STYLESHEETS': [],
     }
 
     def __getattr__(self, attname):
         conf_dict = getattr(settings, 'UNCMS', {})
         return conf_dict.get(attname, self.default_settings[attname])
+
+    def get_wysiwyg_options(self):
+        return {**self.WYSIWYG_OPTIONS, **self.WYSIWYG_EXTRA_OPTIONS}
 
 
 defaults = AppSettings()

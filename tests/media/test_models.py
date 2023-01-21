@@ -35,6 +35,24 @@ def test_file_get_absolute_url():
     assert file.get_absolute_url() == f'/media/{file.file.name}'
 
 
+@pytest.mark.django_db
+def test_file_get_dimensions():
+    assert EmptyFileFactory().get_dimensions() == (0, 0)
+    assert SamplePNGFileFactory().get_dimensions() == (1920, 1080)
+
+
+@pytest.mark.django_db
+def test_file_get_admin_thumbnail(admin_client):
+    thumbnail = SamplePNGFileFactory().get_admin_thumbnail()
+    assert thumbnail.width == 200
+    response = admin_client.get(thumbnail.url)
+    assert response.status_code == 302
+    response = admin_client.get(response['Location'])
+    assert response.status_code == 200
+    # Django does not recognise webp
+    assert response['Content-Type'] == 'application/octet-stream'
+
+
 @pytest.mark.django_db()
 def test_file_get_temporary_url(admin_client):
     file = EmptyFileFactory()

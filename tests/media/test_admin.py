@@ -6,8 +6,7 @@ from bs4 import BeautifulSoup
 from django.contrib.admin.sites import AdminSite
 from django.contrib.admin.views.main import IS_POPUP_VAR
 from django.contrib.auth.models import Permission
-from django.contrib.messages.storage.fallback import FallbackStorage
-from django.http import Http404
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test.utils import override_settings
 from django.urls import reverse
 
@@ -105,37 +104,101 @@ def test_fileadmin_get_size():
     assert file_admin.get_size(bad_file) == '0 bytes'
 
 
-def test_fileadmin_remote_view(live_server):
-    file_admin = FileAdmin(File, AdminSite())
-    obj = EmptyFileFactory()
+@pytest.mark.django_db
+def test_fileadmin_image_list_api_view(client):
+    file_1 = SamplePNGFileFactory()
+    file_2 = SamplePNGFileFactory(alt_text='Alt text test')
+    user = UserFactory()
+    client.force_login(user)
 
-    request = AdminRequestFactory().get('/')
-    request.user = MockSuperUser
+    # Ensure non-staff members can't fetch it
+    url = reverse('admin:media_file_image_list_api')
+    response = client.get(url)
+    assert response.status_code == 302
+    assert response['Location'].startswith('/admin/login/')
 
-    request.user = MockSuperUser()
-    response = file_admin.remote_view(request, obj)
-    # 405: Method not allowed. We have to POST to this view.
-    assert response.status_code == 405
-
-    request.method = 'POST'
-
-    # No URL supplied.
-    with pytest.raises(Http404):
-        file_admin.remote_view(request, obj.pk)
-
-    # No permissions.
-    request.user.has_perm = lambda x: False
-
-    response = file_admin.remote_view(request, obj.pk)
+    # Check underpermissioned staff users
+    user.is_staff = True
+    user.save()
+    response = client.get(url)
     assert response.status_code == 403
+    assert response.content == b'Forbidden'
 
-    request.user = MockSuperUser()
-    request.POST = {
-        'url': live_server.url + '/static/media/img/text-x-generic.png'
-    }
-    response = file_admin.remote_view(request, obj.pk)
-    assert response.content == b'{"status": "ok"}'
+    # Test with the correct permissions.
+    user.user_permissions.add(Permission.objects.get(codename='view_file'))
+    response = client.get(url)
     assert response.status_code == 200
+    response_json = response.json()
+    assert response_json[0]['url'] == f'/library/redirect/{file_2.pk}/'
+    assert response_json[0]['title'] == file_2.title
+    assert response_json[0]['altText'] == 'Alt text test'
+
+    assert response_json[1]['url'] == f'/library/redirect/{file_1.pk}/'
+    assert response_json[1]['title'] == file_1.title
+    assert response_json[1]['altText'] is None
+
+    # Ensure that both the thumbnails & image URLs work.
+    for item in response_json:
+        for key in ['url', 'thumbnail']:
+            # Ensure we're redirected to something...
+            response = client.get(item[key])
+            assert response.status_code == 302
+            # ...which actually exists.
+            response = client.get(response['Location'])
+            assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_fileadmin_image_upload_api_view(client):
+    user = UserFactory()
+    client.force_login(user)
+    url = reverse('admin:media_file_image_upload_api')
+    with open(data_file_path('1920x1080.png'), 'rb') as fd:
+        image_data = fd.read()
+    data = {
+        'file': SimpleUploadedFile(name='Sample PNG.png', content=image_data, content_type='image/png'),
+    }
+
+    response = client.post(url, data=data)
+    assert response.status_code == 302
+    assert response['location'].startswith('/admin/login/')
+    assert File.objects.count() == 0
+
+    data['file'].seek(0)
+
+    # Test staff with insufficient permission
+    user.is_staff = True
+    user.save()
+    response = client.post(url, data=data)
+    assert response.status_code == 403
+    assert response.content == b'Forbidden'
+    assert File.objects.count() == 0
+
+    data['file'].seek(0)
+
+    # give it the right permission, try again
+    user.user_permissions.add(Permission.objects.get(codename='add_file'))
+    response = client.post(url, data=data).json()
+    assert response['success'] is True
+    latest_file = File.objects.order_by('-id').first()
+    assert latest_file.title == 'Sample PNG'
+    assert latest_file.alt_text == ''
+
+    # Manually add alt text/title (the Trumbowyg uploader has one field for
+    # "description" which can be used for both)
+    data['file'].seek(0)
+    data['alt'] = 'Manual alt/title'
+    response = client.post(url, data=data).json()
+    assert response['success'] is True
+    latest_file = File.objects.order_by('-id').first()
+    assert latest_file.title == 'Manual alt/title'
+    assert latest_file.alt_text == 'Manual alt/title'
+
+    # Test branches that deal with a non-image
+    data['file'] = SimpleUploadedFile(name='Text file.txt', content=b'Dear John,', content_type='text/plain')
+    response = client.post(url, data=data).json()
+    assert response['success'] is False
+    assert response['detail']['file'][0]['message'] == 'Text file.txt does not appear to be an image file.'
 
 
 @pytest.mark.django_db
@@ -158,16 +221,12 @@ def test_fileadmin_response_add():
     file_admin = FileAdmin(File, AdminSite())
     obj = EmptyFileFactory()
 
-    for url, status_code in [('/', 302), ('/?_tinymce', 200)]:
-        request = AdminRequestFactory().get(url)
-        # Allow the messages framework to work.
-        request.session = 'session'
-        request._messages = FallbackStorage(request)
-        request.user = MockSuperUser()
-        request.pages = None
+    request = AdminRequestFactory().get('/')
+    # Allow the messages framework to work.
+    request.user = MockSuperUser()
 
-        response = file_admin.response_add(request, obj)
-        assert response.status_code == status_code
+    response = file_admin.response_add(request, obj)
+    assert response.status_code == 302
 
 
 @pytest.mark.django_db
@@ -204,21 +263,6 @@ def test_file_detail_conditionally_shows_fieldsets(client):
 
 
 @pytest.mark.django_db
-def test_file_detail_preserves_filters(client):
-    # Ensure ?_tinymce query string parameter is preserved in the form action.
-    client.force_login(UserFactory(superuser=True))
-    response = client.get(reverse('admin:media_file_add'))
-    assert response.status_code == 200
-    soup = BeautifulSoup(response.content, 'html.parser')
-    assert soup.find('form', attrs={'id': 'file_form'}).get('action') is None
-
-    response = client.get(reverse('admin:media_file_add'), {'_tinymce': '1'})
-    assert response.status_code == 200
-    soup = BeautifulSoup(response.content, 'html.parser')
-    assert soup.find('form', attrs={'id': 'file_form'}).get('action') == '?_tinymce=1'
-
-
-@pytest.mark.django_db
 def test_file_list_type_filter(client):
     def context_pks(context):
         return sorted([obj.pk for obj in context['cl'].result_list])
@@ -238,20 +282,6 @@ def test_file_list_type_filter(client):
     response = client.get(url, {'filetype': 'image'})
     assert response.status_code == 200
     assert context_pks(response.context_data) == sorted([sample_jpeg.pk, sample_png.pk])
-
-
-@pytest.mark.django_db
-def test_file_media_library_changelist_view(client):
-    SamplePNGFileFactory()
-    client.force_login(UserFactory(superuser=True))
-
-    response = client.get(reverse('admin:media_file_wysiwyg_list'))
-    assert response.status_code == 200
-    assert response.headers['X-Frame-Options'] == 'SAMEORIGIN'
-    assert response.context_data['is_media_library_iframe']
-
-    soup = BeautifulSoup(response.content, 'html.parser')
-    assert soup.find('script', id='tinymce-script')
 
 
 @pytest.mark.django_db

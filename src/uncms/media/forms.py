@@ -103,6 +103,46 @@ class FileForm(forms.ModelForm):
         return normalised_file_extension(file.name) in defaults.MEDIA_UPLOAD_ALLOWED_EXTENSIONS
 
 
+class ImageUploadForm(FileForm):
+    """
+    A variant of FileForm which only permits uploading images. This is
+    intended for use with the admin WYSIWYG upload view.
+
+    The frontend uploader has a single "description" field, which it passes
+    through as "alt". We use that for both the image's description and "Title"
+    field if it is present. Otherwise, we set the "Title" field from the file
+    name and save an empty alt text.
+    """
+    # named such by Trumbowyg with no override
+    alt = forms.CharField(
+        required=False,
+    )
+
+    def clean_file(self):
+        uploaded_file = self.cleaned_data['file']
+        if not is_image(uploaded_file.name):
+            raise forms.ValidationError(_('{name} does not appear to be an image file.').format(name=uploaded_file.name))
+        return super().clean_file()
+
+    def save(self, commit=True):
+        file_meta = apps.get_model(defaults.MEDIA_FILE_MODEL)._meta
+        title_max_length = file_meta.get_field('title').max_length
+        alt_max_length = file_meta.get_field('alt_text').max_length
+
+        if not self.instance.title:
+            if self.cleaned_data.get('alt'):
+                self.instance.title = self.cleaned_data['alt'][:title_max_length]
+            else:
+                self.instance.title = os.path.splitext(self.cleaned_data['file'].name)[0][:title_max_length]
+
+        self.instance.alt_text = self.cleaned_data.get('alt', '')[:alt_max_length]
+
+        return super().save(commit=commit)
+
+    class Meta(FileForm.Meta):
+        fields = ['file']
+
+
 class ImageEditForm(forms.ModelForm):
     changed_image = forms.CharField(
         widget=forms.HiddenInput,
