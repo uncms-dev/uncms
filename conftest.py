@@ -55,6 +55,7 @@ def pytest_configure():
             'uncms.links',
             'uncms.media',
             'uncms.pages',
+            'uncms.redirects',
 
             # Testing models & such
             'tests.testing_app',

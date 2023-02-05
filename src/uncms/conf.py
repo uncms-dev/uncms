@@ -84,7 +84,12 @@ class AppSettings:
         'PAGE_TREE_PREFETCH_DEPTH': 2,
         'PATH_SIGNING_SECRET': settings.SECRET_KEY,
         'PUBLICATION_MIDDLEWARE_EXCLUDE_URLS': [r'^/admin/'],
+        'REDIRECTS_CSV_IMPORT_ENABLED': True,
+        'REGEX_REDIRECTS': False,
         'SITE_DOMAIN': None,
+        'WYSIWYG_EXTRA_OPTIONS': {},
+        'WYSIWYG_EXTRA_SCRIPTS': [],
+        'WYSIWYG_EXTRA_STYLESHEETS': [],
         'WYSIWYG_OPTIONS': {
             'autogrow': False,
             'btns': [
@@ -107,9 +112,6 @@ class AppSettings:
             'removeFormatPasted': True,
             'resetCss': True,
         },
-        'WYSIWYG_EXTRA_OPTIONS': {},
-        'WYSIWYG_EXTRA_SCRIPTS': [],
-        'WYSIWYG_EXTRA_STYLESHEETS': [],
     }
 
     def __getattr__(self, attname):

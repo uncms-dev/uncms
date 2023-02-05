@@ -1,0 +1,105 @@
+{% extends 'admin/base_site.html' %}
+
+{% load i18n %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block breadcrumbs %}
+  <div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% translate 'Home' %}</a>
+    &rsaquo; <a href="{% url 'admin:app_list' app_label='redirects' %}">{{ opts.app_config.verbose_name }}</a>
+    &rsaquo; <a href="{% url 'admin:redirects_redirect_changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>
+    &rsaquo; {% translate 'Import CSV' %}
+  </div>
+{% endblock %}
+
+{% block content %}
+  {% url 'admin:redirects_redirect_changelist' as changelist_url %}
+  {% url 'admin:redirects_redirect_import_csv' as import_url %}
+
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    {% if confirming %}
+      {% if form.importer.saved_objects %}
+        <p>
+          The following redirects will be created or updated:
+        </p>
+
+        <ul>
+          {% for obj, created in form.importer.saved_objects %}
+            <li>
+              <strong>
+                {% if created %}Create:{% else %}Update:{% endif %}
+              </strong>
+
+              {% if created %}
+                {{ obj }}
+              {% else %}
+                <a href="{% url 'admin:redirects_redirect_change' obj.pk %}">
+                  {{ obj }}
+                </a>
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p>
+          {% blocktranslate %}
+            <strong>No redirects were found in this file.</strong>
+            This is almost certainly an error in your CSV file.
+            Please check that it is a CSV file whose contents make sense, then <a href="{{ changelist_url }}">try again</a>.
+          {% endblocktranslate %}
+        </p>
+      {% endif %}
+
+      {% if form.importer.errors %}
+        <p>
+          {% blocktranslate %}
+            The following <strong>possible errors</strong> were found when reading your CSV file:
+          {% endblocktranslate %}
+        </p>
+
+        <ul>
+          {% for error in form.importer.errors %}
+            <li>
+              {{ error }}
+            </li>
+          {% endfor %}
+        </ul>
+
+        {% if form.importer.saved_objects %}
+          <p>
+            {% blocktranslate %}
+              You may choose to ignore these errors and continue, <a href="{{ import_url }}">choose another file</a>, or <a href="{{ changelist_url }}">go back to the redirects list</a>.
+            {% endblocktranslate %}
+          </p>
+
+          <p>
+            {{ save_form.filename }}
+            {{ save_form.csv_data }}
+            <input type="hidden" name="confirm" value="1">
+            <input type="submit" value="{% if form.importer.errors %}{% translate 'Ignore errors and import' %}{% else %}{% translate 'Import' %}{% endif %}">
+          </p>
+        {% endif %}
+      {% endif %}
+    {% else %} {# "if confirming" #}
+      {% if form.errors %}
+        <p class="error">
+          {% blocktranslate %}
+            Something went very wrong - there was no meaningful data in the file.
+            You may have attempted to upload an Excel spreadsheet, which will not work.
+            Or you may have uploaded the wrong file entirely.
+          {% endblocktranslate %}
+      {% endif %}
+      {{ form.as_p }}
+
+      <p class="help">
+        {% translate "This will not save immediately; you will get a chance to look at the redirects that will be updated or created on the next page." %}
+      </p>
+
+      <input type="submit" value="{% trans 'Check file' %}">
+    {% endif %}
+  </form>
+{% endblock %}
