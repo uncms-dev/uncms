@@ -12,7 +12,7 @@ It will only return offline objects in a queryset if _any_ of the following thin
 
 * The current request's user is a staff user, _and_ the `preview` GET parameter in the URL is non-empty (e.g. `?preview=1`). This allows administrators to preview offline objects.
 * The value of the `preview` GET parameter matches a hash of the current path and your `settings.SECRET_KEY` (this is a simplification of, but not entirely unlike, how it actually works). This is used by `OnlineBase` to implement its `get_preview_url()` method.
-* The current request's path matches a regular expression in the `settings.PUBLICATION_URLS` tuple. One of these will probably be `^admin/` in your configuration, for obvious reasons.
+* The current request's path matches a regular expression in the [`PUBLICATION_MIDDLEWARE_EXCLUDE_URLS`](configuration.md?id=publication_middleware_exclude_urls) configuration item. One of these is `'^/admin/'` in the default configuration, for obvious reasons.
 
 Sometimes you might want to exclude objects automatically based on other criteria.
 Take the Article model in the [walkthrough](walkthrough.md); we might want to exclude any Article with a future publication date, to allow building a publication queue.
