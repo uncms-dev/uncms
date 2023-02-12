@@ -1,6 +1,6 @@
 # Changelog
 
-## Next release
+## 0.0.6
 
 * There is now an [app for handling redirects](redirects-app.md), allowing redirection of old URLs to new ones. It is a massively upgraded version of the one [built in to Django](https://docs.djangoproject.com/en/dev/ref/contrib/redirects/).
 * `HTMLField` now uses [Trumbowyg](https://alex-d.github.io/Trumbowyg/) as its editor. The editor now has a much easier-to-use image insertion tool that does not require IFrames (and thus does not require weakening `X-Frame-Options` from its strictest value). This also _somewhat_ solves the [massive pile of vendor JS](https://github.com/lewiscollard/uncms/issues/14) problem, because Trumbowyg is much smaller; TinyMCE clocked in at 1.4 megabytes minified, and Trumbowyg (minus the plugins we don't need) weighs about 230 kilobytes _unminified_.
