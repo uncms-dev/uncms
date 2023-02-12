@@ -315,6 +315,27 @@ Of course, you probably don't want to do that for _every_ request.
 The most obvious is that you will want to be able to view offline pages in your site's administrative area.
 You may want to change this setting if your admin lives at any location other than "/admin/".
 
+## `REDIRECTS_CSV_IMPORT_ENABLED`
+
+* Type: boolean
+* Default: `True`
+
+The [redirects app](redirects-app.csv) has a handy CSV importer which is useful for initial built-out of a site.
+It may be less useful later in a site's lifecycle.
+To disable it, set this option to `False`.
+
+## `REGEX_REDIRECTS`
+
+* Type: boolean
+* Default: `False`
+
+The [redirects app](redirects-app.md), by default, allows a simple creation of redirects old path to new path.
+On some sites, the number of pages to be redirected could be substantial enough that adding redirects manually would be significant manual effort.
+Setting this configuration option to `True` will enable redirects to be created matching a regular expression.
+
+You should only enable this if you know that you need it, rather than "just in case".
+See the [documentation](redirects-app.md) for the reasons.
+
 ## `SITE_DOMAIN`
 
 * Type: string (bare domain name)

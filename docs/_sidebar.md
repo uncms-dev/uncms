@@ -7,6 +7,7 @@
 * [The Media app](media-app.md)
 ** [Rendering images](rendering-images.md)
 * [The Links app](links-app.md)
+* [Redirects](redirects-app.md)
 * [Helper models](helpers.md)
 * [Publication control](publication-control.md)
 * [Moderation system](moderation.md)

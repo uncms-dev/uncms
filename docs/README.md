@@ -30,6 +30,7 @@ and it plays well with your existing models.
 * Pre-configured [WYSIWYG HTML editor](html-editor.md) widgets (using [Trumbowyg](https://alex-d.github.io/Trumbowyg/)).
 * [Image and file management](media-app.md), with easy embedding via WYSIWYG editors or pure model fields.
 * Internal / external links in menus (via bundled optional [links app](links-app.md)).
+* An improved app for creating [redirects](redirects-app.md)
 * Version control and rollback (via [django-reversion](https://github.com/etianen/django-reversion)).
 * Full-text search with relevance ranking (via [django-watson](https://github.com/etianen/django-watson)).
 * Many [helper models](helpers.md) and views for SEO-friendly user-visible models.
