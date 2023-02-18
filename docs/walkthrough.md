@@ -40,6 +40,9 @@ INSTALLED_APPS = [
     # sorl-thumbnail is used for thumbnailing image fields in the admin, and
     # as such is required by UnCMS.
     'sorl.thumbnail',
+    # watson is used for full-text search. You don't need to use it on the
+    # front-end of your site, but it is used in the admin.
+    'watson',
 
     # These are the core UnCMS apps.
     'uncms',
