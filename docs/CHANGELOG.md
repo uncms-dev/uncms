@@ -1,5 +1,9 @@
 # Changelog
 
+## Next release
+
+* Sidebar now shows on "add page" screen (page type selection) in the admin.
+
 ## 0.0.6
 
 * There is now an [app for handling redirects](redirects-app.md), allowing redirection of old URLs to new ones. It is a massively upgraded version of the one [built in to Django](https://docs.djangoproject.com/en/dev/ref/contrib/redirects/).

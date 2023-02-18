@@ -445,6 +445,7 @@ class PageAdmin(PageBaseAdmin):
                 return redirect(content_types[0]['url'])
             # Render the select page template.
             context = {
+                **self.admin_site.each_context(request),
                 'title': 'Select page type',
                 'content_types': content_types,
                 'is_popup': request.GET.get(IS_POPUP_VAR, False),
