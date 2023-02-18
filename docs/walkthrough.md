@@ -32,7 +32,16 @@ Add our core UnCMS apps to your `INSTALLED_APPS`:
 
 ```python
 INSTALLED_APPS = [
-    # .....
+    # your other apps here...
+
+    # Reversion is used for version control and rollback. It is required by
+    # UnCMS.
+    'reversion',
+    # sorl-thumbnail is used for thumbnailing image fields in the admin, and
+    # as such is required by UnCMS.
+    'sorl.thumbnail',
+
+    # These are the core UnCMS apps.
     'uncms',
     'uncms.pages',
     'uncms.media',
