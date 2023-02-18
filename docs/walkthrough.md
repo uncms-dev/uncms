@@ -70,6 +70,15 @@ MIDDLEWARE = [
 ]
 ```
 
+Make sure your `MEDIA_URL` is defined.
+It defaults to `"/"`,
+but UnCMS's pages middleware is smart enough to skip requests for static files and media files by checking them for the `MEDIA_URL` prefix.
+And since all page URLs start with `"/"`, no pages will be served, ever!
+
+```python
+MEDIA_URL = '/media/'
+```
+
 Finally, you will need something like this in your root URLconf.
 You may change the path part, but do not change the namespace.
 
