@@ -71,9 +71,10 @@ MIDDLEWARE = [
 ```
 
 Make sure your `MEDIA_URL` is defined.
-It defaults to `"/"`,
+It defaults to `"/"` if you created your Django project with `django-admin startproject`,
 but UnCMS's pages middleware is smart enough to skip requests for static files and media files by checking them for the `MEDIA_URL` prefix.
 And since all page URLs start with `"/"`, no pages will be served, ever!
+So UnCMS will throw an error if you don't set it.
 
 ```python
 MEDIA_URL = '/media/'

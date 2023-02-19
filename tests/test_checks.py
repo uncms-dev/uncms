@@ -66,3 +66,8 @@ def test_check_django_settings():
             'uncms.006',
         ]
     )
+
+    with override_settings(MEDIA_URL='/'):
+        _, stderr = get_command_output('check')
+    assert '`MEDIA_URL` is set to `/`' in stderr
+    assert 'uncms.007' in stderr

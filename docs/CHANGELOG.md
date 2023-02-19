@@ -4,6 +4,7 @@
 
 * The [HTML editor](html-editor.md) now has structure options for `<h[2-4]>` and `<blockquote>`.
 * The sidebar now shows on the page type selection view in the admin.
+* A system check now ensures that `MEDIA_URL` is not set to `/`, which will be the case for any project started with `django-admin startproject` and will stop the pages middleware from working (since it skips any request whose path starts with `MEDIA_URL`). A site would almost certainly never be deployed in this configuration; this just avoids mysterious failures in the early stages of development.
 
 ## 0.0.6
 

@@ -83,4 +83,14 @@ def check_django_settings(app_configs, **kwargs):
                 _("'{processor}' should be in your template engine's 'context_processors'.").format(processor=recommended),
                 id='uncms.006',
             ))
+
+    # Setting MEDIA_URL to '/' (which is the default for `startproject`) will
+    # stop the page system from working. PageMiddleware skips any requests
+    # that start with MEDIA_URL, and all paths begin with '/'!
+    if settings.MEDIA_URL == '/':
+        errors.append(checks.Error(
+            _('`MEDIA_URL` is set to `/`, which will cause the page middleware to be non-functional.'),
+            id='uncms.007',
+            hint=_('Set it to the public path for file uploads (see the Django documentation).')
+        ))
     return errors
