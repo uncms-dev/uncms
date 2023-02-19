@@ -320,7 +320,7 @@ You may want to change this setting if your admin lives at any location other th
 * Type: boolean
 * Default: `True`
 
-The [redirects app](redirects-app.csv) has a handy CSV importer which is useful for initial built-out of a site.
+The [redirects app](redirects-app.csv) has a handy CSV importer which is useful for initial build-out of a site.
 It may be less useful later in a site's lifecycle.
 To disable it, set this option to `False`.
 
