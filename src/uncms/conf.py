@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.utils.translation import gettext_lazy as _
 
 
 class AppSettings:
@@ -94,20 +95,28 @@ class AppSettings:
             'autogrow': False,
             'btns': [
                 ['viewHTML'],
-                {"formatting": {
-                    "dropdown": ['p', 'blockquote', 'h1', 'h2', 'h3', 'h4'],
-                    "ico": 'p'
-                }},
-                ['strong', 'em', 'del'],
-                ['superscript', 'subscript'],
-                ['link'],
+                ['structure'],
+                ['strong', 'em', 'del', 'superscript', 'subscript'],
                 ['imagelibrary', 'upload'],
+                ['link'],
                 ['unorderedList', 'orderedList'],
                 ['table'],
                 ['horizontalRule'],
                 ['removeformat'],
                 ['fullscreen'],
             ],
+            'btnsDef': {
+                # Trumbowyg's default "formatting" dropdown has the above plus
+                # "h1". But we almost always don't want to allow h1, as that
+                # is almost always provided by some element on the page. This
+                # editor is not designed for editing the _entire_ page, only
+                # some part of it, e.g. the body of an article.
+                'structure': {
+                    'title': _('Structure'),
+                    'dropdown': ['p', 'blockquote', 'h2', 'h3', 'h4'],
+                    'ico': 'p',
+                },
+            },
             'minimalLinks': True,
             'removeFormatPasted': True,
             'resetCss': True,

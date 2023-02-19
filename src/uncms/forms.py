@@ -1,6 +1,7 @@
 import json
 
 from django import forms
+from django.core.serializers.json import DjangoJSONEncoder
 from django.urls import reverse
 
 from uncms.conf import defaults
@@ -56,7 +57,8 @@ class HtmlWidget(forms.Textarea):
         # Add in settings for the text editor, URLs, etc.
         attrs['data-wysiwyg-upload-url'] = reverse('admin:media_file_image_upload_api')
         attrs['data-wysiwyg-image-list-url'] = reverse('admin:media_file_image_list_api')
-        attrs['data-wysiwyg-settings'] = json.dumps(defaults.get_wysiwyg_options())
+        # DjangoJSONEncoder handles `gettext_lazy` in our config.
+        attrs['data-wysiwyg-settings'] = json.dumps(defaults.get_wysiwyg_options(), cls=DjangoJSONEncoder)
         # Clean any bad HTML from the database-stored value; if we've removed
         # tags that were previously permitted we want that to be reflected in
         # the HTML that is output here.

@@ -2,7 +2,8 @@
 
 ## Next release
 
-* Sidebar now shows on "add page" screen (page type selection) in the admin.
+* The [HTML editor](html-editor.md) now has structure options for `<h[2-4]>` and `<blockquote>`.
+* The sidebar now shows on the page type selection view in the admin.
 
 ## 0.0.6
 
