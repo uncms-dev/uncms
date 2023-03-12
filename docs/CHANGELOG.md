@@ -1,6 +1,6 @@
 # Changelog
 
-## Next release
+## 0.0.7 (2023-03-12)
 
 * The [HTML editor](html-editor.md) now has structure options for `<h[2-4]>` and `<blockquote>`.
 * The HTML editor no longer throws a JS exception when adding a new inline formset.
