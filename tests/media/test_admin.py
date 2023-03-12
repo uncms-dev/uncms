@@ -10,8 +10,11 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test.utils import override_settings
 from django.urls import reverse
 
-from tests.factories import AdminRequestFactory, UserFactory
-from tests.media.factories import (
+from tests.mocks import MockSuperUser
+from uncms.media.admin import FileAdmin
+from uncms.media.models import File
+from uncms.testhelpers.factories import AdminRequestFactory, UserFactory
+from uncms.testhelpers.factories.media import (
     EmptyFileFactory,
     FileFactory,
     LabelFactory,
@@ -20,9 +23,6 @@ from tests.media.factories import (
     SamplePNGFileFactory,
     data_file_path,
 )
-from tests.mocks import MockSuperUser
-from uncms.media.admin import FileAdmin
-from uncms.media.models import File
 
 
 @pytest.mark.django_db

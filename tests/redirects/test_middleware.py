@@ -1,8 +1,8 @@
 import pytest
 from django.test import modify_settings
 
-from tests.factories import UserFactory
 from uncms.redirects.models import Redirect
+from uncms.testhelpers.factories import UserFactory
 
 
 @modify_settings(MIDDLEWARE={

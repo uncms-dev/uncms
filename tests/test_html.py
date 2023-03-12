@@ -3,9 +3,9 @@ from bs4 import BeautifulSoup
 from django.contrib.contenttypes.models import ContentType
 from django.test import override_settings
 
-from tests.media.factories import SamplePNGFileFactory
 from uncms.html import clean_all, clean_html, format_html
 from uncms.media.models import File
+from uncms.testhelpers.factories.media import SamplePNGFileFactory
 
 
 @pytest.mark.django_db

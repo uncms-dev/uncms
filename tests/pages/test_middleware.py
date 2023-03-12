@@ -5,14 +5,14 @@ from django.http import HttpResponse, HttpResponseNotFound
 from django.test import RequestFactory, override_settings
 from django.urls import reverse
 
-from tests.factories import UserFactory
-from tests.media.factories import EmptyFileFactory
 from tests.mocks import MockRequestUser, request_with_pages
-from tests.pages.factories import PageFactory
 from tests.testing_app.models import MiddlewareURLsTestPage
 from uncms.pages.middleware import PageMiddleware, RequestPageManager
 from uncms.pages.models import Page
 from uncms.pages.templatetags.uncms_pages import render_navigation
+from uncms.testhelpers.factories import UserFactory
+from uncms.testhelpers.factories.media import EmptyFileFactory
+from uncms.testhelpers.factories.pages import PageFactory
 
 
 @pytest.mark.django_db
@@ -201,8 +201,8 @@ def test_pagemiddleware_process_response():  # pylint:disable=too-many-statement
 
         assert processed_response.status_code == 200
         assert processed_response.template_name == (
-            'testing_app/emptytestpage.html',
-            'testing_app/base.html',
+            'testhelpers/emptytestpage.html',
+            'testhelpers/base.html',
             'base.html',
         )
 
@@ -303,8 +303,8 @@ def test_pagemiddleware_with_client(client):
     response = client.get('/')
     assert response.status_code == 200
     assert response.template_name == (
-        'testing_app/emptytestpage.html',
-        'testing_app/base.html',
+        'testhelpers/emptytestpage.html',
+        'testhelpers/base.html',
         'base.html',
     )
 

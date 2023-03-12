@@ -1,5 +1,11 @@
 # Changelog
 
+## Next release
+
+* [Testing your project](testing-your-project.md) is now easier;
+there are now [Factory Boy](https://factoryboy.readthedocs.io/) factories available for creating UnCMS [pages](pages-app.md) and [media files](media-app.md).
+These were written some time ago for testing UnCMS itself. They are now available in the UnCMS package so that you don't need to re-invent them for your project.
+
 ## 0.0.7 (2023-03-12)
 
 * The [HTML editor](html-editor.md) now has structure options for `<h[2-4]>` and `<blockquote>`.

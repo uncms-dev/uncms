@@ -19,12 +19,9 @@ from django.urls import reverse
 from django.utils.text import slugify
 from reversion.models import Version
 
-from tests.factories import AdminRequestFactory, UserFactory
 from tests.mocks import MockSuperUser
-from tests.pages.factories import PageFactory
 from tests.testing_app.admin import InlineModelInline, InlineModelNoPageInline
 from tests.testing_app.models import (
-    EmptyTestPage,
     InlineModelNoPage,
     PageContent,
     PageContentWithFields,
@@ -39,6 +36,9 @@ from uncms.pages.admin import (
     PageContentTypeFilter,
 )
 from uncms.pages.models import Page, get_registered_content
+from uncms.testhelpers.factories import AdminRequestFactory, UserFactory
+from uncms.testhelpers.factories.pages import PageFactory
+from uncms.testhelpers.models import EmptyTestPage
 
 
 class TestPageAdmin(TestCase):

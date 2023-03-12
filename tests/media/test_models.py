@@ -9,13 +9,13 @@ from django.test.utils import override_settings
 from django.utils.functional import cached_property
 from PIL import Image
 
-from tests.media.factories import (
+from tests.testing_app.models import MediaTestModel
+from uncms.media.models import FileRefField, Label
+from uncms.testhelpers.factories.media import (
     EmptyFileFactory,
     MinimalGIFFileFactory,
     SamplePNGFileFactory,
 )
-from tests.testing_app.models import MediaTestModel
-from uncms.media.models import FileRefField, Label
 
 
 @pytest.mark.django_db

@@ -4,3 +4,5 @@ recursive-include src/uncms/static *
 recursive-include src/uncms/*/templates *
 recursive-include src/uncms/*/static *
 recursive-include src/uncms/*/jinja2 *
+recursive-include src/uncms/jinja2 *
+recursive-include src/uncms/testhelpers/factories/data *

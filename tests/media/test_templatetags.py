@@ -1,9 +1,9 @@
 import pytest
 from bs4 import BeautifulSoup
 
-from tests.media.factories import SamplePNGFileFactory
 from uncms.jinja2_environment.media import render_image
 from uncms.media.templatetags.uncms_images import image
+from uncms.testhelpers.factories.media import SamplePNGFileFactory
 
 
 @pytest.mark.django_db

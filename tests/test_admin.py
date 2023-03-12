@@ -2,10 +2,10 @@ import pytest
 from django.contrib.admin.sites import AdminSite
 from django.test import RequestFactory
 
-from tests.media.factories import MinimalGIFFileFactory
 from tests.testing_app.admin import RealPageBaseAdmin
 from tests.testing_app.models import OnlineBaseModel, PageBaseModel
 from uncms.admin import OnlineBaseAdmin, SEOQualityControlFilter
+from uncms.testhelpers.factories.media import MinimalGIFFileFactory
 
 
 @pytest.mark.django_db

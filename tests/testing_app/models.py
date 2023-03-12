@@ -120,10 +120,6 @@ class MediaTestModel(models.Model):
     )
 
 
-class EmptyTestPage(ContentBase):
-    pass
-
-
 class TemplateTagTestPage(ContentBase):
     urlconf = 'tests.pages.urls'
 

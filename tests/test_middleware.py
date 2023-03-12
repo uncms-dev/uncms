@@ -4,9 +4,9 @@ from django.template.response import SimpleTemplateResponse
 from django.test import RequestFactory
 from django.test.utils import override_settings
 
-from tests.factories import UserFactory
-from tests.pages.factories import PageFactory
 from uncms.middleware import PublicationMiddleware
+from uncms.testhelpers.factories import UserFactory
+from uncms.testhelpers.factories.pages import PageFactory
 
 
 def test_publicationmiddleware_process_request():

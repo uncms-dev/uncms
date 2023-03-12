@@ -3,9 +3,9 @@ import pytest
 from django.template.loader import render_to_string
 from django.test import RequestFactory
 
-from tests.media.factories import MinimalGIFFileFactory
-from tests.pages.factories import PageFactory
 from uncms.pages.middleware import RequestPageManager
+from uncms.testhelpers.factories.media import MinimalGIFFileFactory
+from uncms.testhelpers.factories.pages import PageFactory
 
 
 @pytest.mark.parametrize('django_template, jinja2_template', [

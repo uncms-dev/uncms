@@ -8,13 +8,13 @@ from django.test.utils import override_settings
 from django.urls import reverse
 from PIL import Image
 
-from tests.factories import UserFactory
-from tests.media.factories import (
+from uncms.models.base import path_token_generator
+from uncms.testhelpers.factories import UserFactory
+from uncms.testhelpers.factories.media import (
     EmptyFileFactory,
     SampleJPEGFileFactory,
     SamplePNGFileFactory,
 )
-from uncms.models.base import path_token_generator
 
 
 @pytest.mark.django_db

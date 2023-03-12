@@ -9,8 +9,8 @@ def simple_page_tree(db):
     from django.contrib.contenttypes.models import ContentType
     from watson import search
 
-    from tests.testing_app.models import EmptyTestPage
     from uncms.pages.models import Page
+    from uncms.testhelpers.models import EmptyTestPage
 
     @dataclass
     class SimplePageTree:

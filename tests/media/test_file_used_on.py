@@ -2,8 +2,6 @@ from django.contrib.admin.sites import AdminSite
 from django.test import TestCase
 from django.urls import reverse
 
-from tests.media.factories import MinimalGIFFileFactory
-from tests.pages.factories import PageFactory
 from tests.testing_app.models import (
     UsageContentBaseModel,
     UsageContentBaseModelInline,
@@ -12,6 +10,8 @@ from tests.testing_app.models import (
     UsageModelTwo,
 )
 from uncms.admin import get_related_objects_admin_urls
+from uncms.testhelpers.factories.media import MinimalGIFFileFactory
+from uncms.testhelpers.factories.pages import PageFactory
 
 
 class TestFileUsedOn(TestCase):

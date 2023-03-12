@@ -4,9 +4,7 @@ import django.template
 import pytest
 from django.test import RequestFactory, override_settings
 
-from tests.media.factories import MinimalGIFFileFactory
 from tests.mocks import MockRequestUser, MockSuperUser, request_with_pages
-from tests.pages.factories import PageFactory
 from tests.testing_app.models import (
     ImageFieldModel,
     PageBaseModel,
@@ -47,6 +45,8 @@ from uncms.pages.templatetags.uncms_pages import (
     twitter_image,
     twitter_title,
 )
+from uncms.testhelpers.factories.media import MinimalGIFFileFactory
+from uncms.testhelpers.factories.pages import PageFactory
 from uncms.utils import canonicalise_url
 
 

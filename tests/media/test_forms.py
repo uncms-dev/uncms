@@ -4,14 +4,14 @@ import pytest
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import override_settings
 
-from tests.factories import UserFactory
-from tests.media.factories import (
+from uncms.media.forms import FileForm, ImageEditForm, mime_check
+from uncms.testhelpers.factories import UserFactory
+from uncms.testhelpers.factories.media import (
     MINIMAL_GIF_DATA,
     SampleJPEGFileFactory,
     SamplePNGFileFactory,
     data_file_path,
 )
-from uncms.media.forms import FileForm, ImageEditForm, mime_check
 
 
 @pytest.mark.django_db

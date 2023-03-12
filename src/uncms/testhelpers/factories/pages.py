@@ -3,8 +3,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.text import slugify
 from watson import search as watson
 
-from tests.testing_app.models import EmptyTestPage
 from uncms.pages.models import Page
+from uncms.testhelpers.models import EmptyTestPage
 
 
 class PageFactory(factory.django.DjangoModelFactory):

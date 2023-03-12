@@ -2,9 +2,12 @@ import pytest
 from bs4 import BeautifulSoup
 from django.contrib import admin
 
-from tests.media.factories import EmptyFileFactory, SamplePNGFileFactory
 from tests.testing_app.models import ImageFieldModel
 from uncms.media.widgets import ImageThumbnailWidget
+from uncms.testhelpers.factories.media import (
+    EmptyFileFactory,
+    SamplePNGFileFactory,
+)
 
 
 @pytest.mark.django_db

@@ -6,12 +6,12 @@ from django.contrib.admin.sites import AdminSite
 from django.test import RequestFactory, override_settings
 from django.urls import reverse
 
-from tests.factories import UserFactory
-from tests.media.factories import MINIMAL_GIF_DATA
 from tests.redirects.helpers import generate_csv
 from uncms.redirects.admin import RedirectAdmin
 from uncms.redirects.forms import RedirectImportForm
 from uncms.redirects.models import Redirect
+from uncms.testhelpers.factories import UserFactory
+from uncms.testhelpers.factories.media import MINIMAL_GIF_DATA
 
 IMPORT_PERMISSIONS = ['redirects.add_redirect', 'redirects.change_redirect']
 

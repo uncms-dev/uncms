@@ -15,6 +15,7 @@
 * [The HTML editor](html-editor.md)
 * [django-watson integration](watson-integration.md)
 * [Building a robots.txt](robots-txt.md)
+* [Testing your project](testing-your-project.md)
 * [Use with Jinja2](using-jinja2.md)
 * [Configuration](configuration.md)
 * [Performance notes](performance.md)

@@ -9,12 +9,7 @@ from django.utils.timezone import now
 from reversion import create_revision
 from watson import search
 
-from tests.pages.factories import PageFactory
-from tests.testing_app.models import (
-    EmptyTestPage,
-    PageContent,
-    PageContentWithSections,
-)
+from tests.testing_app.models import PageContent, PageContentWithSections
 from uncms.models.managers import publication_manager
 from uncms.pages.models import (
     Page,
@@ -22,6 +17,8 @@ from uncms.pages.models import (
     PageSitemap,
     filter_indexable_pages,
 )
+from uncms.testhelpers.factories.pages import PageFactory
+from uncms.testhelpers.models import EmptyTestPage
 
 
 class TestPageComplex(TransactionTestCase):
