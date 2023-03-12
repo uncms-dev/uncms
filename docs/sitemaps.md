@@ -3,7 +3,17 @@
 Any model that has a `get_absolute_url()` method should probably have its URL exposed in an [XML sitemap](https://en.wikipedia.org/wiki/Sitemaps) for easier indexing by search engines.
 UnCMS has some helpers for this, which build on Django's [sitemaps framework](https://docs.djangoproject.com/en/dev/ref/contrib/sitemaps/).
 
-First, you will need a URL route in your root `urls.py`. You will want something very much like this:
+First, you will wish to add `'django.contrib.sitemaps'` to your `INSTALLED_APPS`:
+
+```python
+INSTALLED_APPS = [
+    # all your other apps here (you should be able to put the below
+    # anywhere in the list)
+    'django.contrib.sitemaps',
+]
+```
+
+Next, you will need a URL route in your root `urls.py`. You will want something very much like this:
 
 ```python
 from django.contrib.sitemaps import views as sitemaps_views
