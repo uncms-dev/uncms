@@ -54,8 +54,8 @@ window.addEventListener("load", function () {
     // There is no way at all, as far as I can see, to handle the
     // formset:added event without resorting to jQuery. :(
     if (window.django && window.django.jQuery) {
-      window.django.jQuery(document).on("formset:added", (function(ev, jElement) {
-          window.uncms.activateEditors(jElement[0]);
+      window.django.jQuery(document).on("formset:added", (function(event) {
+          window.uncms.activateEditors(event.target);
       }));
     }
 });
