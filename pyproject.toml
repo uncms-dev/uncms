@@ -13,7 +13,7 @@ description = "A CMS toolkit for Django emphasising simplicity, speed, and famil
 requires-python = ">=3.6"
 classifiers = [
     "Development Status :: 3 - Alpha",
-    "Framework :: Django :: 3.2",
+    "Framework :: Django :: 4.2",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: BSD License",
 ]
@@ -23,7 +23,7 @@ dependencies = [
     "sorl-thumbnail",
     "beautifulsoup4",
     "bleach>=5.0.1,<6",
-    "django>=3.2,<4.2",
+    "django>=4.2,<4.3",
     "django-watson",
     "django-reversion",
     "python-magic>=0.4.15",

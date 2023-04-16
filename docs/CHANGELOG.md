@@ -2,6 +2,7 @@
 
 ## Next release
 
+* Django 4.2 is now a requirement.
 * [Testing your project](testing-your-project.md) is now easier;
 there are now [Factory Boy](https://factoryboy.readthedocs.io/) factories available for creating UnCMS [pages](pages-app.md) and [media files](media-app.md).
 These were written some time ago for testing UnCMS itself. They are now available in the UnCMS package so that you don't need to re-invent them for your project.
