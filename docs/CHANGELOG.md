@@ -1,6 +1,6 @@
 # Changelog
 
-## Next release
+## 0.0.8
 
 * Django 4.2 is now a requirement.
 * [Testing your project](testing-your-project.md) is now easier;
