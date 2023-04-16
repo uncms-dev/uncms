@@ -34,8 +34,7 @@ If you have, let's add our sitemap to our `RobotsTxtView`:
 
 ```python
 from django.urls import reverse_lazy
-
-from uncms import RobotsTxtView
+from uncms import robots
 
 
 class MyRobotsTxtView(robots.RobotsTxtView):
