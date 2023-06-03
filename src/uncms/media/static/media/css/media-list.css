@@ -42,6 +42,10 @@
 
 #result_list tbody a {
   display: block;
+
+  /* long titles (e.g. those generated from a nonsense filename) should not
+  break the layout */
+  word-break: break-all;
 }
 
 #result_list .action-checkbox {

@@ -3,6 +3,7 @@
 ## Next release
 
 * The [media app](media-app.md) now has `RestrictedFileRefField`. It gives an easy way to have a `FileRefField` which only allows certain file extensions. `ImageRefField` and `VideoRefField` are now subclasses of this.
+* The fancy grid view for the file admin changelist in the [media app](media-app.md) is no longer mangled by very long file titles without spaces (e.g. those which have been auto-generated from a nonsense filename).
 
 ## 0.0.8
 
