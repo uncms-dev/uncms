@@ -1,10 +1,6 @@
 # UnCMS
 
-!> **Warning**: UnCMS is alpha software.
-It is subject to change at no notice,
-and version numbers will give no indication of breaking changes until version 1 is released.
-Some functionality might be catastrophically broken.
-At this time, it is recommended only for the brave.
+!> **Warning**: UnCMS is currently in alpha. It is recommended only for the curious and fearless. Do not use it in production.
 
 UnCMS is a developer's CMS toolkit for Django emphasising simplicity, speed, and familiarity.
 
