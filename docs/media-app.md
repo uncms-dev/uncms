@@ -91,7 +91,7 @@ Label has only one field: a `title`, which is also used as the ordering field.
 
 ## Fields
 
-Three useful fields in the media app make it easier to integrate the media module into your project.
+Four useful fields in the media app make it easier to integrate the media module into your project.
 You should probably use these any time you want to reference a File.
 
 `uncms.media.fields.FileRefField` provides a widget which allows a user to select a file from the media library.
