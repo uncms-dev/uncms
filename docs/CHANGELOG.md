@@ -1,5 +1,9 @@
 # Changelog
 
+## Next release
+
+* The [media app](media-app.md) now has `RestrictedFileRefField`. It gives an easy way to have a `FileRefField` which only allows certain file extensions. `ImageRefField` and `VideoRefField` are now subclasses of this.
+
 ## 0.0.8
 
 * Django 4.2 is now a requirement.

@@ -42,21 +42,12 @@ IMAGE_MIMETYPES = {
 }
 
 
-IMAGE_FILE_EXTENSIONS = IMAGE_MIMETYPES.keys()
+IMAGE_FILE_EXTENSIONS = list(IMAGE_MIMETYPES.keys())
 
 IMAGE_DB_QUERY = Q()
 
 for ext in IMAGE_FILE_EXTENSIONS:
     IMAGE_DB_QUERY = IMAGE_DB_QUERY | Q(file__iendswith=f'.{ext}')
-
-# see ImageRefField for details - we need this to make related popups work
-IMAGE_FILENAME_REGEX = ''.join([
-    r'\.',
-    '(',
-    "|".join(IMAGE_FILE_EXTENSIONS),
-    ')',
-    '$',
-])
 
 for ext in IMAGE_FILE_EXTENSIONS:
     FILE_ICONS[ext] = IMAGE_FILE_ICON

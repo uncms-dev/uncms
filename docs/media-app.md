@@ -103,6 +103,22 @@ This will also display a small preview of the image in the widget in the admin.
 
 `uncms.media.fields.VideoFileRefField` has the same functionality as `FileRefField`, but the files are filtered to only show videos.
 
+`uncms.media.files.RestrictedFileRefField` will allow you to implement your own `FileField` which will only permit files with certain file extensions; it is used to implement `VideoRefField` and `ImageRefField`.
+You will want to override the `allowed_extensions` attribute in a subclass;
+this is a list of file extensions, minus the leading dot.
+
+For example, you may want behaviour similar to `ImageRefField` to allow known raster image file types for a field, but also allow SVGs. You could implement such a field like this:
+
+```python
+from uncms.media.fields import RestrictedFileRefField
+from uncms.media.filetypes import IMAGE_FILE_EXTENSIONS
+
+
+class ImageOrSVGRefField(RestrictedFileRefField):
+    allowed_extensions = IMAGE_FILE_EXTENSIONS + ['svg']
+```
+
+
 ## Next steps
 
 Learn about [rendering images](rendering-images.md) from your library.
