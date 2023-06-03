@@ -1,11 +1,11 @@
 # The philosophy of UnCMS
 
 UnCMS is intended to provide the minimum of functionality to build most CMS-backed websites.
-Some of its philosophy is by [historic accident](history.md);
+Some of its philosophy is by [historic accident](history.md).
 Some of it is by design.
 Some of it has come from mistakes tried and made.
 And a little of it comes by doing the opposite of what other Django CMSes are doing -
-not because that thing is the wrong thing to do, but because other Django CMSes are doing those things already.
+not because those things are the wrong things to do, but because other Django CMSes are doing those things already.
 
 ## Exactly one page will live at one URL
 
@@ -46,9 +46,10 @@ Patches are always welcomed to make it play better with any Django admin skin.
 The immediate ancestor of UnCMS was heavily dependent on some admin skin or other, changing twice in its life.
 The lesson taught was that admin skins tend to fall into dismaintenance after a few versions, so it is unwise to tie UnCMS to any admin skin;
 the first priority for UnCMS is to make it work well with Django's built-in admin.
-Django's built-in admin is not as pretty as it could be, but it is functional and stable.
+Django's built-in admin is not as pretty as it could be, but it is functional enough and it is stable.
 
 If a beautiful admin interface out of the box is important to you,
+or you wish to have features such as arbitrarily deeply-nested inlines,
 you will certainly want to consider [Wagtail](https://wagtail.org/) instead of UnCMS.
 
 ## UnCMS will resist adding features
@@ -79,6 +80,9 @@ Documentation should assist a developer's understanding of using UnCMS.
 
 Ease of writing documentation also matters.
 That is why this documentation uses [Docsify](https://docsify.js.org/).
-I am fully aware of the reasons Markdown should not be used for documentation,
-but Markdown-based systems have the distinct advantage that almost every developer knows Markdown.
-The easier it is to update documentation, the more likely it is to be done.
+I am fully aware of the reasons Markdown [should not be used for documentation](https://ericholscher.com/blog/2016/mar/15/dont-use-markdown-for-technical-docs/),
+But Markdown has the distinct advantage that almost every developer knows Markdown.
+A previous incarnation of UnCMS used a Sphinx-based build system.
+Nobody cared much to learn it, so the documentation almost never got updated.
+Technically, the system behind the documentation you are reading now is probably inferior to the old one by some measures, but vastly superior overall for one reason:
+the easier it is to update documentation, the more likely it is to be done.
