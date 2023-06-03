@@ -78,6 +78,21 @@ def test_example():
     assert test_file.width == 1920
 ```
 
+### `uncms.testhelpers.factories.media.SVGFileFactory`
+
+`SVGFileFactory` generates a minimal, valid SVG file in your media library.
+
+```python
+import pytest
+from uncms.testhelpers.factories.media import SVGFileFactory
+
+
+@pytest.mark.django_db
+def test_example():
+    test_file = SampleWebPFileFactory()
+    assert test_file.file_extension == 'svg'
+```
+
 ### `uncms.testhelpers.factories.media.MinimalGIFFileFactory`
 
 `MinimalGIFFileFactory` generates the very minimum (that I know of) valid image for use in your media library. It is useful when your model requires an image, but your tests do not particularly care about its contents. It will be slightly faster than using the other example image file factories.
