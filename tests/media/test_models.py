@@ -12,7 +12,9 @@ from PIL import Image
 from tests.testing_app.models import MediaTestModel
 from uncms.media.models import FileRefField, Label
 from uncms.testhelpers.factories.media import (
+    MINIMAL_GIF_DATA,
     EmptyFileFactory,
+    FileFactory,
     MinimalGIFFileFactory,
     SamplePNGFileFactory,
 )
@@ -27,6 +29,16 @@ def test_file_str():
 def test_file_is_image():
     assert SamplePNGFileFactory().is_image() is True
     assert EmptyFileFactory().is_image() is False
+
+
+@pytest.mark.django_db
+def test_file_contents():
+    minimal = MinimalGIFFileFactory()
+    assert minimal.contents == MINIMAL_GIF_DATA
+    assert isinstance(minimal.contents, bytes)
+
+    broken_file = FileFactory(file='media/not/a/real.file')
+    assert broken_file.contents == b''
 
 
 @pytest.mark.django_db
@@ -312,3 +324,16 @@ def test_file_render_multi_format_preserves_extra_classes():
 def test_file_render_multi_format_on_nonsense():
     garbage = EmptyFileFactory()
     assert garbage.render_multi_format(width=400, height=200) == ''
+
+
+@pytest.mark.django_db
+def test_file_text_contents():
+    text_file = FileFactory(file__data=b'hello')
+    assert text_file.text_contents == 'hello'
+
+    broken_file = FileFactory(file='media/not/a/real.file')
+    assert broken_file.text_contents == ''
+
+    bad_unicode_file = FileFactory(file__data=b'\x80\x81')
+    assert bad_unicode_file.contents == b'\x80\x81'
+    assert bad_unicode_file.text_contents == ''

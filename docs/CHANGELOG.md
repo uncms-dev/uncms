@@ -3,7 +3,8 @@
 ## Next release
 
 * The [media app](media-app.md) now has `RestrictedFileRefField`. It gives an easy way to have a `FileRefField` which only allows certain file extensions. `ImageRefField` and `VideoRefField` are now subclasses of this.
-* SVG files in the file changelist in the media app now display a thumbnail of the SVG.
+* SVG files in the file changelist in the media app now display the SVG as a thumbnail.
+* The `File` model in the media app now has `contents` (contents of the `File`'s file as bytes), and `text_contents` (same, but as a string). These are intended to be safe to use in templates; they should not raise an exception on I/O errors, or Unicode errors in the case of `text_contents`.
 * The fancy grid view for the file changelist in the media app is no longer mangled by very long file titles without spaces (e.g. those which have been auto-generated from a nonsense filename).
 
 ## 0.0.8

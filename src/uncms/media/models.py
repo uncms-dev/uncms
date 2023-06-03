@@ -99,6 +99,20 @@ class File(models.Model):
         return self.title
 
     @cached_property
+    def contents(self):
+        """
+        `contents` returns the contents of this File's file as bytes. If
+        any OSError occurs reading the file, it will return an empty bytes
+        object. This exception-swallowing is to make it safe to use in
+        templates under all circumstances, even if its file gets deleted.
+        """
+        try:
+            with self.file.storage.open(self.file.name) as fd:
+                return fd.read()
+        except OSError:
+            return b''
+
+    @cached_property
     def file_extension(self):
         """
         file_extension returns a normalised lower-case version of this file's
@@ -273,6 +287,18 @@ class File(models.Model):
             if dimensions:
                 self.width, self.height = dimensions
                 super().save(False, True, using=using, update_fields=update_fields)
+
+    @cached_property
+    def text_contents(self):
+        """
+        Returns the contents of this File's file as text. As with `contents`,
+        exceptions (such as broken unicode) are swallowed silently, to make
+        this safe to use in templates.
+        """
+        try:
+            return self.contents.decode('utf8')
+        except UnicodeDecodeError:
+            return ''
 
 
 __all__ = [

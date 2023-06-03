@@ -76,10 +76,12 @@ In addition, the following fields are present on the model, but are not user-vis
 
 #### Model methods & properties
 
+* `contents`: A cached property which returns the contents of the file as a `bytes` object. This will return an empty bytes object (`b''`) in the case of I/O errors; thus, it should always be safe to use in templates.
 * `get_dimensions()`: If the file is an image, returns a tuple of (width, height), otherwise returns 0.
 This is only used internally; you probably want to access the `width` and `height` fields on the model instead, as they incur no overhead.
 * `icon`: A cached property that returns the path to an appropriate icon for the file type, e.g. `/static/media/img/x-office-spreadsheet.png`. This is used as a fallback in the media list if a file is not an image.
 * `is_image()`: Returns `True` if the file is an image (based on the file extension), `False` otherwise.
+* `text_contents`: As `contents`, but decodes as UTF-8 and returns a string. Unicode errors are silently swallowed, and will cause an empty string to be returned; as with `contents`, this is intended to make it safe to use in templates where exceptions cannot be caught.
 
 ### Label
 
@@ -117,7 +119,6 @@ from uncms.media.filetypes import IMAGE_FILE_EXTENSIONS
 class ImageOrSVGRefField(RestrictedFileRefField):
     allowed_extensions = IMAGE_FILE_EXTENSIONS + ['svg']
 ```
-
 
 ## Next steps
 
