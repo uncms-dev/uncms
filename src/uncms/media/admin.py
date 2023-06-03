@@ -151,6 +151,14 @@ class FileAdmin(VersionAdmin, SearchAdmin):
                 obj.title
             )
 
+        if obj.file_extension == 'svg':
+            return format_html(
+                '<img class="uncms-thumbnail uncms-thumbnail--svg" uncms:permalink="{}" src="{}" alt="" title="{}">',
+                permalink,
+                obj.file.url,
+                obj.title,
+            )
+
         return format_html(
             '<img class="uncms-fallback-icon" uncms:permalink="{}" src="{}" width="56" height="66" alt="" title="{}"/>',
             permalink,

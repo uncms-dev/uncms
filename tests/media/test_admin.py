@@ -21,6 +21,7 @@ from uncms.testhelpers.factories.media import (
     MinimalGIFFileFactory,
     SampleJPEGFileFactory,
     SamplePNGFileFactory,
+    SVGFileFactory,
     data_file_path,
 )
 
@@ -87,6 +88,10 @@ def test_fileadmin_get_preview():
     obj = FileFactory(file='media/not/a/real.png')
     preview = file_admin.get_preview(obj)
     assert preview.startswith('<img class="uncms-thumbnail"')
+
+    obj = SVGFileFactory()
+    preview = file_admin.get_preview(obj)
+    assert preview.startswith('<img class="uncms-thumbnail uncms-thumbnail--svg')
 
     obj = FileFactory(title="Canary", file='media/not/a/real.file')
     preview = file_admin.get_preview(obj)

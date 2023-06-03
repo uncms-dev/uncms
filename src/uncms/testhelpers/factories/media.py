@@ -50,7 +50,14 @@ class SampleWebPFileFactory(FileFactory):
 
 class MinimalGIFFileFactory(FileFactory):
     file = factory.django.FileField(
-        from_string=b'R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==',
+        data=MINIMAL_GIF_DATA,
+    )
+
+
+class SVGFileFactory(FileFactory):
+    file = factory.django.FileField(
+        data=b'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M7.83 11H20v2H7.83l5.36 5.36-1.41 1.42L4 12l7.78-7.78 1.41 1.42L7.83 11Z"/></svg>',
+        filename='sample.svg',
     )
 
 
