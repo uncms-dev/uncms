@@ -12,5 +12,5 @@ def generate_csv(lines):
     for line in lines:
         writer.writerow(line)
     io.seek(0)
-    io.name = 'example.csv'
+    io.name = "example.csv"
     return io

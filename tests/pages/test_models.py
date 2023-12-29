@@ -1,4 +1,4 @@
-'''Tests for the pages app.'''
+"""Tests for the pages app."""
 from datetime import timedelta
 
 import pytest
@@ -23,63 +23,51 @@ from uncms.testhelpers.models import EmptyTestPage
 
 class TestPageComplex(TransactionTestCase):
 
-    '''
-    Page structure:
+    """
+       Page structure:
 
-                                  Homepage
-                                     |
-                  +------------------+-----------------------+
-                  |                  |                       |
-           Tree 1 - Page 1    Tree 2 - Page 1         Tree 3 - Page 1
-                  |                                          |
-       +----------+----------+                    +----------+----------+
-       |                     |                    |                     |
- Tree 1 - Page 2      Tree 1 - Page 3      Tree 3 - Page 2       Tree 3 - Page 3
-                                                  |
-                                       +----------+----------+
-                                       |                     |
-                                Tree 3 - Page 4       Tree 3 - Page 5
+                                     Homepage
+                                        |
+                     +------------------+-----------------------+
+                     |                  |                       |
+              Tree 1 - Page 1    Tree 2 - Page 1         Tree 3 - Page 1
+                     |                                          |
+          +----------+----------+                    +----------+----------+
+          |                     |                    |                     |
+    Tree 1 - Page 2      Tree 1 - Page 3      Tree 3 - Page 2       Tree 3 - Page 3
+                                                     |
+                                          +----------+----------+
+                                          |                     |
+                                   Tree 3 - Page 4       Tree 3 - Page 5
 
-    '''
+    """
 
     def setUp(self):
         structure = {
-            'title': 'Homepage',
-            'children': [
+            "title": "Homepage",
+            "children": [
                 {
-                    'title': 'Tree 1 - Page 1',
-                    'children': [
-                        {
-                            'title': 'Tree 1 - Page 2'
-                        },
-                        {
-                            'title': 'Tree 1 - Page 3'
-                        }
-                    ]
+                    "title": "Tree 1 - Page 1",
+                    "children": [
+                        {"title": "Tree 1 - Page 2"},
+                        {"title": "Tree 1 - Page 3"},
+                    ],
                 },
+                {"title": "Tree 2 - Page 1"},
                 {
-                    'title': 'Tree 2 - Page 1'
-                },
-                {
-                    'title': 'Tree 3 - Page 1',
-                    'children': [
+                    "title": "Tree 3 - Page 1",
+                    "children": [
                         {
-                            'title': 'Tree 3 - Page 2',
-                            'children': [
-                                {
-                                    'title': 'Tree 3 - Page 4'
-                                },
-                                {
-                                    'title': 'Tree 3 - Page 5'
-                                }
-                            ]
+                            "title": "Tree 3 - Page 2",
+                            "children": [
+                                {"title": "Tree 3 - Page 4"},
+                                {"title": "Tree 3 - Page 5"},
+                            ],
                         },
-                        {
-                            'title': 'Tree 3 - Page 3'
-                        }
-                    ]
-                }
-            ]
+                        {"title": "Tree 3 - Page 3"},
+                    ],
+                },
+            ],
         }
 
         content_type = ContentType.objects.get_for_model(PageContent)
@@ -87,10 +75,10 @@ class TestPageComplex(TransactionTestCase):
         self.pages = {}
 
         def _add_page(page, parent=None):
-            slug = page['title'].replace(' ', '_').replace('-', '_')
+            slug = page["title"].replace(" ", "_").replace("-", "_")
 
             page_obj = Page.objects.create(
-                title=page['title'],
+                title=page["title"],
                 slug=slug,
                 content_type=content_type,
                 parent=parent,
@@ -102,8 +90,8 @@ class TestPageComplex(TransactionTestCase):
 
             self.page_ids[slug] = page_obj.pk
 
-            if page.get('children', None):
-                for child in page['children']:
+            if page.get("children", None):
+                for child in page["children"]:
                     _add_page(child, page_obj)
 
         with search.update_index():
@@ -121,49 +109,49 @@ class TestPageComplex(TransactionTestCase):
 
     def test_page_excise_branch(self):
         # Excising a branch which hasn't been deleted should have no affect.
-        self.assertEqual(self.pages['Homepage'].left, 1)
-        self.assertEqual(self.pages['Homepage'].right, 20)
-        self.assertEqual(self.pages['Tree_1___Page_1'].left, 2)
-        self.assertEqual(self.pages['Tree_1___Page_1'].right, 7)
-        self.assertEqual(self.pages['Tree_1___Page_2'].left, 3)
-        self.assertEqual(self.pages['Tree_1___Page_2'].right, 4)
-        self.assertEqual(self.pages['Tree_1___Page_3'].left, 5)
-        self.assertEqual(self.pages['Tree_1___Page_3'].right, 6)
-        self.assertEqual(self.pages['Tree_2___Page_1'].left, 8)
-        self.assertEqual(self.pages['Tree_2___Page_1'].right, 9)
-        self.assertEqual(self.pages['Tree_3___Page_1'].left, 10)
-        self.assertEqual(self.pages['Tree_3___Page_1'].right, 19)
-        self.assertEqual(self.pages['Tree_3___Page_2'].left, 11)
-        self.assertEqual(self.pages['Tree_3___Page_2'].right, 16)
-        self.assertEqual(self.pages['Tree_3___Page_3'].left, 17)
-        self.assertEqual(self.pages['Tree_3___Page_3'].right, 18)
-        self.assertEqual(self.pages['Tree_3___Page_4'].left, 12)
-        self.assertEqual(self.pages['Tree_3___Page_4'].right, 13)
-        self.assertEqual(self.pages['Tree_3___Page_5'].left, 14)
-        self.assertEqual(self.pages['Tree_3___Page_5'].right, 15)
+        self.assertEqual(self.pages["Homepage"].left, 1)
+        self.assertEqual(self.pages["Homepage"].right, 20)
+        self.assertEqual(self.pages["Tree_1___Page_1"].left, 2)
+        self.assertEqual(self.pages["Tree_1___Page_1"].right, 7)
+        self.assertEqual(self.pages["Tree_1___Page_2"].left, 3)
+        self.assertEqual(self.pages["Tree_1___Page_2"].right, 4)
+        self.assertEqual(self.pages["Tree_1___Page_3"].left, 5)
+        self.assertEqual(self.pages["Tree_1___Page_3"].right, 6)
+        self.assertEqual(self.pages["Tree_2___Page_1"].left, 8)
+        self.assertEqual(self.pages["Tree_2___Page_1"].right, 9)
+        self.assertEqual(self.pages["Tree_3___Page_1"].left, 10)
+        self.assertEqual(self.pages["Tree_3___Page_1"].right, 19)
+        self.assertEqual(self.pages["Tree_3___Page_2"].left, 11)
+        self.assertEqual(self.pages["Tree_3___Page_2"].right, 16)
+        self.assertEqual(self.pages["Tree_3___Page_3"].left, 17)
+        self.assertEqual(self.pages["Tree_3___Page_3"].right, 18)
+        self.assertEqual(self.pages["Tree_3___Page_4"].left, 12)
+        self.assertEqual(self.pages["Tree_3___Page_4"].right, 13)
+        self.assertEqual(self.pages["Tree_3___Page_5"].left, 14)
+        self.assertEqual(self.pages["Tree_3___Page_5"].right, 15)
 
-        self.pages['Homepage']._excise_branch()
+        self.pages["Homepage"]._excise_branch()
 
-        self.assertEqual(self.pages['Homepage'].left, 1)
-        self.assertEqual(self.pages['Homepage'].right, 20)
-        self.assertEqual(self.pages['Tree_1___Page_1'].left, 2)
-        self.assertEqual(self.pages['Tree_1___Page_1'].right, 7)
-        self.assertEqual(self.pages['Tree_1___Page_2'].left, 3)
-        self.assertEqual(self.pages['Tree_1___Page_2'].right, 4)
-        self.assertEqual(self.pages['Tree_1___Page_3'].left, 5)
-        self.assertEqual(self.pages['Tree_1___Page_3'].right, 6)
-        self.assertEqual(self.pages['Tree_2___Page_1'].left, 8)
-        self.assertEqual(self.pages['Tree_2___Page_1'].right, 9)
-        self.assertEqual(self.pages['Tree_3___Page_1'].left, 10)
-        self.assertEqual(self.pages['Tree_3___Page_1'].right, 19)
-        self.assertEqual(self.pages['Tree_3___Page_2'].left, 11)
-        self.assertEqual(self.pages['Tree_3___Page_2'].right, 16)
-        self.assertEqual(self.pages['Tree_3___Page_3'].left, 17)
-        self.assertEqual(self.pages['Tree_3___Page_3'].right, 18)
-        self.assertEqual(self.pages['Tree_3___Page_4'].left, 12)
-        self.assertEqual(self.pages['Tree_3___Page_4'].right, 13)
-        self.assertEqual(self.pages['Tree_3___Page_5'].left, 14)
-        self.assertEqual(self.pages['Tree_3___Page_5'].right, 15)
+        self.assertEqual(self.pages["Homepage"].left, 1)
+        self.assertEqual(self.pages["Homepage"].right, 20)
+        self.assertEqual(self.pages["Tree_1___Page_1"].left, 2)
+        self.assertEqual(self.pages["Tree_1___Page_1"].right, 7)
+        self.assertEqual(self.pages["Tree_1___Page_2"].left, 3)
+        self.assertEqual(self.pages["Tree_1___Page_2"].right, 4)
+        self.assertEqual(self.pages["Tree_1___Page_3"].left, 5)
+        self.assertEqual(self.pages["Tree_1___Page_3"].right, 6)
+        self.assertEqual(self.pages["Tree_2___Page_1"].left, 8)
+        self.assertEqual(self.pages["Tree_2___Page_1"].right, 9)
+        self.assertEqual(self.pages["Tree_3___Page_1"].left, 10)
+        self.assertEqual(self.pages["Tree_3___Page_1"].right, 19)
+        self.assertEqual(self.pages["Tree_3___Page_2"].left, 11)
+        self.assertEqual(self.pages["Tree_3___Page_2"].right, 16)
+        self.assertEqual(self.pages["Tree_3___Page_3"].left, 17)
+        self.assertEqual(self.pages["Tree_3___Page_3"].right, 18)
+        self.assertEqual(self.pages["Tree_3___Page_4"].left, 12)
+        self.assertEqual(self.pages["Tree_3___Page_4"].right, 13)
+        self.assertEqual(self.pages["Tree_3___Page_5"].left, 14)
+        self.assertEqual(self.pages["Tree_3___Page_5"].right, 15)
 
     def test_page_save__create_with_sides(self):
         with search.update_index():
@@ -171,9 +159,9 @@ class TestPageComplex(TransactionTestCase):
 
             # Create a page with a manual left and right defined.
             page_obj = Page.objects.create(
-                title='Foo',
+                title="Foo",
                 content_type=content_type,
-                parent=self.pages['Tree_1___Page_1'],
+                parent=self.pages["Tree_1___Page_1"],
                 left=7,
                 right=8,
             )
@@ -182,140 +170,140 @@ class TestPageComplex(TransactionTestCase):
                 page=page_obj,
             )
 
-            self.assertEqual(page_obj.title, 'Foo')
+            self.assertEqual(page_obj.title, "Foo")
 
     def test_page_save__move_branch_left(self):
-        self.assertEqual(self.pages['Homepage'].left, 1)
-        self.assertEqual(self.pages['Homepage'].right, 20)
-        self.assertEqual(self.pages['Tree_1___Page_1'].left, 2)
-        self.assertEqual(self.pages['Tree_1___Page_1'].right, 7)
-        self.assertEqual(self.pages['Tree_1___Page_2'].left, 3)
-        self.assertEqual(self.pages['Tree_1___Page_2'].right, 4)
-        self.assertEqual(self.pages['Tree_1___Page_3'].left, 5)
-        self.assertEqual(self.pages['Tree_1___Page_3'].right, 6)
-        self.assertEqual(self.pages['Tree_2___Page_1'].left, 8)
-        self.assertEqual(self.pages['Tree_2___Page_1'].right, 9)
-        self.assertEqual(self.pages['Tree_3___Page_1'].left, 10)
-        self.assertEqual(self.pages['Tree_3___Page_1'].right, 19)
-        self.assertEqual(self.pages['Tree_3___Page_2'].left, 11)
-        self.assertEqual(self.pages['Tree_3___Page_2'].right, 16)
-        self.assertEqual(self.pages['Tree_3___Page_3'].left, 17)
-        self.assertEqual(self.pages['Tree_3___Page_3'].right, 18)
-        self.assertEqual(self.pages['Tree_3___Page_4'].left, 12)
-        self.assertEqual(self.pages['Tree_3___Page_4'].right, 13)
-        self.assertEqual(self.pages['Tree_3___Page_5'].left, 14)
-        self.assertEqual(self.pages['Tree_3___Page_5'].right, 15)
+        self.assertEqual(self.pages["Homepage"].left, 1)
+        self.assertEqual(self.pages["Homepage"].right, 20)
+        self.assertEqual(self.pages["Tree_1___Page_1"].left, 2)
+        self.assertEqual(self.pages["Tree_1___Page_1"].right, 7)
+        self.assertEqual(self.pages["Tree_1___Page_2"].left, 3)
+        self.assertEqual(self.pages["Tree_1___Page_2"].right, 4)
+        self.assertEqual(self.pages["Tree_1___Page_3"].left, 5)
+        self.assertEqual(self.pages["Tree_1___Page_3"].right, 6)
+        self.assertEqual(self.pages["Tree_2___Page_1"].left, 8)
+        self.assertEqual(self.pages["Tree_2___Page_1"].right, 9)
+        self.assertEqual(self.pages["Tree_3___Page_1"].left, 10)
+        self.assertEqual(self.pages["Tree_3___Page_1"].right, 19)
+        self.assertEqual(self.pages["Tree_3___Page_2"].left, 11)
+        self.assertEqual(self.pages["Tree_3___Page_2"].right, 16)
+        self.assertEqual(self.pages["Tree_3___Page_3"].left, 17)
+        self.assertEqual(self.pages["Tree_3___Page_3"].right, 18)
+        self.assertEqual(self.pages["Tree_3___Page_4"].left, 12)
+        self.assertEqual(self.pages["Tree_3___Page_4"].right, 13)
+        self.assertEqual(self.pages["Tree_3___Page_5"].left, 14)
+        self.assertEqual(self.pages["Tree_3___Page_5"].right, 15)
 
-        self.pages['Tree_3___Page_1'].parent = self.pages['Tree_1___Page_1']
-        self.pages['Tree_3___Page_1'].save()
+        self.pages["Tree_3___Page_1"].parent = self.pages["Tree_1___Page_1"]
+        self.pages["Tree_3___Page_1"].save()
 
         # Rebuild page dict.
         self._rebuild_page_dict()
 
-        self.assertEqual(self.pages['Homepage'].left, 1)
-        self.assertEqual(self.pages['Homepage'].right, 20)
-        self.assertEqual(self.pages['Tree_1___Page_1'].left, 2)
-        self.assertEqual(self.pages['Tree_1___Page_1'].right, 17)
-        self.assertEqual(self.pages['Tree_1___Page_2'].left, 3)
-        self.assertEqual(self.pages['Tree_1___Page_2'].right, 4)
-        self.assertEqual(self.pages['Tree_1___Page_3'].left, 5)
-        self.assertEqual(self.pages['Tree_1___Page_3'].right, 6)
-        self.assertEqual(self.pages['Tree_2___Page_1'].left, 18)
-        self.assertEqual(self.pages['Tree_2___Page_1'].right, 19)
-        self.assertEqual(self.pages['Tree_3___Page_1'].left, 7)
-        self.assertEqual(self.pages['Tree_3___Page_1'].right, 16)
-        self.assertEqual(self.pages['Tree_3___Page_2'].left, 8)
-        self.assertEqual(self.pages['Tree_3___Page_2'].right, 13)
-        self.assertEqual(self.pages['Tree_3___Page_3'].left, 14)
-        self.assertEqual(self.pages['Tree_3___Page_3'].right, 15)
-        self.assertEqual(self.pages['Tree_3___Page_4'].left, 9)
-        self.assertEqual(self.pages['Tree_3___Page_4'].right, 10)
-        self.assertEqual(self.pages['Tree_3___Page_5'].left, 11)
-        self.assertEqual(self.pages['Tree_3___Page_5'].right, 12)
+        self.assertEqual(self.pages["Homepage"].left, 1)
+        self.assertEqual(self.pages["Homepage"].right, 20)
+        self.assertEqual(self.pages["Tree_1___Page_1"].left, 2)
+        self.assertEqual(self.pages["Tree_1___Page_1"].right, 17)
+        self.assertEqual(self.pages["Tree_1___Page_2"].left, 3)
+        self.assertEqual(self.pages["Tree_1___Page_2"].right, 4)
+        self.assertEqual(self.pages["Tree_1___Page_3"].left, 5)
+        self.assertEqual(self.pages["Tree_1___Page_3"].right, 6)
+        self.assertEqual(self.pages["Tree_2___Page_1"].left, 18)
+        self.assertEqual(self.pages["Tree_2___Page_1"].right, 19)
+        self.assertEqual(self.pages["Tree_3___Page_1"].left, 7)
+        self.assertEqual(self.pages["Tree_3___Page_1"].right, 16)
+        self.assertEqual(self.pages["Tree_3___Page_2"].left, 8)
+        self.assertEqual(self.pages["Tree_3___Page_2"].right, 13)
+        self.assertEqual(self.pages["Tree_3___Page_3"].left, 14)
+        self.assertEqual(self.pages["Tree_3___Page_3"].right, 15)
+        self.assertEqual(self.pages["Tree_3___Page_4"].left, 9)
+        self.assertEqual(self.pages["Tree_3___Page_4"].right, 10)
+        self.assertEqual(self.pages["Tree_3___Page_5"].left, 11)
+        self.assertEqual(self.pages["Tree_3___Page_5"].right, 12)
 
     def test_page_save__move_branch_right(self):
-        self.assertEqual(self.pages['Homepage'].left, 1)
-        self.assertEqual(self.pages['Homepage'].right, 20)
-        self.assertEqual(self.pages['Tree_1___Page_1'].left, 2)
-        self.assertEqual(self.pages['Tree_1___Page_1'].right, 7)
-        self.assertEqual(self.pages['Tree_1___Page_2'].left, 3)
-        self.assertEqual(self.pages['Tree_1___Page_2'].right, 4)
-        self.assertEqual(self.pages['Tree_1___Page_3'].left, 5)
-        self.assertEqual(self.pages['Tree_1___Page_3'].right, 6)
-        self.assertEqual(self.pages['Tree_2___Page_1'].left, 8)
-        self.assertEqual(self.pages['Tree_2___Page_1'].right, 9)
-        self.assertEqual(self.pages['Tree_3___Page_1'].left, 10)
-        self.assertEqual(self.pages['Tree_3___Page_1'].right, 19)
-        self.assertEqual(self.pages['Tree_3___Page_2'].left, 11)
-        self.assertEqual(self.pages['Tree_3___Page_2'].right, 16)
-        self.assertEqual(self.pages['Tree_3___Page_3'].left, 17)
-        self.assertEqual(self.pages['Tree_3___Page_3'].right, 18)
-        self.assertEqual(self.pages['Tree_3___Page_4'].left, 12)
-        self.assertEqual(self.pages['Tree_3___Page_4'].right, 13)
-        self.assertEqual(self.pages['Tree_3___Page_5'].left, 14)
-        self.assertEqual(self.pages['Tree_3___Page_5'].right, 15)
+        self.assertEqual(self.pages["Homepage"].left, 1)
+        self.assertEqual(self.pages["Homepage"].right, 20)
+        self.assertEqual(self.pages["Tree_1___Page_1"].left, 2)
+        self.assertEqual(self.pages["Tree_1___Page_1"].right, 7)
+        self.assertEqual(self.pages["Tree_1___Page_2"].left, 3)
+        self.assertEqual(self.pages["Tree_1___Page_2"].right, 4)
+        self.assertEqual(self.pages["Tree_1___Page_3"].left, 5)
+        self.assertEqual(self.pages["Tree_1___Page_3"].right, 6)
+        self.assertEqual(self.pages["Tree_2___Page_1"].left, 8)
+        self.assertEqual(self.pages["Tree_2___Page_1"].right, 9)
+        self.assertEqual(self.pages["Tree_3___Page_1"].left, 10)
+        self.assertEqual(self.pages["Tree_3___Page_1"].right, 19)
+        self.assertEqual(self.pages["Tree_3___Page_2"].left, 11)
+        self.assertEqual(self.pages["Tree_3___Page_2"].right, 16)
+        self.assertEqual(self.pages["Tree_3___Page_3"].left, 17)
+        self.assertEqual(self.pages["Tree_3___Page_3"].right, 18)
+        self.assertEqual(self.pages["Tree_3___Page_4"].left, 12)
+        self.assertEqual(self.pages["Tree_3___Page_4"].right, 13)
+        self.assertEqual(self.pages["Tree_3___Page_5"].left, 14)
+        self.assertEqual(self.pages["Tree_3___Page_5"].right, 15)
 
-        self.pages['Tree_1___Page_1'].parent = self.pages['Tree_3___Page_1']
-        self.pages['Tree_1___Page_1'].save()
+        self.pages["Tree_1___Page_1"].parent = self.pages["Tree_3___Page_1"]
+        self.pages["Tree_1___Page_1"].save()
 
         # Rebuild page dict.
         self._rebuild_page_dict()
 
-        self.assertEqual(self.pages['Homepage'].left, 1)
-        self.assertEqual(self.pages['Homepage'].right, 20)
-        self.assertEqual(self.pages['Tree_1___Page_1'].left, 13)
-        self.assertEqual(self.pages['Tree_1___Page_1'].right, 18)
-        self.assertEqual(self.pages['Tree_1___Page_2'].left, 14)
-        self.assertEqual(self.pages['Tree_1___Page_2'].right, 15)
-        self.assertEqual(self.pages['Tree_1___Page_3'].left, 16)
-        self.assertEqual(self.pages['Tree_1___Page_3'].right, 17)
-        self.assertEqual(self.pages['Tree_2___Page_1'].left, 2)
-        self.assertEqual(self.pages['Tree_2___Page_1'].right, 3)
-        self.assertEqual(self.pages['Tree_3___Page_1'].left, 4)
-        self.assertEqual(self.pages['Tree_3___Page_1'].right, 19)
-        self.assertEqual(self.pages['Tree_3___Page_2'].left, 5)
-        self.assertEqual(self.pages['Tree_3___Page_2'].right, 10)
-        self.assertEqual(self.pages['Tree_3___Page_3'].left, 11)
-        self.assertEqual(self.pages['Tree_3___Page_3'].right, 12)
-        self.assertEqual(self.pages['Tree_3___Page_4'].left, 6)
-        self.assertEqual(self.pages['Tree_3___Page_4'].right, 7)
-        self.assertEqual(self.pages['Tree_3___Page_5'].left, 8)
-        self.assertEqual(self.pages['Tree_3___Page_5'].right, 9)
+        self.assertEqual(self.pages["Homepage"].left, 1)
+        self.assertEqual(self.pages["Homepage"].right, 20)
+        self.assertEqual(self.pages["Tree_1___Page_1"].left, 13)
+        self.assertEqual(self.pages["Tree_1___Page_1"].right, 18)
+        self.assertEqual(self.pages["Tree_1___Page_2"].left, 14)
+        self.assertEqual(self.pages["Tree_1___Page_2"].right, 15)
+        self.assertEqual(self.pages["Tree_1___Page_3"].left, 16)
+        self.assertEqual(self.pages["Tree_1___Page_3"].right, 17)
+        self.assertEqual(self.pages["Tree_2___Page_1"].left, 2)
+        self.assertEqual(self.pages["Tree_2___Page_1"].right, 3)
+        self.assertEqual(self.pages["Tree_3___Page_1"].left, 4)
+        self.assertEqual(self.pages["Tree_3___Page_1"].right, 19)
+        self.assertEqual(self.pages["Tree_3___Page_2"].left, 5)
+        self.assertEqual(self.pages["Tree_3___Page_2"].right, 10)
+        self.assertEqual(self.pages["Tree_3___Page_3"].left, 11)
+        self.assertEqual(self.pages["Tree_3___Page_3"].right, 12)
+        self.assertEqual(self.pages["Tree_3___Page_4"].left, 6)
+        self.assertEqual(self.pages["Tree_3___Page_4"].right, 7)
+        self.assertEqual(self.pages["Tree_3___Page_5"].left, 8)
+        self.assertEqual(self.pages["Tree_3___Page_5"].right, 9)
 
     def test_page_delete(self):
-        self.pages['Tree_3___Page_5'].content.delete()
-        self.pages['Tree_3___Page_5'].delete()
+        self.pages["Tree_3___Page_5"].content.delete()
+        self.pages["Tree_3___Page_5"].delete()
 
         # Rebuild page dict.
         self._rebuild_page_dict()
 
-        self.assertEqual(self.pages['Homepage'].left, 1)
-        self.assertEqual(self.pages['Homepage'].right, 18)
-        self.assertEqual(self.pages['Tree_1___Page_1'].left, 2)
-        self.assertEqual(self.pages['Tree_1___Page_1'].right, 7)
-        self.assertEqual(self.pages['Tree_1___Page_2'].left, 3)
-        self.assertEqual(self.pages['Tree_1___Page_2'].right, 4)
-        self.assertEqual(self.pages['Tree_1___Page_3'].left, 5)
-        self.assertEqual(self.pages['Tree_1___Page_3'].right, 6)
-        self.assertEqual(self.pages['Tree_2___Page_1'].left, 8)
-        self.assertEqual(self.pages['Tree_2___Page_1'].right, 9)
-        self.assertEqual(self.pages['Tree_3___Page_1'].left, 10)
-        self.assertEqual(self.pages['Tree_3___Page_1'].right, 17)
-        self.assertEqual(self.pages['Tree_3___Page_2'].left, 11)
-        self.assertEqual(self.pages['Tree_3___Page_2'].right, 14)
-        self.assertEqual(self.pages['Tree_3___Page_3'].left, 15)
-        self.assertEqual(self.pages['Tree_3___Page_3'].right, 16)
-        self.assertEqual(self.pages['Tree_3___Page_4'].left, 12)
-        self.assertEqual(self.pages['Tree_3___Page_4'].right, 13)
+        self.assertEqual(self.pages["Homepage"].left, 1)
+        self.assertEqual(self.pages["Homepage"].right, 18)
+        self.assertEqual(self.pages["Tree_1___Page_1"].left, 2)
+        self.assertEqual(self.pages["Tree_1___Page_1"].right, 7)
+        self.assertEqual(self.pages["Tree_1___Page_2"].left, 3)
+        self.assertEqual(self.pages["Tree_1___Page_2"].right, 4)
+        self.assertEqual(self.pages["Tree_1___Page_3"].left, 5)
+        self.assertEqual(self.pages["Tree_1___Page_3"].right, 6)
+        self.assertEqual(self.pages["Tree_2___Page_1"].left, 8)
+        self.assertEqual(self.pages["Tree_2___Page_1"].right, 9)
+        self.assertEqual(self.pages["Tree_3___Page_1"].left, 10)
+        self.assertEqual(self.pages["Tree_3___Page_1"].right, 17)
+        self.assertEqual(self.pages["Tree_3___Page_2"].left, 11)
+        self.assertEqual(self.pages["Tree_3___Page_2"].right, 14)
+        self.assertEqual(self.pages["Tree_3___Page_3"].left, 15)
+        self.assertEqual(self.pages["Tree_3___Page_3"].right, 16)
+        self.assertEqual(self.pages["Tree_3___Page_4"].left, 12)
+        self.assertEqual(self.pages["Tree_3___Page_4"].right, 13)
 
         with self.assertRaises(KeyError):
-            self.pages['Tree_3___Page_5']  # pylint:disable=pointless-statement
+            self.pages["Tree_3___Page_5"]  # pylint:disable=pointless-statement
 
 
 @pytest.mark.django_db
 def test_contentbase_str():
-    page = PageFactory(title='Awesome')
-    assert str(page.content) == 'Awesome'
+    page = PageFactory(title="Awesome")
+    assert str(page.content) == "Awesome"
 
 
 @pytest.mark.django_db
@@ -354,14 +342,14 @@ def test_page_content(django_assert_num_queries):
 def test_page_last_modified():
     page = PageFactory()
     # We have no versions
-    assert page.last_modified() == '-'
+    assert page.last_modified() == "-"
 
     # Create an initial revision.
     with create_revision():
         page.save()
 
     # We have reversion and a version in the db, last_modified should not be empty
-    assert page.last_modified() != '-'
+    assert page.last_modified() != "-"
 
 
 @pytest.mark.django_db
@@ -377,52 +365,58 @@ def test_page_publication_date():
 
     # We need to generate an exception within the published block.
     with pytest.raises(TypeError), publication_manager.select_published(True):
-        assert 1 / 'a'
+        assert 1 / "a"
 
 
 @pytest.mark.django_db
 def test_page_reverse():
     page = PageFactory(content=PageContent())
 
-    url = page.reverse('index')
-    assert url == '/'
+    url = page.reverse("index")
+    assert url == "/"
 
-    url = page.reverse('detail', kwargs={
-        'slug': 'sample',
-    })
-    assert url == '/sample/'
+    url = page.reverse(
+        "detail",
+        kwargs={
+            "slug": "sample",
+        },
+    )
+    assert url == "/sample/"
 
-    subpage = PageFactory(slug='subpage', content=PageContent(), parent=page)
+    subpage = PageFactory(slug="subpage", content=PageContent(), parent=page)
 
-    url = subpage.reverse('index')
-    assert url == '/subpage/'
+    url = subpage.reverse("index")
+    assert url == "/subpage/"
 
-    url = subpage.reverse('detail', kwargs={
-        'slug': 'sample',
-    })
-    assert url == '/subpage/sample/'
+    url = subpage.reverse(
+        "detail",
+        kwargs={
+            "slug": "sample",
+        },
+    )
+    assert url == "/subpage/sample/"
 
 
 @pytest.mark.django_db
 def test_page_str():
     page = PageFactory(
-        title='Home page',
-        short_title='Home',
+        title="Home page",
+        short_title="Home",
     )
-    assert page.slug == 'home-page'
-    assert str(page) == 'Home'
+    assert page.slug == "home-page"
+    assert str(page) == "Home"
     page.short_title = None
-    assert str(page) == 'Home page'
+    assert str(page) == "Home page"
 
 
 @pytest.mark.django_db
 def test_pagesearchadapter_get_live_queryset():
-    call_command('installwatson')
+    call_command("installwatson")
 
     def do_search():
-        return search.search('Sparkles', models=(Page,))
+        return search.search("Sparkles", models=(Page,))
 
-    page = PageFactory(title='Sparkles')
+    page = PageFactory(title="Sparkles")
     assert len(do_search()) == 1
 
     with publication_manager.select_published(True):
@@ -437,20 +431,20 @@ def test_pagesearchadapter_get_live_queryset():
 
 @pytest.mark.django_db
 def test_pagesearchadapter_get_content():
-    page = PageFactory(title='Homepage', content=PageContentWithSections())
+    page = PageFactory(title="Homepage", content=PageContentWithSections())
     search_adapter = PageSearchAdapter(Page)
 
     content = search_adapter.get_content(page)
-    assert content == '    homepage Homepage  testing'
+    assert content == "    homepage Homepage  testing"
 
 
 @pytest.mark.django_db
 def test_page_get_absolute_url():
     page = PageFactory()
-    assert page.get_absolute_url() == '/'
+    assert page.get_absolute_url() == "/"
 
-    page2 = PageFactory(parent=page, slug='subpage')
-    assert page2.get_absolute_url() == '/subpage/'
+    page2 = PageFactory(parent=page, slug="subpage")
+    assert page2.get_absolute_url() == "/subpage/"
 
 
 @pytest.mark.django_db
@@ -512,15 +506,15 @@ def test_page_get_children_is_efficient(django_assert_num_queries):
 @pytest.mark.django_db
 def test_page_children():
     homepage = PageFactory.create()
-    section = PageFactory.create(title='Section', parent=homepage)
-    subsection = PageFactory.create(title='Subsection', parent=section)
-    PageFactory.create(title='Subsubsection', parent=subsection)
+    section = PageFactory.create(title="Section", parent=homepage)
+    subsection = PageFactory.create(title="Subsection", parent=section)
+    PageFactory.create(title="Subsubsection", parent=subsection)
 
     homepage.refresh_from_db()
 
-    assert homepage.children[0].children[0].title == 'Subsection'
-    assert homepage.navigation[0].navigation[0].title == 'Subsection'
-    assert homepage.children[0].children[0].children[0].title == 'Subsubsection'
+    assert homepage.children[0].children[0].title == "Subsection"
+    assert homepage.navigation[0].navigation[0].title == "Subsection"
+    assert homepage.children[0].children[0].children[0].title == "Subsubsection"
 
 
 @pytest.mark.django_db
@@ -537,7 +531,9 @@ def test_page_children_does_not_invalidate_prefetches(django_assert_num_queries)
     """
     PageFactory.create_tree(1, 1)
 
-    top_level = Page.objects.prefetch_related('child_set', 'child_set__child_set').get(parent=None)
+    top_level = Page.objects.prefetch_related("child_set", "child_set__child_set").get(
+        parent=None
+    )
 
     with django_assert_num_queries(0):
         top_level.children[0].get_absolute_url()
@@ -571,9 +567,16 @@ def test_pagemanager_get_homepage_prefetching(django_assert_num_queries):
 
 def test_pagemanager_prefetch_children_args():
     assert Page.objects.prefetch_children_args(depth=0) == []
-    assert Page.objects.prefetch_children_args(depth=1) == ['child_set']
-    assert Page.objects.prefetch_children_args(depth=2) == ['child_set', 'child_set__child_set']
-    assert Page.objects.prefetch_children_args(depth=3) == ['child_set', 'child_set__child_set', 'child_set__child_set__child_set']
+    assert Page.objects.prefetch_children_args(depth=1) == ["child_set"]
+    assert Page.objects.prefetch_children_args(depth=2) == [
+        "child_set",
+        "child_set__child_set",
+    ]
+    assert Page.objects.prefetch_children_args(depth=3) == [
+        "child_set",
+        "child_set__child_set",
+        "child_set__child_set__child_set",
+    ]
 
 
 @pytest.mark.django_db

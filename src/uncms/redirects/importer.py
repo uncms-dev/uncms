@@ -30,12 +30,13 @@ class RedirectError:
     RedirectError represents an error encountered while processing a CSV file.
     str()'ing a RedirectError should always return a sensible message.
     """
+
     filename: str
     line_number: int
     message: str
 
     def __str__(self):
-        return f'{self.filename}: {self.line_number}: {self.message}'
+        return f"{self.filename}: {self.line_number}: {self.message}"
 
 
 @dataclass
@@ -62,11 +63,15 @@ class RedirectImporter:
                 continue
 
             if len(line) < 2:
-                self.errors.append(RedirectError(
-                    filename=fd.name,
-                    line_number=index_1,
-                    message=_('Expected 2 columns, found {count}.').format(count=len(line))
-                ))
+                self.errors.append(
+                    RedirectError(
+                        filename=fd.name,
+                        line_number=index_1,
+                        message=_("Expected 2 columns, found {count}.").format(
+                            count=len(line)
+                        ),
+                    )
+                )
                 continue
 
             # Allow lines with empty cells.
@@ -79,31 +84,37 @@ class RedirectImporter:
             # Give a more meaningful message if old_path is empty rather than
             # "this field is required" from model validation.
             if not old_path:
-                self.errors.append(RedirectError(
-                    filename=fd.name,
-                    line_number=index_1,
-                    message=_('Old path is empty at index 0.'),
-                ))
+                self.errors.append(
+                    RedirectError(
+                        filename=fd.name,
+                        line_number=index_1,
+                        message=_("Old path is empty at index 0."),
+                    )
+                )
                 continue
             try:
                 temporary_obj = Redirect(old_path=old_path, new_path=new_path)
                 temporary_obj.full_clean(validate_unique=False)
             except ValidationError as e:
-                self.errors.append(RedirectError(
-                    filename=fd.name,
-                    line_number=index_1,
-                    message='; '.join(e.messages)
-                ))
+                self.errors.append(
+                    RedirectError(
+                        filename=fd.name,
+                        line_number=index_1,
+                        message="; ".join(e.messages),
+                    )
+                )
             else:
                 self.to_create.append(temporary_obj)
 
     def save(self, dry_run=False):
         with transaction.atomic():
             for redirect in self.to_create:
-                self.saved_objects.append(Redirect.objects.update_or_create(
-                    defaults={'new_path': redirect.new_path},
-                    old_path=redirect.old_path,
-                ))
+                self.saved_objects.append(
+                    Redirect.objects.update_or_create(
+                        defaults={"new_path": redirect.new_path},
+                        old_path=redirect.old_path,
+                    )
+                )
 
             if dry_run:
                 transaction.set_rollback(True)
@@ -111,7 +122,7 @@ class RedirectImporter:
     @property
     def statistics(self):
         return {
-            'total': len(self.saved_objects),
-            'created': len([obj for obj in self.saved_objects if obj[1] is True]),
-            'updated': len([obj for obj in self.saved_objects if obj[1] is False]),
+            "total": len(self.saved_objects),
+            "created": len([obj for obj in self.saved_objects if obj[1] is True]),
+            "updated": len([obj for obj in self.saved_objects if obj[1] is False]),
         }

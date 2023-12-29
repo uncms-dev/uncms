@@ -8,4 +8,4 @@ def test_jinja2_environment_sensible_defaults():
         # ensure options are preserved
         assert env.auto_reload is auto_reload
         # probably pointless test, but see if it's vaguely sane
-        assert env.filters['striptags']('<b>test</b>') == 'test'
+        assert env.filters["striptags"]("<b>test</b>") == "test"

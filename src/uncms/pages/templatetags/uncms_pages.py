@@ -30,33 +30,50 @@ def admin_sitemap_entries(context):
 
     You should use this tag for rendering a sitemap in the admin.
     """
-    user = context['request'].user
-    can_change = user.has_perm('pages.change_page')
-    can_view = user.has_perm('pages.view_page') or can_change
+    user = context["request"].user
+    can_change = user.has_perm("pages.change_page")
+    can_view = user.has_perm("pages.view_page") or can_change
 
     def sitemap_entry(page):
         return {
-            'admin_url': reverse('admin:pages_page_change', args=[page.pk]),
-            'can_move': can_change,
-            'can_view': can_view,
-            'children': [sitemap_entry(child_page) for child_page in page.get_children()],
-            'id': page.pk,
-            'in_navigation': page.in_navigation,
-            'is_homepage': page.parent_id is None,
-            'is_online': page.is_online,
-            'title': str(page),
+            "admin_url": reverse("admin:pages_page_change", args=[page.pk]),
+            "can_move": can_change,
+            "can_view": can_view,
+            "children": [
+                sitemap_entry(child_page) for child_page in page.get_children()
+            ],
+            "id": page.pk,
+            "in_navigation": page.in_navigation,
+            "is_homepage": page.parent_id is None,
+            "is_online": page.is_online,
+            "title": str(page),
         }
 
     return {
         # Note that we must not use request.pages here - we want to be able
         # to render the sitemap after it has changed.
-        'pages': [sitemap_entry(get_page_model().objects.get_homepage())]
+        "pages": [sitemap_entry(get_page_model().objects.get_homepage())]
     }
 
 
-@register.inclusion_tag(defaults.BREADCRUMBS_TEMPLATE.format(extension='html'), takes_context=True)
-def breadcrumbs(context, breadcrumbs_obj=None, *, auto_extend=True, show_tail=None, class_prefix='breadcrumbs'):
-    return get_breadcrumbs_context(context, breadcrumbs_obj, auto_extend=auto_extend, show_tail=show_tail, class_prefix=class_prefix)
+@register.inclusion_tag(
+    defaults.BREADCRUMBS_TEMPLATE.format(extension="html"), takes_context=True
+)
+def breadcrumbs(
+    context,
+    breadcrumbs_obj=None,
+    *,
+    auto_extend=True,
+    show_tail=None,
+    class_prefix="breadcrumbs",
+):
+    return get_breadcrumbs_context(
+        context,
+        breadcrumbs_obj,
+        auto_extend=auto_extend,
+        show_tail=show_tail,
+        class_prefix=class_prefix,
+    )
 
 
 @register.simple_tag(takes_context=True)
@@ -65,8 +82,15 @@ def canonical_url(context):
 
 
 @register.simple_tag(takes_context=True)
-def get_breadcrumbs(context, *, breadcrumb_list=None, auto_extend=True, extend_with=None):
-    return get_breadcrumbs_obj(context, breadcrumb_list=breadcrumb_list, auto_extend=auto_extend, extend_with=extend_with)
+def get_breadcrumbs(
+    context, *, breadcrumb_list=None, auto_extend=True, extend_with=None
+):
+    return get_breadcrumbs_obj(
+        context,
+        breadcrumb_list=breadcrumb_list,
+        auto_extend=auto_extend,
+        extend_with=extend_with,
+    )
 
 
 @register.simple_tag(takes_context=True)
@@ -79,9 +103,11 @@ def meta_robots(context, index=None, follow=None, archive=None):
     return get_meta_robots(context, index=index, follow=follow, archive=archive)
 
 
-@register.inclusion_tag('pages/navigation/navigation.html', takes_context=True)
+@register.inclusion_tag("pages/navigation/navigation.html", takes_context=True)
 def navigation(context, pages, section=None, class_prefix=None, **templates):
-    return render_navigation(context, pages, section=section, class_prefix=class_prefix, **templates)
+    return render_navigation(
+        context, pages, section=section, class_prefix=class_prefix, **templates
+    )
 
 
 @register.simple_tag(takes_context=True)
@@ -100,11 +126,13 @@ def og_title(context):
 
 
 @register.simple_tag
-def page_url(page, view_func=None, *args, **kwargs):  # pylint:disable=keyword-arg-before-vararg
+def page_url(
+    page, view_func=None, *args, **kwargs
+):  # pylint:disable=keyword-arg-before-vararg
     return get_page_url(page, view_func=view_func, *args, **kwargs)
 
 
-@register.inclusion_tag('pages/title.html', takes_context=True)
+@register.inclusion_tag("pages/title.html", takes_context=True)
 def title(context, browser_title=None):
     """
     Renders the title of the current page:
@@ -122,14 +150,14 @@ def title(context, browser_title=None):
         {% title "foo" %}
 
     """
-    request = context['request']
+    request = context["request"]
     page = request.pages.current
     return {
-        'title': (
-            browser_title or
-            context.get('title') or
-            (page and page.browser_title) or
-            (page and page.title) or
-            ''
+        "title": (
+            browser_title
+            or context.get("title")
+            or (page and page.browser_title)
+            or (page and page.title)
+            or ""
         ),
     }

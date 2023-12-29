@@ -18,19 +18,23 @@ def environment(**options):
 
 def sensible_defaults(**options):
     env = environment(**options)
-    env.globals.update({
-        'static': static,
-        'url': lambda viewname, *args, **kwargs: reverse(viewname, args=args, kwargs=kwargs),
-    })
+    env.globals.update(
+        {
+            "static": static,
+            "url": lambda viewname, *args, **kwargs: reverse(
+                viewname, args=args, kwargs=kwargs
+            ),
+        }
+    )
 
     for django_filter in [
-        'date',
-        'filesizeformat',
-        'floatformat',
-        'linebreaks',
-        'linebreaksbr',
-        'time',
-        'urlize',
+        "date",
+        "filesizeformat",
+        "floatformat",
+        "linebreaks",
+        "linebreaksbr",
+        "time",
+        "urlize",
     ]:
         env.filters[django_filter] = getattr(defaultfilters, django_filter)
     return env

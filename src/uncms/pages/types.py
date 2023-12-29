@@ -11,6 +11,7 @@ class Breadcrumb:
     `Breadcrumb` represents a single node in a breadcrumb navigation trail. It
     has a mandatory title, and an optional URL.
     """
+
     title: str
     url: str = None
     tail: bool = False
@@ -44,7 +45,7 @@ class Breadcrumb:
         title = str(obj)
 
         # Check for "get_absolute_url" in accordance with Django convention.
-        if getattr(obj, 'get_absolute_url', None):
+        if getattr(obj, "get_absolute_url", None):
             url = obj.get_absolute_url()
 
         else:
@@ -71,6 +72,7 @@ class Breadcrumbs:
     the current page. It does not concern itself with decisions such as
     whether the current page should be rendered in the breadcrumbs.
     """
+
     items: List[Breadcrumb]
 
     @classmethod

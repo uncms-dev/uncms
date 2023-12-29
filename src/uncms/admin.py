@@ -1,4 +1,4 @@
-'''Base classes for UnCMS ModelAdmins.'''
+"""Base classes for UnCMS ModelAdmins."""
 from django.contrib import admin
 from django.db.models import Q
 from django.db.models.deletion import get_candidate_relations_to_delete
@@ -9,10 +9,7 @@ from reversion.admin import VersionAdmin
 from watson.admin import SearchAdmin
 
 from uncms.conf import defaults
-from uncms.models.base import (
-    PageBaseSearchAdapter,
-    SearchMetaBaseSearchAdapter,
-)
+from uncms.models.base import PageBaseSearchAdapter, SearchMetaBaseSearchAdapter
 from uncms.pages.models import Page
 
 
@@ -37,7 +34,7 @@ def check_inline_for_admin_url(obj, inline, parent, inline_check=True):
     # attribute on the InlineModelAdmin. If it's set we'll use
     # that, else we'll find the ForeignKey to the parent.
 
-    obj_fk_name = getattr(inline, 'fk_name', False)
+    obj_fk_name = getattr(inline, "fk_name", False)
     if obj_fk_name:
         # the fk_name value is set so we assume that it will
         # resolve a parent since an inline can't be saved without
@@ -46,8 +43,8 @@ def check_inline_for_admin_url(obj, inline, parent, inline_check=True):
         obj_parent = getattr(obj, obj_fk_name, False)
         try:
             return reverse(
-                f'admin:{obj_parent._meta.app_label}_{obj_parent._meta.model_name}_change',
-                args=[obj_parent.pk]
+                f"admin:{obj_parent._meta.app_label}_{obj_parent._meta.model_name}_change",
+                args=[obj_parent.pk],
             )
         except NoReverseMatch:
             pass
@@ -60,7 +57,7 @@ def check_inline_for_admin_url(obj, inline, parent, inline_check=True):
     # attribute to distinguish the two fields.
 
     for field in obj._meta.get_fields():
-        if field.get_internal_type() in ['ForeignKey', 'OneToOneField']:
+        if field.get_internal_type() in ["ForeignKey", "OneToOneField"]:
             # Follow the ForeignKey to find the related model.
 
             related_model = obj._meta.get_field(field.attname).remote_field.model
@@ -76,8 +73,8 @@ def check_inline_for_admin_url(obj, inline, parent, inline_check=True):
 
                 if field_value:
                     return reverse(
-                        f'admin:{related_model._meta.app_label}_{related_model._meta.model_name}_change',
-                        args=[field_value]
+                        f"admin:{related_model._meta.app_label}_{related_model._meta.model_name}_change",
+                        args=[field_value],
                     )
 
     return None
@@ -103,8 +100,7 @@ def get_admin_url(obj):
     # been passed to us.
     try:
         return reverse(
-            f'admin:{obj._meta.app_label}_{obj._meta.model_name}_change',
-            args=[obj.pk]
+            f"admin:{obj._meta.app_label}_{obj._meta.model_name}_change", args=[obj.pk]
         )
     except NoReverseMatch:
         pass
@@ -152,21 +148,24 @@ def get_related_objects_admin_urls(obj):
     related_objs = []
 
     for related in get_candidate_relations_to_delete(obj._meta):
-        related_objs = related_objs + list(related.related_model._base_manager.using(DEFAULT_DB_ALIAS).filter(
-            **{"%s__in" % related.field.name: [obj]}
-        ))
+        related_objs = related_objs + list(
+            related.related_model._base_manager.using(DEFAULT_DB_ALIAS).filter(
+                **{"%s__in" % related.field.name: [obj]}
+            )
+        )
 
     return [
         {
-            'title': str(obj),
-            'model_name': obj._meta.verbose_name,
-            'admin_url': get_admin_url(obj),
-        } for obj in related_objs
+            "title": str(obj),
+            "model_name": obj._meta.verbose_name,
+            "admin_url": get_admin_url(obj),
+        }
+        for obj in related_objs
     ]
 
 
 class SEOQualityControlFilter(admin.SimpleListFilter):
-    '''
+    """
     A filter for models deriving from SearchMetaBase, to find pages with
     incomplete SEO or OpenGraph information.
 
@@ -174,18 +173,18 @@ class SEOQualityControlFilter(admin.SimpleListFilter):
 
     class MyModelAdmin(SearchMetaBaseAdmin):
         list_filter = [SEOQualityControlFilter]
-    '''
+    """
 
-    title = _('quality control')
+    title = _("quality control")
 
-    parameter_name = 'seo_quality_control'
+    parameter_name = "seo_quality_control"
 
     def lookups(self, request, model_admin):
         return (
-            ('no-meta-description', _('No meta description')),
-            ('no-browser-title', _('No browser title')),
-            ('incomplete-opengraph-fields', _('Incomplete Open Graph fields')),
-            ('no-og-image', _('No Open Graph image')),
+            ("no-meta-description", _("No meta description")),
+            ("no-browser-title", _("No browser title")),
+            ("incomplete-opengraph-fields", _("Incomplete Open Graph fields")),
+            ("no-og-image", _("No Open Graph image")),
         )
 
     def queryset(self, request, queryset):
@@ -193,85 +192,128 @@ class SEOQualityControlFilter(admin.SimpleListFilter):
             return queryset
 
         options = {
-            'no-meta-description': lambda qs: qs.filter(meta_description=''),
-            'no-browser-title': lambda qs: qs.filter(browser_title=''),
-            'incomplete-opengraph-fields': lambda qs: qs.filter(Q(og_description='') | Q(og_image=None)),
-            'no-og-image': lambda qs: qs.filter(og_image=None),
+            "no-meta-description": lambda qs: qs.filter(meta_description=""),
+            "no-browser-title": lambda qs: qs.filter(browser_title=""),
+            "incomplete-opengraph-fields": lambda qs: qs.filter(
+                Q(og_description="") | Q(og_image=None)
+            ),
+            "no-og-image": lambda qs: qs.filter(og_image=None),
         }
 
         return options[self.value()](queryset)
 
 
 class PublishedBaseAdmin(admin.ModelAdmin):
-    '''Base admin class for models with publication controls.'''
+    """Base admin class for models with publication controls."""
 
     def view_on_site(self, obj):
         return obj.get_preview_url()
 
 
 class OnlineBaseAdmin(PublishedBaseAdmin):
-    '''Base admin class for OnlineModelBase instances.'''
+    """Base admin class for OnlineModelBase instances."""
 
-    actions = ('publish_selected', 'unpublish_selected',)
+    actions = (
+        "publish_selected",
+        "unpublish_selected",
+    )
 
-    list_display = ('__str__', 'is_online',)
+    list_display = (
+        "__str__",
+        "is_online",
+    )
 
-    list_filter = ('is_online',)
+    list_filter = ("is_online",)
 
-    PUBLICATION_FIELDS = (_('Publication'), {
-        'fields': ('is_online',),
-        'classes': ('collapse',),
-    })
+    PUBLICATION_FIELDS = (
+        _("Publication"),
+        {
+            "fields": ("is_online",),
+            "classes": ("collapse",),
+        },
+    )
 
     def get_form(self, request, obj=None, change=False, **kwargs):
         form = super().get_form(request, obj=obj, change=change, **kwargs)
-        form.base_fields['is_online'].initial = defaults.ONLINE_DEFAULT
+        form.base_fields["is_online"].initial = defaults.ONLINE_DEFAULT
         return form
 
     # Custom admin actions.
     def publish_selected(self, request, queryset):
-        '''Publishes the selected models.'''
+        """Publishes the selected models."""
         queryset.update(is_online=True)
-    publish_selected.short_description = 'Place selected %(verbose_name_plural)s online'
+
+    publish_selected.short_description = "Place selected %(verbose_name_plural)s online"
 
     def unpublish_selected(self, request, queryset):
-        '''Unpublishes the selected models.'''
+        """Unpublishes the selected models."""
         queryset.update(is_online=False)
-    unpublish_selected.short_description = 'Take selected %(verbose_name_plural)s offline'
+
+    unpublish_selected.short_description = (
+        "Take selected %(verbose_name_plural)s offline"
+    )
 
 
 class SearchMetaBaseAdmin(OnlineBaseAdmin, VersionAdmin, SearchAdmin):
-    '''Base admin class for SearchMetaBase models.'''
+    """Base admin class for SearchMetaBase models."""
 
     adapter_cls = SearchMetaBaseSearchAdapter
 
-    list_display = ('__str__', 'is_online',)
+    list_display = (
+        "__str__",
+        "is_online",
+    )
 
     list_filter = OnlineBaseAdmin.list_filter + (SEOQualityControlFilter,)
 
-    SEO_FIELDS = (_('SEO'), {
-        'fields': ('browser_title', 'meta_description', 'sitemap_priority', 'sitemap_changefreq', 'robots_index', 'robots_follow', 'robots_archive',),
-        'classes': ('collapse',),
-    })
+    SEO_FIELDS = (
+        _("SEO"),
+        {
+            "fields": (
+                "browser_title",
+                "meta_description",
+                "sitemap_priority",
+                "sitemap_changefreq",
+                "robots_index",
+                "robots_follow",
+                "robots_archive",
+            ),
+            "classes": ("collapse",),
+        },
+    )
 
-    OPENGRAPH_FIELDS = (_('Open Graph'), {
-        'fields': ('og_title', 'og_description', 'og_image'),
-        'classes': ('collapse',)
-    })
+    OPENGRAPH_FIELDS = (
+        _("Open Graph"),
+        {
+            "fields": ("og_title", "og_description", "og_image"),
+            "classes": ("collapse",),
+        },
+    )
 
 
 class PageBaseAdmin(SearchMetaBaseAdmin):
-    '''Base admin class for PageBase models.'''
+    """Base admin class for PageBase models."""
 
-    prepopulated_fields = {'slug': ('title',), }
+    prepopulated_fields = {
+        "slug": ("title",),
+    }
 
-    search_fields = ('title', 'meta_description',)
+    search_fields = (
+        "title",
+        "meta_description",
+    )
 
     adapter_cls = PageBaseSearchAdapter
 
-    TITLE_FIELDS = (None, {
-        'fields': ('title', 'slug',),
-    })
+    TITLE_FIELDS = (
+        None,
+        {
+            "fields": (
+                "title",
+                "slug",
+            ),
+        },
+    )
 
     fieldsets = [
         TITLE_FIELDS,

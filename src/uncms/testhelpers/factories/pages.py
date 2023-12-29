@@ -18,7 +18,8 @@ class PageFactory(factory.django.DjangoModelFactory):
     `content` is optional; if it is omitted you will get an EmptyTestPage
     as the page content, which is a content model with no fields.
     """
-    title = factory.Sequence(lambda n: f'Page {n}')
+
+    title = factory.Sequence(lambda n: f"Page {n}")
 
     slug = factory.LazyAttribute(lambda o: slugify(o.title))
 
@@ -32,9 +33,11 @@ class PageFactory(factory.django.DjangoModelFactory):
 
     @classmethod
     def _generate(cls, strategy, params):
-        if 'content' not in params:
-            params['content'] = EmptyTestPage()
-        params['content_type'] = ContentType.objects.get_for_model(params['content'].__class__)
+        if "content" not in params:
+            params["content"] = EmptyTestPage()
+        params["content_type"] = ContentType.objects.get_for_model(
+            params["content"].__class__
+        )
         with watson.update_index():
             return super()._generate(strategy, params)
 

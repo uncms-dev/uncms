@@ -1,1 +1,1 @@
-'''Template extensions used by UnCMS.'''
+"""Template extensions used by UnCMS."""

@@ -18,19 +18,21 @@ from uncms.models.managers import (
 
 
 class PathTokenGenerator:
-    '''
+    """
     PathTokenGenerator is a simple token generator that takes a path and
     generates a signed path for it. It allows adding reasonably-unguessable
     preview URLs to offline pages, as well as for signing image thumbnail
     URLs.
-    '''
+    """
 
-    key_salt = 'cms.apps.pages.models.base.PathTokenGenerator'
+    key_salt = "cms.apps.pages.models.base.PathTokenGenerator"
 
     def check_token(self, token, path):
         return constant_time_compare(
             token,
-            salted_hmac(self.key_salt, path, secret=defaults.PATH_SIGNING_SECRET).hexdigest()[::2],
+            salted_hmac(
+                self.key_salt, path, secret=defaults.PATH_SIGNING_SECRET
+            ).hexdigest()[::2],
         )
 
     def make_token(self, path):
@@ -40,9 +42,11 @@ class PathTokenGenerator:
             secret=defaults.PATH_SIGNING_SECRET,
         ).hexdigest()[::2]
 
-    def make_url(self, path, token_parameter='preview'):
+    def make_url(self, path, token_parameter="preview"):
         parsed = urlparse(path)
-        parsed = parsed._replace(query=urlencode({token_parameter: self.make_token(path)}))
+        parsed = parsed._replace(
+            query=urlencode({token_parameter: self.make_token(path)})
+        )
         return parsed.geturl()
 
 
@@ -69,7 +73,6 @@ class PublishedBaseSearchAdapter(SearchAdapter):
 
 
 class OnlineBase(PublishedBase):
-
     objects = OnlineBaseManager()
 
     is_online = models.BooleanField(
@@ -83,7 +86,7 @@ class OnlineBase(PublishedBase):
 
     def get_preview_url(self):
         # Not all derivatives of OnlineBase will have a URL.
-        if not hasattr(self, 'get_absolute_url'):
+        if not hasattr(self, "get_absolute_url"):
             return None  # pragma: no cover
 
         return path_token_generator.make_url(self.get_absolute_url())
@@ -112,7 +115,7 @@ class SearchMetaBase(OnlineBase):
             "The heading to use in the user's web browser. "
             "Leave blank to use the page title. "
             "Search engines pay particular attention to this attribute."
-        )
+        ),
     )
 
     meta_description = models.TextField(
@@ -190,34 +193,34 @@ class SearchMetaBase(OnlineBase):
 
     # Open Graph fields
     og_title = models.CharField(
-        verbose_name=_('title'),
+        verbose_name=_("title"),
         blank=True,
         max_length=100,
         help_text=_(
-            'Title that will appear on social media posts. This is limited to 100 characters, '
-            'but Facebook will truncate the title to 88 characters.'
+            "Title that will appear on social media posts. This is limited to 100 characters, "
+            "but Facebook will truncate the title to 88 characters."
         ),
     )
 
     og_description = models.TextField(
-        verbose_name=_('description'),
+        verbose_name=_("description"),
         blank=True,
         max_length=300,
         help_text=_(
-            'Description that will appear on social media posts. It is limited to 300 '
-            'characters, but it is recommended that you do not use anything over 200.'
+            "Description that will appear on social media posts. It is limited to 300 "
+            "characters, but it is recommended that you do not use anything over 200."
         ),
     )
 
     og_image = ImageRefField(
-        verbose_name=_('image'),
+        verbose_name=_("image"),
         blank=True,
         null=True,
         help_text=_(
-            'The recommended image size is 1200x627 (1.91:1 ratio); this gives you a big '
-            'stand out thumbnail. Using an image smaller than 400x209 will give you a '
-            'small thumbnail and will splits posts into 2 columns. '
-            'If you have text on the image make sure it is centered.'
+            "The recommended image size is 1200x627 (1.91:1 ratio); this gives you a big "
+            "stand out thumbnail. Using an image smaller than 400x209 will give you a "
+            "small thumbnail and will splits posts into 2 columns. "
+            "If you have text on the image make sure it is centered."
         ),
     )
 
@@ -274,8 +277,8 @@ class PageBase(SearchMetaBase):
     slug = models.SlugField(
         max_length=150,
         help_text=_(
-            'A unique portion of the URL that is used to identify this '
-            'specific page using human-readable keywords (e.g., about-us)'
+            "A unique portion of the URL that is used to identify this "
+            "specific page using human-readable keywords (e.g., about-us)"
         ),
     )
 
@@ -291,10 +294,12 @@ class PageBase(SearchMetaBase):
         Returns the SEO context data for this page.
         """
         context_data = super().get_context_data()
-        context_data.update({
-            "title": self.browser_title or self.title,
-            "header": self.title,
-        })
+        context_data.update(
+            {
+                "title": self.browser_title or self.title,
+                "header": self.title,
+            }
+        )
         return context_data
 
     class Meta:

@@ -4,26 +4,25 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('pages', '0011_remove_localisation'),
+        ("pages", "0011_remove_localisation"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='page',
-            name='twitter_card',
+            model_name="page",
+            name="twitter_card",
         ),
         migrations.RemoveField(
-            model_name='page',
-            name='twitter_description',
+            model_name="page",
+            name="twitter_description",
         ),
         migrations.RemoveField(
-            model_name='page',
-            name='twitter_image',
+            model_name="page",
+            name="twitter_image",
         ),
         migrations.RemoveField(
-            model_name='page',
-            name='twitter_title',
+            model_name="page",
+            name="twitter_title",
         ),
     ]

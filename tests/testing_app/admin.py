@@ -31,7 +31,9 @@ class UsageContentBaseModelInlineAdmin(admin.StackedInline):
     model = UsageContentBaseModelInline
 
 
-page_admin.register_content_inline(UsageContentBaseModelInline, UsageContentBaseModelInlineAdmin)
+page_admin.register_content_inline(
+    UsageContentBaseModelInline, UsageContentBaseModelInlineAdmin
+)
 
 
 class UsageModelOneInlineAdmin(admin.StackedInline):

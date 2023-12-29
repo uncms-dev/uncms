@@ -1,4 +1,4 @@
-'''Template tags used for processing HTML.'''
+"""Template tags used for processing HTML."""
 
 from django import template
 from django.template.defaultfilters import stringfilter

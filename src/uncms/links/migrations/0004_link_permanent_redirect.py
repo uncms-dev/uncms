@@ -4,15 +4,17 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('links', '0003_remove_link_new_window'),
+        ("links", "0003_remove_link_new_window"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='link',
-            name='permanent_redirect',
-            field=models.BooleanField(default=False, help_text='By default, a temporary redirect (302) will be used. Check this option to use a permanent (301) redirect.'),
+            model_name="link",
+            name="permanent_redirect",
+            field=models.BooleanField(
+                default=False,
+                help_text="By default, a temporary redirect (302) will be used. Check this option to use a permanent (301) redirect.",
+            ),
         ),
     ]

@@ -18,11 +18,11 @@ from uncms.testhelpers.factories.pages import PageFactory
 @pytest.mark.django_db
 def test_requestpagemanager_is_homepage():
     rf = RequestFactory()
-    page_manager = RequestPageManager(rf.get('/'))
+    page_manager = RequestPageManager(rf.get("/"))
     assert page_manager.homepage is None
 
     homepage = PageFactory()
-    page_manager = RequestPageManager(rf.get('/'))
+    page_manager = RequestPageManager(rf.get("/"))
     assert page_manager.is_homepage is True
 
     other_page = PageFactory(parent=homepage)
@@ -33,15 +33,16 @@ def test_requestpagemanager_is_homepage():
 @pytest.mark.django_db
 def test_requestpagemanager_breadcrumbs():
     rf = RequestFactory()
-    request = rf.get('/')
+    request = rf.get("/")
     page_manager = RequestPageManager(request)
-    assert page_manager.breadcrumbs == []  # pylint:disable=use-implicit-booleaness-not-comparison
+    # pylint:disable-next=use-implicit-booleaness-not-comparison
+    assert page_manager.breadcrumbs == []
 
     homepage = PageFactory()
     subpage = PageFactory(parent=homepage)
     subsubpage = PageFactory(parent=subpage)
 
-    request = rf.get('/')
+    request = rf.get("/")
     page_manager = RequestPageManager(request)
     assert page_manager.breadcrumbs == [homepage]
 
@@ -58,14 +59,14 @@ def test_requestpagemanager_breadcrumbs():
 def test_requestpagemanager_section():
     rf = RequestFactory()
 
-    page_manager = RequestPageManager(rf.get('/'))
+    page_manager = RequestPageManager(rf.get("/"))
     assert page_manager.section is None
 
     homepage = PageFactory()
     subpage = PageFactory(parent=homepage)
     subsubpage = PageFactory(parent=subpage)
 
-    request = rf.get('/')
+    request = rf.get("/")
     page_manager = RequestPageManager(request)
     assert page_manager.section is None
 
@@ -78,7 +79,7 @@ def test_requestpagemanager_section():
 @pytest.mark.django_db
 def test_requestpagemanager_subsection():
     rf = RequestFactory()
-    page_manager = RequestPageManager(rf.get('/'))
+    page_manager = RequestPageManager(rf.get("/"))
     assert page_manager.section is None
 
     homepage = PageFactory()
@@ -86,7 +87,7 @@ def test_requestpagemanager_subsection():
     subsubpage = PageFactory(parent=subpage)
     subsubsubpage = PageFactory(parent=subsubpage)
 
-    request = rf.get('/')
+    request = rf.get("/")
     page_manager = RequestPageManager(request)
     assert page_manager.subsection is None
 
@@ -106,7 +107,7 @@ def test_requestpagemanager_subsection():
 @pytest.mark.django_db
 def test_requestpagemanager_current():
     rf = RequestFactory()
-    page_manager = RequestPageManager(rf.get('/'))
+    page_manager = RequestPageManager(rf.get("/"))
     assert page_manager.section is None
 
     homepage = PageFactory()
@@ -127,9 +128,9 @@ def test_requestpagemanager_is_exact():
     subpage = PageFactory(parent=homepage)
     subsubpage = PageFactory(parent=subpage)
 
-    page_manager = RequestPageManager(rf.get('/'))
-    page_manager.path = ''
-    page_manager.path_info = ''
+    page_manager = RequestPageManager(rf.get("/"))
+    page_manager.path = ""
+    page_manager.path_info = ""
     assert page_manager.is_exact is False
 
     request = rf.get(subsubpage.get_absolute_url())
@@ -139,7 +140,7 @@ def test_requestpagemanager_is_exact():
 
 @pytest.mark.django_db
 def test_requestpagemanager_get_page():
-    request = RequestFactory().get('/')
+    request = RequestFactory().get("/")
     # No pages should return None, rather than raising an exception.
     assert RequestPageManager(request).get_page(5) is None
 
@@ -165,20 +166,20 @@ def test_requestpagemanager_get_page_is_efficient(django_assert_num_queries):
     request = request_with_pages()
 
     # Render navigation, as we probably always will on any page on the site.
-    render_navigation({'request': request}, pages=request.pages.homepage.navigation)
+    render_navigation({"request": request}, pages=request.pages.homepage.navigation)
 
     with django_assert_num_queries(0):
         assert request.pages.get_page(subsubpage) == subsubpage
         # Make sure referencing the parent doesn't create a query, otherwise
         # this is pointless :)
-        assert request.pages.get_page(subsubpage).parent.title.startswith('Page')
-        assert request.pages.get_page(subsubpage).parent.parent.title.startswith('Page')
+        assert request.pages.get_page(subsubpage).parent.title.startswith("Page")
+        assert request.pages.get_page(subsubpage).parent.parent.title.startswith("Page")
 
 
 @pytest.mark.django_db
 def test_pagemiddleware_process_response():  # pylint:disable=too-many-statements
     rf = RequestFactory()
-    request = rf.get('/')
+    request = rf.get("/")
 
     middleware = PageMiddleware(lambda: None)
 
@@ -187,7 +188,7 @@ def test_pagemiddleware_process_response():  # pylint:disable=too-many-statement
     assert middleware.process_response(request, response) is response
 
     response = HttpResponseNotFound()
-    page_request = rf.get('')
+    page_request = rf.get("")
     request.pages = RequestPageManager(page_request)
     assert middleware.process_response(request, response) is response
 
@@ -201,75 +202,81 @@ def test_pagemiddleware_process_response():  # pylint:disable=too-many-statement
 
         assert processed_response.status_code == 200
         assert processed_response.template_name == (
-            'testhelpers/emptytestpage.html',
-            'testhelpers/base.html',
-            'base.html',
+            "testhelpers/emptytestpage.html",
+            "testhelpers/base.html",
+            "base.html",
         )
 
-    request = rf.get('/')
+    request = rf.get("/")
     request_foo = rf.get(subpage.get_absolute_url())
     request.pages = RequestPageManager(request_foo)
     processed_response = middleware.process_response(request, response)
 
-    assert processed_response['Location'] == subpage.get_absolute_url()
+    assert processed_response["Location"] == subpage.get_absolute_url()
     assert processed_response.status_code == 301
-    assert processed_response.content == b''
+    assert processed_response.content == b""
 
-    request = rf.get('/foobar/')
+    request = rf.get("/foobar/")
     request.pages = RequestPageManager(request)
     processed_response = middleware.process_response(request, response)
     assert processed_response.status_code == 404
 
-    middleware_page = PageFactory(parent=homepage, slug='urls', content=MiddlewareURLsTestPage())
-    request = rf.get('/urls/')
+    middleware_page = PageFactory(
+        parent=homepage, slug="urls", content=MiddlewareURLsTestPage()
+    )
+    request = rf.get("/urls/")
     request.pages = RequestPageManager(request)
     processed_response = middleware.process_response(request, HttpResponseNotFound())
     assert processed_response.status_code == 200
-    assert processed_response.content == b'Hello!'
+    assert processed_response.content == b"Hello!"
 
-    request = rf.get(middleware_page.reverse('detail', kwargs={'slug': 'example'}))
+    request = rf.get(middleware_page.reverse("detail", kwargs={"slug": "example"}))
     request.pages = RequestPageManager(request)
     processed_response = middleware.process_response(request, HttpResponseNotFound())
     assert processed_response.status_code == 200
-    assert processed_response.content == b'detail view: example'
+    assert processed_response.content == b"detail view: example"
 
-    request = rf.get(middleware_page.reverse('not_found'))
+    request = rf.get(middleware_page.reverse("not_found"))
     request.pages = RequestPageManager(request)
     processed_response = middleware.process_response(request, HttpResponseNotFound())
     assert processed_response.status_code == 404
 
     with override_settings(DEBUG=True):
-        processed_response = middleware.process_response(request, HttpResponseNotFound())
+        processed_response = middleware.process_response(
+            request, HttpResponseNotFound()
+        )
     assert processed_response.status_code == 404
 
     # Test the branch that handles a broken view (doesn't return an
     # HttpResponse)
-    request = rf.get(middleware_page.reverse('broken_view'))
+    request = rf.get(middleware_page.reverse("broken_view"))
     request.pages = RequestPageManager(request)
     with override_settings(DEBUG=True):
-        processed_response = middleware.process_response(request, HttpResponseNotFound())
+        processed_response = middleware.process_response(
+            request, HttpResponseNotFound()
+        )
     assert processed_response.status_code == 500
 
     # Test a page that requires authentication with a user that is not
     # authenticated.
-    PageFactory(requires_authentication=True, slug='auth')
-    request = rf.get('/auth/')
+    PageFactory(requires_authentication=True, slug="auth")
+    request = rf.get("/auth/")
     request.user = MockRequestUser(is_authenticated=False)
     request.pages = RequestPageManager(request)
     processed_response = middleware.process_response(request, response)
     assert processed_response.status_code == 302
-    assert processed_response['Location'] == '/accounts/login/?next=/auth/'
+    assert processed_response["Location"] == "/accounts/login/?next=/auth/"
 
     # Test a page that requires authentication with a user that *is*
     # authenticated.
-    request = rf.get('/auth/')
+    request = rf.get("/auth/")
     request.user = MockRequestUser(is_authenticated=True)
     request.pages = RequestPageManager(request)
     processed_response = middleware.process_response(request, response)
     assert processed_response.status_code == 200
 
     # Ensure that requests to /media/ are passed through.
-    for path in ['/media/', '/static/']:
+    for path in ["/media/", "/static/"]:
         response = HttpResponseNotFound()
         request = rf.get(path)
         request.pages = RequestPageManager(request)
@@ -290,66 +297,66 @@ def test_pagemiddleware_with_client(client):
     """
 
     # See what happens before we create any pages.
-    response = client.get('/')
+    response = client.get("/")
     assert response.status_code == 404
 
     homepage = PageFactory()
 
     # Test that non-404 pages are passed through. We have /admin/ in our
     # urlconf, so let's hit that.
-    response = client.get(reverse('admin:index'))
+    response = client.get(reverse("admin:index"))
     assert response.status_code == 302
 
-    response = client.get('/')
+    response = client.get("/")
     assert response.status_code == 200
     assert response.template_name == (
-        'testhelpers/emptytestpage.html',
-        'testhelpers/base.html',
-        'base.html',
+        "testhelpers/emptytestpage.html",
+        "testhelpers/base.html",
+        "base.html",
     )
 
     # Test a page with a urlconf.
     middleware_page = PageFactory(parent=homepage, content=MiddlewareURLsTestPage())
     response = client.get(middleware_page.get_absolute_url())
     assert response.status_code == 200
-    assert response.content == b'Hello!'
+    assert response.content == b"Hello!"
 
-    response = client.get(middleware_page.reverse('detail', kwargs={'slug': 'hooray'}))
+    response = client.get(middleware_page.reverse("detail", kwargs={"slug": "hooray"}))
     assert response.status_code == 200
-    assert response.content == b'detail view: hooray'
+    assert response.content == b"detail view: hooray"
 
     # Test a 404 with a URL that doesn't exist in its urlconf.
-    response = client.get(urljoin(middleware_page.get_absolute_url(), 'hurf/hurrr/'))
+    response = client.get(urljoin(middleware_page.get_absolute_url(), "hurf/hurrr/"))
     assert response.status_code == 404
 
     # Test a view on a page that raises a 404.
     for debug in [True, False]:
         with override_settings(DEBUG=debug):
-            response = client.get(middleware_page.reverse('not_found'))
+            response = client.get(middleware_page.reverse("not_found"))
         assert response.status_code == 404
 
     # Test a view on a page that is broken and does not return an HttpResponse.
-    response = client.get(middleware_page.reverse('broken_view'))
+    response = client.get(middleware_page.reverse("broken_view"))
     assert response.status_code == 500
 
     # Test a page that requires authentication with a user which is not
     # authenticated.
-    PageFactory(requires_authentication=True, slug='auth')
-    response = client.get('/auth/')
+    PageFactory(requires_authentication=True, slug="auth")
+    response = client.get("/auth/")
     assert response.status_code == 302
-    assert response['Location'] == '/accounts/login/?next=/auth/'
+    assert response["Location"] == "/accounts/login/?next=/auth/"
 
     # Test a page that requires authentication with a user that *is*
     # authenticated.
     client.force_login(UserFactory())
-    response = client.get('/auth/')
+    response = client.get("/auth/")
     assert response.status_code == 200
 
     # Test the /media/ special case.
     file = EmptyFileFactory()
     response = client.get(file.get_absolute_url())
     assert response.status_code == 200
-    assert bytes(response.streaming_content) == b''
+    assert bytes(response.streaming_content) == b""
 
 
 @pytest.mark.django_db

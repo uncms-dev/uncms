@@ -17,7 +17,9 @@ def test_onlinebaseadmin_publish_selected():
     )
     assert obj.is_online is False
 
-    page_admin.publish_selected(RequestFactory().get('/'), OnlineBaseModel.objects.all())
+    page_admin.publish_selected(
+        RequestFactory().get("/"), OnlineBaseModel.objects.all()
+    )
 
     obj.refresh_from_db()
     assert obj.is_online is True
@@ -33,7 +35,9 @@ def test_onlinebaseadmin_unpublish_selected():
 
     assert obj.is_online is True
 
-    page_admin.unpublish_selected(RequestFactory().get('/'), OnlineBaseModel.objects.all())
+    page_admin.unpublish_selected(
+        RequestFactory().get("/"), OnlineBaseModel.objects.all()
+    )
 
     obj.refresh_from_db()
     assert obj.is_online is False
@@ -45,16 +49,16 @@ def test_quality_control_filter():
     image = MinimalGIFFileFactory()
 
     defaults = {
-        'browser_title': 'Browser title',
-        'meta_description': 'Meta description',
-        'og_description': 'OG description',
-        'og_image': image,
+        "browser_title": "Browser title",
+        "meta_description": "Meta description",
+        "og_description": "OG description",
+        "og_image": image,
     }
 
     overrides = {
-        'no-meta-description': [{'meta_description': ''}],
-        'no-browser-title': [{'browser_title': ''}],
-        'incomplete-opengraph-fields': [{'og_description': ''}],
+        "no-meta-description": [{"meta_description": ""}],
+        "no-browser-title": [{"browser_title": ""}],
+        "incomplete-opengraph-fields": [{"og_description": ""}],
     }
 
     objects = {}
@@ -62,15 +66,21 @@ def test_quality_control_filter():
     for key, value in overrides.items():
         objects[key] = []
         for fields in value:
-            objects[key].append(PageBaseModel.objects.create(**dict(defaults, **fields)))
+            objects[key].append(
+                PageBaseModel.objects.create(**dict(defaults, **fields))
+            )
 
     for key, objs in objects.items():
-        request = rf.get(f'/?seo_quality_control={key}')
+        request = rf.get(f"/?seo_quality_control={key}")
         quality_filter = SEOQualityControlFilter(
             request,
-            {'seo_quality_control': key},
+            {"seo_quality_control": key},
             PageBaseModel,
             RealPageBaseAdmin,
         )
-        ids = sorted(quality_filter.queryset(request, PageBaseModel.objects.all().values_list('id', flat=True)))
+        ids = sorted(
+            quality_filter.queryset(
+                request, PageBaseModel.objects.all().values_list("id", flat=True)
+            )
+        )
         assert ids == sorted(obj.id for obj in objs)

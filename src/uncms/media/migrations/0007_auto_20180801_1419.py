@@ -4,30 +4,34 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('media', '0006_remove_video_webm'),
+        ("media", "0006_remove_video_webm"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='video',
-            name='external_video',
-            field=models.CharField(blank=True, help_text='Provide a youtube.com or vimeo.com URL', max_length=255, null=True),
+            model_name="video",
+            name="external_video",
+            field=models.CharField(
+                blank=True,
+                help_text="Provide a youtube.com or vimeo.com URL",
+                max_length=255,
+                null=True,
+            ),
         ),
         migrations.AddField(
-            model_name='video',
-            name='external_video_id',
+            model_name="video",
+            name="external_video_id",
             field=models.CharField(blank=True, max_length=32, null=True),
         ),
         migrations.AddField(
-            model_name='video',
-            name='external_video_iframe_url',
+            model_name="video",
+            name="external_video_iframe_url",
             field=models.TextField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='video',
-            name='external_video_service',
+            model_name="video",
+            name="external_video_service",
             field=models.CharField(blank=True, max_length=32, null=True),
         ),
     ]

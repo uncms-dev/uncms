@@ -4,14 +4,13 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('links', '0002_auto_20171020_1320'),
+        ("links", "0002_auto_20171020_1320"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='link',
-            name='new_window',
+            model_name="link",
+            name="new_window",
         ),
     ]

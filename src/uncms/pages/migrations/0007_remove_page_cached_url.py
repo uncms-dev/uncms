@@ -6,14 +6,13 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('pages', '0006_auto_20151002_1655'),
+        ("pages", "0006_auto_20151002_1655"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='page',
-            name='cached_url',
+            model_name="page",
+            name="cached_url",
         ),
     ]

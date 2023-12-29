@@ -7,14 +7,13 @@ SUBMITTED = 2
 APPROVED = 3
 
 STATUS_CHOICES = [
-    (DRAFT, 'Draft'),
-    (SUBMITTED, 'Submitted for approval'),
-    (APPROVED, 'Approved')
+    (DRAFT, "Draft"),
+    (SUBMITTED, "Submitted for approval"),
+    (APPROVED, "Approved"),
 ]
 
 
 class ModerationManager(PublishedBaseManager):
-
     def select_published(self, queryset):
         queryset = super().select_published(queryset)
 
@@ -24,7 +23,6 @@ class ModerationManager(PublishedBaseManager):
 
 
 class ModerationBase(models.Model):
-
     status = models.IntegerField(
         choices=STATUS_CHOICES,
         default=DRAFT,
@@ -34,6 +32,4 @@ class ModerationBase(models.Model):
 
     class Meta:
         abstract = True
-        permissions = (
-            ('can_approve', 'Can approve items'),
-        )
+        permissions = (("can_approve", "Can approve items"),)

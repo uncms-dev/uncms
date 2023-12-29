@@ -6,20 +6,25 @@ import uncms.models.fields
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('links', '0001_initial'),
+        ("links", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='link',
-            name='link_url',
-            field=uncms.models.fields.LinkField(help_text='The URL where the user will be redirected.', max_length=1000, verbose_name='link URL'),
+            model_name="link",
+            name="link_url",
+            field=uncms.models.fields.LinkField(
+                help_text="The URL where the user will be redirected.",
+                max_length=1000,
+                verbose_name="link URL",
+            ),
         ),
         migrations.AlterField(
-            model_name='link',
-            name='new_window',
-            field=models.BooleanField(default=False, help_text='Open the page in a new window.'),
+            model_name="link",
+            name="new_window",
+            field=models.BooleanField(
+                default=False, help_text="Open the page in a new window."
+            ),
         ),
     ]

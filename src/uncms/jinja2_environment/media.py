@@ -3,5 +3,5 @@ def render_image(img, **kwargs):
 
 
 MEDIA_GLOBALS = {
-    'render_image': render_image,
+    "render_image": render_image,
 }

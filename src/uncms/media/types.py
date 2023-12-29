@@ -8,13 +8,14 @@ class Thumbnail:
     Thumbnail is a dataclass used to represent an image thumbnail, with a
     couple of aspect ratio helpers.
     """
+
     url: str
     width: int
     height: int
 
     @property
     def aspect_ratio_string(self):
-        return f'{self.width} / {self.height}'
+        return f"{self.width} / {self.height}"
 
     @property
     def height_ratio(self):
@@ -38,10 +39,7 @@ class ThumbnailGroup:
     def srcset(self):
         if len(self.sizes) == 1:
             return self.sizes[0].url
-        return ', '.join([
-            f'{size.url} {size.width}w'
-            for size in self.sizes
-        ])
+        return ", ".join([f"{size.url} {size.width}w" for size in self.sizes])
 
 
 class MultiThumbnail:

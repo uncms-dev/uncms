@@ -4,15 +4,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('media', '0007_auto_20180801_1419'),
+        ("media", "0007_auto_20180801_1419"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='video',
-            name='external_video',
-            field=models.URLField(blank=True, help_text='Provide a youtube.com or vimeo.com URL', max_length=255, null=True),
+            model_name="video",
+            name="external_video",
+            field=models.URLField(
+                blank=True,
+                help_text="Provide a youtube.com or vimeo.com URL",
+                max_length=255,
+                null=True,
+            ),
         ),
     ]

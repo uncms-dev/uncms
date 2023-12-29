@@ -20,17 +20,22 @@ class AdminFileRedirectView(UserPassesTestMixin, RedirectView):
 
     def test_func(self):
         model_meta = apps.get_model(defaults.MEDIA_FILE_MODEL)._meta
-        change_permission = f'{model_meta.app_label}.change_{model_meta.model_name}'
-        view_permission = f'{model_meta.app_label}.view_{model_meta.model_name}'
+        change_permission = f"{model_meta.app_label}.change_{model_meta.model_name}"
+        view_permission = f"{model_meta.app_label}.view_{model_meta.model_name}"
 
         return (
-            self.request.user.is_authenticated and
-            self.request.user.is_staff and
-            (self.request.user.has_perm(view_permission) or self.request.user.has_perm(change_permission))
+            self.request.user.is_authenticated
+            and self.request.user.is_staff
+            and (
+                self.request.user.has_perm(view_permission)
+                or self.request.user.has_perm(change_permission)
+            )
         )
 
     def get_redirect_url(self, *args, **kwargs):
-        obj = get_object_or_404(apps.get_model(defaults.MEDIA_FILE_MODEL), pk=kwargs['pk'])
+        obj = get_object_or_404(
+            apps.get_model(defaults.MEDIA_FILE_MODEL), pk=kwargs["pk"]
+        )
         return obj.get_absolute_url()
 
 
@@ -67,13 +72,15 @@ class ImageView(RedirectView):
 
     def dispatch(self, request, *args, **kwargs):
         # Check signature first to guard against enumerating media file IDs.
-        signature = self.request.GET.get('signature')
+        signature = self.request.GET.get("signature")
         if not path_token_generator.check_token(signature, self.request.path):
-            return HttpResponseBadRequest('Bad signature.')
+            return HttpResponseBadRequest("Bad signature.")
         return super().dispatch(request, *args, **kwargs)
 
     def get_redirect_url(self, *args, **kwargs):
-        obj = get_object_or_404(apps.get_model(defaults.MEDIA_FILE_MODEL), pk=kwargs['pk'])
+        obj = get_object_or_404(
+            apps.get_model(defaults.MEDIA_FILE_MODEL), pk=kwargs["pk"]
+        )
 
         # This should never be called on something that is not an image.
         # However, this can happen if a reference to a file was originally an
@@ -84,37 +91,37 @@ class ImageView(RedirectView):
         sorl_args = [obj.file]
         sorl_kwargs = {}
 
-        width = kwargs['width']
-        height = kwargs['height']
-        colorspace = kwargs['colorspace']
+        width = kwargs["width"]
+        height = kwargs["height"]
+        colorspace = kwargs["colorspace"]
 
-        if width == 'auto':
-            dimensions = 'x{}'.format(height)
-        elif height == 'auto':
+        if width == "auto":
+            dimensions = "x{}".format(height)
+        elif height == "auto":
             dimensions = width
         else:
-            dimensions = '{}x{}'.format(width, height)
+            dimensions = "{}x{}".format(width, height)
 
             # If we have specified width and height, it is because we want a
             # specific aspect ratio. It must be cropped, and so if we haven't
             # specified any opinion on cropping origin, we should pick
             # 'center'
-            if kwargs['crop'] == 'none':
-                kwargs['crop'] = 'center'
+            if kwargs["crop"] == "none":
+                kwargs["crop"] = "center"
 
         sorl_args.append(dimensions)
 
-        if colorspace != 'auto':
-            sorl_kwargs['colorspace'] = colorspace
+        if colorspace != "auto":
+            sorl_kwargs["colorspace"] = colorspace
 
-        if kwargs['crop'] != 'none':
-            sorl_kwargs['crop'] = kwargs['crop']
+        if kwargs["crop"] != "none":
+            sorl_kwargs["crop"] = kwargs["crop"]
 
-        if kwargs['format'] != 'source':
-            sorl_kwargs['format'] = kwargs['format'].upper()
+        if kwargs["format"] != "source":
+            sorl_kwargs["format"] = kwargs["format"].upper()
 
-        if kwargs['quality'] != 'default':
-            sorl_kwargs['quality'] = int(kwargs['quality'])
+        if kwargs["quality"] != "default":
+            sorl_kwargs["quality"] = int(kwargs["quality"])
 
         # sorl should be allowed to fail loudly here; there is no reasonable
         # way to fail

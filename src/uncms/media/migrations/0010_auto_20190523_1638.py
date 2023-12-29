@@ -6,30 +6,39 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('media', '0009_auto_20181207_1318'),
+        ("media", "0009_auto_20181207_1318"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='file',
-            name='alt_text',
-            field=models.CharField(blank=True, help_text='This text will be used for screen readers. Leave it empty for purely decorative images.', max_length=200, null=True),
+            model_name="file",
+            name="alt_text",
+            field=models.CharField(
+                blank=True,
+                help_text="This text will be used for screen readers. Leave it empty for purely decorative images.",
+                max_length=200,
+                null=True,
+            ),
         ),
         migrations.AlterField(
-            model_name='file',
-            name='attribution',
+            model_name="file",
+            name="attribution",
             field=models.CharField(blank=True, max_length=1000, null=True),
         ),
         migrations.AlterField(
-            model_name='file',
-            name='title',
+            model_name="file",
+            name="title",
             field=models.CharField(max_length=200),
         ),
         migrations.AlterField(
-            model_name='video',
-            name='external_video',
-            field=models.URLField(blank=True, help_text='Provide a youtube.com or vimeo.com URL.', max_length=255, null=True),
+            model_name="video",
+            name="external_video",
+            field=models.URLField(
+                blank=True,
+                help_text="Provide a youtube.com or vimeo.com URL.",
+                max_length=255,
+                null=True,
+            ),
         ),
     ]

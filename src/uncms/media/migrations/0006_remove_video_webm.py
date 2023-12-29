@@ -4,14 +4,13 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('media', '0005_auto_20171107_1537'),
+        ("media", "0005_auto_20171107_1537"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='video',
-            name='webm',
+            model_name="video",
+            name="webm",
         ),
     ]

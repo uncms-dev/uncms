@@ -17,10 +17,10 @@ class RedirectFallbackMiddleware:
 
         # Try removing or adding the trailing slash.
         if redirect is None:
-            if request.path.endswith('/'):
+            if request.path.endswith("/"):
                 redirect = Redirect.objects.get_for_path(request.path[:-1])
             else:
-                redirect = Redirect.objects.get_for_path('{}/'.format(request.path))
+                redirect = Redirect.objects.get_for_path("{}/".format(request.path))
 
         if redirect is not None:
             return redirect.response_for_path(request.path)

@@ -31,24 +31,24 @@ def format_html(text):
     # with that.
     media_model = apps.get_model(defaults.MEDIA_FILE_MODEL)
     media_model_id = ContentType.objects.get_for_model(media_model).id
-    old_prefix = f'/r/{media_model_id}-'
+    old_prefix = f"/r/{media_model_id}-"
 
     # Prefix for UnCMS-era temporary URLs. Create an unsaved instance of
     # a media file so we can get its preview URL.
     new_prefix = media_model(id=0).get_temporary_url()
-    new_prefix = new_prefix[:new_prefix.index('0')]
+    new_prefix = new_prefix[: new_prefix.index("0")]
 
-    soup = BeautifulSoup(text, 'html.parser')
+    soup = BeautifulSoup(text, "html.parser")
 
-    for image in soup.find_all('img'):
-        if not image.get('src'):
+    for image in soup.find_all("img"):
+        if not image.get("src"):
             continue
 
         image_id = None
 
         for prefix in old_prefix, new_prefix:
-            if image['src'].startswith(prefix):
-                image_id = image['src'][len(prefix):].rstrip('/')
+            if image["src"].startswith(prefix):
+                image_id = image["src"][len(prefix) :].rstrip("/")
                 break
 
         if not image_id:
@@ -60,24 +60,27 @@ def format_html(text):
         except (media_model.DoesNotExist, ValueError):
             continue
 
-        new_image = BeautifulSoup(obj.render_multi_format(
-            width=defaults.HTML_IMAGE_WIDTH,
-            # Copy over alt text if it is present. If it is an explicit empty
-            # string, obey it - if it is not present it will be None, which
-            # render_multi_format treats as "replace with alt text from the
-            # File model".
-            alt_text=image.get('alt_text'),
-            extra_styles=image.get('style'),
-            # Copy over "class" - note BS4 returns an array for element['class']
-            extra_classes=' '.join(image.get('class', [])),
-            # Copy over all attributes except "style" and "class" (those are
-            # handled above)
-            extra_attributes={
-                key: value
-                for key, value in image.attrs.items()
-                if key not in ['class', 'style', 'src']
-            },
-        ), 'html.parser')
+        new_image = BeautifulSoup(
+            obj.render_multi_format(
+                width=defaults.HTML_IMAGE_WIDTH,
+                # Copy over alt text if it is present. If it is an explicit empty
+                # string, obey it - if it is not present it will be None, which
+                # render_multi_format treats as "replace with alt text from the
+                # File model".
+                alt_text=image.get("alt_text"),
+                extra_styles=image.get("style"),
+                # Copy over "class" - note BS4 returns an array for element['class']
+                extra_classes=" ".join(image.get("class", [])),
+                # Copy over all attributes except "style" and "class" (those are
+                # handled above)
+                extra_attributes={
+                    key: value
+                    for key, value in image.attrs.items()
+                    if key not in ["class", "style", "src"]
+                },
+            ),
+            "html.parser",
+        )
         image.replace_with(new_image)
 
     return str(soup)

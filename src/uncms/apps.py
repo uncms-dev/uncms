@@ -2,8 +2,8 @@ from django.apps import AppConfig
 
 
 class UnCMSAppConfig(AppConfig):
-    name = 'uncms'
-    default_auto_field = 'django.db.models.AutoField'
+    name = "uncms"
+    default_auto_field = "django.db.models.AutoField"
 
     def ready(self):
         # import used for the side effect of registering checks

@@ -3,30 +3,31 @@ from django.db import models
 
 from uncms.media.models import FileRefField, ImageRefField, VideoFileRefField
 from uncms.models import OnlineBase, PageBase, PublishedBase, SearchMetaBase
-from uncms.models.base import \
-    PublishedBaseSearchAdapter as CMSPublishedBaseSearchAdapter
-from uncms.models.base import \
-    SearchMetaBaseSearchAdapter as CMSSearchMetaBaseSearchAdapter
+from uncms.models.base import (
+    PublishedBaseSearchAdapter as CMSPublishedBaseSearchAdapter,
+)
+from uncms.models.base import (
+    SearchMetaBaseSearchAdapter as CMSSearchMetaBaseSearchAdapter,
+)
 from uncms.models.fields import LinkField
 from uncms.moderation.models import ModerationBase
 from uncms.pages.models import ContentBase, Page
 
 
 class PageContent(ContentBase):
-    urlconf = 'tests.pages.urls'
+    urlconf = "tests.pages.urls"
 
 
 class PageContentWithSections(ContentBase):
     testing = models.CharField(
         max_length=20,
-        default='testing',
+        default="testing",
     )
 
 
 class Section(models.Model):
-
     page = models.ForeignKey(
-        'pages.Page',
+        "pages.Page",
         on_delete=models.CASCADE,
     )
 
@@ -37,7 +38,7 @@ class Section(models.Model):
 
 class InlineModel(models.Model):
     page = models.ForeignKey(
-        'pages.Page',
+        "pages.Page",
         on_delete=models.CASCADE,
     )
 
@@ -63,7 +64,7 @@ class SitemapModel(models.Model):
 
 class PageBaseModel(PageBase):
     def get_absolute_url(self):
-        return '/'
+        return "/"
 
 
 class SearchMetaBaseModel(SearchMetaBase):
@@ -87,7 +88,6 @@ class SearchMetaBaseSearchAdapter(CMSSearchMetaBaseSearchAdapter):
 
 
 class LinkFieldModel(models.Model):
-
     link = LinkField()
 
 
@@ -107,7 +107,6 @@ class ModerationModel(ModerationBase):
 
 
 class MediaTestModel(models.Model):
-
     file = FileRefField(
         blank=True,
         null=True,
@@ -121,7 +120,7 @@ class MediaTestModel(models.Model):
 
 
 class TemplateTagTestPage(ContentBase):
-    urlconf = 'tests.pages.urls'
+    urlconf = "tests.pages.urls"
 
 
 class MiddlewareTestPage(ContentBase):
@@ -129,7 +128,7 @@ class MiddlewareTestPage(ContentBase):
 
 
 class MiddlewareURLsTestPage(ContentBase):
-    urlconf = 'tests.pages.urls'
+    urlconf = "tests.pages.urls"
 
 
 # All of the below are for the tests for test_file_used_on.
@@ -141,7 +140,9 @@ class UsageModelTwo(AbstractImageFieldModel):
     pass
 
 
-class UsageContentBaseModel(AbstractImageFieldModel, ContentBase):  # pylint:disable=duplicate-code
+class UsageContentBaseModel(
+    AbstractImageFieldModel, ContentBase
+):  # pylint:disable=duplicate-code
     pass
 
 
@@ -157,5 +158,6 @@ class UsageModelOneInline(AbstractImageFieldModel):
         UsageModelOne,
         on_delete=models.CASCADE,
     )
+
 
 # End models for test_file_used_on

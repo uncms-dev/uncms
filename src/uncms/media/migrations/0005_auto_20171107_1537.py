@@ -4,20 +4,26 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('media', '0004_auto_20170407_1442'),
+        ("media", "0004_auto_20170407_1442"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='file',
-            name='alt_text',
-            field=models.CharField(blank=True, help_text='Text used for screen readers', max_length=200, null=True),
+            model_name="file",
+            name="alt_text",
+            field=models.CharField(
+                blank=True,
+                help_text="Text used for screen readers",
+                max_length=200,
+                null=True,
+            ),
         ),
         migrations.AlterField(
-            model_name='file',
-            name='attribution',
-            field=models.CharField(blank=True, max_length=1000, null=True, verbose_name='caption'),
+            model_name="file",
+            name="attribution",
+            field=models.CharField(
+                blank=True, max_length=1000, null=True, verbose_name="caption"
+            ),
         ),
     ]

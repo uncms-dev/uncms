@@ -4,14 +4,18 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('media', '0011_delete_video'),
+        ("media", "0011_delete_video"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='file',
-            options={'ordering': ['-date_added', '-pk'], 'permissions': [('upload_dangerous_files', 'Can upload dangerous files')]},
+            name="file",
+            options={
+                "ordering": ["-date_added", "-pk"],
+                "permissions": [
+                    ("upload_dangerous_files", "Can upload dangerous files")
+                ],
+            },
         ),
     ]

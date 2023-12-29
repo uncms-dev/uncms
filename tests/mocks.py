@@ -25,7 +25,7 @@ class MockSuperUser:
         return True
 
 
-def request_with_pages(path='/'):
+def request_with_pages(path="/"):
     request = RequestFactory().get(path)
     request.pages = RequestPageManager(request)
     return request

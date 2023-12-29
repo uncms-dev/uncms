@@ -24,7 +24,7 @@ def simple_page_tree(db):
 
         homepage = Page.objects.create(
             title="Homepage",
-            slug='homepage',
+            slug="homepage",
             content_type=content_type,
         )
 
@@ -35,9 +35,9 @@ def simple_page_tree(db):
         section = Page.objects.create(
             parent=homepage,
             title="Section",
-            slug='section',
+            slug="section",
             content_type=content_type,
-            hide_from_anonymous=True
+            hide_from_anonymous=True,
         )
 
         EmptyTestPage.objects.create(
@@ -47,7 +47,7 @@ def simple_page_tree(db):
         subsection = Page.objects.create(
             parent=section,
             title="Subsection",
-            slug='subsection',
+            slug="subsection",
             content_type=content_type,
         )
 
@@ -58,7 +58,7 @@ def simple_page_tree(db):
         subsubsection = Page.objects.create(
             parent=subsection,
             title="Subsubsection",
-            slug='subsubsection',
+            slug="subsubsection",
             content_type=content_type,
         )
 

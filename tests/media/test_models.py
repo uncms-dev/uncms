@@ -22,7 +22,7 @@ from uncms.testhelpers.factories.media import (
 
 @pytest.mark.django_db
 def test_file_str():
-    assert str(EmptyFileFactory(title='Bark')) == 'Bark'
+    assert str(EmptyFileFactory(title="Bark")) == "Bark"
 
 
 @pytest.mark.django_db
@@ -37,14 +37,14 @@ def test_file_contents():
     assert minimal.contents == MINIMAL_GIF_DATA
     assert isinstance(minimal.contents, bytes)
 
-    broken_file = FileFactory(file='media/not/a/real.file')
-    assert broken_file.contents == b''
+    broken_file = FileFactory(file="media/not/a/real.file")
+    assert broken_file.contents == b""
 
 
 @pytest.mark.django_db
 def test_file_get_absolute_url():
     file = EmptyFileFactory()
-    assert file.get_absolute_url() == f'/media/{file.file.name}'
+    assert file.get_absolute_url() == f"/media/{file.file.name}"
 
 
 @pytest.mark.django_db
@@ -59,20 +59,20 @@ def test_file_get_admin_thumbnail(admin_client):
     assert thumbnail.width == 200
     response = admin_client.get(thumbnail.url)
     assert response.status_code == 302
-    response = admin_client.get(response['Location'])
+    response = admin_client.get(response["Location"])
     assert response.status_code == 200
     # Django does not recognise webp
-    assert response['Content-Type'] == 'application/octet-stream'
+    assert response["Content-Type"] == "application/octet-stream"
 
 
 @pytest.mark.django_db()
 def test_file_get_temporary_url(admin_client):
     file = EmptyFileFactory()
     url = file.get_temporary_url()
-    assert url == f'/library/redirect/{file.pk}/'
+    assert url == f"/library/redirect/{file.pk}/"
     response = admin_client.get(url)
     assert response.status_code == 302
-    assert response['Location'] == file.get_absolute_url()
+    assert response["Location"] == file.get_absolute_url()
 
 
 @pytest.mark.django_db
@@ -88,7 +88,7 @@ def test_file_width_and_height():
 
 def test_file_init():
     field = FileRefField(to=MediaTestModel)
-    assert field.remote_field.model == 'media.File'
+    assert field.remote_field.model == "media.File"
 
 
 @pytest.mark.django_db
@@ -97,7 +97,7 @@ def test_filereffield_formfield():
         file=MinimalGIFFileFactory(),
     )
 
-    field = obj._meta.get_field('file')
+    field = obj._meta.get_field("file")
     widget = field.formfield().widget
 
     assert isinstance(widget, ForeignKeyRawIdWidget)
@@ -113,18 +113,18 @@ def test_file_get_thumbnail(client):
     # tuple of (kwargs, expected height, expected width)
     tests = [
         # Is height being guessed correctly if it is auto?
-        ({'width': 960}, 960, 540),
+        ({"width": 960}, 960, 540),
         # Is width being guessed correctly if it is auto?
-        ({'height': 540}, 960, 540),
+        ({"height": 540}, 960, 540),
         # And if we've specified both?
-        ({'width': 240, 'height': 240}, 240, 240),
+        ({"width": 240, "height": 240}, 240, 240),
         # And if numbers don't divide neatly into each other?
-        ({'width': 1919}, 1919, 1079),
-        ({'height': 1079}, 1918, 1079),
+        ({"width": 1919}, 1919, 1079),
+        ({"height": 1079}, 1918, 1079),
         # And if we're feeding it pretty much garbage inputs? WHAT THEN HUH
-        ({'width': 2}, 2, 1),
+        ({"width": 2}, 2, 1),
         # why not test the other things while we're here?
-        ({'width': 960, 'colorspace': 'gray', 'quality': 90}, 960, 540),
+        ({"width": 960, "colorspace": "gray", "quality": 90}, 960, 540),
     ]
     for thumb_kwargs, width, height in tests:
         thumbnail = image.get_thumbnail(**thumb_kwargs)
@@ -135,9 +135,9 @@ def test_file_get_thumbnail(client):
         response = client.get(thumbnail.url)
         assert response.status_code == 302
 
-        response = client.get(response['Location'])
+        response = client.get(response["Location"])
         assert response.status_code == 200
-        assert response['Content-Type'] == 'image/png'
+        assert response["Content-Type"] == "image/png"
         response_content = response.getvalue()
         pil_image = Image.open(BytesIO(response_content))
         # not gonna try and work out EXACTLY how Sorl decides how to round
@@ -158,7 +158,7 @@ def test_file_get_thumbnail_on_garbage():
     image = SamplePNGFileFactory()
     with pytest.raises(ValueError) as excinfo:
         image.get_thumbnail()
-    assert 'no dimensions provided' in str(excinfo.value)
+    assert "no dimensions provided" in str(excinfo.value)
 
     # Give it something that isn't an image
     garbage = EmptyFileFactory()
@@ -183,38 +183,39 @@ def test_label_str():
 # Below begin the multiformat rendering tests. This is a section divider!
 #
 
+
 class MultiFormatSoupParser:
     def __init__(self, html):
-        self.soup = BeautifulSoup(html, 'html.parser')
+        self.soup = BeautifulSoup(html, "html.parser")
 
     @cached_property
     def srcsets(self):
         formats = {}
-        for source_tag in self.soup.find_all('source'):
-            formats[source_tag['type']] = []
-            for source in source_tag['srcset'].split(', '):
-                formats[source_tag['type']].append(source.split(' ')[0])
+        for source_tag in self.soup.find_all("source"):
+            formats[source_tag["type"]] = []
+            for source in source_tag["srcset"].split(", "):
+                formats[source_tag["type"]].append(source.split(" ")[0])
         return formats
 
     @cached_property
     def alt_text(self):
-        return self.img_tag['alt']
+        return self.img_tag["alt"]
 
     @cached_property
     def classes(self):
-        return self.img_tag.get('class')
+        return self.img_tag.get("class")
 
     @cached_property
     def img_tag(self):
-        return self.soup.find('img')
+        return self.soup.find("img")
 
     @cached_property
     def loading_attribute(self):
-        return self.img_tag.get('loading')
+        return self.img_tag.get("loading")
 
     @cached_property
     def style_attribute(self):
-        return self.img_tag.get('style')
+        return self.img_tag.get("style")
 
     def validate_srcsets(self):
         client = Client()
@@ -224,13 +225,13 @@ class MultiFormatSoupParser:
                 response = client.get(url)
                 assert response.status_code == 302
 
-                response = client.get(response['Location'])
+                response = client.get(response["Location"])
                 assert response.status_code == 200
-                if fmt == 'image/webp':
-                    expect_content_type = 'application/octet-stream'
+                if fmt == "image/webp":
+                    expect_content_type = "application/octet-stream"
                 else:
                     expect_content_type = fmt
-                assert response['Content-Type'] == expect_content_type
+                assert response["Content-Type"] == expect_content_type
 
 
 @pytest.mark.django_db
@@ -244,13 +245,13 @@ def test_file_render_multi_format_obeys_formats(django_assert_num_queries):
     parsed.validate_srcsets()
     # This order is important - webp must go first because we want browsers to
     # look at it first.
-    assert list(parsed.srcsets) == ['image/webp', 'image/png']
+    assert list(parsed.srcsets) == ["image/webp", "image/png"]
 
     # Ensure the implicit "WebP is not enabled" branch is visited.
-    with override_settings(UNCMS={'IMAGE_USE_WEBP': False}):
+    with override_settings(UNCMS={"IMAGE_USE_WEBP": False}):
         parsed = MultiFormatSoupParser(image.render_multi_format(width=800, height=600))
     parsed.validate_srcsets()
-    assert list(parsed.srcsets) == ['image/png']
+    assert list(parsed.srcsets) == ["image/png"]
 
 
 @pytest.mark.django_db
@@ -259,33 +260,39 @@ def test_file_render_multi_format_obeys_alt_text():
     # specified.
     image = SamplePNGFileFactory(alt_text=None)
     parsed = MultiFormatSoupParser(image.render_multi_format(width=800, height=600))
-    assert parsed.alt_text == ''
+    assert parsed.alt_text == ""
 
     # Test branch wherein an alt text is set on the image.
-    image.alt_text = 'Testing'
+    image.alt_text = "Testing"
     parsed = MultiFormatSoupParser(image.render_multi_format(width=800, height=600))
-    assert parsed.alt_text == 'Testing'
+    assert parsed.alt_text == "Testing"
 
     # Test branch wherein an alt text is set on the image, but we've
     # overridden it.
-    image.alt_text = 'Testing 2'
-    parsed = MultiFormatSoupParser(image.render_multi_format(width=800, height=600, alt_text='Override'))
-    assert parsed.alt_text == 'Override'
+    image.alt_text = "Testing 2"
+    parsed = MultiFormatSoupParser(
+        image.render_multi_format(width=800, height=600, alt_text="Override")
+    )
+    assert parsed.alt_text == "Override"
 
     # Test branch wherein we've explicitly requested that it is the empty
     # string (e.g. for a decorative image).
-    image.alt_text = 'Testing 3'
-    parsed = MultiFormatSoupParser(image.render_multi_format(width=800, height=600, alt_text=''))
-    assert parsed.alt_text == ''
+    image.alt_text = "Testing 3"
+    parsed = MultiFormatSoupParser(
+        image.render_multi_format(width=800, height=600, alt_text="")
+    )
+    assert parsed.alt_text == ""
 
 
 @pytest.mark.django_db
 def test_file_render_multi_format_obeys_lazy():
     image = SamplePNGFileFactory()
     parsed = MultiFormatSoupParser(image.render_multi_format(width=800, height=600))
-    assert parsed.loading_attribute == 'lazy'
+    assert parsed.loading_attribute == "lazy"
 
-    parsed = MultiFormatSoupParser(image.render_multi_format(width=800, height=600, lazy=False))
+    parsed = MultiFormatSoupParser(
+        image.render_multi_format(width=800, height=600, lazy=False)
+    )
     assert parsed.loading_attribute is None
 
 
@@ -293,7 +300,7 @@ def test_file_render_multi_format_obeys_lazy():
 def test_file_render_multi_format_obeys_aspect():
     image = SamplePNGFileFactory()
     parsed = MultiFormatSoupParser(image.render_multi_format(width=960))
-    assert parsed.style_attribute == 'aspect-ratio: 960 / 540'
+    assert parsed.style_attribute == "aspect-ratio: 960 / 540"
 
     parsed = MultiFormatSoupParser(image.render_multi_format(width=960, aspect=False))
     assert parsed.style_attribute is None
@@ -302,11 +309,25 @@ def test_file_render_multi_format_obeys_aspect():
 @pytest.mark.django_db
 def test_file_render_multi_format_preserves_extra_styles():
     image = SamplePNGFileFactory()
-    parsed = MultiFormatSoupParser(image.render_multi_format(width=800, height=600, extra_styles='transform: rotate(180deg)'))
-    assert parsed.style_attribute == 'aspect-ratio: 800 / 600; transform: rotate(180deg)'
+    parsed = MultiFormatSoupParser(
+        image.render_multi_format(
+            width=800, height=600, extra_styles="transform: rotate(180deg)"
+        )
+    )
+    assert (
+        parsed.style_attribute == "aspect-ratio: 800 / 600; transform: rotate(180deg)"
+    )
 
-    parsed = MultiFormatSoupParser(image.render_multi_format(width=800, height=600, lazy=False, extra_styles='transform: rotate(180deg)', aspect=False))
-    assert parsed.style_attribute == 'transform: rotate(180deg)'
+    parsed = MultiFormatSoupParser(
+        image.render_multi_format(
+            width=800,
+            height=600,
+            lazy=False,
+            extra_styles="transform: rotate(180deg)",
+            aspect=False,
+        )
+    )
+    assert parsed.style_attribute == "transform: rotate(180deg)"
 
 
 @pytest.mark.django_db
@@ -314,26 +335,28 @@ def test_file_render_multi_format_preserves_extra_classes():
     image = SamplePNGFileFactory()
 
     parsed = MultiFormatSoupParser(image.render_multi_format(width=800, height=600))
-    assert parsed.classes == ['image__image']
+    assert parsed.classes == ["image__image"]
 
-    parsed = MultiFormatSoupParser(image.render_multi_format(width=800, height=600, extra_classes='nonsense'))
-    assert parsed.classes == ['image__image', 'nonsense']
+    parsed = MultiFormatSoupParser(
+        image.render_multi_format(width=800, height=600, extra_classes="nonsense")
+    )
+    assert parsed.classes == ["image__image", "nonsense"]
 
 
 @pytest.mark.django_db
 def test_file_render_multi_format_on_nonsense():
     garbage = EmptyFileFactory()
-    assert garbage.render_multi_format(width=400, height=200) == ''
+    assert garbage.render_multi_format(width=400, height=200) == ""
 
 
 @pytest.mark.django_db
 def test_file_text_contents():
-    text_file = FileFactory(file__data=b'hello')
-    assert text_file.text_contents == 'hello'
+    text_file = FileFactory(file__data=b"hello")
+    assert text_file.text_contents == "hello"
 
-    broken_file = FileFactory(file='media/not/a/real.file')
-    assert broken_file.text_contents == ''
+    broken_file = FileFactory(file="media/not/a/real.file")
+    assert broken_file.text_contents == ""
 
-    bad_unicode_file = FileFactory(file__data=b'\x80\x81')
-    assert bad_unicode_file.contents == b'\x80\x81'
-    assert bad_unicode_file.text_contents == ''
+    bad_unicode_file = FileFactory(file__data=b"\x80\x81")
+    assert bad_unicode_file.contents == b"\x80\x81"
+    assert bad_unicode_file.text_contents == ""

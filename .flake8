@@ -7,4 +7,8 @@ ignore =
     E722,
     # Line break after binary operator. Purely personal preference (and
     # Django's Q looks nicer this way).
-    W504
+    W504,
+    # "Line break before binary operator" conflicts with Black.
+    W503,
+    # As does "whitespace before ':'"
+    E203,

@@ -21,12 +21,12 @@ class TestFileUsedOn(TestCase):
         # Clear out the old images from the previous test to esnure
         # that they do not interfere.
         for instance in instances:
-            if hasattr(instance, 'image'):
+            if hasattr(instance, "image"):
                 instance.image = None
                 instance.save()
 
     def setUp(self):
-        self.site = AdminSite(name='test_admin')
+        self.site = AdminSite(name="test_admin")
 
         self.test_file = MinimalGIFFileFactory()
 
@@ -77,24 +77,36 @@ class TestFileUsedOn(TestCase):
         # We need to check that we can get the expected related objects when passing the file reference to get_related_objects_admin_urls()
         expected_outcome = [
             {
-                'title': str(obj),
-                'model_name': obj._meta.verbose_name,
-                'admin_url': reverse(f'admin:{obj._meta.app_label}_{obj._meta.model_name}_change', args=[obj.pk]),
-            } for obj in [self.test_model_1a, self.test_model_1b, self.test_model_2a]
+                "title": str(obj),
+                "model_name": obj._meta.verbose_name,
+                "admin_url": reverse(
+                    f"admin:{obj._meta.app_label}_{obj._meta.model_name}_change",
+                    args=[obj.pk],
+                ),
+            }
+            for obj in [self.test_model_1a, self.test_model_1b, self.test_model_2a]
         ]
 
-        self.assertEqual(get_related_objects_admin_urls(self.test_file), expected_outcome)
+        self.assertEqual(
+            get_related_objects_admin_urls(self.test_file), expected_outcome
+        )
 
     def test_get_related_objects_admin_urls_from_models_with_other_image(self):
         expected_outcome = [
             {
-                'title': str(obj),
-                'model_name': obj._meta.verbose_name,
-                'admin_url': reverse(f'admin:{obj._meta.app_label}_{obj._meta.model_name}_change', args=[obj.pk]),
-            } for obj in [self.test_model_1a_other, self.test_model_2a_other]
+                "title": str(obj),
+                "model_name": obj._meta.verbose_name,
+                "admin_url": reverse(
+                    f"admin:{obj._meta.app_label}_{obj._meta.model_name}_change",
+                    args=[obj.pk],
+                ),
+            }
+            for obj in [self.test_model_1a_other, self.test_model_2a_other]
         ]
 
-        self.assertEqual(get_related_objects_admin_urls(self.other_test_file), expected_outcome)
+        self.assertEqual(
+            get_related_objects_admin_urls(self.other_test_file), expected_outcome
+        )
 
     def test_get_related_objects_admin_urls_from_contentbase_with_image(self):
         self.test_page_model = PageFactory(
@@ -103,21 +115,24 @@ class TestFileUsedOn(TestCase):
             ),
         )
 
-        self.clear_image_references([
-            self.test_model_1a,
-            self.test_model_1b,
-            self.test_model_2a
-        ])
+        self.clear_image_references(
+            [self.test_model_1a, self.test_model_1b, self.test_model_2a]
+        )
 
         expected_outcome = [
             {
-                'title': str(self.test_page_model.content),
-                'model_name': self.test_page_model.content._meta.verbose_name,
-                'admin_url': reverse(f'admin:{self.test_page_model._meta.app_label}_{self.test_page_model._meta.model_name}_change', args=[self.test_page_model.pk]),
+                "title": str(self.test_page_model.content),
+                "model_name": self.test_page_model.content._meta.verbose_name,
+                "admin_url": reverse(
+                    f"admin:{self.test_page_model._meta.app_label}_{self.test_page_model._meta.model_name}_change",
+                    args=[self.test_page_model.pk],
+                ),
             },
         ]
 
-        self.assertEqual(get_related_objects_admin_urls(self.test_file), expected_outcome)
+        self.assertEqual(
+            get_related_objects_admin_urls(self.test_file), expected_outcome
+        )
 
     def test_get_related_objects_from_contentbase_inline_with_image(self):
         self.test_page_model = PageFactory(
@@ -129,21 +144,24 @@ class TestFileUsedOn(TestCase):
             image=self.test_file,
         )
 
-        self.clear_image_references([
-            self.test_model_1a,
-            self.test_model_1b,
-            self.test_model_2a
-        ])
+        self.clear_image_references(
+            [self.test_model_1a, self.test_model_1b, self.test_model_2a]
+        )
 
         expected_outcome = [
             {
-                'title': str(self.test_content_base_inline),
-                'model_name': self.test_content_base_inline._meta.verbose_name,
-                'admin_url': reverse(f'admin:{self.test_page_model._meta.app_label}_{self.test_page_model._meta.model_name}_change', args=[self.test_page_model.pk]),
+                "title": str(self.test_content_base_inline),
+                "model_name": self.test_content_base_inline._meta.verbose_name,
+                "admin_url": reverse(
+                    f"admin:{self.test_page_model._meta.app_label}_{self.test_page_model._meta.model_name}_change",
+                    args=[self.test_page_model.pk],
+                ),
             }
         ]
 
-        self.assertEqual(get_related_objects_admin_urls(self.test_file), expected_outcome)
+        self.assertEqual(
+            get_related_objects_admin_urls(self.test_file), expected_outcome
+        )
 
     def test_get_related_objects_admin_urls_from_model_inline_with_image(self):
         self.test_page_model = PageFactory(
@@ -151,22 +169,24 @@ class TestFileUsedOn(TestCase):
         )
 
         test_model_1a_inline = UsageModelOneInline.objects.create(
-            parent=self.test_model_1a,
-            image=self.test_file
+            parent=self.test_model_1a, image=self.test_file
         )
 
-        self.clear_image_references([
-            self.test_model_1a,
-            self.test_model_1b,
-            self.test_model_2a
-        ])
+        self.clear_image_references(
+            [self.test_model_1a, self.test_model_1b, self.test_model_2a]
+        )
 
         expected_outcome = [
             {
-                'title': str(test_model_1a_inline),
-                'model_name': test_model_1a_inline._meta.verbose_name,
-                'admin_url': reverse(f'admin:{self.test_model_1a._meta.app_label}_{self.test_model_1a._meta.model_name}_change', args=[self.test_model_1a.pk]),
+                "title": str(test_model_1a_inline),
+                "model_name": test_model_1a_inline._meta.verbose_name,
+                "admin_url": reverse(
+                    f"admin:{self.test_model_1a._meta.app_label}_{self.test_model_1a._meta.model_name}_change",
+                    args=[self.test_model_1a.pk],
+                ),
             },
         ]
 
-        self.assertEqual(get_related_objects_admin_urls(self.test_file), expected_outcome)
+        self.assertEqual(
+            get_related_objects_admin_urls(self.test_file), expected_outcome
+        )
