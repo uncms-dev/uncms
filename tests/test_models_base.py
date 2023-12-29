@@ -36,10 +36,6 @@ def test_pagebase_get_context_data():
         'og_title': '',
         'og_description': '',
         'og_image': None,
-        'twitter_card': None,
-        'twitter_title': '',
-        'twitter_description': '',
-        'twitter_image': None
     }
 
 
@@ -65,10 +61,6 @@ def test_searchmetabase_get_context_data():
         'og_title': '',
         'og_description': '',
         'og_image': None,
-        'twitter_card': None,
-        'twitter_title': '',
-        'twitter_description': '',
-        'twitter_image': None
     }
 
     for key, value in obj.get_context_data().items():

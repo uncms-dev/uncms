@@ -49,15 +49,12 @@ def test_head_meta_templates_render_identically(use_jinja2):
     assert_templates_equal()
 
     for field in [
-        'twitter_title',
-        'twitter_description',
         'og_description',
         'og_title',
         'browser_title',
     ]:
         setattr(page, field, 'Testing > &')
     page.og_image = MinimalGIFFileFactory()
-    page.twitter_image = MinimalGIFFileFactory()
     page.save()
 
     request = RequestFactory().get('/')

@@ -441,7 +441,7 @@ def test_pagesearchadapter_get_content():
     search_adapter = PageSearchAdapter(Page)
 
     content = search_adapter.get_content(page)
-    assert content == '      homepage Homepage  testing'
+    assert content == '    homepage Homepage  testing'
 
 
 @pytest.mark.django_db

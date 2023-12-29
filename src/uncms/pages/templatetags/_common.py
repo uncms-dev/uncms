@@ -9,7 +9,6 @@ from django.utils.html import escape
 
 from uncms.conf import defaults
 from uncms.media.models import File
-from uncms.models import SearchMetaBase
 from uncms.pages import get_page_model
 from uncms.pages.types import Breadcrumbs
 from uncms.utils import canonicalise_url
@@ -264,103 +263,6 @@ def get_og_image(context):
         return canonicalise_url(page.og_image.get_absolute_url())
 
     return ''
-
-
-def get_twitter_card(context):
-    choices = dict(SearchMetaBase._meta.get_field('twitter_card').choices)
-
-    card = context.get('twitter_card')
-
-    # If we are still None, look at page content
-    if not card:
-        pages = context['request'].pages
-        current_page = pages.current
-        homepage = pages.homepage
-
-        # Use either the current page twitter card, or the homepage twitter card
-        if current_page:
-            card = current_page.twitter_card
-
-        if not card and homepage:
-            card = homepage.twitter_card
-
-    if card or card == 0:
-        card = str(choices[card]).lower()
-
-    return escape(card or str(choices[0]).lower())
-
-
-def get_twitter_title(context):
-    # Always prefer an override from the context.
-    if context.get('twitter_title'):
-        return context['twitter_title']
-
-    # If explicit "title" has been set in the context, then fall back to that.
-    # It should take precedence over looking at the current object or the
-    # currently active page.
-    if context.get('title'):
-        return context['title']
-
-    # If there is an object in the context, check it for the "twitter_title"
-    # and "title" fields in that order.
-    obj = context.get('object')
-    if obj:
-        for field in ['twitter_title', 'title']:
-            title = getattr(obj, field, None)
-            if title:
-                return title
-
-    # If we still haven't found one, look at the current page.
-    current_page = context['request'].pages.current
-
-    # Use the current page's Twitter title if it has one set.
-    if current_page and current_page.twitter_title:
-        return current_page.twitter_title
-
-    return get_og_title(context)
-
-
-def get_twitter_description(context):
-    if context.get('twitter_description'):
-        return context['twitter_description']
-
-    # Check twitter_description on the current object. No other fallbacks are
-    # needed - we can rely on the get_og_description fallback to be more
-    # thorough.
-    obj = context.get('object')
-    if obj and getattr(obj, 'twitter_description', None):
-        return obj.twitter_description
-
-    # Check the current page for a Twitter description.
-    current_page = context['request'].pages.current
-    if current_page and current_page.twitter_description:
-        return current_page.twitter_description
-
-    # Fall back to OpenGraph.
-    return get_og_description(context)
-
-
-def get_twitter_image(context):
-    """
-    Returns an appropriate Twitter image for the current page, falling back
-    to the Open Graph image if it is set.
-    """
-
-    # Prefer any explicit override in the context, including that set by
-    # SearchMetaDetailMixin.
-    if context.get('twitter_image'):
-        return canonicalise_url(context['twitter_image'].get_absolute_url())
-
-    obj = context.get('object')
-    if obj and getattr(obj, 'twitter_image', None):
-        return canonicalise_url(obj.twitter_image.get_absolute_url())
-
-    current_page = context['request'].pages.current
-    if current_page and current_page.twitter_image:
-        return canonicalise_url(current_page.twitter_image.get_absolute_url())
-
-    # Use OpenGraph image for fallbacks.
-    return get_og_image(context)
 
 
 def render_title(context, browser_title=None):

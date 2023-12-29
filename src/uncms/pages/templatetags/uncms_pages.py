@@ -13,10 +13,6 @@ from uncms.pages.templatetags._common import (
     get_og_image,
     get_og_title,
     get_page_url,
-    get_twitter_card,
-    get_twitter_description,
-    get_twitter_image,
-    get_twitter_title,
     render_navigation,
 )
 
@@ -137,23 +133,3 @@ def title(context, browser_title=None):
             ''
         ),
     }
-
-
-@register.simple_tag(takes_context=True)
-def twitter_card(context):
-    return get_twitter_card(context)
-
-
-@register.simple_tag(takes_context=True)
-def twitter_description(context):
-    return get_twitter_description(context)
-
-
-@register.simple_tag(takes_context=True)
-def twitter_image(context):
-    return get_twitter_image(context)
-
-
-@register.simple_tag(takes_context=True)
-def twitter_title(context):
-    return get_twitter_title(context)

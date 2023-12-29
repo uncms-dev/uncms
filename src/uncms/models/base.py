@@ -221,56 +221,6 @@ class SearchMetaBase(OnlineBase):
         ),
     )
 
-    # Twitter card fields
-    twitter_card = models.IntegerField(
-        verbose_name=_('card'),
-        choices=[
-            (0, _('Summary')),
-            (1, _('Photo')),
-            (2, _('Video')),
-            (3, _('Product')),
-            (4, _('App')),
-            (5, _('Gallery')),
-            (6, _('Large Summary')),
-        ],
-        blank=True,
-        null=True,
-        default=None,
-        help_text=_(
-            'The type of content on the page. Most of the time "Summary" will suffice. '
-            'Before you can benefit from any of these fields make sure to go to '
-            'https://dev.twitter.com/docs/cards/validation/validator and get approved.'
-        ),
-    )
-
-    twitter_title = models.CharField(
-        verbose_name=_('title'),
-        blank=True,
-        max_length=70,
-        help_text=_('The title that appears on the Twitter card, it is limited to 70 characters.'),
-    )
-
-    twitter_description = models.TextField(
-        verbose_name=_('description'),
-        blank=True,
-        max_length=200,
-        help_text=_(
-            'Description that will appear on Twitter cards. It is limited '
-            'to 200 characters. This does\'nt effect SEO, so focus on copy '
-            'that complements the tweet and title rather than on keywords.'
-        ),
-    )
-
-    twitter_image = ImageRefField(
-        verbose_name=_('image'),
-        blank=True,
-        null=True,
-        help_text=_(
-            'The minimum size it needs to be is 280x150. If you want to use a larger image'
-            'make sure the card type is set to "Large Summary".'
-        ),
-    )
-
     def get_context_data(self):
         """Returns the SEO context data for this page."""
         title = str(self)
@@ -285,10 +235,6 @@ class SearchMetaBase(OnlineBase):
             "og_title": self.og_title,
             "og_description": self.og_description,
             "og_image": self.og_image,
-            "twitter_card": self.twitter_card,
-            "twitter_title": self.twitter_title,
-            "twitter_description": self.twitter_description,
-            "twitter_image": self.twitter_image
         }
 
     def render(self, request, template, context=None, **kwargs):

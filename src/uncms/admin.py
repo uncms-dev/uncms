@@ -168,7 +168,7 @@ def get_related_objects_admin_urls(obj):
 class SEOQualityControlFilter(admin.SimpleListFilter):
     '''
     A filter for models deriving from SearchMetaBase, to find pages with
-    incomplete SEO, OpenGraph or Twitter card information.
+    incomplete SEO or OpenGraph information.
 
     Usage:
 
@@ -186,7 +186,6 @@ class SEOQualityControlFilter(admin.SimpleListFilter):
             ('no-browser-title', _('No browser title')),
             ('incomplete-opengraph-fields', _('Incomplete Open Graph fields')),
             ('no-og-image', _('No Open Graph image')),
-            ('incomplete-twitter-fields', _('Incomplete Twitter card fields')),
         )
 
     def queryset(self, request, queryset):
@@ -198,7 +197,6 @@ class SEOQualityControlFilter(admin.SimpleListFilter):
             'no-browser-title': lambda qs: qs.filter(browser_title=''),
             'incomplete-opengraph-fields': lambda qs: qs.filter(Q(og_description='') | Q(og_image=None)),
             'no-og-image': lambda qs: qs.filter(og_image=None),
-            'incomplete-twitter-fields': lambda qs: qs.filter(Q(twitter_description='') | Q(Q(og_image=None) & Q(twitter_image=None))),
         }
 
         return options[self.value()](queryset)
@@ -261,11 +259,6 @@ class SearchMetaBaseAdmin(OnlineBaseAdmin, VersionAdmin, SearchAdmin):
         'classes': ('collapse',)
     })
 
-    OPENGRAPH_TWITTER_FIELDS = (_('Twitter card'), {
-        'fields': ('twitter_card', 'twitter_title', 'twitter_description', 'twitter_image'),
-        'classes': ('collapse',)
-    })
-
 
 class PageBaseAdmin(SearchMetaBaseAdmin):
     '''Base admin class for PageBase models.'''
@@ -285,5 +278,4 @@ class PageBaseAdmin(SearchMetaBaseAdmin):
         OnlineBaseAdmin.PUBLICATION_FIELDS,
         SearchMetaBaseAdmin.SEO_FIELDS,
         SearchMetaBaseAdmin.OPENGRAPH_FIELDS,
-        SearchMetaBaseAdmin.OPENGRAPH_TWITTER_FIELDS
     ]

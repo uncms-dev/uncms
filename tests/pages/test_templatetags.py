@@ -24,10 +24,6 @@ from uncms.pages.templatetags._common import (
     get_og_image,
     get_og_title,
     get_page_url,
-    get_twitter_card,
-    get_twitter_description,
-    get_twitter_image,
-    get_twitter_title,
     render_navigation,
 )
 from uncms.pages.templatetags.uncms_pages import (
@@ -40,10 +36,6 @@ from uncms.pages.templatetags.uncms_pages import (
     og_image,
     og_title,
     page_url,
-    twitter_card,
-    twitter_description,
-    twitter_image,
-    twitter_title,
 )
 from uncms.testhelpers.factories.media import MinimalGIFFileFactory
 from uncms.testhelpers.factories.pages import PageFactory
@@ -474,134 +466,3 @@ def test_page_url(test_function):
     assert test_function(-1) == '#'
     assert test_function(None) == '#'
     assert test_function(page.pk, 'detail', slug='subpage') == '/subpage/'
-
-
-@pytest.mark.django_db
-@pytest.mark.parametrize('test_function', [get_twitter_card, twitter_card])
-def test_twitter_card(test_function):
-    # "product" card type
-    homepage = PageFactory(twitter_card=3)
-    # "gallery" card type
-    subpage = PageFactory(parent=homepage, twitter_card=5)
-
-    request = request_with_pages(subpage.get_absolute_url())
-    context = {'request': request}
-    assert test_function(context) == 'gallery'
-
-    # Test the context override.
-    context['twitter_card'] = 1
-    assert test_function(context) == 'photo'
-
-    # Test falling back to the homepage.
-    request = request_with_pages('/imaginary/')
-    context = {'request': request}
-    assert test_function(context) == 'product'
-
-
-@pytest.mark.django_db
-@pytest.mark.parametrize('test_function', [get_twitter_description, twitter_description])
-def test_twitter_description(test_function):
-    # Ensure ultimate fallback is empty string (not None, or exploding because
-    # no pages exist)
-    context = {'request': request_with_pages()}
-    assert test_function(context) == ''
-
-    # Check fallback again, with pages
-    page = PageFactory()
-    context['request'] = request_with_pages()
-    assert test_function(context) == ''
-
-    # Check that it consults the current page's Twitter description
-    page.twitter_description = 'Page description'
-    page.save()
-    context['request'] = request_with_pages()
-    assert test_function(context) == 'Page description'
-
-    # Don't explode with an object which doesn't have a twitter_description
-    # field.
-    context['object'] = object()
-    assert test_function(context) == 'Page description'
-
-    # Ensure current object in context takes precedence.
-    context['object'] = PageBaseModel(title='Title', twitter_description='Object description')
-    assert test_function(context) == 'Object description'
-
-    # Ensure context takes preference.
-    context['twitter_description'] = 'Context description'
-    assert test_function(context) == 'Context description'
-
-
-@pytest.mark.django_db
-@pytest.mark.parametrize('test_function', [get_twitter_image, twitter_image])
-def test_twitter_image(test_function):
-    image = MinimalGIFFileFactory()
-
-    context = {'request': request_with_pages()}
-
-    # Ensure empty string is returned in the case of no pages. (Don't throw an
-    # exception before we have started making the site!)
-    assert test_function(context) == ''
-
-    # Ensure "not in context" and "in context, but empty" behave identically:
-    # fall back to OpenGraph.
-    context['twitter_image'] = None
-    context['og_image'] = image
-    assert test_function(context) == canonicalise_url(image.get_absolute_url())
-    del context['twitter_image']
-    assert test_function(context) == canonicalise_url(image.get_absolute_url())
-    del context['og_image']
-
-    # Test fallback to current page.
-    page = PageFactory()
-    context['request'] = request_with_pages()
-    assert test_function(context) == ''
-
-    page.twitter_image = MinimalGIFFileFactory()
-    page.save()
-    context['request'] = request_with_pages()
-    assert test_function(context) == canonicalise_url(page.twitter_image.get_absolute_url())
-
-    # Test that it uses "object"'s' Twitter image.
-    obj = PageBaseModel(title='Test', twitter_image=MinimalGIFFileFactory())
-    context['object'] = obj
-    assert test_function(context) == canonicalise_url(obj.twitter_image.get_absolute_url())
-
-    context['twitter_image'] = image
-    assert test_function(context) == canonicalise_url(image.get_absolute_url())
-
-
-@pytest.mark.django_db
-@pytest.mark.parametrize('test_function', [get_twitter_title, twitter_title])
-def test_twitter_title(test_function):
-    context = {'request': request_with_pages()}
-    # Ensure the fallback is empty string, not None
-    assert test_function(context) == ''
-
-    # Ensure the same works with a not-SearchMetaBase "object"
-    context['object'] = object()
-    assert test_function(context) == ''
-
-    # Test with a page
-    page = PageFactory(title='Page title')
-    context['request'] = request_with_pages()
-    assert test_function(context) == 'Page title'
-
-    # Make sure page twitter_title takes preference
-    page.twitter_title = 'Page Twitter title'
-    page.save()
-    context['request'] = request_with_pages()
-    assert test_function(context) == 'Page Twitter title'
-
-    # Ensure the object takes preference.
-    pagelike = PageBaseModel.objects.create(title='Pagelike title')
-    context['object'] = pagelike
-    assert test_function(context) == 'Pagelike title'
-
-    pagelike.twitter_title = 'Pagelike Twitter title'
-    assert test_function(context) == 'Pagelike Twitter title'
-
-    context['title'] = 'Context title override'
-    assert test_function(context) == 'Context title override'
-
-    context['twitter_title'] = 'Context Twitter override'
-    assert test_function(context) == 'Context Twitter override'

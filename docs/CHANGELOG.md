@@ -2,6 +2,7 @@
 
 ## Next release
 
+* Twitter fields have been removed from `PageBase` (and thus `Page`). These fields have for years not merited the prominence they have because Twitter has long supported OpenGraph metadata, and merit it even less now that Twitter is a dying website.
 * All model `help_text`s are now translatable.
 
 ## 0.0.9

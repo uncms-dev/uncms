@@ -162,10 +162,6 @@ class TestPageAdmin(TestCase):
                 "fields": ("og_title", "og_description", "og_image"),
                 "classes": ("collapse",)
             }),
-            ("Twitter card", {
-                "fields": ("twitter_card", "twitter_title", "twitter_description", "twitter_image"),
-                "classes": ("collapse",)
-            }),
         ]
 
         pagecontentwithfields_fields = [
@@ -195,10 +191,6 @@ class TestPageAdmin(TestCase):
                 "fields": ("og_title", "og_description", "og_image"),
                 "classes": ("collapse",)
             }),
-            ("Twitter card", {
-                "fields": ("twitter_card", "twitter_title", "twitter_description", "twitter_image"),
-                "classes": ("collapse",)
-            }),
         ]
 
         self.assertEqual(self.page_admin.get_fieldsets(request), pagecontent_fields)
@@ -219,8 +211,6 @@ class TestPageAdmin(TestCase):
             'sitemap_priority', 'sitemap_changefreq', 'robots_index',
             'robots_follow', 'robots_archive', 'og_title', 'og_description',
             'og_image',
-
-            'twitter_card', 'twitter_title', 'twitter_description', 'twitter_image'
         ]
 
         self.assertListEqual(list(form.base_fields.keys()), keys)
@@ -240,8 +230,7 @@ class TestPageAdmin(TestCase):
                 'browser_title', 'meta_description',
                 'sitemap_priority', 'sitemap_changefreq', 'robots_index',
                 'robots_follow', 'robots_archive', 'og_title', 'og_description',
-                'og_image', 'twitter_card', 'twitter_title',
-                'twitter_description', 'twitter_image']
+                'og_image']
         self.assertListEqual(list(form.base_fields.keys()), keys)
 
         self.assertIsInstance(form.base_fields['inline_model'].widget, RelatedFieldWidgetWrapper)

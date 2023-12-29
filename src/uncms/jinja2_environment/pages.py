@@ -44,10 +44,6 @@ PAGES_GLOBALS = {
         'get_og_title',
         'get_og_image',
         'get_og_description',
-        'get_twitter_card',
-        'get_twitter_image',
-        'get_twitter_description',
-        'get_twitter_title',
         'render_navigation',
     ]
 }

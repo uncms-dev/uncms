@@ -19,11 +19,6 @@ The `<head>` of your document should look like this:
 <meta property="og:description" content="{% og_description %}">
 <meta property="og:image" content="{% og_image %}">
 
-<meta name="twitter:card" content="{% twitter_card %}" />
-<meta name="twitter:title" content="{% twitter_title %}" />
-<meta name="twitter:description" content="{% twitter_description %}" />
-<meta name="twitter:image" content="{% twitter_image %}" />
-
 <link rel="canonical" href="{% canonical_url %}" />
 
 <title>{% block title %}{% title %}{% endblock %}</title>
@@ -209,17 +204,3 @@ You will want to use them like so:
 * if `og_image_url` is in the context, assume it is an arbitrary URL with a path part and return a canonicalised version of that URL; you may place `og_image_url` into the context to force an OpenGraph image override using a field which is not an UnCMS File (such as a Django `ImageField`)
 * if `object` is in the context (standard for views that inherit from Django's `DetailView`), check the object's `image` and `photo` attributes, in that order; it will return the first of those which are an UnCMS File
 * the OpenGraph image of the current page, if it is set
-
-## Twitter card functions
-
-`{% twitter_card %}`, `{% twitter_description %}` and `{% twitter_image %}` render the current Twitter card information for the current object. You will want to use them like so:
-
-```
-<!-- Twitter card data -->
-<meta name="twitter:card" content="{% twitter_card %}" />
-<meta name="twitter:title" content="{% twitter_title %}" />
-<meta name="twitter:description" content="{% twitter_description %}" />
-<meta name="twitter:image" content="{% twitter_image %}" />
-```
-
-If no Twitter card information is set on the current object, Twitter will look at the OpenGraph fields above.
