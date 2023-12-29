@@ -1,5 +1,5 @@
 #!/bin/sh
-
+git config blame.ignoreRevsFile .git-blame-ignore-revs
 rm -rf .venv
 python3 -m venv .venv
 . .venv/bin/activate
