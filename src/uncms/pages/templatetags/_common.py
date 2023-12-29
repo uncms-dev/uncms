@@ -262,6 +262,9 @@ def get_og_image(context):
     if page and page.og_image:
         return canonicalise_url(page.og_image.get_absolute_url())
 
+    if defaults.OPENGRAPH_FALLBACK_IMAGE:
+        return canonicalise_url(defaults.OPENGRAPH_FALLBACK_IMAGE)
+
     return ''
 
 

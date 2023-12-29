@@ -415,6 +415,14 @@ def test_og_image(test_function):
 
     request = RequestFactory().get('/')
     request.pages = RequestPageManager(request)
+
+    # Check behaviour of OPENGRAPH_FALLBACK_IMAGE setting.
+    with override_settings(UNCMS={
+        'OPENGRAPH_FALLBACK_IMAGE': '/static/images/og-fallback.png',
+        'SITE_DOMAIN': 'example.com',
+    }):
+        assert test_function({'request': request}) == 'https://example.com/static/images/og-fallback.png'
+
     assert test_function({'request': request}) == ''
 
 

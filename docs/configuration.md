@@ -269,6 +269,18 @@ See [Rendering page navigation](rendering-navigation.md) for more details.
 This controls whether a new `Page` (and anything else that inherits from OnlineBase) will have `is_online` set to True by default when creating new objects in the admin.
 Set it to `False` to make new pages be offline by default.
 
+## `OPENGRAPH_FALLBACK_IMAGE`
+
+* Type: string
+* Default: `None`
+
+Models that subclass `PageBase` have a `opengraph_image` field for an image to be displayed in Open Graph metadata.
+This is widely used in link previews on Mastodon, Facebook, instant messenger programs, and others.
+If no image is present, software that uses this metadata will often choose _some_ image from the page;
+this will often be one that makes no sense.
+Using this setting, you can avoid this behaviour by specifying a fallback image to use on pages that do not have one set.
+This may be either a path (`/static/images/example.png`) or an absolute one with protocol and domain (`https://example.com/static/images/example.png`).
+
 ## `PAGE_MODEL`
 
 * Type: string

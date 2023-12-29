@@ -204,3 +204,4 @@ You will want to use them like so:
 * if `og_image_url` is in the context, assume it is an arbitrary URL with a path part and return a canonicalised version of that URL; you may place `og_image_url` into the context to force an OpenGraph image override using a field which is not an UnCMS File (such as a Django `ImageField`)
 * if `object` is in the context (standard for views that inherit from Django's `DetailView`), check the object's `image` and `photo` attributes, in that order; it will return the first of those which are an UnCMS File
 * the OpenGraph image of the current page, if it is set
+* the value of the [OPENGRAPH_FALLBACK_IMAGE configuration item](configuration.md?id=OPENGRAPH_FALLBACK_IMAGE)
