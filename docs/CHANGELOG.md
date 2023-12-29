@@ -3,7 +3,7 @@
 ## Next release
 
 * It is now [possible](configuration.md?id=OPENGRAPH_FALLBACK_IMAGE) to specify an Open Graph fallback image for `SearchMetaBase` subclasses.
-* Twitter fields have been removed from `PageBase` (and thus `Page`). These fields have for years not merited the prominence they have because Twitter has long supported OpenGraph metadata, and merit it even less now that Twitter is a dying website.
+* Twitter fields have been removed from `SearchMetaBase` (and thus `Page`). These fields have for years not merited the prominence they have because Twitter has long supported OpenGraph metadata, and merit it even less now that Twitter is a dying website.
 * All model `help_text`s are now translatable.
 
 ## 0.0.9
