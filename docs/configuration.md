@@ -150,10 +150,10 @@ To turn this off for whatever reason, set this to `False`.
 * Type: string (dotted name of Django model)
 * Default: `'media.File'`
 
-UnCMS's default `SearchMetaBase` (and consequently `Page`) model has fields for images, for OpenGraph and Twitter cards.
+UnCMS's default `SearchMetaBase` (and consequently `Page`) model has fields for images.
 By default, it will be assumed that you have the UnCMS [media app](media-app.md) installed.
 You may want to bring your own media app, or to copy the UnCMS one into your own project with changes and a different name.
-If you do, you may override `MEDIA_FILE_MODEL` with this setting.
+If you do, you may override this setting, giving it a dotted `app_label.model_name` path.
 
 Your custom model must implement a `file` attribute, which is a Django `FileField`,
 an `is_image()` method to determine if it is an image,

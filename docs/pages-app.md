@@ -63,8 +63,7 @@ In addition to our "Text" field from our content model, we will have the followi
 * Online status
 * Navigation title (if you want a shorter version of the Page name to show in the navigation)
 * "Add to navigation" selection, allowing you to add / remove the page from the navigation
-* OpenGraph (Facebook and others) card controls
-* Twitter card controls
+* OpenGraph card controls (used for link previews by Facebook, Mastodon, instant messengers, and others)
 * SEO controls:
   * Browser title
   * Page keywords

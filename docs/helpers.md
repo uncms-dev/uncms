@@ -40,15 +40,14 @@ PageBase defines several fields that make this useful for article-like things:
 
 * A title and slug
 * Search engine optimisation (SEO) controls: title tag override, meta description, robots controls
-* Fields for Twitter and Facebook (OpenGraph) cards
+* Fields for OpenGraph cards
 
 `uncms.admin.PageBaseAdmin` is the companion `ModelAdmin`; anything that derives from `PageBase` definitely wants to use `PageBaseAdmin`.
 It prepopulates your `title` and `slug` field automatically, and offers the following fieldsets:
 
 * `PUBLICATION_FIELDS`, inherited from `OnlineBase`
 * `SEO_FIELDS` for SEO controls
-* `OPENGRAPH_FIELDS`, to control how OpenGraph card rendering (Facebook and others)
-* `OPENGRAPH_TWITTER_FIELDS`, to control how Twitter cards are rendered
+* `OPENGRAPH_FIELDS`, to control OpenGraph fields (used for link previews by Facebook, Mastodon, instant messengers, and others)
 
 The companion `uncms.views.PageDetailView` is a class-based view that takes care of putting `PageBase` fields into the template context so they are seen by UnCMS's [template functions](template-functions.md).
 There is also `uncms.views.PageDetailMixin`, which does the same thing but does not inherit from Django's `DetailView`.

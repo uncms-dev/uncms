@@ -323,8 +323,8 @@ Here's what you get (see the [helper models](helpers.md) section for more):
 
 * A title and slug
 * Online/offline controls (enforced by the manager)
-* OpenGraph and Twitter card fields.
-* SEO fields like meta descriptions and a title override.
+* SEO fields like meta descriptions and a title override
+* OpenGraph fields
 
 On to `ImageRefField`.
 You can read about the [media app](media-app.md) later on, but the short version is: it's a model wrapper around Django's `FileField`.
@@ -351,7 +351,6 @@ class ArticleAdmin(PageBaseAdmin):
         PageBaseAdmin.PUBLICATION_FIELDS,
         PageBaseAdmin.SEO_FIELDS,
         PageBaseAdmin.OPENGRAPH_FIELDS,
-        PageBaseAdmin.OPENGRAPH_TWITTER_FIELDS,
     ]
 ```
 
