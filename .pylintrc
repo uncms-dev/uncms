@@ -22,7 +22,10 @@ disable=
   no-member,
   # Use of _meta, _base_manager, etc is common in Django code.
   protected-access,
+  # This has too many false positives on migrations & such.
+  duplicate-code,
   # The following are annoying and arbitrary.
+  too-many-arguments,
   too-many-ancestors,
   too-many-instance-attributes,
   too-few-public-methods,
