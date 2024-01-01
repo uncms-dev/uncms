@@ -10,18 +10,14 @@ disable=
   # You'll have a hard time making Django things with these enabled.
   invalid-name,
   unused-argument,
-  # I like keeping it within 78 characters, but I am also not going to make
-  # code uglier for the sake of fitting on a 1970s glass teletype.
+  # Let Black decide about code formatting.
   line-too-long,
-  # django-watson forces us into this.
-  method-hidden,
   # These options more often than not just force people to write docstrings
   # for the sake of writing docstrings. Write them when they are necessary.
   # Don't write them when it's self-explanatory.
   missing-module-docstring,
   missing-function-docstring,
   missing-class-docstring,
-
   # "Class 'Page' has no 'id' member" * math.inf
   no-member,
   # Use of _meta, _base_manager, etc is common in Django code.
@@ -32,7 +28,6 @@ disable=
   too-few-public-methods,
   too-many-public-methods,
   too-many-branches,
-  # See above.
   too-many-locals,
   # probably a valid warning, but
   consider-using-f-string,
