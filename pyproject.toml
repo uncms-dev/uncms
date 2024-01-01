@@ -39,7 +39,6 @@ dev = [
     "Jinja2==3.1.2",
     "psycopg2",
     "pylint==3.0.3",
-    "pylint-django==2.5.5",
     "pytest==7.2.0",
     "pytest-cov",
     "pytest-django==4.5.2",
