@@ -1,6 +1,6 @@
 # Changelog
 
-# Next release
+## 0.0.11
 
 It is now [possible](configuration.md?id=PAGE_ADMIN_ANCESTORS) to configure `PageAdmin` to inherit from arbitrary classes.
 
