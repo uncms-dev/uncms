@@ -6,6 +6,7 @@ page form, including registering inlines. It also gives you a totally
 different page for "add a page", which gives you a list of page types with
 their icons.
 """
+import itertools
 from functools import cmp_to_key
 from urllib.parse import parse_qs, urlencode
 
@@ -29,6 +30,7 @@ from django.http import (
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.defaultfilters import capfirst
 from django.urls import path, reverse
+from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
 from watson.search import search_context_manager
 
@@ -125,6 +127,41 @@ class PageAdmin(PageBaseAdmin):
     def _register_page_inline(self, model):
         """Registers the given page inline with reversion."""
         self._reversion_autoregister(model, follow=["page"])
+
+    def __new__(cls, *args, **kwargs):
+        """
+        This is bad code which should not exist. It dynamically composes
+        PageAdmin based on ancestors in the PAGE_ADMIN_ANCESTORS configuration
+        item. Friends don't let friends use __new__.
+
+        This has been added because of one thing: adminsortable2. It insists
+        that its sortable inlines can only be registered to some other
+        ModelAdmin which inherits from SortableAdminBase. We're not going to make
+        adminsortable2 a requirement of UnCMS just in case someone wants to
+        use it in their projects. But we can add an extension point for people
+        who want to use it.
+
+        The other option would be to have a local PageAdmin in a project. But
+        then `page_admin.register_content_inline` would not work anymore. This
+        seems like the most "consumer" friendly way of implementing this.
+        """
+        composed = type(
+            "PageAdmin",
+            tuple(
+                itertools.chain(
+                    # Compose a class made of everything from the
+                    # PAGE_ADMIN_ANCESTORS setting...
+                    [
+                        import_string(ancestor)
+                        for ancestor in defaults.PAGE_ADMIN_ANCESTORS
+                    ],
+                    # ...with this class.
+                    (cls,),
+                ),
+            ),
+            {},
+        )
+        return super().__new__(composed)
 
     def __init__(self, *args, **kwargs):
         """Initialzies the PageAdmin."""

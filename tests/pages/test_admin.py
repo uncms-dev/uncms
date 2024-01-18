@@ -907,3 +907,13 @@ def test_pageadmin_unpublish_selected(client):
     for page in page_2, page_3:
         page.refresh_from_db()
         assert page.is_online is False
+
+
+class Wat:
+    # you'll see what this is for below
+    ...
+
+
+@override_settings(UNCMS={"PAGE_ADMIN_ANCESTORS": ["tests.pages.test_admin.Wat"]})
+def test_pageadmin_ancestors_setting():
+    assert isinstance(PageAdmin(Page, AdminSite()), Wat)

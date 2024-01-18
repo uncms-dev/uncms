@@ -1,5 +1,9 @@
 # Changelog
 
+# Next release
+
+It is now [possible](configuration.md?id=PAGE_ADMIN_ANCESTORS) to configure `PageAdmin` to inherit from arbitrary classes.
+
 ## 0.0.10
 
 * It is now [possible](configuration.md?id=OPENGRAPH_FALLBACK_IMAGE) to specify an Open Graph fallback image for `SearchMetaBase` subclasses.

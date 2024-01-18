@@ -281,6 +281,20 @@ this will often be one that makes no sense.
 Using this setting, you can avoid this behaviour by specifying a fallback image to use on pages that do not have one set.
 This may be either a path (`/static/images/example.png`) or an absolute one with protocol and domain (`https://example.com/static/images/example.png`).
 
+## `PAGE_ADMIN_ANCESTORS`
+
+* Type: list of strings (dotted paths to classes)
+* Default: `[]`
+
+Sometimes it is useful in your projects to have `PageAdmin` (the admin class for the UnCMS Page) inherit from some class (either project-local or third-party).
+It would allows adding features to `PageAdmin` that do not belong in UnCMS.
+
+For example, [django-admin-sortable2](https://github.com/jrief/django-admin-sortable2/) requires that all inlines registered to a model must inherit from one of its own classes; this cannot be monkey-patched or silenced.
+Specifically, to register one of its inlines onto `Page` would require PageAdmin to inherit from `adminsortable2.admin.SortableAdminBase'`,
+but in accordance with its [philosophy](philosophy.md) this would never be added as a requirement of UnCMS.
+
+Instead, you could change the `PAGE_ADMIN_ANCESTORS` configuration item to be `["adminsortable2.admin.SortableAdminBase"]`. This would mean that any `PageAdmin` would inherit from `SortableAdminBase` and allow use of adminsortable2's inlines.
+
 ## `PAGE_MODEL`
 
 * Type: string
