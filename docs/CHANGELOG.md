@@ -1,5 +1,9 @@
 # Changelog
 
+## Next release
+
+* The [now-deprecated](https://github.com/mozilla/bleach/issues/698) Bleach has been replaced with [nh3](https://github.com/messense/nh3). As a consequence, `BLEACH_OPTIONS` is now `NH3_OPTIONS`.
+
 ## 0.0.11
 
 It is now [possible](configuration.md?id=PAGE_ADMIN_ANCESTORS) to configure `PageAdmin` to inherit from arbitrary classes.

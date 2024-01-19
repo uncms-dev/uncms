@@ -1,5 +1,5 @@
 """HTML processing routines."""
-import bleach
+import nh3
 from bs4 import BeautifulSoup
 from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
@@ -9,7 +9,7 @@ from uncms.conf import defaults
 
 
 def clean_html(html):
-    return bleach.clean(html, **defaults.BLEACH_OPTIONS)
+    return nh3.clean(html, **defaults.NH3_OPTIONS)
 
 
 def clean_all(html):

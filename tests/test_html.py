@@ -79,13 +79,20 @@ def example_processor(html):
 
 
 def test_html_clean():
-    html = '<script>alert("Hello!")><img loading="lazy" onload="alert(&quot;whoops&quot;)" title="example" class="test" src="/example.png"><p>woof</p>'
+    html = '<script>alert("Hello!")></script><img loading="lazy" onload="alert(&quot;whoops&quot;)" title="example" class="test" src="/example.png"><p>woof</p>'
 
     for clean_func in clean_html, clean_all:
         assert (
             clean_func(html)
-            == '&lt;script&gt;alert("Hello!")&gt;<img loading="lazy" title="example" class="test" src="/example.png"><p>woof</p>'
+            == '<img loading="lazy" title="example" class="test" src="/example.png"><p>woof</p>'
         )
+
+        # Make sure we're not adding nh3's default "noopener noreferrer".
+        assert clean_func('<a href="/wat/">Sample</a>') == '<a href="/wat/">Sample</a>'
+
+        # Check behaviour of unknown tags. This one is from nonsense that you
+        # get when copy-pasting from Word.
+        assert clean_func("<o:p>Sample</o:p>") == "Sample"
 
     # check settings overrides work
     with override_settings(
@@ -98,5 +105,5 @@ def test_html_clean():
     ):
         assert (
             clean_all(html)
-            == '&lt;script&gt;alert("Hello!")&gt;<img loading="lazy" title="example" class="test" src="/example.png"><p>meow</p>'
+            == '<img loading="lazy" title="example" class="test" src="/example.png"><p>meow</p>'
         )

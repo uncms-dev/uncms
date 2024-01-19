@@ -36,8 +36,8 @@ It will also thumbnail images to the width specified in the [`HTML_IMAGE_WIDTH`]
 
 Extra HTML output processors may be specified with [`HTML_OUTPUT_FORMATTERS`](configuration.md?id=html_output_formatters).
 
-The `html` filter will also clean the HTML by filtering it through [Bleach](https://github.com/mozilla/bleach), which will remove any nasties such as `<script>`.
-You may wish to override which tags and attributes are allowed with the [`BLEACH_OPTIONS`](configuration.md?id=bleach_options) configuration option.
+The `html` filter will also clean the HTML by filtering it through [nh3](https://github.com/messense/nh3), which will remove any nasties such as `<script>`.
+You may wish to override which tags and attributes are allowed with the [`NH3_OPTIONS`](configuration.md?id=nh3_options) configuration option.
 Alternatively, you may change the [`HTML_CLEANERS`](configuration.md?id=html_cleaners) option to add extra HTML sanitisers,
 or to remove HTML sanitisation altogether.
 

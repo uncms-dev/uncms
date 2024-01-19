@@ -22,10 +22,10 @@ dependencies = [
     "Pillow",
     "sorl-thumbnail",
     "beautifulsoup4",
-    "bleach>=5.0.1,<6",
     "django>=4.2,<4.3",
     "django-watson",
     "django-reversion",
+    "nh3>=0.2.15,<1",
     "python-magic>=0.4.15",
 ]
 

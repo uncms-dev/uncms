@@ -36,19 +36,6 @@ While some efforts are made to ensure this is efficient
 with extremely deep and wide page trees you may find that this becomes inefficient.
 If so, set this to `False`.
 
-## `BLEACH_OPTIONS`
-
-* Type: dictionary (Bleach `clean` keyword arguments)
-* Default: too large to put here; see `uncms/conf.py`
-
-HTML from the default [HTML editor](html-editor.md) should be sanitised for bad tags (such as `<script>`) and bad attributes (such as `onload`) before being displayed to users of your site.
-By default, this is passed through [Bleach](https://github.com/mozilla/bleach).
-UnCMS has a long list of built-in default allowed tags and attributes that should be safe.
-You may want to allow or disallow other tags and attributes.
-If you do, use this configuration setting.
-
-This option corresponds directly to keyword arguments accepted by the [`bleach.clean`](https://bleach.readthedocs.io/en/latest/clean.html) function.
-
 ## `BREADCRUMBS_CLASS_PREFIX`
 
 * Type: string
@@ -88,8 +75,8 @@ depending on whether you are using Django templates (`.html`) or [Jinja2](using-
 * Default: `['uncms.html.clean_html']`
 
 This is a list of functions that will clean the output in the `html` template filter.
-The default is to run it through a function that cleans it with Bleach's `clean` function.
-See `BLEACH_OPTIONS` above.
+The default is to run it through a function that cleans it with [nh3](https://nh3.readthedocs.io/en/latest/#usage)'s `clean`.
+See `NH3_OPTIONS` above.
 
 This should be a list of functions, as dotted string paths, which accept a single argument and return the cleaned HTML as a string.
 This list is _not_ additive to the defaults;
@@ -260,6 +247,19 @@ See [Rendering page navigation](rendering-navigation.md) for more details.
 
 This controls which template will be used to render individual items within sub-menus inside the site navigation.
 See [Rendering page navigation](rendering-navigation.md) for more details.
+
+## `NH3_OPTIONS`
+
+* Type: dictionary (nh3 `clean` keyword arguments)
+* Default: too large to put here; see `uncms/conf.py`
+
+HTML from the default [HTML editor](html-editor.md) should be sanitised for bad tags (such as `<script>`) and bad attributes (such as `onload`) before being displayed to users of your site.
+By default, this is passed through [nh3](https://github.com/messense/nh3).
+UnCMS has a long list of built-in default allowed tags and attributes that should be safe.
+You may want to allow or disallow other tags and attributes.
+If you do, use this configuration setting.
+
+This option corresponds directly to keyword arguments accepted by the [`nh3.clean`](https://nh3.readthedocs.io/en/latest/#usage) function.
 
 ## `ONLINE_DEFAULT`
 
