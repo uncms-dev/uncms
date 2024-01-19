@@ -1,11 +1,12 @@
 import re
 
+import nh3
 from django.conf import settings
 from django.core import checks
 from django.urls import NoReverseMatch, reverse
 from django.utils.translation import gettext_lazy as _
 
-from uncms.conf import defaults
+from uncms.conf import AppSettings, defaults
 
 
 @checks.register()
@@ -121,4 +122,27 @@ def check_django_settings(app_configs, **kwargs):
                 ),
             )
         )
+
+    # Ensure that all options in UNCMS correspond to actual options.
+    for key in getattr(settings, "UNCMS", {}):
+        if key not in AppSettings.default_settings:
+            errors.append(
+                checks.Error(
+                    f"Unknown configuration option {key}",
+                    hint=f"Remove {key} from the `UNCMS` configuration dict in your settings.",
+                    id="uncms.008",
+                ),
+            )
+
+    try:
+        nh3.clean("<p>Hi</p>", **defaults.NH3_OPTIONS)
+    except Exception as e:  # pylint:disable=broad-except
+        errors.append(
+            checks.Error(
+                f"NH3_OPTIONS caused an exception in `nh3.clean()`: {e}",
+                hint="Silence uncms.009 then check the exception raised where you have used the `html` filter",
+                id="uncms.009",
+            ),
+        )
+
     return errors

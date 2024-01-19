@@ -87,3 +87,28 @@ def test_check_django_settings():
         _, stderr = get_command_output("check")
     assert "`MEDIA_URL` is set to `/`" in stderr
     assert "uncms.007" in stderr
+
+
+def test_check_settings_are_real():
+    _, stderr = get_command_output("check")
+    assert stderr == ""
+
+    # BLEACH_OPTIONS comes from an older version.
+    with override_settings(UNCMS={"SITE_DOMAIN": "example.com", "BLEACH_OPTIONS": {}}):
+        _, stderr = get_command_output("check")
+    assert "Unknown configuration option BLEACH_OPTIONS" in stderr
+    assert "uncms.008" in stderr
+
+
+def test_check_nh3_options():
+    _, stderr = get_command_output("check")
+    assert stderr == ""
+
+    with override_settings(
+        UNCMS={"SITE_DOMAIN": "example.com", "NH3_OPTIONS": {"whargbl": "wat"}}
+    ):
+        _, stderr = get_command_output("check")
+    assert (
+        "NH3_OPTIONS caused an exception in `nh3.clean()`: clean() got an unexpected keyword"
+        in stderr
+    )

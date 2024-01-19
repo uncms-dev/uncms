@@ -3,6 +3,8 @@
 ## Next release
 
 * The [now-deprecated](https://github.com/mozilla/bleach/issues/698) Bleach has been replaced with [nh3](https://github.com/messense/nh3). As a consequence, `BLEACH_OPTIONS` is now `NH3_OPTIONS`.
+* `BLEACH_OPTIONS` was never validated, and that would cause an exception to happen at runtime, where it might not be tested. The replacement `NH3_OPTIONS` is now validated with a system check, because that happens immediately on startup, and is almost free to run.
+* The `UNCMS` [configuration](configuration.md) dictionary is now validated to ensure that all keys correspond to known configuration options.
 
 ## 0.0.11
 
