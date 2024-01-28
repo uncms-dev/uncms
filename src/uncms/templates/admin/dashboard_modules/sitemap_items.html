@@ -1,55 +1,60 @@
-<ul class="uncms-sitemap__items">
-  {% for item in items %}
-    <li class="uncms-sitemap__item">
-      <div class="uncms-sitemap__item-inner">
-        {% if item.can_move %}
-          <div class="uncms-sitemap__item-moves">
-            <form
-              class="uncms-sitemap__item-move-form"
-              method="post"
-              action="{% url 'admin:pages_page_move_page' item.id %}"
-            >
-              <button {% if forloop.first %}disabled{% endif %} class="uncms-sitemap__item-move-button uncms-sitemap__item-move-button--up" aria-label="Move up" title="Move up">
-              </button>
-              <input type="hidden" name="direction" value="up">
-              {% csrf_token %}
-            </form>
+{% if not items %}
+  You haven't created any pages yet.
+  Go <a href="{% url 'admin:pages_page_add' %}">add one</a>.
+{% else %}
+  <ul class="uncms-sitemap__items">
+    {% for item in items %}
+      <li class="uncms-sitemap__item">
+        <div class="uncms-sitemap__item-inner">
+          {% if item.can_move %}
+            <div class="uncms-sitemap__item-moves">
+              <form
+                class="uncms-sitemap__item-move-form"
+                method="post"
+                action="{% url 'admin:pages_page_move_page' item.id %}"
+              >
+                <button {% if forloop.first %}disabled{% endif %} class="uncms-sitemap__item-move-button uncms-sitemap__item-move-button--up" aria-label="Move up" title="Move up">
+                </button>
+                <input type="hidden" name="direction" value="up">
+                {% csrf_token %}
+              </form>
 
-            <form
-              class="uncms-sitemap__item-move-form"
-              method="post"
-              action="{% url 'admin:pages_page_move_page' item.id %}"
-            >
-              <button {% if forloop.last %}disabled{% endif %} class="uncms-sitemap__item-move-button uncms-sitemap__item-move-button--down" aria-label="Move down" title="Move down">
-              </button>
-              <input type="hidden" name="direction" value="down">
-              {% csrf_token %}
-            </form>
+              <form
+                class="uncms-sitemap__item-move-form"
+                method="post"
+                action="{% url 'admin:pages_page_move_page' item.id %}"
+              >
+                <button {% if forloop.last %}disabled{% endif %} class="uncms-sitemap__item-move-button uncms-sitemap__item-move-button--down" aria-label="Move down" title="Move down">
+                </button>
+                <input type="hidden" name="direction" value="down">
+                {% csrf_token %}
+              </form>
+            </div>
+          {% endif %}
+
+          {% if item.can_change or item.can_view %}
+            <a href="{{ item.admin_url }}">
+              {{ item.title }}
+            </a>
+          {% else %}
+            <span>{{ item.title }}</span>
+          {% endif %}
+
+          <div class="uncms-sitemap__item-icons">
+            {% if not item.is_online %}
+              <div class="uncms-sitemap__item-icon uncms-sitemap__item-icon--offline" title="Offline"></div>
+            {% endif %}
+
+            {% if not item.in_navigation %}
+              <div class="uncms-sitemap__item-icon uncms-sitemap__item-icon--not-in-navigation" title="Hidden from navigation"></div>
+            {% endif %}
           </div>
-        {% endif %}
-
-        {% if item.can_change or item.can_view %}
-          <a href="{{ item.admin_url }}">
-            {{ item.title }}
-          </a>
-        {% else %}
-          <span>{{ item.title }}</span>
-        {% endif %}
-
-        <div class="uncms-sitemap__item-icons">
-          {% if not item.is_online %}
-            <div class="uncms-sitemap__item-icon uncms-sitemap__item-icon--offline" title="Offline"></div>
-          {% endif %}
-
-          {% if not item.in_navigation %}
-            <div class="uncms-sitemap__item-icon uncms-sitemap__item-icon--not-in-navigation" title="Hidden from navigation"></div>
-          {% endif %}
         </div>
-      </div>
 
-      {% if item.children %}
-        {% include 'admin/dashboard_modules/sitemap_items.html' with items=item.children %}
-      {% endif %}
-    </li>
-  {% endfor %}
-</ul>
+        {% if item.children %}
+          {% include 'admin/dashboard_modules/sitemap_items.html' with items=item.children %}
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+{% endif %}

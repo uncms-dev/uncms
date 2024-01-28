@@ -361,9 +361,14 @@ def test_admin_sitemap_entries():
     """
     Ensure our sitemap is not completely broken.
     """
-    PageFactory.create_tree(5, 4, 3)
+    # Make sure it does not break when no pages are present.
     request = RequestFactory().get("/admin/")
     request.user = MockSuperUser()
+
+    context = admin_sitemap_entries({"request": request})
+    assert context == {"pages": []}
+
+    PageFactory.create_tree(5, 4, 3)
 
     context = admin_sitemap_entries({"request": request})
     entries = context["pages"]

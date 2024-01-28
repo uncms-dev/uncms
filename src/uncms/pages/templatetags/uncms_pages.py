@@ -33,6 +33,7 @@ def admin_sitemap_entries(context):
     user = context["request"].user
     can_change = user.has_perm("pages.change_page")
     can_view = user.has_perm("pages.view_page") or can_change
+    page_model = get_page_model()
 
     def sitemap_entry(page):
         return {
@@ -49,10 +50,16 @@ def admin_sitemap_entries(context):
             "title": str(page),
         }
 
+    try:
+        # Note that we must not use request.pages here; that has all sorts of
+        # optimisations in place which we do not want.
+        homepage = page_model.objects.get_homepage()
+    except page_model.DoesNotExist:
+        pages = []
+    else:
+        pages = [sitemap_entry(homepage)]
     return {
-        # Note that we must not use request.pages here - we want to be able
-        # to render the sitemap after it has changed.
-        "pages": [sitemap_entry(get_page_model().objects.get_homepage())]
+        "pages": pages,
     }
 
 
