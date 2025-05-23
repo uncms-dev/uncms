@@ -577,34 +577,39 @@ def test_pagecontenttypefilter_lookups():
 
 
 @pytest.mark.django_db
-def test_pagecontenttypefilter_queryset():
-    # Ensures that the queryset returned by filtering is correct.
-    page_admin = PageAdmin(Page, AdminSite())
-    request = RequestFactory().get("/")
+def test_pagecontenttypefilter(client):
+    client.force_login(UserFactory(superuser=True))
 
+    def fetch_admin_list(get_data):
+        # Because of a bug in RequestFactory (when it's used with admin list
+        # filters anyway) we need to fetch the actual admin list rather than
+        # testing methods on the filter. This is OK.
+        response = client.get(reverse("admin:pages_page_changelist"), data=get_data)
+        assert response.status_code == 200
+        return response.context["cl"].result_list
+
+    # Ensures that the queryset returned by filtering is correct.
     # Add some pages with different content types.
     PageFactory(content=PageContent())
     PageFactory(content=PageContent())
     PageFactory(content=PageContentWithFields())
 
     # Test with no filters. Should be the same as Page.objects.all().
-    filterer = PageContentTypeFilter(request, {}, Page, page_admin)
-    queryset = filterer.queryset(request, Page.objects.all())
-    assert queryset.count() == Page.objects.all().count()
+    assert len(fetch_admin_list({})) == Page.objects.all().count()
 
     # Test with a content type filter. It should return a subset of the
     # pages.
     content_type_id = ContentType.objects.get_for_model(PageContent).id
     parameters = {"page_type": content_type_id}
-    filterer = PageContentTypeFilter(request, parameters, Page, page_admin)
-    queryset = filterer.queryset(request, Page.objects.all())
+    admin_results = fetch_admin_list(parameters)
     assert (
-        queryset.count() == Page.objects.filter(content_type_id=content_type_id).count()
+        len(admin_results)
+        == Page.objects.filter(content_type_id=content_type_id).count()
     )
     # The above will not be sufficient - we need to ensure that it is not
     # the same as the unfiltered queryset, not merely that the filtered
     # length is correct.
-    assert queryset.count() != Page.objects.all().count()
+    assert len(admin_results) != Page.objects.all().count()
 
 
 @pytest.mark.django_db

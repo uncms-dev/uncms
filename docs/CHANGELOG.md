@@ -1,5 +1,9 @@
 # Changelog
 
+## Next release
+
+* Django 5.2 is supported.
+
 ## 0.0.12
 
 * The [now-deprecated](https://github.com/mozilla/bleach/issues/698) Bleach has been replaced with [nh3](https://github.com/messense/nh3). As a consequence, `BLEACH_OPTIONS` is now `NH3_OPTIONS`.

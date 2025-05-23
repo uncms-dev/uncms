@@ -7,7 +7,10 @@ from uncms.media.filetypes import IMAGE_FILE_EXTENSIONS
 from uncms.media.widgets import ImageThumbnailWidget
 
 
-class FileRefField(models.ForeignKey):
+# pylint-disable here is because Pylint thinks a method (the unused cache_name)
+# is not being overridden, but which is in fact implemented on ForeignKey.
+# The same is true for the others in this file.
+class FileRefField(models.ForeignKey):  # pylint:disable=abstract-method
     """A foreign key to a File."""
 
     def __init__(self, **kwargs):
@@ -23,7 +26,7 @@ class FileRefField(models.ForeignKey):
         return super().formfield(**kwargs)
 
 
-class RestrictedFileRefField(FileRefField):
+class RestrictedFileRefField(FileRefField):  # pylint:disable=abstract-method
     """
     A FileRefField that only allows files of certain extensions.
     """
@@ -49,7 +52,7 @@ class RestrictedFileRefField(FileRefField):
         super().__init__(**kwargs)
 
 
-class ImageRefField(RestrictedFileRefField):
+class ImageRefField(RestrictedFileRefField):  # pylint:disable=abstract-method
     """
     A foreign key to a File, constrained to only select image files.
     """
@@ -61,7 +64,7 @@ class ImageRefField(RestrictedFileRefField):
         return super().formfield(**kwargs)
 
 
-class VideoFileRefField(RestrictedFileRefField):
+class VideoFileRefField(RestrictedFileRefField):  # pylint:disable=abstract-method
     """
     A foreign key to a File, constrained to only select video files.
     """

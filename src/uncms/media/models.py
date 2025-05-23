@@ -300,15 +300,34 @@ class File(models.Model):
         return render_to_string(defaults.IMAGE_TEMPLATE, context)
 
     def save(
-        self, force_insert=False, force_update=False, using=None, update_fields=None
+        self,
+        *args,
+        force_insert=False,
+        force_update=False,
+        using=None,
+        update_fields=None,
     ):
-        super().save(force_insert, force_update, using, update_fields)
+        super().save(
+            *args,
+            force_insert=force_insert,
+            force_update=force_update,
+            using=using,
+            update_fields=update_fields,
+        )
         if self.is_image():
             dimensions = self.get_dimensions()
 
             if dimensions:
                 self.width, self.height = dimensions
-                super().save(False, True, using=using, update_fields=update_fields)
+                update_fields = update_fields or []
+                update_fields = update_fields + ["width", "height"]
+                super().save(
+                    *args,
+                    force_insert=False,
+                    force_update=True,
+                    using=using,
+                    update_fields=update_fields,
+                )
 
     @cached_property
     def text_contents(self):
