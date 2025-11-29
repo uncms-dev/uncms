@@ -134,7 +134,8 @@ We don't have to define any fields at all on this model! Just its existence as a
 Now go to your admin and add a Page. You will be prompted to select a page type. Once you have selected "My content" as your page type, your page will appear with the `introduction` field all ready to fill out. Do that now, save the page, then go to the root URL on your website.
 
 Surprise! It's totally empty.
-Just as it doesn't have any assumptions about what your content looks like, it doesn't have any opinions on what the front end of your site should look like either.
+Just as it doesn't have any assumptions about what your content looks like, it doesn't have any opinions on what the front end of your site should look like either
+(other than the completely optional [edit bar](edit-bar.md).
 But UnCMS is in fact rendering this view, and is making an educated guess as to what template it should use. It's falling back to your `base.html` at the moment, but that's not its first choice. Let's create a template called `content/mycontent.html`:
 
 ```

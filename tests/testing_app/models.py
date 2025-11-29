@@ -160,4 +160,8 @@ class UsageModelOneInline(AbstractImageFieldModel):
     )
 
 
+class NotRegisteredInAdminModel(models.Model):
+    pass
+
+
 # End models for test_file_used_on

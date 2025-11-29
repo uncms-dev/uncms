@@ -3,6 +3,7 @@
 ## Next release
 
 * Django 5.2 is supported.
+* There is now a fancy, quality-of-life-improvement [edit bar](edit-bar.md).
 
 ## 0.0.12
 

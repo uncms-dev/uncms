@@ -30,6 +30,7 @@ and it plays well with your existing models.
 * Version control and rollback (via [django-reversion](https://github.com/etianen/django-reversion)).
 * Full-text search with relevance ranking (via [django-watson](https://github.com/etianen/django-watson)).
 * Many [helper models](helpers.md) and views for SEO-friendly user-visible models.
+* A completely optional [edit bar](edit-bar.md) for the front-end of your site.
 * [Support](using-jinja2.md) for Jinja2 templating.
 
 ## Getting started

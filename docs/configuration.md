@@ -378,6 +378,15 @@ if you wish to canonicalise to `www.`, set Django's `PREPEND_WWW` setting to `Tr
 Note that if you _do_ specify a `www.` prefix and you have `PREPEND_WWW` set to `True`,
 URLs will be canonicalised as `www.www.example.com`, which you probably do not want.
 
+## `SITE_NAME`
+
+* Type: string (the name of your site)
+* Default: `None`
+* Example form: `'example.com'`
+
+This is only used for rendering the name of your site in the optional [edit bar](edit-bar.md).
+It is not required there, either, but it looks nice.
+
 ## `WYSIWYG_EXTRA_OPTIONS`
 
 * Type: dictionary

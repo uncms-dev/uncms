@@ -133,6 +133,7 @@ class AppSettings:
         "REDIRECTS_CSV_IMPORT_ENABLED": True,
         "REGEX_REDIRECTS": False,
         "SITE_DOMAIN": None,
+        "SITE_NAME": None,
         "WYSIWYG_EXTRA_OPTIONS": {},
         "WYSIWYG_EXTRA_SCRIPTS": [],
         "WYSIWYG_EXTRA_STYLESHEETS": [],

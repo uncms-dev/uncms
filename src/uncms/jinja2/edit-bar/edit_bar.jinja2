@@ -1,0 +1,59 @@
+<div class="edit-bar">
+  <div class="edit-bar__inner">
+    <div class="edit-bar__left">
+      {% if site_name %}
+        <div class="edit-bar__item edit-bar__item--site-name">
+          {{ site_name }}
+        </div>
+      {% endif %}
+
+      {% if admin_change_url %}
+        <div class="edit-bar__item edit-bar__item--edit">
+          <a class="edit-bar__item-link" href="{{ admin_change_url }}" target="_blank">
+            {{ admin_change_text }}
+          </a>
+        </div>
+      {% endif %}
+
+
+      {% if admin_add_url %}
+        <div class="edit-bar__item edit-bar__item--add">
+          <a class="edit-bar__item-link" href="{{ admin_add_url }}" target="_blank">
+            {{ admin_add_text }}
+          </a>
+        </div>
+      {% endif %}
+
+      <div class="edit-bar__item edit-bar__item--hide">
+        {# autocomplete="off" stops it from persisting across reloads #}
+        <input type="checkbox" autocomplete="off" id="edit-bar-checkbox" class="edit-bar__hide-checkbox">
+        <label for="edit-bar-checkbox" class="edit-bar__item-link" data-hide-edit-bar-trigger>
+          {{ hide_bar_text }}
+        </label>
+      </div>
+
+      {% block left_items_end %}{% endblock %}
+    </div>
+
+    <div class="edit-bar__right">
+      {% if show_query_count %}
+        <div class="edit-bar__item edit-bar__item--query-count">
+          {{ query_count_text }}
+        </div>
+      {% endif %}
+
+      <div class="edit-bar__item edit-bar__item--admin">
+        <a class="edit-bar__item-link" href="{{ admin_index_url }}" target="_blank">
+          {{ admin_link_text }}
+        </a>
+      </div>
+
+      <form method="post" action="{{ admin_logout_url }}?next={{ request.path }}" class="edit-bar__item edit-bar__item--log-out">
+        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+        <button class="edit-bar__item-link edit-bar__item-link--button">
+          {{ log_out_text }}
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
