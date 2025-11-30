@@ -3,8 +3,15 @@ from django.contrib.admin.sites import AdminSite
 from django.test import RequestFactory
 from django.urls import reverse
 
-from tests.testing_app.models import OnlineBaseModel, PageBaseModel
-from uncms.admin import OnlineBaseAdmin
+from tests.testing_app.admin import InlineWithFkNameInline
+from tests.testing_app.models import (
+    InlineWithFkNameModel,
+    NotRegisteredInAdminModel,
+    OnlineBaseModel,
+    PageBaseModel,
+    UsageModelOne,
+)
+from uncms.admin import OnlineBaseAdmin, check_inline_for_admin_url
 from uncms.testhelpers.factories import UserFactory
 from uncms.testhelpers.factories.media import MinimalGIFFileFactory
 
@@ -83,3 +90,26 @@ def test_quality_control_filter(client):
         assert response.status_code == 200
         ids = sorted(obj.id for obj in response.context["cl"].result_list)
         assert ids == sorted(obj.id for obj in objs)
+
+
+@pytest.mark.django_db
+def test_check_inline_for_admin_url_with_fk_name_no_reverse_match():
+    """
+    Tests the branch for NoReverseMatch when fk_name is set but parent has no
+    admin.
+    """
+    # Create a parent that doesn't have an admin registered
+    parent = NotRegisteredInAdminModel.objects.create()
+
+    # Create an inline object that has a FK to the unregistered parent
+    inline_obj = InlineWithFkNameModel.objects.create(not_registered_parent=parent)
+
+    # The inline has fk_name set, and the parent exists but has no admin
+    # We pass UsageModelOne as the parent parameter (not NotRegisteredInAdminModel)
+    # so the FK loop won't match and we test only the fk_name block (lines 43-50)
+    result = check_inline_for_admin_url(
+        inline_obj, InlineWithFkNameInline, UsageModelOne
+    )
+
+    # Should return None after catching NoReverseMatch in the fk_name block
+    assert result is None

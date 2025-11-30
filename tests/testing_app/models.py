@@ -164,4 +164,11 @@ class NotRegisteredInAdminModel(models.Model):
     pass
 
 
+class InlineWithFkNameModel(models.Model):
+    not_registered_parent = models.ForeignKey(
+        NotRegisteredInAdminModel,
+        on_delete=models.CASCADE,
+    )
+
+
 # End models for test_file_used_on

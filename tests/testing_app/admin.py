@@ -3,6 +3,7 @@ from django.contrib import admin
 from tests.testing_app.models import (
     InlineModel,
     InlineModelNoPage,
+    InlineWithFkNameModel,
     PageBaseModel,
     UsageContentBaseModelInline,
     UsageModelOne,
@@ -38,6 +39,11 @@ page_admin.register_content_inline(
 
 class UsageModelOneInlineAdmin(admin.StackedInline):
     model = UsageModelOneInline
+
+
+class InlineWithFkNameInline(admin.StackedInline):
+    model = InlineWithFkNameModel
+    fk_name = "not_registered_parent"
 
 
 @admin.register(UsageModelOne)
