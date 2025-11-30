@@ -41,3 +41,19 @@ def test_formfield_for_choice_field_has_no_permission():
     )
 
     assert formfield.choices == [(1, "Draft"), (2, "Submitted for approval")]
+
+
+@pytest.mark.django_db
+def test_formfield_for_non_moderation_choice_field():
+    moderation_admin = ModerationAdminBase(ModerationModel, AdminSite())
+    obj = ModerationModel.objects.create()
+    request = RequestFactory().get("/")
+    request.user = MockRequestUser(
+        is_authenticated=True, permission=False, is_staff=True
+    )
+
+    formfield = moderation_admin.formfield_for_choice_field(
+        obj._meta.get_field("text_field"), request
+    )
+
+    assert list(formfield.choices)[1:] == [("one", "One"), ("two", "Two")]

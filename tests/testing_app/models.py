@@ -103,7 +103,9 @@ class ImageFieldModel(AbstractImageFieldModel):
 
 
 class ModerationModel(ModerationBase):
-    pass
+    # This field is to ensure branch coverage of the inverse case for "is this
+    # choice field called `status`.
+    text_field = models.CharField(choices=[("one", "One"), ("two", "Two")])
 
 
 class MediaTestModel(models.Model):
