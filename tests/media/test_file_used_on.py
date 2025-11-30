@@ -21,7 +21,7 @@ class TestFileUsedOn(TestCase):
         # Clear out the old images from the previous test to esnure
         # that they do not interfere.
         for instance in instances:
-            if hasattr(instance, "image"):
+            if hasattr(instance, "image"):  # pragma: no branch
                 instance.image = None
                 instance.save()
 
