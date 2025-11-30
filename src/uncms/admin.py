@@ -57,20 +57,12 @@ def check_inline_for_admin_url(obj, inline, parent, inline_check=True):
     # attribute to distinguish the two fields.
 
     for field in obj._meta.get_fields():
+        # Follow the ForeignKey to find the related model.
         if field.get_internal_type() in ["ForeignKey", "OneToOneField"]:
-            # Follow the ForeignKey to find the related model.
-
             related_model = obj._meta.get_field(field.attname).remote_field.model
 
             if parent == related_model:
-                # We've found a Foreign key to the parent, now
-                # to extract the page and get its admin change URL.
-
-                try:
-                    field_value = getattr(obj, field.attname)
-                except AttributeError:
-                    field_value = None
-
+                field_value = getattr(obj, field.attname)
                 if field_value:
                     return reverse(
                         f"admin:{related_model._meta.app_label}_{related_model._meta.model_name}_change",
