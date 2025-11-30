@@ -922,3 +922,30 @@ class Wat:
 @override_settings(UNCMS={"PAGE_ADMIN_ANCESTORS": ["tests.pages.test_admin.Wat"]})
 def test_pageadmin_ancestors_setting():
     assert isinstance(PageAdmin(Page, AdminSite()), Wat)
+
+
+@pytest.mark.django_db
+def test_pageadmin_get_page_content_cls_with_admin_change_obj_fallback():
+    """
+    Test that get_page_content_cls falls back to request._admin_change_obj.
+
+    This covers the edge case where get_page_content_cls is called with an obj
+    that lacks a content_type. It is not fully clear why this branch is there
+    (it's probably something to do with reversion), but for Chesterton's fence
+    reasons I'm keeping it there and just making sure that branch is visited.
+    """
+    page_admin = PageAdmin(Page, AdminSite())
+    homepage = PageFactory(content=PageContent(), title="Homepage", slug="homepage")
+
+    request = AdminRequestFactory().get("/")
+    request.user = MockSuperUser()
+
+    # Simulate what change_view does - set _admin_change_obj
+    request._admin_change_obj = homepage
+
+    # Create a Page instance without content_type set (simulating incomplete state)
+    incomplete_page = Page()
+
+    # Call with obj that has no content_type, should fall back to _admin_change_obj
+    result = page_admin.get_page_content_cls(request, incomplete_page)
+    assert result == PageContent
