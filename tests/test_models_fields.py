@@ -32,3 +32,6 @@ def test_linkfield_get_xxx_resolved():
     obj = LinkFieldModel.objects.create(link="https://[a")
 
     assert obj.get_link_resolved() == "https://[a"
+
+    obj = LinkFieldModel.objects.create(link="")
+    assert obj.get_link_resolved() == ""
