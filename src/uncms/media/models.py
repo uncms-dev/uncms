@@ -315,19 +315,16 @@ class File(models.Model):
             update_fields=update_fields,
         )
         if self.is_image():
-            dimensions = self.get_dimensions()
-
-            if dimensions:
-                self.width, self.height = dimensions
-                update_fields = update_fields or []
-                update_fields = update_fields + ["width", "height"]
-                super().save(
-                    *args,
-                    force_insert=False,
-                    force_update=True,
-                    using=using,
-                    update_fields=update_fields,
-                )
+            self.width, self.height = self.get_dimensions()
+            update_fields = update_fields or []
+            update_fields = update_fields + ["width", "height"]
+            super().save(
+                *args,
+                force_insert=False,
+                force_update=True,
+                using=using,
+                update_fields=update_fields,
+            )
 
     @cached_property
     def text_contents(self):
