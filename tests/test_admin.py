@@ -3,9 +3,10 @@ from django.contrib.admin.sites import AdminSite
 from django.test import RequestFactory
 from django.urls import reverse
 
-from tests.testing_app.admin import InlineWithFkNameInline
+from tests.testing_app.admin import InlineWithFkNameInline, InlineWithMultipleFkInline
 from tests.testing_app.models import (
     InlineWithFkNameModel,
+    InlineWithMultipleFkModel,
     NotRegisteredInAdminModel,
     OnlineBaseModel,
     PageBaseModel,
@@ -112,4 +113,26 @@ def test_check_inline_for_admin_url_with_fk_name_no_reverse_match():
     )
 
     # Should return None after catching NoReverseMatch in the fk_name block
+    assert result is None
+
+
+@pytest.mark.django_db
+def test_check_inline_for_admin_url_with_null_fk():
+    """
+    Tests the branch where FK field value is None (line 66->59).
+    """
+    # Create an inline object with null FKs. This model has two FK fields:
+    # parent (to UsageModelOne) and other_parent (to UsageModelTwo) The loop
+    # will process other_parent first (doesn't match UsageModelOne). Then it
+    # processes parent (matches UsageModelOne but value is None).
+    inline_obj = InlineWithMultipleFkModel.objects.create(
+        parent=None, other_parent=None
+    )
+
+    # Call check_inline_for_admin_url with UsageModelOne as parent
+    result = check_inline_for_admin_url(
+        inline_obj, InlineWithMultipleFkInline, UsageModelOne
+    )
+
+    # Should return None because the FK field is null
     assert result is None

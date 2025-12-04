@@ -4,6 +4,7 @@ from tests.testing_app.models import (
     InlineModel,
     InlineModelNoPage,
     InlineWithFkNameModel,
+    InlineWithMultipleFkModel,
     PageBaseModel,
     UsageContentBaseModelInline,
     UsageModelOne,
@@ -46,9 +47,13 @@ class InlineWithFkNameInline(admin.StackedInline):
     fk_name = "not_registered_parent"
 
 
+class InlineWithMultipleFkInline(admin.StackedInline):
+    model = InlineWithMultipleFkModel
+
+
 @admin.register(UsageModelOne)
 class UsageModelOneAdmin(admin.ModelAdmin):
-    inlines = [UsageModelOneInlineAdmin]
+    inlines = [UsageModelOneInlineAdmin, InlineWithMultipleFkInline]
 
 
 @admin.register(UsageModelTwo)

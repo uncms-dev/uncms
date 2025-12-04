@@ -159,6 +159,8 @@ class UsageModelOneInline(AbstractImageFieldModel):
     parent = models.ForeignKey(
         UsageModelOne,
         on_delete=models.CASCADE,
+        null=True,
+        blank=True,
     )
 
 
@@ -170,6 +172,21 @@ class InlineWithFkNameModel(models.Model):
     not_registered_parent = models.ForeignKey(
         NotRegisteredInAdminModel,
         on_delete=models.CASCADE,
+    )
+
+
+class InlineWithMultipleFkModel(models.Model):
+    parent = models.ForeignKey(
+        UsageModelOne,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+    )
+    other_parent = models.ForeignKey(
+        UsageModelTwo,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
     )
 
 
