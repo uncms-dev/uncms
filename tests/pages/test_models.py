@@ -4,6 +4,7 @@ from datetime import timedelta
 import pytest
 from django.contrib.contenttypes.models import ContentType
 from django.core.management import call_command
+from django.db import transaction
 from django.test import TransactionTestCase
 from django.utils.timezone import now
 from reversion import create_revision
@@ -538,6 +539,28 @@ def test_page_children_does_not_invalidate_prefetches(django_assert_num_queries)
     with django_assert_num_queries(0):
         top_level.children[0].get_absolute_url()
         top_level.children[0].children[0].get_absolute_url()
+
+
+@pytest.mark.django_db
+def test_page_save_swapping_homepage():
+    """
+    Swapping out the homepage is not yet an officially supported operation,
+    but let's make sure that we haven't done anything to preclude that in
+    future.
+
+    This does not test for a broken page tree! It's probably actually broken
+    at this point. It's mostly to ensure that this branch does not raise an
+    exception.
+    """
+    homepage = PageFactory(content=PageContent())
+    subpage = PageFactory(content=PageContent(), parent=homepage)
+    with transaction.atomic(), search.update_index():
+        subpage.parent = None
+        subpage.save()
+        homepage.parent = subpage
+        homepage.save()
+    now_homepage = Page.objects.get(id=subpage.id)
+    assert now_homepage.parent is None
 
 
 @pytest.mark.django_db
