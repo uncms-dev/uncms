@@ -4,10 +4,11 @@ import pytest
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import override_settings
 
-from uncms.media.forms import FileForm, ImageEditForm, mime_check
+from uncms.media.forms import FileForm, ImageEditForm, ImageUploadForm, mime_check
 from uncms.testhelpers.factories import UserFactory
 from uncms.testhelpers.factories.media import (
     MINIMAL_GIF_DATA,
+    MinimalGIFFileFactory,
     SampleJPEGFileFactory,
     SamplePNGFileFactory,
     data_file_path,
@@ -192,3 +193,146 @@ def test_mime_check():
     assert mime_check(file_1) is True
     assert mime_check(file_2) is False
     assert mime_check(file_3) is True
+
+
+@pytest.mark.django_db
+def test_fileform_validation_editing_existing_file():
+    """
+    Test validation when editing an existing file (branch 71->88 false branch).
+    When updating a file instance without changing the file itself, validation
+    should be skipped.
+    """
+    user = UserFactory()
+    existing_file = MinimalGIFFileFactory()
+
+    # Update metadata only, without changing the file - should skip validation
+    form = FileForm(
+        user=user,
+        instance=existing_file,
+        data={"title": "Updated Title"},
+    )
+    assert form.is_valid() is True
+
+    # Try to update an existing file with a mismatched MIME type
+    form = FileForm(
+        user=user,
+        instance=existing_file,
+        data={"title": "Updated"},
+        files={
+            "file": SimpleUploadedFile(
+                name="updated.jpg",
+                content=MINIMAL_GIF_DATA,
+                content_type="image/jpeg",
+            )
+        },
+    )
+    assert form.is_valid() is False
+    assert "Make sure the file extension is correct" in form.errors["file"][0]
+
+    # Try to update with a disallowed file type
+    form = FileForm(
+        user=user,
+        instance=existing_file,
+        data={"title": "Updated"},
+        files={
+            "file": SimpleUploadedFile(
+                name="updated.html",
+                content=b"<html></html>",
+                content_type="text/html",
+            )
+        },
+    )
+    assert form.is_valid() is False
+    assert "permission" in form.errors["file"][0]
+
+
+@pytest.mark.django_db
+def test_imageuploadform_clean_file_non_image():
+    """
+    Test ImageUploadForm.clean_file() when file is not an image (line 133).
+    """
+    user = UserFactory()
+    form = ImageUploadForm(
+        user=user,
+        data={"alt": "Not an image"},
+        files={
+            "file": SimpleUploadedFile(
+                name="sample.txt", content=b"text content", content_type="text/plain"
+            )
+        },
+    )
+    assert form.is_valid() is False
+    assert "does not appear to be an image file" in form.errors["file"][0]
+
+
+@pytest.mark.django_db
+def test_imageuploadform_save_with_alt_text():
+    """
+    Test ImageUploadForm.save() when alt text is provided (branch 145->147).
+    """
+    user = UserFactory()
+    form = ImageUploadForm(
+        user=user,
+        data={"alt": "A beautiful image"},
+        files={
+            "file": SimpleUploadedFile(
+                name="sample.gif", content=MINIMAL_GIF_DATA, content_type="image/gif"
+            )
+        },
+    )
+    assert form.is_valid()
+    instance = form.save()
+
+    assert instance.title == "A beautiful image"
+    assert instance.alt_text == "A beautiful image"
+
+
+@pytest.mark.django_db
+def test_imageuploadform_save_without_alt_text():
+    """
+    Test ImageUploadForm.save() when alt text is NOT provided (branch 148->151).
+    """
+    user = UserFactory()
+    form = ImageUploadForm(
+        user=user,
+        data={"alt": ""},
+        files={
+            "file": SimpleUploadedFile(
+                name="my_sample_image.gif",
+                content=MINIMAL_GIF_DATA,
+                content_type="image/gif",
+            )
+        },
+    )
+    assert form.is_valid()
+    instance = form.save()
+
+    assert instance.title == "my_sample_image"
+    assert instance.alt_text == ""
+
+
+@pytest.mark.django_db
+def test_imageuploadform_save_with_existing_title():
+    """
+    Test ImageUploadForm.save() when instance already has a title.
+    """
+    user = UserFactory()
+    existing_file = MinimalGIFFileFactory(title="Existing title")
+
+    form = ImageUploadForm(
+        user=user,
+        instance=existing_file,
+        data={"alt": "New alt text"},
+        files={
+            "file": SimpleUploadedFile(
+                name="updated.gif",
+                content=MINIMAL_GIF_DATA,
+                content_type="image/gif",
+            )
+        },
+    )
+    assert form.is_valid()
+    instance = form.save()
+
+    assert instance.title == "Existing title"
+    assert instance.alt_text == "New alt text"
