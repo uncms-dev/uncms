@@ -23,7 +23,7 @@ all the other file factories inherit from this.
 
 ```python
 class SampleFileFactory(FileFactory):
-    file = factory.django.FileField(from_func=lambda: BytesIO(b'Sample'))
+    file = factory.django.FileField(from_func=lambda: BytesIO(b"Sample"))
 ```
 
 ### `uncms.testhelpers.factories.media.EmptyFileFactory`
@@ -90,7 +90,7 @@ from uncms.testhelpers.factories.media import SVGFileFactory
 @pytest.mark.django_db
 def test_example():
     test_file = SampleWebPFileFactory()
-    assert test_file.file_extension == 'svg'
+    assert test_file.file_extension == "svg"
 ```
 
 ### `uncms.testhelpers.factories.media.MinimalGIFFileFactory`

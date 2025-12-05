@@ -9,7 +9,7 @@ First, you will wish to add `'django.contrib.sitemaps'` to your `INSTALLED_APPS`
 INSTALLED_APPS = [
     # all your other apps here (you should be able to put the below
     # anywhere in the list)
-    'django.contrib.sitemaps',
+    "django.contrib.sitemaps",
 ]
 ```
 
@@ -23,8 +23,18 @@ from uncms.sitemaps import registered_sitemaps
 
 urlpatterns = [
     # ...your URLS here...
-    path('sitemap.xml', sitemaps_views.index, {'sitemaps': registered_sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
-    path('sitemap-<str:section>.xml', sitemaps_views.sitemap, {'sitemaps': registered_sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
+    path(
+        "sitemap.xml",
+        sitemaps_views.index,
+        {"sitemaps": registered_sitemaps},
+        name="django.contrib.sitemaps.views.sitemap",
+    ),
+    path(
+        "sitemap-<str:section>.xml",
+        sitemaps_views.sitemap,
+        {"sitemaps": registered_sitemaps},
+        name="django.contrib.sitemaps.views.sitemap",
+    ),
 ]
 ```
 
@@ -34,6 +44,7 @@ The `uncms.sitemaps.register` function guesses an appropriate one for you:
 
 ```python
 from uncms import sitemaps
+
 sitemaps.register(YourModel)
 ```
 
@@ -59,11 +70,13 @@ We don't want those articles to appear in the sitemap. So we exclude them from i
 ```python
 from uncms import sitemaps
 
+
 class ArticleSitemap(sitemaps.PageBaseSitemap):
     model = Article
 
     def items(self):
         return super().items().filter(external_url=None)
+
 
 sitemaps.register(Article, sitemap_cls=ArticleSitemap)
 ```

@@ -20,7 +20,7 @@ and add the `SITE_DOMAIN` key with your default domain:
 UNCMS = {
     # Note that you do not want "www." before this - we'll obey the Django
     # PREPEND_WWW setting when constructing URLs.
-    'SITE_DOMAIN': 'example.com',
+    "SITE_DOMAIN": "example.com",
 }
 ```
 
@@ -33,31 +33,29 @@ Add our core UnCMS apps to your `INSTALLED_APPS`:
 ```python
 INSTALLED_APPS = [
     # your other apps here...
-
     # Reversion is used for version control and rollback. It is required by
     # UnCMS.
-    'reversion',
+    "reversion",
     # sorl-thumbnail is used for thumbnailing image fields in the admin, and
     # as such is required by UnCMS.
-    'sorl.thumbnail',
+    "sorl.thumbnail",
     # watson is used for full-text search. You don't need to use it on the
     # front-end of your site, but it is used in the admin.
-    'watson',
-
+    "watson",
     # These are the core UnCMS apps.
-    'uncms',
-    'uncms.pages',
-    'uncms.media',
+    "uncms",
+    "uncms.pages",
+    "uncms.media",
     # Links is optional, but it's very handy to have.
-    'uncms.links',
+    "uncms.links",
 ]
 ```
 
 Add two necessary context processors to our template context processors (in `['OPTIONS']['context_processors']`):
 
 ```python
-'django.template.context_processors.request',
-'uncms.pages.context_processors.pages',
+"django.template.context_processors.request",
+"uncms.pages.context_processors.pages",
 ```
 
 Add the page management middleware to your `MIDDLEWARE`:
@@ -65,8 +63,8 @@ Add the page management middleware to your `MIDDLEWARE`:
 ```python
 MIDDLEWARE = [
     # ...
-    'uncms.middleware.PublicationMiddleware',
-    'uncms.pages.middleware.PageMiddleware',
+    "uncms.middleware.PublicationMiddleware",
+    "uncms.pages.middleware.PageMiddleware",
 ]
 ```
 
@@ -77,7 +75,7 @@ And since all page URLs start with `"/"`, no pages will be served, ever!
 So UnCMS will throw an error if you don't set it.
 
 ```python
-MEDIA_URL = '/media/'
+MEDIA_URL = "/media/"
 ```
 
 Finally, you will need something like this in your root URLconf.
@@ -86,7 +84,7 @@ You may change the path part, but do not change the namespace.
 ```python
 urlpatterns = [
     # ... your other stuff here ...
-    path('library/', include('uncms.media.urls', namespace='media_library')),
+    path("library/", include("uncms.media.urls", namespace="media_library")),
 ]
 ```
 
@@ -170,7 +168,7 @@ Pay special attention to the ForeignKey if nothing else - this is essential, and
 ```python
 class ContentSection(models.Model):
     page = models.ForeignKey(
-        'pages.Page',
+        "pages.Page",
         on_delete=models.CASCADE,
     )
 
@@ -188,7 +186,7 @@ class ContentSection(models.Model):
     )
 
     class Meta:
-        ordering = ['order']
+        ordering = ["order"]
 ```
 
 We've defined a section model with a title, text, and an ordering field.
@@ -203,6 +201,7 @@ from .models import MyContent, ContentSection
 
 class ContentSectionInline(StackedInline):
     model = ContentSection
+
 
 page_admin.register_content_inline(MyContent, ContentSectionInline)
 ```
@@ -237,11 +236,11 @@ First, create an app called "news", add it to your `INSTALLED_APPS`, and add thi
 ```python
 from uncms.pages.models import ContentBase
 
+
 class NewsFeed(ContentBase):
+    classifier = "apps"
 
-    classifier = 'apps'
-
-    icon = 'icons/news.png'
+    icon = "icons/news.png"
 ```
 
 Notice that we're not declaring any model fields here - for now, we won't need to.
@@ -286,11 +285,11 @@ And add the model itself:
 ```python
 class Article(PageBase):
     page = models.ForeignKey(
-        'news.NewsFeed',
+        "news.NewsFeed",
         on_delete=models.PROTECT,
         null=True,
         blank=False,
-        verbose_name='News feed',
+        verbose_name="News feed",
     )
 
     image = ImageRefField(
@@ -310,7 +309,7 @@ class Article(PageBase):
     )
 
     class Meta:
-        ordering = ['-date']
+        ordering = ["-date"]
 
     def __str__(self):
         return self.title
@@ -346,9 +345,12 @@ from .models import Article, NewsFeed
 @admin.register(Article)
 class ArticleAdmin(PageBaseAdmin):
     fieldsets = [
-        (None, {
-            'fields': ['title', 'slug', 'page', 'content', 'summary'],
-        }),
+        (
+            None,
+            {
+                "fields": ["title", "slug", "page", "content", "summary"],
+            },
+        ),
         PageBaseAdmin.PUBLICATION_FIELDS,
         PageBaseAdmin.SEO_FIELDS,
         PageBaseAdmin.OPENGRAPH_FIELDS,
@@ -375,8 +377,8 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('', views.ArticleListView.as_view(), name='article_list'),
-    path('<slug:slug>/', views.ArticleDetailView.as_view(), name='article_detail'),
+    path("", views.ArticleListView.as_view(), name="article_list"),
+    path("<slug:slug>/", views.ArticleDetailView.as_view(), name="article_detail"),
 ]
 ```
 
@@ -384,7 +386,7 @@ You _don't_ want to add this to your root urlconf, because we don't need to.
 Instead, add this to your `NewsFeed` model:
 
 ```python
-urlconf = 'your_project.apps.news.urls'
+urlconf = "your_project.apps.news.urls"
 ```
 
 You'll want to correct the path; we've assumed your news app lives at `your_project.apps.news`.
@@ -405,10 +407,7 @@ class ArticleListView(ListView):
     model = Article
 
     def get_queryset(self):
-        return super().get_queryset().filter(
-            page__page=self.request.pages.current
-        )
-
+        return super().get_queryset().filter(page__page=self.request.pages.current)
 ```
 
 This is just a generic Django list view, nothing surprising here.
@@ -443,9 +442,12 @@ Like all good models, our article deserves to know what URL it lives at. Let's w
 
 ```python
 def get_absolute_url(self):
-    return self.page.page.reverse('article_detail', kwargs={
-        'slug': self.slug,
-    })
+    return self.page.page.reverse(
+        "article_detail",
+        kwargs={
+            "slug": self.slug,
+        },
+    )
 ```
 
 We use `page.reverse` almost exactly like we do Django's `django.urls.reverse` -
@@ -494,7 +496,7 @@ Add this to our `NewsFeed` content model:
 
 ```python
 per_page = models.IntegerField(
-    verbose_name='articles per page',
+    verbose_name="articles per page",
     default=12,
 )
 ```
@@ -502,9 +504,8 @@ per_page = models.IntegerField(
 Then, we can override `ListView`'s  `get_paginate_by` in our `ArticleListView`:
 
 ```python
-    def get_paginate_by(self, queryset):
-        return self.request.pages.current.content.per_page
-
+def get_paginate_by(self, queryset):
+    return self.request.pages.current.content.per_page
 ```
 
 There are many use cases for this sort of thing.
@@ -521,9 +522,12 @@ There's no need to list the various SEO and publication fields on the Page here,
 
 ```python
 fieldsets = [
-    ('Settings', {
-        'fields': ['per_page'],
-    }),
+    (
+        "Settings",
+        {
+            "fields": ["per_page"],
+        },
+    ),
 ]
 ```
 

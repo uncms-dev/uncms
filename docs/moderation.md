@@ -17,6 +17,7 @@ First, modify your model:
 ```python
 from uncms.moderation.models import ModerationBase
 
+
 class MyModel(ModerationBase):
     # Your fields here.
 

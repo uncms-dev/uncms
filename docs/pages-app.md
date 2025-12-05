@@ -43,7 +43,6 @@ from django.db import models
 
 
 class PlainPage(ContentBase):
-
     text = models.TextField(
         blank=True,
     )
@@ -88,14 +87,12 @@ from uncms.pages.models import ContentBase
 
 
 class PlainPage(ContentBase):
-
     text = models.TextField(
         blank=True,
     )
 
 
 class PlainPageTwo(ContentBase):
-
     text = models.TextField(
         blank=True,
     )
@@ -110,7 +107,7 @@ This is a string containing a dotted path to a standard Django urlconf, and that
 In our [walkthrough](walkthrough.md) we used this to create a news article list and a route for a news detail page, like this:
 
 ```python
-urlconf = 'tiny_project.apps.news.urls'
+urlconf = "tiny_project.apps.news.urls"
 ```
 
 You don't have to specify your own `urlconf` in your content model if you don't want to.
@@ -148,14 +145,12 @@ This has risks. Changing the content type will cause you to lose data in any fie
 
 ```python
 class Content(ContentBase):
-
     content = models.TextField(
         blank=True,
     )
 
 
 class ContentTwo(ContentBase):
-
     content = models.TextField(
         blank=True,
     )
@@ -165,14 +160,12 @@ You can switch without issue as they have the same fields. However, if your mode
 
 ```python
 class Content(ContentBase):
-
     content = models.TextField(
         blank=True,
     )
 
 
 class ContentTwo(ContentBase):
-
     description = models.TextField(
         blank=True,
     )

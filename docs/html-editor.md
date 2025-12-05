@@ -14,10 +14,11 @@ Other than the widget, it works just like a `TextField`:
 
 ```python
 from uncms.models import HtmlField
+
 # ... other imports here ....
 
 
-class Article(models.Model)
+class Article(models.Model):
     content = HtmlField()
 ```
 

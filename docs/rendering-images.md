@@ -104,7 +104,7 @@ For example, the following will result in the selectors mentioned above being `.
 ```python
 UNCMS = {
     # your other options here...
-    'IMAGE_CLASS_PREFIX': 'picture',
+    "IMAGE_CLASS_PREFIX": "picture",
 }
 ```
 
@@ -136,7 +136,7 @@ In this case, you would want an `UNCMS` configuration dictionary that looked lik
 ```python
 UNCMS = {
     # your other options here...
-    'IMAGE_TEMPLATE': 'media/never_lazy.html',
+    "IMAGE_TEMPLATE": "media/never_lazy.html",
 }
 ```
 

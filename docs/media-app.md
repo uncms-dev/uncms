@@ -16,9 +16,8 @@ from django.urls import include, path
 
 urlpatterns = [
     # other URLs here...
-    path('library/', include('uncms.media.urls', namespace='media_library')),
+    path("library/", include("uncms.media.urls", namespace="media_library")),
 ]
-
 ```
 
 ## Configuring allowed file types
@@ -117,7 +116,7 @@ from uncms.media.filetypes import IMAGE_FILE_EXTENSIONS
 
 
 class ImageOrSVGRefField(RestrictedFileRefField):
-    allowed_extensions = IMAGE_FILE_EXTENSIONS + ['svg']
+    allowed_extensions = IMAGE_FILE_EXTENSIONS + ["svg"]
 ```
 
 ## Next steps

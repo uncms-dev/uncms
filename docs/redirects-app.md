@@ -22,7 +22,7 @@ MIDDLEWARE = [
     #
     # ... all your other middleware goes here...
     #
-    'uncms.redirects.middleware.RedirectFallbackMiddleware',
+    "uncms.redirects.middleware.RedirectFallbackMiddleware",
 ]
 ```
 
@@ -117,7 +117,7 @@ But, if you need it, you _really_ need it. To enable the feature, add the `REGEX
 ```python
 UNCMS = {
     # ...your other settings here...
-    'REGEX_REDIRECTS': True,
+    "REGEX_REDIRECTS": True,
 }
 ```
 

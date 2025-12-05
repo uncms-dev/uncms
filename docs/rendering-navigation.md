@@ -173,6 +173,6 @@ Now, we can either specify this template in our `navigation` call...
 
 ```python
 UNCMS = {
-    'NAVIGATION_ITEM_TEMPLATE': 'pages/navigation/navigation_item_extended.html',
+    "NAVIGATION_ITEM_TEMPLATE": "pages/navigation/navigation_item_extended.html",
 }
 ```

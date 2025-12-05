@@ -11,24 +11,24 @@ Here is a sample entry for your `TEMPLATES` setting in Django:
 ```python
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.jinja2.Jinja2',
-        'DIRS': [
+        "BACKEND": "django.template.backends.jinja2.Jinja2",
+        "DIRS": [
             # put your project's template dirs here :)
         ],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.contrib.auth.context_processors.auth',
-                'django.template.context_processors.debug',
-                'django.template.context_processors.i18n',
-                'django.template.context_processors.media',
-                'django.template.context_processors.static',
-                'django.contrib.messages.context_processors.messages',
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.contrib.auth.context_processors.auth",
+                "django.template.context_processors.debug",
+                "django.template.context_processors.i18n",
+                "django.template.context_processors.media",
+                "django.template.context_processors.static",
+                "django.contrib.messages.context_processors.messages",
                 # These two are necessary to make UnCMS work.
-                'django.template.context_processors.request',
-                'uncms.pages.context_processors.pages',
+                "django.template.context_processors.request",
+                "uncms.pages.context_processors.pages",
             ],
-            'environment': 'uncms.jinja2_environment.all.environment',
+            "environment": "uncms.jinja2_environment.all.environment",
         },
     },
     # Don't forget to put Django's template backend after this! It is omitted
@@ -69,12 +69,16 @@ from uncms.jinja2_environment.all import sensible_defaults
 def environment(**options):
     env = sensible_defaults(**options)
     # add list builtin to templates
-    env.globals.update({
-        'list': list,
-    })
-    env.filters.update({
-        # add your own filters here
-    })
+    env.globals.update(
+        {
+            "list": list,
+        }
+    )
+    env.filters.update(
+        {
+            # add your own filters here
+        }
+    )
     return env
 ```
 

@@ -75,7 +75,7 @@ def simple_page_tree(db):
     )
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def repo_root() -> Path:
     """
     Returns the root directory of the Git repository.

@@ -40,10 +40,13 @@ Here is how you would do it for the `Content` model in the walkthrough:
 ```python
 def get_searchable_text(self):
     text = super().get_searchable_text()
-    return ' '.join([text] + [
-        section.title + ' ' + (section.text or '')
-        for section in self.page.contentsection_set.all()
-    ])
+    return " ".join(
+        [text]
+        + [
+            section.title + " " + (section.text or "")
+            for section in self.page.contentsection_set.all()
+        ]
+    )
 ```
 
 ## Avoiding "&lt;content model&gt; matching query does not exist" during page save

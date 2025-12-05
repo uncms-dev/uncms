@@ -9,6 +9,7 @@ Let's create this view in e.g. `yoursite.views`:
 ```python
 from uncms import robots
 
+
 class MyRobotsTxtView(robots.RobotsTxtView):
     pass
 ```
@@ -20,7 +21,7 @@ from yoursite.views import MyRobotsTxtView
 
 urlpatterns = [
     # ...
-    path('robots.txt', MyRobotsTxtView.as_view(), name='robots_txt'),
+    path("robots.txt", MyRobotsTxtView.as_view(), name="robots_txt"),
 ]
 ```
 
@@ -38,7 +39,7 @@ from uncms import robots
 
 
 class MyRobotsTxtView(robots.RobotsTxtView):
-    sitemaps = [reverse_lazy('django.contrib.sitemaps.views.sitemap')]
+    sitemaps = [reverse_lazy("django.contrib.sitemaps.views.sitemap")]
 ```
 
 Sitemaps may be a a single string (`'/sitemap.xml`),
@@ -57,16 +58,16 @@ Let's say we have a robot called "Badbot" which you do not want to crawl the sit
 but this bot _is_ polite enough to obey `robots.txt`. Let's block it:
 
 ```python
-class MyRobotsTxtView(robots.RobotsTxtView)
-    sitemaps = [reverse_lazy('django.contrib.sitemaps.views.sitemap')]
+class MyRobotsTxtView(robots.RobotsTxtView):
+    sitemaps = [reverse_lazy("django.contrib.sitemaps.views.sitemap")]
 
     user_agents = [
         robots.UserAgentRule(
-            agent='Badbot',
-            disallow='/',
+            agent="Badbot",
+            disallow="/",
             # You may specify a comment which will be placed immediately above
             # the rule.
-            comment='Go away',
+            comment="Go away",
         ),
     ]
 ```
@@ -106,7 +107,7 @@ from uncms.views import TextTemplateView
 
 urlpatterns = [
     # ..
-    path('robots.txt', TextTemplateView.as_view(template_name='robots.txt')),
+    path("robots.txt", TextTemplateView.as_view(template_name="robots.txt")),
 ]
 ```
 

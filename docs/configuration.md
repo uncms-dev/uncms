@@ -10,7 +10,7 @@ and use the default settings for everything else:
 
 ```python
 UNCMS = {
-    'ONLINE_DEFAULT': False,
+    "ONLINE_DEFAULT": False,
 }
 ```
 
@@ -399,8 +399,8 @@ To change this behaviour, you could put this in your settings:
 ```python
 UNCMS = {
     # your other options here
-    'WYSIWYG_EXTRA_OPTIONS': {
-        'autogrow': True,
+    "WYSIWYG_EXTRA_OPTIONS": {
+        "autogrow": True,
     },
 }
 ```
@@ -411,9 +411,9 @@ For example, this will replace your _entire_ toolbar with `customButton` and not
 ```python
 UNCMS = {
     # your other options here
-    'WYSIWYG_EXTRA_OPTIONS': {
-        'btns': [
-            ['customButton'],
+    "WYSIWYG_EXTRA_OPTIONS": {
+        "btns": [
+            ["customButton"],
         ],
     },
 }
