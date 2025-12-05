@@ -83,7 +83,7 @@ MEDIA_URL = '/media/'
 Finally, you will need something like this in your root URLconf.
 You may change the path part, but do not change the namespace.
 
-```
+```python
 urlpatterns = [
     # ... your other stuff here ...
     path('library/', include('uncms.media.urls', namespace='media_library')),
@@ -94,7 +94,7 @@ urlpatterns = [
 
 First, create an app called "content". Assuming that your apps all live in a folder called `apps`, this will do:
 
-```
+```bash
 mkdir apps/content
 touch apps/content/__init__.py
 ```
@@ -138,7 +138,7 @@ Just as it doesn't have any assumptions about what your content looks like, it d
 (other than the completely optional [edit bar](edit-bar.md).
 But UnCMS is in fact rendering this view, and is making an educated guess as to what template it should use. It's falling back to your `base.html` at the moment, but that's not its first choice. Let's create a template called `content/mycontent.html`:
 
-```
+```django
 {% extends 'base.html' %}
 
 {% block main %} {# or whatever your main block is on your site :) #}
@@ -213,7 +213,7 @@ This won't appear on pages whose type is any other model, because it might not m
 
 Now, stick this just before the `{% endblock %}` in your `content/mycontent.html` template:
 
-```
+```django
 {% for section in pages.current.contentsection_set.all() %}
   <section>
     <h2>{{ section.title }}</h2>
@@ -453,7 +453,7 @@ in fact, the `reverse` function on Page uses `django.urls.reverse` internally, p
 
 Now that we have a `get_absolute_url` on our news article, we can add a `news/article_list.html` template, where Django's generic `ListView` is expecting to find it:
 
-```
+```django
 {% extends 'base.html' %}
 
 {% block main %}
@@ -469,7 +469,7 @@ Now that we have a `get_absolute_url` on our news article, we can add a `news/ar
 
 And now that we can actually make our way to it, an article detail template at `news/article_detail.html`:
 
-```
+```django
 {% extends 'base.html' %}
 
 {% block main %}
@@ -535,7 +535,7 @@ But it's nice knowing that we have the option if we need it.
 Finally, many times we mentioned about all of that SEO and OpenGraph goodness that would be available in your page's context if we used certain helper models and helper views.
 Put this into the `<head>` of our site's base template:
 
-```
+```django
 {% include 'pages/head_meta.html' %}
 ```
 

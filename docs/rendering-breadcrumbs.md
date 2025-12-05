@@ -6,7 +6,7 @@ or "breadcrumbs".
 
 The simplest form of this is the following:
 
-```
+```django
 {% load uncms_pages %}
 <nav aria-label="breadcrumbs">
   {% breadcrumbs %}
@@ -31,7 +31,7 @@ Opinions (and designers) differ on whether you should include the tail.
 If you would like to include the current page or object in the breadcrumb trail,
 use the `show_tail` argument:
 
-```
+```django
 {% load uncms_pages %}
 <nav aria-label="breadcrumbs">
   {% breadcrumbs show_tail=True %}
@@ -55,7 +55,7 @@ To style them, use the following selectors:
 The `breadcrumbs` class prefix is configurable with the [`BREADCRUMBS_CLASS_PREFIX`](configuration.md?id=breadcrumbs_class_prefix) configuration option.
 Alternatively, you can override it per instance with the `class_prefix` argument:
 
-```
+```django
 {% load uncms_pages %}
 <nav aria-label="breadcrumbs">
   {% breadcrumbs class_prefix='breadcrumbs-compact' %}
@@ -73,7 +73,7 @@ You can replace this with your own template, and override one of the following b
 
 For example, if we want to add an arrow right before the closing `</li>` but _only_ if we are the last element in the list, we could do this:
 
-```
+```django
 {% extends 'pages/breadcrumbs.html' %}
 
 {% block item_bottom %}
@@ -101,7 +101,7 @@ it might not make sense to show a breadcrumb trail when you are on the top level
 
 We can use `{% get_breadcrumbs %}` for this (if you are using Jinja2, it is the `get_breadcrumbs` global function):
 
-```
+```django
 {% get_breadcrumbs as page_breadcrumbs %}
 {% if page_breadcrumbs.count > 2 %}
   <nav aria-label="breadcrumbs">
@@ -123,7 +123,7 @@ which has the following attributes:
 Let's say you also do not want the default behaviour of extending the pages breadcrumb trail with the current object.
 But you do have an object called `thingy` in the context which you want to extend it with.
 
-```
+```django
 {% load uncms_pages %}
 {% get_breadcrumbs extend_with=thingy auto_extend=False as page_breadcrumbs %}
 {% if page_breadcrumbs.count > 2 %}

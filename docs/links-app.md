@@ -7,7 +7,7 @@ instead, its navigation entry will redirect to an arbitrary URL.
 
 Ensure both `uncms.pages` and `uncms.links` are in your project's `INSTALLED_APPS`. If they weren't already, you will need to migrate:
 
-```
+```bash
 $ ./manage.py migrate
 ```
 

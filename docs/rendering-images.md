@@ -11,7 +11,7 @@ regardless of your source format.
 To render images in your template, use the `{% image %}` template tag from the `uncms_images` library.
 The simplest example is this:
 
-```
+```django
 {% load uncms_images %}
 {% image some_file_object width=600 %}
 ```
@@ -88,7 +88,7 @@ For example, you may want to add a light grey background colour to all images,
 as a placeholder indication for people on slow Internet connections who had not loaded it yet.
 The following CSS will work fine:
 
-```
+```css
 .image {
   background-color: #eee;
 }
@@ -101,7 +101,7 @@ If you do, you may override the `IMAGE_CLASS_PREFIX` option in the settings.
 
 For example, the following will result in the selectors mentioned above being `.picture` and `.picture__image`.
 
-```
+```python
 UNCMS = {
     # your other options here...
     'IMAGE_CLASS_PREFIX': 'picture',
@@ -133,7 +133,7 @@ For example, you might not like (for whatever reason) the fact that images alway
 and do not want to specify `lazy=False` every time you use `{% image %}`.
 In this case, you would want an `UNCMS` configuration dictionary that looked like this:
 
-```
+```python
 UNCMS = {
     # your other options here...
     'IMAGE_TEMPLATE': 'media/never_lazy.html',
@@ -142,7 +142,7 @@ UNCMS = {
 
 And in your `media/never_lazy.html`, you could have this:
 
-```
+```django
 {% extends 'media/multi_format_image.html' %}
 {% block img_tag_lazy_attribute %}{% endblock %}
 ```

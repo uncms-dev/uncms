@@ -8,7 +8,7 @@ and if you omit any of the keys from your configuration the defaults will be use
 For example this configuration dictionary will only override the `ONLINE_DEFAULT` setting,
 and use the default settings for everything else:
 
-```
+```python
 UNCMS = {
     'ONLINE_DEFAULT': False,
 }
@@ -23,7 +23,7 @@ By default, the admin page list will show arrows next to the page title to indic
 For example, if you have a home page "Home", with a child called "Cats", and that child has children called "Black", "Tabby" and "Calico",
 their titles will be displayed as:
 
-```
+```text
 Home
 → Cats
 → → Black

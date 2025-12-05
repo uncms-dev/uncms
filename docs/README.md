@@ -43,7 +43,7 @@ and it plays well with your existing models.
 
 This is a [docsify](https://docsify.js.org/) document. For an optimal editing experience:
 
-```
+```bash
 npm install -g docsify-cli
 docsify serve docs/
 ```

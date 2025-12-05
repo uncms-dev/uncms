@@ -71,6 +71,6 @@ sitemaps.register(Article, sitemap_cls=ArticleSitemap)
 Once you have a sitemap, you will want search engines to know where it lives.
 Add an entry like this to your /robots.txt:
 
-```
+```text
 Sitemap: https://www.example.com/sitemap.xml
 ```

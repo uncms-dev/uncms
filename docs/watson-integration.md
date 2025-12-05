@@ -8,7 +8,7 @@ you're free to implement your own search, or no search at all.
 If you choose to use Watson on your front-end, and you are using UnCMS's helper models, UnCMS supplies a few helper search adapters.
 Just pass one of these as the second argument to `register` (see ["Registering models"](https://github.com/etianen/django-watson/wiki/registering-models) in Watson's documentation):
 
-```
+```python
 from uncms.models import OnlineBaseSearchAdapter
 
 watson.register(YourModel, OnlineBaseSearchAdapter)

@@ -125,7 +125,7 @@ This gives you access to the page data and content for the current page, as well
 
 Assuming the page's current content object is an instance of `PlainPage` above, you can access the page data in your template like this:
 
-```
+```django
 <!-- The currently active Page object -->
 {{ pages.current }}
 

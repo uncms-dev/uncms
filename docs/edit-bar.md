@@ -23,7 +23,7 @@ It gives you the following:
 Add the stylesheet to the `<head>` of your document.
 Note the `{% if %}` guard to only show it for staff users; stylesheets are render-blocking and thus will slow down site loads for normal users.
 
-```
+```django
 {% if request.user.is_staff %}
   <link rel="stylesheet" href="{% static 'uncms/css/edit-bar.css' %}">
 {% endif %}
@@ -31,14 +31,14 @@ Note the `{% if %}` guard to only show it for staff users; stylesheets are rende
 
 Add this before your closing `</body>` tag (if you have `<script>` tags there, this should go before them):
 
-```
+```django
 {% load uncms_edit_bar %}
 {% edit_bar %}
 ```
 
 Optionally add SITE_NAME to your [configuration](configuration.md); this will be displayed in the edit bar if it is present.
 
-```
+```python
 UNCMS = {
     # ... your other options here ...
     "SITE_NAME": "My UnCMS Site",
@@ -54,7 +54,7 @@ It inherits from your default body font and uses a font size of `0.875rem`.
 The most common thing you will want to change is the background colour.
 You can do that by overriding CSS variables:
 
-```
+```css
 :root {
     --edit-bar-bg: #fff;
     --edit-bar-fg: #000;
@@ -63,7 +63,7 @@ You can do that by overriding CSS variables:
 
 Or by targeting the `.edit-bar` class, which is how you can change all other properties:
 
-```
+```css
 .edit-bar {
     color: #000;
     background-color: #fff;
@@ -74,7 +74,7 @@ It has a `z-index` of 10.
 If you are routinely using `z-index` values larger than this, your CSS needs reworking.
 But if you are stuck with it, you may increase it.
 
-```
+```css
 .edit-bar {
     /* to repeat: if you use indices this large you are doing bad CSS! */
     z-index: 9999;

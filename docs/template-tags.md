@@ -8,7 +8,7 @@ A collection of template tags are included with the pages module, mostly for the
 
 The `<head>` of your document should look like this:
 
-```
+```django
 {% load uncms_pages %}
 <meta name="robots" content="{% meta_robots %}">
 <meta name="description" content="{% meta_description %}">
@@ -29,13 +29,13 @@ much more simply,
 if you are happy with the way UnCMS behaves by default and you do not wish to override any of these blocks in templates that inherit from your base template,
 you can include `pages/head_meta.html` which will do this all for you:
 
-```
+```django
 {% include 'pages/head_meta.html' %}
 ```
 
 Or for [Jinja2](using-jinja2.md):
 
-```
+```django
 {% include 'pages/head_meta.jinja2' %}
 ```
 
@@ -50,7 +50,7 @@ Renders, in this order of priority:
 2. The title of the current page, or
 3. The title of the home page.
 
-```
+```django
 <title>{% title %}</title>
 ```
 
@@ -58,7 +58,7 @@ In the first case, it works by simply checking the template context for a key ca
 (our [helper views](helpers.md) `PageDetailMixin` and `PageDetailView` will place it there).
 As such, you can override the title by setting a context variable called `title`:
 
-```
+```django
 {% with title = "foo" %}
   {% title %}
 {% endwith %}
@@ -74,13 +74,13 @@ You can override this template if, e.g., you wanted to place the name of your si
 
 Renders the content of the meta description tag for the current page:
 
-```
+```django
 <meta name="description" value="{% meta_description %}">
 ```
 
 You can override the meta description by setting a context variable called `meta_description`.
 
-```
+```django
 {% with meta_description='foo' %}
   <meta name="description" content="{% meta_description %}">
 {% endwith %}
@@ -95,14 +95,14 @@ You might want to set this in, e.g. the `get_context_data` method of a class-bas
 
 Renders the content of the meta robots tag for the current page:
 
-```
+```django
 <meta name="robots" content="{% meta_robots %}">
 ```
 
 You can override the meta robots by setting boolean context variables called
 `robots_index`, `robots_archive` and `robots_follow`:
 
-```
+```django
 {% with robots_follow=True %}
   {% meta_robots }}
 {% endwith %}
@@ -111,7 +111,7 @@ You can override the meta robots by setting boolean context variables called
 You can also provide the meta robots as three boolean arguments to this
 tag in the order 'index', 'follow' and 'archive':
 
-```
+```django
 {% meta_robots True True True %}
 ```
 
@@ -125,7 +125,7 @@ tag in the order 'index', 'follow' and 'archive':
 Renders a breadcrumb trail for the current page (and, if present, the current object),
 or for the `uncms.pages.types.Breadcrumbs` given by `breadcrumbs_obj`.
 
-```
+```django
 {% load uncms_pages %}
 {% breadcrumbs show_tail=True %}
 ```
@@ -148,7 +148,7 @@ See the advanced usage section in [Rendering breadcrumbs](rendering-breadcrumbs.
 
 Renders the site navigation for the given set of pages.
 
-```
+```django
 {% load uncms_pages %}
 <nav>
   {% navigation pages.homepage.navigation %}
@@ -165,7 +165,7 @@ See [Rendering page navigation](rendering-navigation.md) for more.
 Resolves the URL of a route defined in a page's `urlconf`, passing positional and/or keyword arguments to the resolver.
 It is a thin wrapper around `Page.reverse`.
 
-```
+```django
 {% page_url pages.current 'article_detail' slug=article.slug %}
 ```
 
@@ -187,7 +187,7 @@ It is widely used by social media sites and apps (including Facebook) to display
 
 You will want to use them like so:
 
-```
+```django
 <meta property="og:title" content="{% og_title %}">
 {# note we just use canonical_url for this :) #}
 <meta property="og:url" content="{% canonical_url %}">

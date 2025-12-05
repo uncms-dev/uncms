@@ -47,7 +47,7 @@ or a list of either of the previous two things.
 
 Let's see what our `/robots.txt` looks like now:
 
-```
+```text
 Sitemap: http://example.com/sitemap.xml
 ```
 
@@ -73,7 +73,7 @@ class MyRobotsTxtView(robots.RobotsTxtView)
 
 This will render the following robots.txt:
 
-```
+```text
 # Go away
 User-agent: Badbot
 Disallow: /

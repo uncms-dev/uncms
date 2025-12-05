@@ -25,7 +25,7 @@ That's it!
 
 When rendering the HTML on the front-end of your site, you will want to filter your HTML through the `html` template filter.
 
-```
+```django
 {% load uncms_html %}
 {{ object.content|html }}
 ```

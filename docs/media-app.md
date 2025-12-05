@@ -11,7 +11,7 @@ you would have done this already.
 
 You will also need something like this in your root urlconf (note the namespace `media_library`):
 
-```
+```python
 from django.urls import include, path
 
 urlpatterns = [

@@ -2,7 +2,7 @@
 
 Once you have created some [pages](pages-app.md), rendering your navigation in your base template is simple.
 
-```
+```django
 {% load uncms_pages %}
 <nav>
   {% navigation pages.homepage.navigation %}
@@ -19,7 +19,7 @@ But you may also use it for rendering the navigation for any other page, as well
 For example, it is quite common to want to render a list of subpages for the current page.
 So you can do something like this (we'll get onto what the `class_prefix` argument does later):
 
-```
+```django
 {% load uncms_pages %}
 <aside class="sidebar">
   {% navigation pages.current.navigation class_prefix="subpage-navigation" %}
@@ -153,7 +153,7 @@ But, we might want to add an arrow to the element itself
 
 First, let's create the template `pages/navigation/navigation_item_extended.html` with the following contents:
 
-```
+```django
 {% extends 'pages/navigation/navigation_item.html' %}
 
 {% block link_inside_bottom %}
@@ -165,13 +165,13 @@ First, let's create the template `pages/navigation/navigation_item_extended.html
 
 Now, we can either specify this template in our `navigation` call...
 
-```
+```django
 {% navigation pages.homepage.navigation item_template="pages/navigation/navigation_item_extended.html" %}
 ```
 
 ...or we can add this to our UnCMS configuration dictionary in our Django settings:
 
-```
+```python
 UNCMS = {
     'NAVIGATION_ITEM_TEMPLATE': 'pages/navigation/navigation_item_extended.html',
 }

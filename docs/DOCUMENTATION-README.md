@@ -8,7 +8,7 @@ If you are reading this documentation in the GitHub repository, you almost certa
 This documentation is generated using [docsify](https://docsify.js.org/).
 When working on it locally, you definitely want to install and use docsify for an optimal editing experience:
 
-```
+```bash
 npm install -g docsify-cli
 docsify serve docs/
 ```
@@ -31,6 +31,6 @@ feel free to insert linebreaks to break long sentences into clauses.
 To add a new top-level section to the documentation, simply create a Markdown file in the docs/ directory.
 Then add a new entry to `_sidebar.md`:
 
-```
+```markdown
 * [New section name](my-new-section.md)
 ```
