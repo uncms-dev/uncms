@@ -119,7 +119,9 @@ def test_check_inline_for_admin_url_with_fk_name_no_reverse_match():
 @pytest.mark.django_db
 def test_check_inline_for_admin_url_with_null_fk():
     """
-    Tests the branch where FK field value is None (line 66->59).
+    Tests the branch where FK field value is None.
+
+    This test was written with AI assistance.
     """
     # Create an inline object with null FKs. This model has two FK fields:
     # parent (to UsageModelOne) and other_parent (to UsageModelTwo) The loop
