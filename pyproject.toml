@@ -62,6 +62,9 @@ testhelpers = [
 omit = ["*/migrations/*"]
 branch = true
 
+[tool.coverage.report]
+show_missing = true
+
 [tool.isort]
 profile = "black"
 
