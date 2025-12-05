@@ -6,6 +6,7 @@ from django.test import RequestFactory, override_settings
 
 from tests.mocks import MockRequestUser, MockSuperUser, request_with_pages
 from tests.testing_app.models import ImageFieldModel, PageBaseModel, TemplateTagTestPage
+from uncms.jinja2_environment.pages import PAGES_GLOBALS
 from uncms.jinja2_environment.pages import get_breadcrumbs as get_breadcrumbs_jinja2
 from uncms.jinja2_environment.pages import render_breadcrumbs
 from uncms.pages.middleware import RequestPageManager
@@ -16,6 +17,7 @@ from uncms.pages.templatetags._common import (
     get_canonical_url,
     get_meta_description,
     get_meta_robots,
+    get_og_description,
     get_og_image,
     get_og_title,
     get_page_url,
@@ -28,6 +30,7 @@ from uncms.pages.templatetags.uncms_pages import (
     meta_description,
     meta_robots,
     navigation,
+    og_description,
     og_image,
     og_title,
     page_url,
@@ -551,3 +554,122 @@ def test_page_url(test_function):
     assert test_function(-1) == "#"
     assert test_function(None) == "#"
     assert test_function(page.pk, "detail", slug="subpage") == "/subpage/"
+
+
+@pytest.mark.django_db
+def test_og_description_with_parameter():
+    """
+    Test get_og_description when description parameter is provided.
+
+    This test was written with AI assistance.
+    """
+    PageFactory(og_description="Page OG description")
+    request = request_with_pages()
+    context = {"request": request}
+
+    # Test with description parameter provided (truthy branch)
+    assert (
+        get_og_description(context, description="Provided description")
+        == "Provided description"
+    )
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "test_function",
+    [get_og_description, og_description, PAGES_GLOBALS["get_og_description"]],
+)
+def test_og_description(test_function):
+    """
+    Test get_og_description with various context combinations.
+
+    This test was written with AI assistance.
+    """
+    page = PageFactory(og_description="Page OG description")
+    request = request_with_pages()
+
+    # Test with context og_description
+    context = {"request": request, "og_description": "Context OG description"}
+    assert test_function(context) == "Context OG description"
+
+    # Test with page og_description (no context override)
+    context = {"request": request}
+    assert test_function(context) == "Page OG description"
+
+    # Test with no page (page is None/falsy)
+    page.delete()
+    request = RequestFactory().get("/")
+    request.pages = RequestPageManager(request)
+    context = {"request": request}
+    assert test_function(context) == ""
+
+    # Test with empty description fallback
+    page = PageFactory(og_description="")
+    context = {"request": request_with_pages()}
+    assert test_function(context) == ""
+
+
+@pytest.mark.django_db
+def test_get_breadcrumbs_context_with_breadcrumbs_obj():
+    """
+    Test get_breadcrumbs_context when breadcrumbs_obj is provided.
+
+    This test was written with AI assistance.
+    """
+    PageFactory()
+    request = request_with_pages()
+    context = {"request": request}
+
+    # Get a breadcrumbs object
+    breadcrumbs_obj = get_breadcrumbs_obj(context)
+
+    # Test with breadcrumbs_obj provided (truthy branch)
+    # Pass show_tail=True to ensure items aren't removed
+    result = get_breadcrumbs_context(
+        context, breadcrumbs_obj=breadcrumbs_obj, show_tail=True
+    )
+
+    assert "breadcrumbs" in result
+    assert "count" in result
+    assert result["count"] == len(breadcrumbs_obj.items)
+
+
+@pytest.mark.django_db
+def test_og_image_with_non_file_field():
+    """
+    Test get_og_image when object has image/photo field that is not a File instance.
+    """
+
+    # Create an object with an image field that is not an UnCMS File
+    # This tests the branch where field exists but isinstance(field, File) is False
+    class MockObjectWithNonFileImage:
+        def __init__(self):
+            self.image = "not_a_file_instance.jpg"  # String, not a File
+
+    obj = MockObjectWithNonFileImage()
+    page = PageFactory(og_image=MinimalGIFFileFactory())
+    request = request_with_pages()
+    context = {"request": request, "object": obj}
+
+    # Should skip the object's image and fall back to page og_image
+    result = get_og_image(context)
+    assert result == canonicalise_url(page.og_image.get_absolute_url())
+
+
+@pytest.mark.django_db
+def test_og_image_with_photo_field():
+    """
+    Test get_og_image checking photo field after image field.
+    """
+
+    class MockObjectWithPhotoField:
+        def __init__(self):
+            self.photo = MinimalGIFFileFactory()
+
+    obj = MockObjectWithPhotoField()
+    request = request_with_pages()
+    context = {"request": request, "object": obj}
+
+    # Should find and use the photo field
+    result = get_og_image(context)
+    assert result == canonicalise_url(obj.photo.get_absolute_url())

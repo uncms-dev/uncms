@@ -360,6 +360,19 @@ def test_pagemiddleware_with_client(client):
 
 
 @pytest.mark.django_db
+def test_pagemiddleware_append_slash_disabled(client, settings):
+    """
+    Test that when APPEND_SLASH is False, a 404 is returned for URLs that
+    don't resolve, testing the branch where APPEND_SLASH check is False.
+    """
+    settings.APPEND_SLASH = False
+    homepage = PageFactory()
+    middleware_page = PageFactory(parent=homepage, content=MiddlewareURLsTestPage())
+    response = client.get(urljoin(middleware_page.get_absolute_url(), "hurf/hurrr/"))
+    assert response.status_code == 404
+
+
+@pytest.mark.django_db
 def test_middleware_query_count(client, django_assert_num_queries):
     """
     Regression test to ensure that any middleware changes do not result in

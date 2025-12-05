@@ -14,10 +14,9 @@ not in UnCMS.
 
 ## Testing
 
-UnCMS aims for a very high code coverage percentage.
-Eventually, the goal is to reach 100% coverage, and to enforce this in CI,
-so any new features should have full line test coverage.
-Any bug fixes might need a regression test.
+UnCMS has 100% line and branch coverage, and must continue to stay that way.
+That includes the `tests/` directory; requiring coverage there is a good way of finding dead test helper code.
+All bug fixes should need a regression test.
 
 You should write new tests as pytest test functions.
 Experience with test classes shows that they tend to smoosh together too many responsibilities.
@@ -49,7 +48,7 @@ and see if there is an appropriate `<link>` tag in it.
 
 If you add new template tags, it is a very good idea to make sure there is a Jinja2 global function which does the same thing
 (except where this does not make sense, such as for enhancements to `/admin/`).
-If you have added templates, it is also a good idea to ensure there are Jinja2
+If you have added templates, it is also a good idea to ensure there are Jinja2 equivalents.
 To keep it maintainable,
 Jinja2 global functions should take the same arguments,
 and templates should be byte-for-byte identical with their Django equivalents.

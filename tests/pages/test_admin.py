@@ -1,4 +1,5 @@
 import json
+from unittest.mock import MagicMock, Mock, patch
 from urllib.parse import urlencode, urljoin, urlparse
 
 import pytest
@@ -949,3 +950,165 @@ def test_pageadmin_get_page_content_cls_with_admin_change_obj_fallback():
     # Call with obj that has no content_type, should fall back to _admin_change_obj
     result = page_admin.get_page_content_cls(request, incomplete_page)
     assert result == PageContent
+
+
+@pytest.mark.django_db
+def test_pageadmin_save_model_field_not_in_cleaned_data():
+    """
+    Test save_model when editing via list_editable where only some fields
+    are in form.cleaned_data. Content fields not in cleaned_data should be
+    skipped rather than raising KeyError.
+
+    This test was written with AI assistance.
+    """
+
+    page_admin = PageAdmin(Page, AdminSite())
+    page = PageFactory(content=PageContentWithFields(description="Original"))
+
+    request = AdminRequestFactory().get("/")
+    request.user = MockSuperUser()
+
+    form = MagicMock()
+    form.cleaned_data = {
+        "title": page.title,
+        "slug": page.slug,
+        "is_online": True,
+        "inline_model": [],
+    }
+    form.save = Mock(return_value=page)
+
+    page_admin.save_model(request, page, form, True)
+
+    page.refresh_from_db()
+    assert page.content.description == "Original"
+
+
+@pytest.mark.django_db
+def test_pageadmin_add_view_without_permission_for_content_type(client):
+    """
+    Test add_view filters out content types the user doesn't have permission
+    to add when displaying the content type selection page.
+    """
+    user = UserFactory(is_staff=True)
+    client.force_login(user)
+
+    user.user_permissions.add(Permission.objects.get(codename="add_page"))
+
+    response = client.get(reverse("admin:pages_page_add"))
+
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_pageadmin_move_page_view_loop_branches(client):
+    """
+    Test move_page_view returns error when attempting to move a page that
+    has no sibling to swap with (last child moving down).
+
+    This test was written with AI assistance.
+    """
+    user = UserFactory(is_staff=True)
+    user.user_permissions.add(Permission.objects.get(codename="change_page"))
+    client.force_login(user)
+
+    homepage = PageFactory()
+    child1 = PageFactory(parent=homepage)
+    child2 = PageFactory(parent=homepage)
+    PageFactory(parent=homepage)
+
+    response = client.post(
+        reverse("admin:pages_page_move_page", args=[child1.pk]),
+        data={"direction": "down"},
+    )
+    assert response.status_code == 302
+
+    child1.refresh_from_db()
+    child2.refresh_from_db()
+
+    response = client.post(
+        reverse("admin:pages_page_move_page", args=[child1.pk]),
+        data={"direction": "down"},
+    )
+    assert response.status_code == 302
+
+    child1.refresh_from_db()
+
+    response = client.post(
+        reverse("admin:pages_page_move_page", args=[child1.pk]),
+        data={"direction": "down"},
+    )
+    assert response.status_code == 200
+    assert response.content == b"Page could not be moved, as nothing to swap with."
+
+    # Also test moving up from the first position
+    response = client.post(
+        reverse("admin:pages_page_move_page", args=[child2.pk]),
+        data={"direction": "up"},
+    )
+    assert response.status_code == 200
+    assert response.content == b"Page could not be moved, as nothing to swap with."
+
+
+@pytest.mark.django_db
+def test_pageadmin_move_page_view_page_not_in_siblings():
+    """
+    Test move_page_view when the page is not found in siblings list due to
+    data inconsistency. Uses mocks to simulate this edge case.
+
+    This test was written with AI assistance.
+    """
+
+    page_admin = PageAdmin(Page, AdminSite())
+
+    user = UserFactory(is_staff=True)
+    user.user_permissions.add(Permission.objects.get(codename="change_page"))
+
+    homepage = PageFactory()
+    child1 = PageFactory(parent=homepage)
+
+    request = AdminRequestFactory().post(
+        reverse("admin:pages_page_move_page", args=[child1.pk]),
+        data={"direction": "down"},
+    )
+    request.user = user
+
+    # Mock an inconsistent state where the page exists in the dict but not in
+    # the siblings list during iteration. This requires patching dict() builtin.
+    with patch.object(Page.objects, "select_for_update") as mock_select:
+        with patch("uncms.pages.admin.dict") as mock_dict:
+            mock_existing_pages = {
+                child1.id: {
+                    "id": child1.id,
+                    "parent_id": homepage.id,
+                    "left": 2,
+                    "right": 3,
+                    "title": "Child 1",
+                },
+                888: {
+                    "id": 888,
+                    "parent_id": homepage.id,
+                    "left": 4,
+                    "right": 5,
+                    "title": "Other",
+                },
+            }
+            mock_dict.return_value = mock_existing_pages
+
+            mock_qs = MagicMock()
+            mock_qs.values.return_value.order_by.return_value = [
+                {
+                    "id": 888,
+                    "parent_id": homepage.id,
+                    "left": 4,
+                    "right": 5,
+                    "title": "Other",
+                },
+            ]
+            mock_select.return_value = mock_qs
+
+            response = page_admin.move_page_view(request, child1.pk)
+
+            assert response.status_code == 200
+            assert (
+                response.content == b"Page could not be moved, as nothing to swap with."
+            )

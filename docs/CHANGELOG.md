@@ -1,5 +1,9 @@
 # Changelog
 
+## Next release
+
+* It's not a user-facing change, but UnCMS now has 100% line and branch test coverage.
+
 ## 0.0.13
 
 * Django 5.2 is supported.
