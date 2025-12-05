@@ -21,10 +21,10 @@ It gives you the following:
 ## Adding it to your site
 
 Add the stylesheet to the `<head>` of your document.
-Note the ``{% if %}` guard to only show it for staff users; stylesheets are render-blocking and thus will slow down site loads for normal users.
+Note the `{% if %}` guard to only show it for staff users; stylesheets are render-blocking and thus will slow down site loads for normal users.
 
 ```
-{% if request.user.is_staff}
+{% if request.user.is_staff %}
   <link rel="stylesheet" href="{% static 'uncms/css/edit-bar.css' %}">
 {% endif %}
 ```
