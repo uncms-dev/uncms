@@ -1,5 +1,3 @@
-import os.path
-
 from django.conf import settings
 from django.test.utils import override_settings
 
@@ -30,16 +28,15 @@ def test_conf_get_wysiwyg_options():
         assert uncms.conf.defaults.get_wysiwyg_options()["nonsense"] is True
 
 
-def test_all_config_items_are_documented():
+def test_all_config_items_are_documented(repo_root):
     """
     Ensure all configuration items are documented in docs/configuration.md
     and that no imaginary options are in the documentation.
 
     This is a relatively dumb test but it should work well enough :)
     """
-    with open(
-        os.path.join(settings.REPO_ROOT, "docs", "configuration.md"), encoding="utf-8"
-    ) as fd:
+    config_doc = repo_root / "docs" / "configuration.md"
+    with config_doc.open() as fd:
         items = [
             # as i said, not a smart test...
             line.replace("##", "").replace("`", "").strip()

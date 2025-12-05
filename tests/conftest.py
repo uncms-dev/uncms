@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from pathlib import Path
 
 import pytest
 
@@ -72,3 +73,11 @@ def simple_page_tree(db):
         subsection=subsection,
         subsubsection=subsubsection,
     )
+
+
+@pytest.fixture
+def repo_root() -> Path:
+    """
+    Returns the root directory of the Git repository.
+    """
+    return Path(__file__).parent.parent

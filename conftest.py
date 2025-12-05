@@ -82,7 +82,6 @@ def pytest_configure():
             "SITE_DOMAIN": "example.com",
         },
         THUMBNAIL_PRESERVE_FORMAT=True,
-        REPO_ROOT=os.path.abspath(os.path.dirname(__file__)),
         X_FRAME_OPTIONS="DENY",
     )
 
