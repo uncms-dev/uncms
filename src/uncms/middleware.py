@@ -14,7 +14,6 @@ from uncms.models import (
 
 
 class PublicationMiddleware(MiddlewareMixin):
-
     """Middleware that enables preview mode for admin users."""
 
     def process_request(self, request):

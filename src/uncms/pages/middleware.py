@@ -17,7 +17,6 @@ from uncms.pages import get_page_model
 
 
 class RequestPageManager:
-
     """Handles loading page objects."""
 
     def __init__(self, request):
@@ -116,7 +115,6 @@ class RequestPageManager:
 
 
 class PageMiddleware(MiddlewareMixin):
-
     """Serves up pages when no other view is matched."""
 
     def process_request(self, request):

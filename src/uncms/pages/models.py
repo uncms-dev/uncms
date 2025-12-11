@@ -1,4 +1,5 @@
 """Core models used by UnCMS."""
+
 from django import urls
 from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
@@ -16,7 +17,6 @@ from uncms.models.managers import publication_manager
 
 
 class PageManager(OnlineBaseManager):
-
     """Manager for Page objects."""
 
     def select_published(self, queryset, page_alias=None):
@@ -81,7 +81,6 @@ class PageManager(OnlineBaseManager):
 
 
 class Page(PageBase):
-
     """A page within the site."""
 
     objects = PageManager()
@@ -359,7 +358,6 @@ class Page(PageBase):
 
 
 class PageSitemap(sitemaps.PageBaseSitemap):
-
     """Sitemap for page models."""
 
     model = Page
@@ -373,7 +371,6 @@ sitemaps.register(Page, sitemap_cls=PageSitemap)
 
 
 class PageSearchAdapter(PageBaseSearchAdapter):
-
     """Search adapter for Page models."""
 
     def get_content(self, obj):
@@ -428,7 +425,6 @@ def filter_indexable_pages(queryset):
 
 
 class ContentBase(models.Model):
-
     """Base class for page content."""
 
     # This must be a 64 x 64 pixel image.

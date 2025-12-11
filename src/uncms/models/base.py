@@ -1,4 +1,5 @@
 """Abstract base models used by the page management application."""
+
 from urllib.parse import urlencode, urlparse
 
 from django.db import models
@@ -54,7 +55,6 @@ path_token_generator = PathTokenGenerator()
 
 
 class PublishedBase(models.Model):
-
     """A model with publication controls."""
 
     objects = PublishedBaseManager()
@@ -64,7 +64,6 @@ class PublishedBase(models.Model):
 
 
 class PublishedBaseSearchAdapter(SearchAdapter):
-
     """Base search adapter for PublishedBase derivatives."""
 
     def get_live_queryset(self):
@@ -96,12 +95,10 @@ class OnlineBase(PublishedBase):
 
 
 class OnlineBaseSearchAdapter(PublishedBaseSearchAdapter):
-
     """Base search adapter for OnlineBase derivatives."""
 
 
 class SearchMetaBase(OnlineBase):
-
     """Base model for models used to generate a standalone HTML page."""
 
     objects = SearchMetaBaseManager()
@@ -251,7 +248,6 @@ class SearchMetaBase(OnlineBase):
 
 
 class SearchMetaBaseSearchAdapter(OnlineBaseSearchAdapter):
-
     """Search adapter for SearchMetaBase derivatives."""
 
     def get_description(self, obj):
@@ -264,7 +260,6 @@ class SearchMetaBaseSearchAdapter(OnlineBaseSearchAdapter):
 
 
 class PageBase(SearchMetaBase):
-
     """
     An enhanced SearchMetaBase with a sensible set of common features suitable for
     most pages.
@@ -307,7 +302,6 @@ class PageBase(SearchMetaBase):
 
 
 class PageBaseSearchAdapter(SearchMetaBaseSearchAdapter):
-
     """Search adapter for PageBase derivatives."""
 
     def get_title(self, obj):

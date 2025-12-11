@@ -5,6 +5,7 @@ The body of the code is broken out into this "common" file because we support
 Jinja2. Both Jinja2 and Django template functions & filters shall be thin
 wrappers around these.
 """
+
 from django.utils.html import escape
 
 from uncms.conf import defaults

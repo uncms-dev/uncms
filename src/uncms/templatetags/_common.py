@@ -1,4 +1,5 @@
 """Template tags used for processing HTML."""
+
 from typing import Any
 
 from django.conf import settings

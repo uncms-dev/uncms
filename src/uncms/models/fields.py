@@ -7,7 +7,6 @@ from django.db import models
 
 
 class HtmlField(models.TextField):
-
     """A field that contains HTML data."""
 
     def formfield(self, **kwargs):
@@ -20,7 +19,6 @@ class HtmlField(models.TextField):
 
 
 class LinkResolutionError(Exception):
-
     """A link could not be resolved."""
 
 
@@ -71,7 +69,6 @@ def link_validator(value):
 
 
 class LinkField(models.CharField):
-
     """A field that contains an internal or external link."""
 
     def __init__(self, *args, **kwargs):

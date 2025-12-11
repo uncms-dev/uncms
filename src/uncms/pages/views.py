@@ -3,7 +3,6 @@ from django.views.generic import TemplateView
 
 
 class ContentIndexView(TemplateView):
-
     """Displays the index page for a page."""
 
     def get_template_names(self):

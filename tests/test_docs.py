@@ -1,6 +1,7 @@
 """
 Various tests of the documentation.
 """
+
 import dataclasses
 from functools import cached_property
 

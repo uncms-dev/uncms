@@ -7,7 +7,6 @@ registered_sitemaps = {}
 
 
 class BaseSitemap(Sitemap):
-
     """
     Base sitemap for registration.
 
@@ -22,17 +21,14 @@ class BaseSitemap(Sitemap):
 
 
 class PublishedBaseSitemap(BaseSitemap):
-
     """Base sitemap for all subclasses of PublishedBase."""
 
 
 class OnlineBaseSitemap(PublishedBaseSitemap):
-
     """Base sitemap for all subclasses of OnlineBase."""
 
 
 class SearchMetaBaseSitemap(OnlineBaseSitemap):
-
     """Base sitemap for all subclasses of SearchMetaBase."""
 
     def items(self):
@@ -51,7 +47,6 @@ class SearchMetaBaseSitemap(OnlineBaseSitemap):
 
 
 class PageBaseSitemap(SearchMetaBaseSitemap):
-
     """
     Base sitemap for all subclasses of PageBase.
 
@@ -60,7 +55,6 @@ class PageBaseSitemap(SearchMetaBaseSitemap):
 
 
 class SitemapRegistrationError(Exception):
-
     """Error raised when a sitemap could not be registered."""
 
 

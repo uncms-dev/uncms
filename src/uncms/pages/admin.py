@@ -6,6 +6,7 @@ page form, including registering inlines. It also gives you a totally
 different page for "add a page", which gives you a list of page types with
 their icons.
 """
+
 import itertools
 from functools import cmp_to_key
 from urllib.parse import parse_qs, urlencode
