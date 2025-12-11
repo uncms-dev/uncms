@@ -1,103 +1,103 @@
 :root {
-  --edit-bar-bg: #333;
-  --edit-bar-fg: #fff;
+    --edit-bar-bg: #333;
+    --edit-bar-fg: #fff;
 }
 
 .edit-bar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  box-sizing: border-box;
-  /*
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    box-sizing: border-box;
+    /*
   10 should be sufficient; go fix other z-indexes if anything else overlaps
   it
   */
-  z-index: 10;
+    z-index: 10;
 
-  align-items: center;
+    align-items: center;
 
-  display: flex;
-  width: 100%;
-  padding: 4px 12px;
+    display: flex;
+    width: 100%;
+    padding: 4px 12px;
 
-  font-size: 0.875rem;
+    font-size: 0.875rem;
 
-  background-color: var(--edit-bar-bg);
-  color: var(--edit-bar-fg);
+    background-color: var(--edit-bar-bg);
+    color: var(--edit-bar-fg);
 }
 
 .edit-bar:has(.edit-bar__hide-checkbox:checked) {
-  display: none;
+    display: none;
 }
 
 .edit-bar__hide-checkbox {
-  display: none;
+    display: none;
 }
 
 .edit-bar__inner {
-  display: flex;
-  width: 100%;
-  align-items: center;
+    display: flex;
+    width: 100%;
+    align-items: center;
 }
 
 .edit-bar__left,
 .edit-bar__right {
-  display: flex;
+    display: flex;
 }
 
 .edit-bar__item {
-  display: flex;
+    display: flex;
 }
 
 .edit-bar__item--site-name,
 .edit-bar__item--query-count,
 .edit-bar__item--add {
-  display: none;
+    display: none;
 }
 
 @media (width > 800px) {
-  .edit-bar__item--site-name,
-  .edit-bar__item--query-count,
-  .edit-bar__item--add {
-    display: block;
-  }
+    .edit-bar__item--site-name,
+    .edit-bar__item--query-count,
+    .edit-bar__item--add {
+        display: block;
+    }
 }
 
 .edit-bar__item::after {
-  content: "|";
-  display: inline-block;
-  margin: 0 8px;
+    content: "|";
+    display: inline-block;
+    margin: 0 8px;
 }
 
 .edit-bar__item:last-child::after {
-  display: none;
+    display: none;
 }
 
 .edit-bar__item--site-name {
-  font-weight: 700;
+    font-weight: 700;
 }
 
 .edit-bar__item-link {
-  /*
+    /*
   Links in the edit bar have a cursor pointer because they are links.
   This class is used for labels as well; they should match.
   */
-  cursor: pointer;
-  color: inherit;
-  text-decoration: none;
+    cursor: pointer;
+    color: inherit;
+    text-decoration: none;
 }
 
 .edit-bar__item-link--button {
-  /* camouflage the <button> as a link */
-  padding: 0;
+    /* camouflage the <button> as a link */
+    padding: 0;
 
-  font: unset;
+    font: unset;
 
-  appearance: none;
-  border: none;
-  background-color: transparent;
-  color: inherit;
-  cursor: pointer;
+    appearance: none;
+    border: none;
+    background-color: transparent;
+    color: inherit;
+    cursor: pointer;
 }
 
 .edit-bar__right {

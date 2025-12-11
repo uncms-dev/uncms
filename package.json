@@ -1,0 +1,10 @@
+{
+    "scripts": {
+        "lint": "oxlint src/ && oxfmt --check src/",
+        "format": "oxfmt src/"
+    },
+    "dependencies": {
+        "oxfmt": "0.17.0",
+        "oxlint": "1.32.0"
+    }
+}

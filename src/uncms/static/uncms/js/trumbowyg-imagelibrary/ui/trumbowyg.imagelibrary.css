@@ -19,7 +19,7 @@
 
 .trumbowyg-imagelibrary-loader::before {
     /* this will do! */
-    content: '⌛';
+    content: "⌛";
     display: block;
     /* but make the emoji look a little more grown-up or something */
     filter: grayscale(100%) brightness(75%);
@@ -30,11 +30,11 @@
 }
 
 .trumbowyg-imagelibrary__grid {
-   display: grid;
-   gap: 2px;
-   grid-template-columns: repeat(4, 1fr);
-   /* reset from Django's inherited <ul> */
-   padding-left: 0;
+    display: grid;
+    gap: 2px;
+    grid-template-columns: repeat(4, 1fr);
+    /* reset from Django's inherited <ul> */
+    padding-left: 0;
 }
 
 .trumbowyg-imagelibrary__item {

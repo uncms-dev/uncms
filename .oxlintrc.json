@@ -1,0 +1,14 @@
+{
+    "ignorePatterns": ["src/uncms/static/uncms/vendor/**", "*.html"],
+    "categories": {
+        "correctness": "error",
+        "suspicious": "error",
+        "pedantic": "error",
+        "restriction": "error",
+    },
+    "rules": {
+        "no-rest-spread-properties": "off",
+        "oxc/no-async-await": "off",
+        "max-lines-per-function": "off"
+    }
+}

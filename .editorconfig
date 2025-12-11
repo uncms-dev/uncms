@@ -5,11 +5,7 @@ root = true
 end_of_line = lf
 # Always have a trailing newline.
 insert_final_newline = true
-# Indentation is 2 spaces for nearly everything.
-indent_size = 2
+# Indentation is 4 spaces for everything.
+indent_size = 4
 indent_style = space
 trim_trailing_whitespace = true
-
-[*.py]
-# Use 4-space indentation for Python only.
-indent_size = 4

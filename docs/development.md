@@ -55,3 +55,23 @@ and templates should be byte-for-byte identical with their Django equivalents.
 It's a good idea to write tests to ensure parity between Django and Jinja2;
 see [this commit](https://github.com/uncms-dev/uncms/commit/e509b38af17630e75429a433511f5758bbdfd997) for ideas,
 or just ask for help from the maintainer.
+
+## JavaScript & CSS
+
+UnCMS should aim to have unobtrusive JavaScript; no behaviour should depend on it.
+JavaScript files should be unminified, vanilla JavaScript that works as-is in a browser; anything more than that probably violates the "minimal opinions on what /admin/ looks like" part of the [philosophy](philosophy.md).
+I will resist adding a JavaScript build system to UnCMS for as long as that is reasonable.
+
+Similarly, CSS should be written in standalone files, shipped directly to the browser.
+
+To install the linters, install Node (see `.nvmrc` for the recommended current version), install the packages with `npm  install`, and run this to format your code:
+
+```bash
+npm run format
+```
+
+To lint for errors:
+
+```bash
+npm run lint
+```

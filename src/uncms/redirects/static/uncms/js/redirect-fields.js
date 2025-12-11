@@ -5,7 +5,7 @@ redirect-fields.js conditionally hides and shows the "test path" field when
 (function () {
     "use strict";
     window.addEventListener("DOMContentLoaded", function () {
-        const checkboxField = document.getElementById("id_regular_expression");
+        const checkboxField = document.querySelector("#id_regular_expression");
         // The "regular expression" field is hidden if regular expression
         // redirects are disabled.
         if (!checkboxField) {
@@ -14,9 +14,11 @@ redirect-fields.js conditionally hides and shows the "test path" field when
 
         const testPathFieldRow = document.querySelector(".field-test_path");
 
-        function checkboxChange(event) {
+        function checkboxChange() {
             testPathFieldRow.hidden = !checkboxField.checked;
-            testPathFieldRow.querySelector("label").classList.toggle("required", checkboxField.checked);
+            testPathFieldRow
+                .querySelector("label")
+                .classList.toggle("required", checkboxField.checked);
         }
 
         checkboxField.addEventListener("change", checkboxChange);

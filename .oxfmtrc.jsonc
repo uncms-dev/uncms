@@ -1,0 +1,10 @@
+{
+    "ignorePatterns": [
+        // Don't touch vendored code.
+        "src/uncms/static/uncms/vendor/**",
+        // oxfmt will merrily mangle Django templates; don't do that.
+        "*.html",
+    ],
+    // Python will always be 4 and I want that to be consistent everywhere.
+    "tabWidth": 4,
+}

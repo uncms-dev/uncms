@@ -4,3 +4,4 @@ isort --diff --check-only .
 flake8
 pylint src/ tests/
 black --check --diff .
+npm run lint
