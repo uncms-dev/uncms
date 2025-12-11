@@ -1,6 +1,4 @@
 # pylint:disable=duplicate-code
-import base64
-
 import pytest
 from bs4 import BeautifulSoup
 from django.contrib.admin.sites import AdminSite
@@ -316,43 +314,6 @@ def test_file_list_type_filter(client):
     response = client.get(url, {"filetype": "image"})
     assert response.status_code == 200
     assert context_pks(response.context_data) == sorted([sample_jpeg.pk, sample_png.pk])
-
-
-@pytest.mark.django_db
-def test_fileadmin_edit_view(client):
-    obj = SamplePNGFileFactory()
-    # check permissions
-    user = UserFactory(is_staff=True)
-    client.force_login(user)
-
-    url = reverse("admin:media_file_edit", args=[obj.pk])
-
-    response = client.get(url)
-    assert response.status_code == 403
-
-    # give it the right permission, try again
-    user.user_permissions.add(Permission.objects.get(codename="change_file"))
-    response = client.get(url)
-    assert response.status_code == 200
-
-    # Post 800x600 PNG data to the file. (We test other branches inside the
-    # form in test_forms.py.)
-    with open(data_file_path("800x600.png"), "rb") as fd:
-        changed_data = "".join(
-            [";base64,", base64.b64encode(fd.read()).decode("utf-8")]
-        )
-
-    response = client.post(url, data={"changed_image": changed_data})
-    assert response.status_code == 302
-    assert response["Location"] == reverse("admin:media_file_change", args=[obj.pk])
-
-    response = client.get(response["Location"])
-    assert response.status_code == 200
-
-    # Ensure its data has actually changed - the original was 1920x1080.
-    obj.refresh_from_db()
-    assert obj.width == 800
-    assert obj.height == 600
 
 
 @pytest.mark.django_db

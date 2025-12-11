@@ -46,8 +46,6 @@ For this, you'll want to use a simpler Django `django.db.models.FileField` or `I
 
 The default `FileAdmin` adds a nice grid view, with a thumbnail preview, falling back to an appropriate icon for the file type if the file is not an image. You can disable the grid view with the `MEDIA_LIST_GRID_VIEW` [configuration option](configuration.md).
 
-For images, there is an in-browser image editor that gives quick access to common image operations such as cropping and rotating.
-
 The admin will show a list of all the places where an object is used in a "Usage" fieldset, with links (where possible) to their admin URLs.
 It's smart enough to know about usage within inlines, both those registered to normal models and as inlines on [content models](pages-app.md).
 

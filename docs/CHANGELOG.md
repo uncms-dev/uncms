@@ -2,6 +2,7 @@
 
 ## Next release
 
+* The in-browser image editor (inherited from [UnCMS's ancestor](history.md)) has been retired. It worked poorly on large files and it was a giant pile of vendored JS that hadn't been updated since 2019 and which I have little interest in keeping updated. Some day a simpler replacement giving the basic crop/rotate operations that this provided might be implemented in a vastly simpler way (see [#13](https://github.com/uncms-dev/uncms/issues/13), but that day is not today.
 * It's not a user-facing change, but UnCMS now has 100% line and branch test coverage.
 
 ## 0.0.13

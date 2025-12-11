@@ -6,17 +6,7 @@
 {% block extrahead %}
   {{ block.super }}
 
-  {% if not original and not image_editor %}
+  {% if not original %}
     <script src="{% static 'media/js/prepopulate-title.js' %}" async></script>
   {% endif %}
-{% endblock %}
-
-{% block object-tools-items %}
-  {% if original and has_change_permission %}
-    <li>
-        <a href="{% url 'admin:media_file_edit' object_id=original.pk %}" >{% translate 'Edit image' %}</a>
-    </li>
-  {% endif %}
-
-  {{ block.super }}
 {% endblock %}
