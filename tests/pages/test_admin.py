@@ -1,3 +1,6 @@
+# pylint:disable=redefined-outer-name
+# ^ because of fixture functions being defined here and used in method
+#   signatures
 import json
 from unittest.mock import MagicMock, Mock, patch
 from urllib.parse import urlencode, urljoin, urlparse
@@ -15,7 +18,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpResponseRedirect
 from django.http.request import QueryDict
-from django.test import RequestFactory, TestCase, override_settings
+from django.test import RequestFactory, override_settings
 from django.urls import reverse
 from django.utils.text import slugify
 from reversion.models import Version
@@ -42,524 +45,524 @@ from uncms.testhelpers.factories.pages import PageFactory
 from uncms.testhelpers.models import EmptyTestPage
 
 
-class TestPageAdmin(TestCase):
-    maxDiff = None
+@pytest.fixture
+def admin_site():
+    return AdminSite()
 
-    def setUp(self):
-        self.site = AdminSite()
-        self.page_admin = PageAdmin(Page, self.site)
 
-        self.homepage = PageFactory(
-            content=PageContent(),
-            title="Homepage",
-            slug="homepage",
-        )
+@pytest.fixture
+def page_admin(admin_site):
+    return PageAdmin(Page, admin_site)
 
-    def _build_request(self, page_type=None):
-        request = AdminRequestFactory().get("/")
-        request.user = MockSuperUser()
-        request.GET = QueryDict("", mutable=True)
 
-        if page_type:
-            request.GET["type"] = page_type
+@pytest.fixture
+def homepage():
+    return PageFactory(
+        content=PageContent(),
+        title="Homepage",
+        slug="homepage",
+    )
 
-        return request
 
-    def test_pageadmin_register_page_inline(self):
-        self.page_admin._register_page_inline(InlineModelNoPage)
+def build_request(page_type=None):
+    request = AdminRequestFactory().get("/")
+    request.user = MockSuperUser()
+    request.GET = QueryDict("", mutable=True)
 
-    def test_pageadmin_register_content_inline(self):
-        self.assertListEqual(self.page_admin.content_inlines, [])
+    if page_type:
+        request.GET["type"] = page_type
 
-        self.page_admin.register_content_inline(PageContent, InlineModelInline)
-
-        self.assertListEqual(
-            self.page_admin.content_inlines,
-            [
-                (PageContent, InlineModelInline),
-            ],
-        )
-
-    def test_pageadmin_get_inline_instances(self):
-        request = self._build_request(
-            page_type=ContentType.objects.get_for_model(PageContent).pk
-        )
-
-        self.assertListEqual(self.page_admin.get_inline_instances(request), [])
-        self.assertListEqual(
-            self.page_admin.get_inline_instances(request, obj=self.homepage), []
-        )
-        self.page_admin.register_content_inline(PageContent, InlineModelInline)
-        self.assertEqual(
-            len(self.page_admin.get_inline_instances(request, obj=self.homepage)), 1
-        )
-
-    def test_pageadmin_get_revision_instances(self):
-        request = self._build_request(
-            page_type=ContentType.objects.get_for_model(PageContent).pk
-        )
-
-        instances = self.page_admin.get_revision_instances(request, self.homepage)
-        self.assertListEqual(instances, [self.homepage, self.homepage.content])
-
-        # Register a content type which doesn't have a `page` attribute to
-        # trigger the exception in `get_revision_instances`.
-        self.page_admin.register_content_inline(PageContent, InlineModelNoPageInline)
-
-        instances = self.page_admin.get_revision_instances(request, self.homepage)
-        self.assertListEqual(instances, [self.homepage, self.homepage.content])
-
-    def test_pageadmin_get_revision_form_data(self):
-        request = self._build_request(
-            page_type=ContentType.objects.get_for_model(PageContent).pk
-        )
-
-        # Create an initial revision.
-        with reversion.create_revision():
-            self.homepage.content.save()
-
-        versions = Version.objects.get_for_object(self.homepage.content)
-
-        data = self.page_admin.get_revision_form_data(
-            request, self.homepage, versions[0]
-        )
-        self.assertDictEqual(data, {"page_id": self.homepage.pk})
-
-    def test_pageadmin_get_page_content_cls(self):
-        request = self._build_request(
-            page_type=ContentType.objects.get_for_model(PageContent).pk
-        )
-
-        request2 = self._build_request()
-
-        self.assertEqual(self.page_admin.get_page_content_cls(request), PageContent)
-
-        with self.assertRaises(Http404):
-            self.page_admin.get_page_content_cls(request2)
-
-        self.assertEqual(
-            self.page_admin.get_page_content_cls(request2, self.homepage), PageContent
-        )
-
-    def test_pageadmin_get_fieldsets(self):
-        request = self._build_request(
-            page_type=ContentType.objects.get_for_model(PageContent).pk
-        )
-        request2 = self._build_request(
-            page_type=ContentType.objects.get_for_model(PageContentWithFields).pk
-        )
-
-        PageFactory(content=PageContentWithFields())
-
-        pagecontent_fields = [
-            (None, {"fields": ("title", "slug", "parent")}),
-            (
-                "Publication",
-                {
-                    "fields": ("publication_date", "expiry_date", "is_online"),
-                    "classes": ("collapse",),
-                },
-            ),
-            (
-                "Navigation",
-                {
-                    "fields": (
-                        "short_title",
-                        "in_navigation",
-                        "hide_from_anonymous",
-                    ),
-                    "classes": ("collapse",),
-                },
-            ),
-            (
-                "Security",
-                {"fields": ("requires_authentication",), "classes": ("collapse",)},
-            ),
-            (
-                "SEO",
-                {
-                    "fields": (
-                        "browser_title",
-                        "meta_description",
-                        "sitemap_priority",
-                        "sitemap_changefreq",
-                        "robots_index",
-                        "robots_follow",
-                        "robots_archive",
-                    ),
-                    "classes": ("collapse",),
-                },
-            ),
-            (
-                "Open Graph",
-                {
-                    "fields": ("og_title", "og_description", "og_image"),
-                    "classes": ("collapse",),
-                },
-            ),
-        ]
-
-        pagecontentwithfields_fields = [
-            (None, {"fields": ("title", "slug", "parent")}),
-            ("Page content", {"fields": ["description", "inline_model"]}),
-            (
-                "Publication",
-                {
-                    "fields": ("publication_date", "expiry_date", "is_online"),
-                    "classes": ("collapse",),
-                },
-            ),
-            (
-                "Navigation",
-                {
-                    "fields": (
-                        "short_title",
-                        "in_navigation",
-                        "hide_from_anonymous",
-                    ),
-                    "classes": ("collapse",),
-                },
-            ),
-            (
-                "Security",
-                {
-                    "classes": ("collapse",),
-                    "fields": ("requires_authentication",),
-                },
-            ),
-            (
-                "SEO",
-                {
-                    "fields": (
-                        "browser_title",
-                        "meta_description",
-                        "sitemap_priority",
-                        "sitemap_changefreq",
-                        "robots_index",
-                        "robots_follow",
-                        "robots_archive",
-                    ),
-                    "classes": ("collapse",),
-                },
-            ),
-            (
-                "Open Graph",
-                {
-                    "fields": ("og_title", "og_description", "og_image"),
-                    "classes": ("collapse",),
-                },
-            ),
-        ]
-
-        self.assertEqual(self.page_admin.get_fieldsets(request), pagecontent_fields)
-        self.assertEqual(
-            self.page_admin.get_fieldsets(request2), pagecontentwithfields_fields
-        )
-
-    def test_pageadmin_get_form(self):
-        request = self._build_request(
-            page_type=ContentType.objects.get_for_model(PageContent).pk
-        )
-
-        form = self.page_admin.get_form(request)
-
-        keys = [
-            "title",
-            "slug",
-            "parent",
-            "publication_date",
-            "expiry_date",
-            "is_online",
-            "short_title",
-            "in_navigation",
-            "hide_from_anonymous",
-            "requires_authentication",
-            "browser_title",
-            "meta_description",
-            "sitemap_priority",
-            "sitemap_changefreq",
-            "robots_index",
-            "robots_follow",
-            "robots_archive",
-            "og_title",
-            "og_description",
-            "og_image",
-        ]
-
-        self.assertListEqual(list(form.base_fields.keys()), keys)
-
-        request = self._build_request()
-
-        # Test a page with a content model with fields.
-        content_page = PageFactory(
-            parent=self.homepage, content=PageContentWithFields()
-        )
-
-        form = self.page_admin.get_form(request, obj=content_page)
-
-        keys = [
-            "title",
-            "slug",
-            "parent",
-            "description",
-            "inline_model",
-            "publication_date",
-            "expiry_date",
-            "is_online",
-            "short_title",
-            "in_navigation",
-            "hide_from_anonymous",
-            "requires_authentication",
-            "browser_title",
-            "meta_description",
-            "sitemap_priority",
-            "sitemap_changefreq",
-            "robots_index",
-            "robots_follow",
-            "robots_archive",
-            "og_title",
-            "og_description",
-            "og_image",
-        ]
-        self.assertListEqual(list(form.base_fields.keys()), keys)
-
-        self.assertIsInstance(
-            form.base_fields["inline_model"].widget, RelatedFieldWidgetWrapper
-        )
-
-        setattr(PageContentWithFields, "filter_horizontal", ["inline_model"])
-        form = self.page_admin.get_form(request, obj=content_page)
-        self.assertIsInstance(
-            form.base_fields["inline_model"].widget, FilteredSelectMultiple
-        )
-
-        # No homepage.
-        self.assertEqual(
-            form.base_fields["parent"].choices, [(self.homepage.pk, "Homepage")]
-        )
-
-        request.pages.homepage = None
-        form = self.page_admin.get_form(request, obj=content_page)
-
-        self.assertListEqual(form.base_fields["parent"].choices, [("", "---------")])
-
-        # Trigger the `content_cls.DoesNotExist` exception.
-        content_cls = self.page_admin.get_page_content_cls(request, content_page)
-
-        class Obj:
-            def __getattr__(self, name):
-                return getattr(self.page, name)
-
-            @property
-            def content(self):
-                raise content_cls.DoesNotExist
-
-            def __init__(self, page, *args, **kwargs):
-                self.page = page
-
-        obj = Obj(content_page)
-        self.page_admin.get_form(request, obj=obj)
-
-    def test_pageadmin_save_model(self):
-        # NOTE: This page type is different to the one used by the homepage.
-        # This is intentional to test certain conditional routes in the method.
-        request = self._build_request(
-            page_type=ContentType.objects.get_for_model(PageContentWithFields).pk
-        )
-
-        form = self.page_admin.get_form(request)(
-            data={"title": "Homepage", "slug": "homepage", "description": "Foo"}
-        )
-        form.is_valid()
-
-        self.assertEqual(
-            self.homepage.content_type_id,
-            ContentType.objects.get_for_model(PageContent).pk,
-        )
-
-        with self.assertRaises(AttributeError):
-            self.homepage.content.description  # pylint:disable=pointless-statement
-
-        # Save the model
-        self.page_admin.save_model(request, self.homepage, form, True)
-
-        self.assertEqual(
-            self.homepage.content_type_id,
-            ContentType.objects.get_for_model(PageContentWithFields).pk,
-        )
-        self.assertEqual(self.homepage.content.description, "Foo")
-
-        self.page_admin.save_model(request, self.homepage, form, False)
-        self.assertEqual(
-            self.homepage.content_type_id,
-            ContentType.objects.get_for_model(PageContentWithFields).pk,
-        )
-        self.assertEqual(self.homepage.content.description, "Foo")
-
-    def test_pageadmin_has_add_content_permissions(self):
-        request = self._build_request()
-        self.assertTrue(self.page_admin.has_add_content_permission(request, Page))
-
-    def test_pageadmin_has_add_permission(self):
-        request = self._build_request()
-        self.assertTrue(self.page_admin.has_add_permission(request))
-
-        request.user.has_perm = lambda x: False
-        self.assertFalse(self.page_admin.has_add_permission(request))
-
-        request.user.has_perm = lambda x: True
-        self.page_admin.has_add_content_permission = lambda x, y: False
-        self.assertFalse(self.page_admin.has_add_permission(request))
-
-    def test_pageadmin_has_change_permission(self):
-        request = self._build_request()
-        self.assertTrue(self.page_admin.has_change_permission(request))
-
-        self.assertTrue(
-            self.page_admin.has_change_permission(request, obj=self.homepage)
-        )
-
-        request.user.has_perm = lambda x: False
-        self.assertFalse(self.page_admin.has_change_permission(request))
-
-    def test_pageadmin_has_delete_permission(self):
-        request = self._build_request()
-        self.assertTrue(self.page_admin.has_delete_permission(request))
-
-        self.assertTrue(
-            self.page_admin.has_delete_permission(request, obj=self.homepage)
-        )
-
-        request.user.has_perm = lambda x: False
-        self.assertFalse(self.page_admin.has_delete_permission(request))
-
-    def test_pageadmin_patch_response_location(self):
-        request = self._build_request()
-        response = HttpResponseRedirect("/")
-        patched_response = self.page_admin.patch_response_location(request, response)
-        self.assertEqual(patched_response["Location"], "/")
-
-        request.GET[PAGE_FROM_KEY] = "1"
-        patched_response = self.page_admin.patch_response_location(request, response)
-        self.assertEqual(patched_response["Location"], "/?from=1")
-
-        response = Http404()
-        patched_response = self.page_admin.patch_response_location(request, response)
-        self.assertEqual(patched_response, response)
-
-    def test_pageadmin_changelist_view(self):
-        request = self._build_request()
-        response = self.page_admin.changelist_view(request)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context_data["title"], "Select page to change")
-
-        request.GET[PAGE_FROM_KEY] = "1"
-        response = self.page_admin.changelist_view(request)
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response["Location"], "/?e=1")
-
-        request.GET[PAGE_FROM_KEY] = PAGE_FROM_SITEMAP_VALUE
-        response = self.page_admin.changelist_view(request)
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response["Location"], "/admin/")
-
-    def test_pageadmin_change_view(self):
-        request = self._build_request()
-        response = self.page_admin.change_view(request, str(self.homepage.pk))
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context_data["title"], "Change page")
-
-        response = self.page_admin.change_view(request, str(self.homepage.pk))
-
-    def test_pageadmin_add_view(self):  # pragma: no cover
-        request = self._build_request()
-        response = self.page_admin.add_view(request)
-        self.assertEqual(response.status_code, 200)
-
-        models = get_registered_content()
-        for content in get_registered_content():
-            if content != PageContent:
-                content._meta.abstract = True
-
-        response = self.page_admin.add_view(request)
-        self.assertEqual(response.status_code, 302)
-
-        for model in models:
-            model._meta.abstract = False
-
-        request.GET[PAGE_TYPE_PARAMETER] = ContentType.objects.get_for_model(
-            PageContent
-        ).pk
-        response = self.page_admin.add_view(request)
-        self.assertEqual(response.status_code, 200)
-
-        request.user.has_perm = lambda x: False
-        request.GET[PAGE_TYPE_PARAMETER] = ContentType.objects.get_for_model(
-            PageContent
-        ).pk
-
-        with self.assertRaises(PermissionDenied):
-            response = self.page_admin.add_view(request)
-
-    def test_pageadmin_response_add(self):
-        request = AdminRequestFactory().get("/")
-        request.user = MockSuperUser()
-
-        response = self.page_admin.response_add(request, self.homepage)
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response["Location"], "/admin/pages/page/")
-
-    def test_pageadmin_sitemap_json_view(self):
-        # pylint:disable=fixme
-        # FIXME: This is a bit of a silly test. Why is it comparing against a
-        # giant half-kilobyte blob of hard-coded JSON? Can we do a more
-        # meaningful test here?
-        request = self._build_request()
-        response = self.page_admin.sitemap_json_view(request)
-
-        sitemap = (
-            '{"createHomepageUrl": "/admin/pages/page/add/?from=sitemap", "addUrl": "/admin/pages/page/add/?from=sitemap&parent=__id__", "canAdd": true, "changeUrl": "/admin/pages/page/__id__/change/?from=sitemap", "entries": [{"isOnline": true, "canDelete": true, "title": "Homepage", "canChange": true, "id": '
-            + str(self.homepage.pk)
-            + ', "moveUrl": "/admin/pages/page/move-page/'
-            + str(self.homepage.pk)
-            + '/", "children": []}], "deleteUrl": "/admin/pages/page/__id__/delete/?from=sitemap"}'
-        )
-
-        self.assertDictEqual(json.loads(response.content.decode()), json.loads(sitemap))
-        self.assertEqual(response["Content-Type"], "application/json")
-
-        # Add a child page.
-        content_page = PageFactory(
-            title="Content page", content=PageContentWithFields(), parent=self.homepage
-        )
-
-        request.pages.homepage = Page.objects.get(slug="homepage")
-        response = self.page_admin.sitemap_json_view(request)
-        sitemap = (
-            '{"createHomepageUrl": "/admin/pages/page/add/?from=sitemap", "addUrl": "/admin/pages/page/add/?from=sitemap&parent=__id__", "canAdd": true, "changeUrl": "/admin/pages/page/__id__/change/?from=sitemap", "entries": [{"isOnline": true, "canDelete": true, "title": "Homepage", "canChange": true, "id": '
-            + str(self.homepage.pk)
-            + ', "moveUrl": "/admin/pages/page/move-page/'
-            + str(self.homepage.pk)
-            + '/", "children": [{"isOnline": true, "canDelete": true, "title": "Content page", "canChange": true, "id": '
-            + str(content_page.pk)
-            + ', "moveUrl": "/admin/pages/page/move-page/'
-            + str(content_page.pk)
-            + '/", "children": []}]}], "deleteUrl": "/admin/pages/page/__id__/delete/?from=sitemap"}'
-        )
-        self.assertDictEqual(json.loads(response.content.decode()), json.loads(sitemap))
-        self.assertEqual(response["Content-Type"], "application/json")
-
-        request.pages.homepage = None
-        response = self.page_admin.sitemap_json_view(request)
-        sitemap = '{"createHomepageUrl": "/admin/pages/page/add/?from=sitemap", "addUrl": "/admin/pages/page/add/?from=sitemap&parent=__id__", "canAdd": true, "changeUrl": "/admin/pages/page/__id__/change/?from=sitemap", "entries": [], "deleteUrl": "/admin/pages/page/__id__/delete/?from=sitemap"}'
-        self.assertDictEqual(json.loads(response.content.decode()), json.loads(sitemap))
-        self.assertEqual(response["Content-Type"], "application/json")
+    return request
 
 
 @pytest.mark.django_db
-def test_pagecontenttypefilter_lookups():
-    page_admin = PageAdmin(Page, AdminSite())
+def test_pageadmin_add_view(page_admin):  # pragma: no cover
+    request = build_request()
+    response = page_admin.add_view(request)
+    assert response.status_code == 200
 
+    models = get_registered_content()
+    for content in get_registered_content():
+        if content != PageContent:
+            content._meta.abstract = True
+
+    response = page_admin.add_view(request)
+    assert response.status_code == 302
+
+    for model in models:
+        model._meta.abstract = False
+
+    request.GET[PAGE_TYPE_PARAMETER] = ContentType.objects.get_for_model(PageContent).pk
+    response = page_admin.add_view(request)
+    assert response.status_code == 200
+
+    request.user.has_perm = lambda x: False
+    request.GET[PAGE_TYPE_PARAMETER] = ContentType.objects.get_for_model(PageContent).pk
+
+    with pytest.raises(PermissionDenied):
+        response = page_admin.add_view(request)
+
+
+@pytest.mark.django_db
+def test_pageadmin_change_view(page_admin, homepage):
+    request = build_request()
+    response = page_admin.change_view(request, str(homepage.pk))
+    assert response.status_code == 200
+    assert response.context_data["title"] == "Change page"
+
+    response = page_admin.change_view(request, str(homepage.pk))
+
+
+@pytest.mark.django_db
+def test_pageadmin_changelist_view(page_admin):
+    request = build_request()
+    response = page_admin.changelist_view(request)
+    assert response.status_code == 200
+    assert response.context_data["title"] == "Select page to change"
+
+    request.GET[PAGE_FROM_KEY] = "1"
+    response = page_admin.changelist_view(request)
+    assert response.status_code == 302
+    assert response["Location"] == "/?e=1"
+
+    request.GET[PAGE_FROM_KEY] = PAGE_FROM_SITEMAP_VALUE
+    response = page_admin.changelist_view(request)
+    assert response.status_code == 302
+    assert response["Location"] == "/admin/"
+
+
+@pytest.mark.django_db
+def test_pageadmin_get_fieldsets(page_admin):
+    request = build_request(page_type=ContentType.objects.get_for_model(PageContent).pk)
+    request2 = build_request(
+        page_type=ContentType.objects.get_for_model(PageContentWithFields).pk
+    )
+
+    PageFactory(content=PageContentWithFields())
+
+    pagecontent_fields = [
+        (None, {"fields": ("title", "slug", "parent")}),
+        (
+            "Publication",
+            {
+                "fields": ("publication_date", "expiry_date", "is_online"),
+                "classes": ("collapse",),
+            },
+        ),
+        (
+            "Navigation",
+            {
+                "fields": (
+                    "short_title",
+                    "in_navigation",
+                    "hide_from_anonymous",
+                ),
+                "classes": ("collapse",),
+            },
+        ),
+        (
+            "Security",
+            {"fields": ("requires_authentication",), "classes": ("collapse",)},
+        ),
+        (
+            "SEO",
+            {
+                "fields": (
+                    "browser_title",
+                    "meta_description",
+                    "sitemap_priority",
+                    "sitemap_changefreq",
+                    "robots_index",
+                    "robots_follow",
+                    "robots_archive",
+                ),
+                "classes": ("collapse",),
+            },
+        ),
+        (
+            "Open Graph",
+            {
+                "fields": ("og_title", "og_description", "og_image"),
+                "classes": ("collapse",),
+            },
+        ),
+    ]
+
+    pagecontentwithfields_fields = [
+        (None, {"fields": ("title", "slug", "parent")}),
+        ("Page content", {"fields": ["description", "inline_model"]}),
+        (
+            "Publication",
+            {
+                "fields": ("publication_date", "expiry_date", "is_online"),
+                "classes": ("collapse",),
+            },
+        ),
+        (
+            "Navigation",
+            {
+                "fields": (
+                    "short_title",
+                    "in_navigation",
+                    "hide_from_anonymous",
+                ),
+                "classes": ("collapse",),
+            },
+        ),
+        (
+            "Security",
+            {
+                "classes": ("collapse",),
+                "fields": ("requires_authentication",),
+            },
+        ),
+        (
+            "SEO",
+            {
+                "fields": (
+                    "browser_title",
+                    "meta_description",
+                    "sitemap_priority",
+                    "sitemap_changefreq",
+                    "robots_index",
+                    "robots_follow",
+                    "robots_archive",
+                ),
+                "classes": ("collapse",),
+            },
+        ),
+        (
+            "Open Graph",
+            {
+                "fields": ("og_title", "og_description", "og_image"),
+                "classes": ("collapse",),
+            },
+        ),
+    ]
+
+    assert page_admin.get_fieldsets(request) == pagecontent_fields
+    assert page_admin.get_fieldsets(request2) == pagecontentwithfields_fields
+
+
+@pytest.mark.django_db
+def test_pageadmin_get_form(page_admin, homepage):
+    request = build_request(page_type=ContentType.objects.get_for_model(PageContent).pk)
+
+    form = page_admin.get_form(request)
+
+    keys = [
+        "title",
+        "slug",
+        "parent",
+        "publication_date",
+        "expiry_date",
+        "is_online",
+        "short_title",
+        "in_navigation",
+        "hide_from_anonymous",
+        "requires_authentication",
+        "browser_title",
+        "meta_description",
+        "sitemap_priority",
+        "sitemap_changefreq",
+        "robots_index",
+        "robots_follow",
+        "robots_archive",
+        "og_title",
+        "og_description",
+        "og_image",
+    ]
+
+    assert list(form.base_fields.keys()) == keys
+
+    request = build_request()
+
+    # Test a page with a content model with fields.
+    content_page = PageFactory(parent=homepage, content=PageContentWithFields())
+
+    form = page_admin.get_form(request, obj=content_page)
+
+    keys = [
+        "title",
+        "slug",
+        "parent",
+        "description",
+        "inline_model",
+        "publication_date",
+        "expiry_date",
+        "is_online",
+        "short_title",
+        "in_navigation",
+        "hide_from_anonymous",
+        "requires_authentication",
+        "browser_title",
+        "meta_description",
+        "sitemap_priority",
+        "sitemap_changefreq",
+        "robots_index",
+        "robots_follow",
+        "robots_archive",
+        "og_title",
+        "og_description",
+        "og_image",
+    ]
+    assert list(form.base_fields.keys()) == keys
+
+    assert isinstance(
+        form.base_fields["inline_model"].widget, RelatedFieldWidgetWrapper
+    )
+
+    setattr(PageContentWithFields, "filter_horizontal", ["inline_model"])
+    form = page_admin.get_form(request, obj=content_page)
+    assert isinstance(form.base_fields["inline_model"].widget, FilteredSelectMultiple)
+
+    # No homepage.
+    assert form.base_fields["parent"].choices == [(homepage.pk, "Homepage")]
+
+    request.pages.homepage = None
+    form = page_admin.get_form(request, obj=content_page)
+
+    assert form.base_fields["parent"].choices == [("", "---------")]
+
+    # Trigger the `content_cls.DoesNotExist` exception.
+    content_cls = page_admin.get_page_content_cls(request, content_page)
+
+    class Obj:
+        def __getattr__(self, name):
+            return getattr(self.page, name)
+
+        @property
+        def content(self):
+            raise content_cls.DoesNotExist
+
+        def __init__(self, page, *args, **kwargs):
+            self.page = page
+
+    obj = Obj(content_page)
+    page_admin.get_form(request, obj=obj)
+
+
+@pytest.mark.django_db
+def test_pageadmin_get_inline_instances(page_admin, homepage):
+    request = build_request(page_type=ContentType.objects.get_for_model(PageContent).pk)
+
+    assert page_admin.get_inline_instances(request) == []
+    assert page_admin.get_inline_instances(request, obj=homepage) == []
+    page_admin.register_content_inline(PageContent, InlineModelInline)
+    assert len(page_admin.get_inline_instances(request, obj=homepage)) == 1
+
+
+@pytest.mark.django_db
+def test_pageadmin_get_page_content_cls(page_admin, homepage):
+    request = build_request(page_type=ContentType.objects.get_for_model(PageContent).pk)
+
+    request2 = build_request()
+
+    assert page_admin.get_page_content_cls(request) == PageContent
+
+    with pytest.raises(Http404):
+        page_admin.get_page_content_cls(request2)
+
+    assert page_admin.get_page_content_cls(request2, homepage) == PageContent
+
+
+@pytest.mark.django_db
+def test_pageadmin_get_revision_form_data(page_admin, homepage):
+    request = build_request(page_type=ContentType.objects.get_for_model(PageContent).pk)
+
+    # Create an initial revision.
+    with reversion.create_revision():
+        homepage.content.save()
+
+    versions = Version.objects.get_for_object(homepage.content)
+
+    data = page_admin.get_revision_form_data(request, homepage, versions[0])
+    assert data == {"page_id": homepage.pk}
+
+
+@pytest.mark.django_db
+def test_pageadmin_get_revision_instances(page_admin, homepage):
+    request = build_request(page_type=ContentType.objects.get_for_model(PageContent).pk)
+
+    instances = page_admin.get_revision_instances(request, homepage)
+    assert instances == [homepage, homepage.content]
+
+    # Register a content type which doesn't have a `page` attribute to
+    # trigger the exception in `get_revision_instances`.
+    page_admin.register_content_inline(PageContent, InlineModelNoPageInline)
+
+    instances = page_admin.get_revision_instances(request, homepage)
+    assert instances == [homepage, homepage.content]
+
+
+@pytest.mark.django_db
+def test_pageadmin_has_add_content_permissions(page_admin):
+    request = build_request()
+    assert page_admin.has_add_content_permission(request, Page)
+
+
+@pytest.mark.django_db
+def test_pageadmin_has_add_permission(page_admin):
+    request = build_request()
+    assert page_admin.has_add_permission(request)
+
+    request.user.has_perm = lambda x: False
+    assert not page_admin.has_add_permission(request)
+
+    request.user.has_perm = lambda x: True
+    page_admin.has_add_content_permission = lambda x, y: False
+    assert not page_admin.has_add_permission(request)
+
+
+@pytest.mark.django_db
+def test_pageadmin_has_change_permission(page_admin, homepage):
+    request = build_request()
+    assert page_admin.has_change_permission(request)
+
+    assert page_admin.has_change_permission(request, obj=homepage)
+
+    request.user.has_perm = lambda x: False
+    assert not page_admin.has_change_permission(request)
+
+
+@pytest.mark.django_db
+def test_pageadmin_has_delete_permission(page_admin, homepage):
+    request = build_request()
+    assert page_admin.has_delete_permission(request)
+
+    assert page_admin.has_delete_permission(request, obj=homepage)
+
+    request.user.has_perm = lambda x: False
+    assert not page_admin.has_delete_permission(request)
+
+
+@pytest.mark.django_db
+def test_pageadmin_patch_response_location(page_admin):
+    request = build_request()
+    response = HttpResponseRedirect("/")
+    patched_response = page_admin.patch_response_location(request, response)
+    assert patched_response["Location"] == "/"
+
+    request.GET[PAGE_FROM_KEY] = "1"
+    patched_response = page_admin.patch_response_location(request, response)
+    assert patched_response["Location"] == "/?from=1"
+
+    response = Http404()
+    patched_response = page_admin.patch_response_location(request, response)
+    assert patched_response == response
+
+
+@pytest.mark.django_db
+def test_pageadmin_register_content_inline(page_admin):
+    assert page_admin.content_inlines == []
+
+    page_admin.register_content_inline(PageContent, InlineModelInline)
+
+    assert page_admin.content_inlines == [
+        (PageContent, InlineModelInline),
+    ]
+
+
+@pytest.mark.django_db
+def test_pageadmin_register_page_inline(page_admin):
+    page_admin._register_page_inline(InlineModelNoPage)
+
+
+@pytest.mark.django_db
+def test_pageadmin_response_add(page_admin, homepage):
+    request = AdminRequestFactory().get("/")
+    request.user = MockSuperUser()
+
+    response = page_admin.response_add(request, homepage)
+    assert response.status_code == 302
+    assert response["Location"] == "/admin/pages/page/"
+
+
+@pytest.mark.django_db
+def test_pageadmin_save_model(page_admin, homepage):
+    # NOTE: This page type is different to the one used by the homepage.
+    # This is intentional to test certain conditional routes in the method.
+    request = build_request(
+        page_type=ContentType.objects.get_for_model(PageContentWithFields).pk
+    )
+
+    form = page_admin.get_form(request)(
+        data={"title": "Homepage", "slug": "homepage", "description": "Foo"}
+    )
+    form.is_valid()
+
+    assert homepage.content_type_id == ContentType.objects.get_for_model(PageContent).pk
+
+    with pytest.raises(AttributeError):
+        homepage.content.description  # pylint:disable=pointless-statement
+
+    # Save the model
+    page_admin.save_model(request, homepage, form, True)
+
+    assert (
+        homepage.content_type_id
+        == ContentType.objects.get_for_model(PageContentWithFields).pk
+    )
+    assert homepage.content.description == "Foo"
+
+    page_admin.save_model(request, homepage, form, False)
+    assert (
+        homepage.content_type_id
+        == ContentType.objects.get_for_model(PageContentWithFields).pk
+    )
+    assert homepage.content.description == "Foo"
+
+
+@pytest.mark.django_db
+def test_pageadmin_sitemap_json_view(page_admin, homepage):
+    # pylint:disable=fixme
+    # FIXME: This is a bit of a silly test. Why is it comparing against a
+    # giant half-kilobyte blob of hard-coded JSON? Can we do a more
+    # meaningful test here?
+    request = build_request()
+    response = page_admin.sitemap_json_view(request)
+
+    sitemap = (
+        '{"createHomepageUrl": "/admin/pages/page/add/?from=sitemap", "addUrl": "/admin/pages/page/add/?from=sitemap&parent=__id__", "canAdd": true, "changeUrl": "/admin/pages/page/__id__/change/?from=sitemap", "entries": [{"isOnline": true, "canDelete": true, "title": "Homepage", "canChange": true, "id": '
+        + str(homepage.pk)
+        + ', "moveUrl": "/admin/pages/page/move-page/'
+        + str(homepage.pk)
+        + '/", "children": []}], "deleteUrl": "/admin/pages/page/__id__/delete/?from=sitemap"}'
+    )
+
+    assert json.loads(response.content.decode()) == json.loads(sitemap)
+    assert response["Content-Type"] == "application/json"
+
+    # Add a child page.
+    content_page = PageFactory(
+        title="Content page", content=PageContentWithFields(), parent=homepage
+    )
+
+    request.pages.homepage = Page.objects.get(slug="homepage")
+    response = page_admin.sitemap_json_view(request)
+    sitemap = (
+        '{"createHomepageUrl": "/admin/pages/page/add/?from=sitemap", "addUrl": "/admin/pages/page/add/?from=sitemap&parent=__id__", "canAdd": true, "changeUrl": "/admin/pages/page/__id__/change/?from=sitemap", "entries": [{"isOnline": true, "canDelete": true, "title": "Homepage", "canChange": true, "id": '
+        + str(homepage.pk)
+        + ', "moveUrl": "/admin/pages/page/move-page/'
+        + str(homepage.pk)
+        + '/", "children": [{"isOnline": true, "canDelete": true, "title": "Content page", "canChange": true, "id": '
+        + str(content_page.pk)
+        + ', "moveUrl": "/admin/pages/page/move-page/'
+        + str(content_page.pk)
+        + '/", "children": []}]}], "deleteUrl": "/admin/pages/page/__id__/delete/?from=sitemap"}'
+    )
+    assert json.loads(response.content.decode()) == json.loads(sitemap)
+    assert response["Content-Type"] == "application/json"
+
+    request.pages.homepage = None
+    response = page_admin.sitemap_json_view(request)
+    sitemap = '{"createHomepageUrl": "/admin/pages/page/add/?from=sitemap", "addUrl": "/admin/pages/page/add/?from=sitemap&parent=__id__", "canAdd": true, "changeUrl": "/admin/pages/page/__id__/change/?from=sitemap", "entries": [], "deleteUrl": "/admin/pages/page/__id__/delete/?from=sitemap"}'
+    assert json.loads(response.content.decode()) == json.loads(sitemap)
+    assert response["Content-Type"] == "application/json"
+
+
+@pytest.mark.django_db
+def test_pagecontenttypefilter_lookups(page_admin):
     # Add some pages with different content types. (The repetition in this
     # array is intentional!)
     for content_cls in [PageContent, PageContent, PageContentWithFields]:
@@ -614,10 +617,7 @@ def test_pagecontenttypefilter(client):
 
 
 @pytest.mark.django_db
-def test_pageadmin_delete_view():
-    page_admin = PageAdmin(Page, AdminSite())
-
-    homepage = PageFactory()
+def test_pageadmin_delete_view(page_admin, homepage):
     request = AdminRequestFactory().get("/")
     request.user = MockSuperUser()
 
@@ -626,10 +626,8 @@ def test_pageadmin_delete_view():
 
 
 @pytest.mark.django_db
-def test_pageadmin_get_all_children():
-    page_admin = PageAdmin(Page, AdminSite())
+def test_pageadmin_get_all_children(page_admin):
     homepage = PageFactory(slug="homepage")
-    # pylint:disable-next=use-implicit-booleaness-not-comparison
     assert page_admin.get_all_children(homepage) == []
 
     # Add a child page.
@@ -642,8 +640,7 @@ def test_pageadmin_get_all_children():
 
 
 @pytest.mark.django_db
-def test_pageadmin_get_breadcrumbs():
-    page_admin = PageAdmin(Page, AdminSite())
+def test_pageadmin_get_breadcrumbs(page_admin):
     subpage = PageFactory(parent=PageFactory())
     assert page_admin.get_breadcrumbs(subpage) == [subpage.parent, subpage]
 
@@ -862,8 +859,7 @@ def test_pageadmin_recover_view(client):
 
 
 @pytest.mark.django_db
-def test_pageadmin_response_change():
-    page_admin = PageAdmin(Page, AdminSite())
+def test_pageadmin_response_change(page_admin):
     page = PageFactory()
 
     request = AdminRequestFactory().get("/")
@@ -875,8 +871,7 @@ def test_pageadmin_response_change():
 
 
 @pytest.mark.django_db
-def test_pageadmin_revision_view():
-    page_admin = PageAdmin(Page, AdminSite())
+def test_pageadmin_revision_view(page_admin):
     page = PageFactory()
 
     request = AdminRequestFactory().get("/")
@@ -926,7 +921,9 @@ def test_pageadmin_ancestors_setting():
 
 
 @pytest.mark.django_db
-def test_pageadmin_get_page_content_cls_with_admin_change_obj_fallback():
+def test_pageadmin_get_page_content_cls_with_admin_change_obj_fallback(
+    page_admin, homepage
+):
     """
     Test that get_page_content_cls falls back to request._admin_change_obj.
 
@@ -935,9 +932,6 @@ def test_pageadmin_get_page_content_cls_with_admin_change_obj_fallback():
     (it's probably something to do with reversion), but for Chesterton's fence
     reasons I'm keeping it there and just making sure that branch is visited.
     """
-    page_admin = PageAdmin(Page, AdminSite())
-    homepage = PageFactory(content=PageContent(), title="Homepage", slug="homepage")
-
     request = AdminRequestFactory().get("/")
     request.user = MockSuperUser()
 
@@ -953,7 +947,7 @@ def test_pageadmin_get_page_content_cls_with_admin_change_obj_fallback():
 
 
 @pytest.mark.django_db
-def test_pageadmin_save_model_field_not_in_cleaned_data():
+def test_pageadmin_save_model_field_not_in_cleaned_data(page_admin):
     """
     Test save_model when editing via list_editable where only some fields
     are in form.cleaned_data. Content fields not in cleaned_data should be
@@ -961,8 +955,6 @@ def test_pageadmin_save_model_field_not_in_cleaned_data():
 
     This test was written with AI assistance.
     """
-
-    page_admin = PageAdmin(Page, AdminSite())
     page = PageFactory(content=PageContentWithFields(description="Original"))
 
     request = AdminRequestFactory().get("/")
@@ -1050,16 +1042,13 @@ def test_pageadmin_move_page_view_loop_branches(client):
 
 
 @pytest.mark.django_db
-def test_pageadmin_move_page_view_page_not_in_siblings():
+def test_pageadmin_move_page_view_page_not_in_siblings(page_admin):
     """
     Test move_page_view when the page is not found in siblings list due to
     data inconsistency. Uses mocks to simulate this edge case.
 
     This test was written with AI assistance.
     """
-
-    page_admin = PageAdmin(Page, AdminSite())
-
     user = UserFactory(is_staff=True)
     user.user_permissions.add(Permission.objects.get(codename="change_page"))
 

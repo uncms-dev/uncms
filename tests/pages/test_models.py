@@ -1,11 +1,11 @@
-"""Tests for the pages app."""
+# pylint:disable=redefined-outer-name
+# ^ because of fixtures defined in this file being used in function signatures
 from datetime import timedelta
 
 import pytest
 from django.contrib.contenttypes.models import ContentType
 from django.core.management import call_command
 from django.db import transaction
-from django.test import TransactionTestCase
 from django.utils.timezone import now
 from reversion import create_revision
 from watson import search
@@ -22,10 +22,10 @@ from uncms.testhelpers.factories.pages import PageFactory
 from uncms.testhelpers.models import EmptyTestPage
 
 
-class TestPageComplex(TransactionTestCase):
-
+@pytest.fixture
+def complex_page_tree(db):
     """
-       Page structure:
+    Create a complex page structure for testing:
 
                                      Homepage
                                         |
@@ -40,265 +40,275 @@ class TestPageComplex(TransactionTestCase):
                                           +----------+----------+
                                           |                     |
                                    Tree 3 - Page 4       Tree 3 - Page 5
-
     """
+    structure = {
+        "title": "Homepage",
+        "children": [
+            {
+                "title": "Tree 1 - Page 1",
+                "children": [
+                    {"title": "Tree 1 - Page 2"},
+                    {"title": "Tree 1 - Page 3"},
+                ],
+            },
+            {"title": "Tree 2 - Page 1"},
+            {
+                "title": "Tree 3 - Page 1",
+                "children": [
+                    {
+                        "title": "Tree 3 - Page 2",
+                        "children": [
+                            {"title": "Tree 3 - Page 4"},
+                            {"title": "Tree 3 - Page 5"},
+                        ],
+                    },
+                    {"title": "Tree 3 - Page 3"},
+                ],
+            },
+        ],
+    }
 
-    def setUp(self):
-        structure = {
-            "title": "Homepage",
-            "children": [
-                {
-                    "title": "Tree 1 - Page 1",
-                    "children": [
-                        {"title": "Tree 1 - Page 2"},
-                        {"title": "Tree 1 - Page 3"},
-                    ],
-                },
-                {"title": "Tree 2 - Page 1"},
-                {
-                    "title": "Tree 3 - Page 1",
-                    "children": [
-                        {
-                            "title": "Tree 3 - Page 2",
-                            "children": [
-                                {"title": "Tree 3 - Page 4"},
-                                {"title": "Tree 3 - Page 5"},
-                            ],
-                        },
-                        {"title": "Tree 3 - Page 3"},
-                    ],
-                },
-            ],
-        }
+    content_type = ContentType.objects.get_for_model(PageContent)
+    page_ids = {}
 
-        content_type = ContentType.objects.get_for_model(PageContent)
-        self.page_ids = {}
-        self.pages = {}
+    def _add_page(page, parent=None):
+        slug = page["title"].replace(" ", "_").replace("-", "_")
 
-        def _add_page(page, parent=None):
-            slug = page["title"].replace(" ", "_").replace("-", "_")
+        page_obj = Page.objects.create(
+            title=page["title"],
+            slug=slug,
+            content_type=content_type,
+            parent=parent,
+        )
 
-            page_obj = Page.objects.create(
-                title=page["title"],
-                slug=slug,
-                content_type=content_type,
-                parent=parent,
-            )
+        PageContent.objects.create(
+            page=page_obj,
+        )
 
-            PageContent.objects.create(
-                page=page_obj,
-            )
+        page_ids[slug] = page_obj.pk
 
-            self.page_ids[slug] = page_obj.pk
+        if page.get("children", None):
+            for child in page["children"]:
+                _add_page(child, page_obj)
 
-            if page.get("children", None):
-                for child in page["children"]:
-                    _add_page(child, page_obj)
+    with search.update_index():
+        _add_page(structure)
 
-        with search.update_index():
-            _add_page(structure)
-            self._rebuild_page_dict()
-
-    def _rebuild_page_dict(self):
-        self.pages = {}
-        for key, value in self.page_ids.items():
+    def _get_pages():
+        pages = {}
+        for key, value in page_ids.items():
             try:
-                self.pages[key] = Page.objects.get(pk=value)
-            # Handle tests involving deletions.
+                pages[key] = Page.objects.get(pk=value)
             except Page.DoesNotExist:
                 pass
+        return pages
 
-    def test_page_excise_branch(self):
-        # Excising a branch which hasn't been deleted should have no affect.
-        self.assertEqual(self.pages["Homepage"].left, 1)
-        self.assertEqual(self.pages["Homepage"].right, 20)
-        self.assertEqual(self.pages["Tree_1___Page_1"].left, 2)
-        self.assertEqual(self.pages["Tree_1___Page_1"].right, 7)
-        self.assertEqual(self.pages["Tree_1___Page_2"].left, 3)
-        self.assertEqual(self.pages["Tree_1___Page_2"].right, 4)
-        self.assertEqual(self.pages["Tree_1___Page_3"].left, 5)
-        self.assertEqual(self.pages["Tree_1___Page_3"].right, 6)
-        self.assertEqual(self.pages["Tree_2___Page_1"].left, 8)
-        self.assertEqual(self.pages["Tree_2___Page_1"].right, 9)
-        self.assertEqual(self.pages["Tree_3___Page_1"].left, 10)
-        self.assertEqual(self.pages["Tree_3___Page_1"].right, 19)
-        self.assertEqual(self.pages["Tree_3___Page_2"].left, 11)
-        self.assertEqual(self.pages["Tree_3___Page_2"].right, 16)
-        self.assertEqual(self.pages["Tree_3___Page_3"].left, 17)
-        self.assertEqual(self.pages["Tree_3___Page_3"].right, 18)
-        self.assertEqual(self.pages["Tree_3___Page_4"].left, 12)
-        self.assertEqual(self.pages["Tree_3___Page_4"].right, 13)
-        self.assertEqual(self.pages["Tree_3___Page_5"].left, 14)
-        self.assertEqual(self.pages["Tree_3___Page_5"].right, 15)
+    return _get_pages
 
-        self.pages["Homepage"]._excise_branch()
 
-        self.assertEqual(self.pages["Homepage"].left, 1)
-        self.assertEqual(self.pages["Homepage"].right, 20)
-        self.assertEqual(self.pages["Tree_1___Page_1"].left, 2)
-        self.assertEqual(self.pages["Tree_1___Page_1"].right, 7)
-        self.assertEqual(self.pages["Tree_1___Page_2"].left, 3)
-        self.assertEqual(self.pages["Tree_1___Page_2"].right, 4)
-        self.assertEqual(self.pages["Tree_1___Page_3"].left, 5)
-        self.assertEqual(self.pages["Tree_1___Page_3"].right, 6)
-        self.assertEqual(self.pages["Tree_2___Page_1"].left, 8)
-        self.assertEqual(self.pages["Tree_2___Page_1"].right, 9)
-        self.assertEqual(self.pages["Tree_3___Page_1"].left, 10)
-        self.assertEqual(self.pages["Tree_3___Page_1"].right, 19)
-        self.assertEqual(self.pages["Tree_3___Page_2"].left, 11)
-        self.assertEqual(self.pages["Tree_3___Page_2"].right, 16)
-        self.assertEqual(self.pages["Tree_3___Page_3"].left, 17)
-        self.assertEqual(self.pages["Tree_3___Page_3"].right, 18)
-        self.assertEqual(self.pages["Tree_3___Page_4"].left, 12)
-        self.assertEqual(self.pages["Tree_3___Page_4"].right, 13)
-        self.assertEqual(self.pages["Tree_3___Page_5"].left, 14)
-        self.assertEqual(self.pages["Tree_3___Page_5"].right, 15)
+@pytest.mark.django_db(transaction=True)
+def test_page_excise_branch(complex_page_tree):
+    pages = complex_page_tree()
+    # Excising a branch which hasn't been deleted should have no affect.
+    assert pages["Homepage"].left == 1
+    assert pages["Homepage"].right == 20
+    assert pages["Tree_1___Page_1"].left == 2
+    assert pages["Tree_1___Page_1"].right == 7
+    assert pages["Tree_1___Page_2"].left == 3
+    assert pages["Tree_1___Page_2"].right == 4
+    assert pages["Tree_1___Page_3"].left == 5
+    assert pages["Tree_1___Page_3"].right == 6
+    assert pages["Tree_2___Page_1"].left == 8
+    assert pages["Tree_2___Page_1"].right == 9
+    assert pages["Tree_3___Page_1"].left == 10
+    assert pages["Tree_3___Page_1"].right == 19
+    assert pages["Tree_3___Page_2"].left == 11
+    assert pages["Tree_3___Page_2"].right == 16
+    assert pages["Tree_3___Page_3"].left == 17
+    assert pages["Tree_3___Page_3"].right == 18
+    assert pages["Tree_3___Page_4"].left == 12
+    assert pages["Tree_3___Page_4"].right == 13
+    assert pages["Tree_3___Page_5"].left == 14
+    assert pages["Tree_3___Page_5"].right == 15
 
-    def test_page_save__create_with_sides(self):
-        with search.update_index():
-            content_type = ContentType.objects.get_for_model(PageContent)
+    pages["Homepage"]._excise_branch()
 
-            # Create a page with a manual left and right defined.
-            page_obj = Page.objects.create(
-                title="Foo",
-                content_type=content_type,
-                parent=self.pages["Tree_1___Page_1"],
-                left=7,
-                right=8,
-            )
+    assert pages["Homepage"].left == 1
+    assert pages["Homepage"].right == 20
+    assert pages["Tree_1___Page_1"].left == 2
+    assert pages["Tree_1___Page_1"].right == 7
+    assert pages["Tree_1___Page_2"].left == 3
+    assert pages["Tree_1___Page_2"].right == 4
+    assert pages["Tree_1___Page_3"].left == 5
+    assert pages["Tree_1___Page_3"].right == 6
+    assert pages["Tree_2___Page_1"].left == 8
+    assert pages["Tree_2___Page_1"].right == 9
+    assert pages["Tree_3___Page_1"].left == 10
+    assert pages["Tree_3___Page_1"].right == 19
+    assert pages["Tree_3___Page_2"].left == 11
+    assert pages["Tree_3___Page_2"].right == 16
+    assert pages["Tree_3___Page_3"].left == 17
+    assert pages["Tree_3___Page_3"].right == 18
+    assert pages["Tree_3___Page_4"].left == 12
+    assert pages["Tree_3___Page_4"].right == 13
+    assert pages["Tree_3___Page_5"].left == 14
+    assert pages["Tree_3___Page_5"].right == 15
 
-            PageContent.objects.create(
-                page=page_obj,
-            )
 
-            self.assertEqual(page_obj.title, "Foo")
+@pytest.mark.django_db(transaction=True)
+def test_page_save__create_with_sides(complex_page_tree):
+    pages = complex_page_tree()
+    with search.update_index():
+        content_type = ContentType.objects.get_for_model(PageContent)
 
-    def test_page_save__move_branch_left(self):
-        self.assertEqual(self.pages["Homepage"].left, 1)
-        self.assertEqual(self.pages["Homepage"].right, 20)
-        self.assertEqual(self.pages["Tree_1___Page_1"].left, 2)
-        self.assertEqual(self.pages["Tree_1___Page_1"].right, 7)
-        self.assertEqual(self.pages["Tree_1___Page_2"].left, 3)
-        self.assertEqual(self.pages["Tree_1___Page_2"].right, 4)
-        self.assertEqual(self.pages["Tree_1___Page_3"].left, 5)
-        self.assertEqual(self.pages["Tree_1___Page_3"].right, 6)
-        self.assertEqual(self.pages["Tree_2___Page_1"].left, 8)
-        self.assertEqual(self.pages["Tree_2___Page_1"].right, 9)
-        self.assertEqual(self.pages["Tree_3___Page_1"].left, 10)
-        self.assertEqual(self.pages["Tree_3___Page_1"].right, 19)
-        self.assertEqual(self.pages["Tree_3___Page_2"].left, 11)
-        self.assertEqual(self.pages["Tree_3___Page_2"].right, 16)
-        self.assertEqual(self.pages["Tree_3___Page_3"].left, 17)
-        self.assertEqual(self.pages["Tree_3___Page_3"].right, 18)
-        self.assertEqual(self.pages["Tree_3___Page_4"].left, 12)
-        self.assertEqual(self.pages["Tree_3___Page_4"].right, 13)
-        self.assertEqual(self.pages["Tree_3___Page_5"].left, 14)
-        self.assertEqual(self.pages["Tree_3___Page_5"].right, 15)
+        # Create a page with a manual left and right defined.
+        page_obj = Page.objects.create(
+            title="Foo",
+            content_type=content_type,
+            parent=pages["Tree_1___Page_1"],
+            left=7,
+            right=8,
+        )
 
-        self.pages["Tree_3___Page_1"].parent = self.pages["Tree_1___Page_1"]
-        self.pages["Tree_3___Page_1"].save()
+        PageContent.objects.create(
+            page=page_obj,
+        )
 
-        # Rebuild page dict.
-        self._rebuild_page_dict()
+        assert page_obj.title == "Foo"
 
-        self.assertEqual(self.pages["Homepage"].left, 1)
-        self.assertEqual(self.pages["Homepage"].right, 20)
-        self.assertEqual(self.pages["Tree_1___Page_1"].left, 2)
-        self.assertEqual(self.pages["Tree_1___Page_1"].right, 17)
-        self.assertEqual(self.pages["Tree_1___Page_2"].left, 3)
-        self.assertEqual(self.pages["Tree_1___Page_2"].right, 4)
-        self.assertEqual(self.pages["Tree_1___Page_3"].left, 5)
-        self.assertEqual(self.pages["Tree_1___Page_3"].right, 6)
-        self.assertEqual(self.pages["Tree_2___Page_1"].left, 18)
-        self.assertEqual(self.pages["Tree_2___Page_1"].right, 19)
-        self.assertEqual(self.pages["Tree_3___Page_1"].left, 7)
-        self.assertEqual(self.pages["Tree_3___Page_1"].right, 16)
-        self.assertEqual(self.pages["Tree_3___Page_2"].left, 8)
-        self.assertEqual(self.pages["Tree_3___Page_2"].right, 13)
-        self.assertEqual(self.pages["Tree_3___Page_3"].left, 14)
-        self.assertEqual(self.pages["Tree_3___Page_3"].right, 15)
-        self.assertEqual(self.pages["Tree_3___Page_4"].left, 9)
-        self.assertEqual(self.pages["Tree_3___Page_4"].right, 10)
-        self.assertEqual(self.pages["Tree_3___Page_5"].left, 11)
-        self.assertEqual(self.pages["Tree_3___Page_5"].right, 12)
 
-    def test_page_save__move_branch_right(self):
-        self.assertEqual(self.pages["Homepage"].left, 1)
-        self.assertEqual(self.pages["Homepage"].right, 20)
-        self.assertEqual(self.pages["Tree_1___Page_1"].left, 2)
-        self.assertEqual(self.pages["Tree_1___Page_1"].right, 7)
-        self.assertEqual(self.pages["Tree_1___Page_2"].left, 3)
-        self.assertEqual(self.pages["Tree_1___Page_2"].right, 4)
-        self.assertEqual(self.pages["Tree_1___Page_3"].left, 5)
-        self.assertEqual(self.pages["Tree_1___Page_3"].right, 6)
-        self.assertEqual(self.pages["Tree_2___Page_1"].left, 8)
-        self.assertEqual(self.pages["Tree_2___Page_1"].right, 9)
-        self.assertEqual(self.pages["Tree_3___Page_1"].left, 10)
-        self.assertEqual(self.pages["Tree_3___Page_1"].right, 19)
-        self.assertEqual(self.pages["Tree_3___Page_2"].left, 11)
-        self.assertEqual(self.pages["Tree_3___Page_2"].right, 16)
-        self.assertEqual(self.pages["Tree_3___Page_3"].left, 17)
-        self.assertEqual(self.pages["Tree_3___Page_3"].right, 18)
-        self.assertEqual(self.pages["Tree_3___Page_4"].left, 12)
-        self.assertEqual(self.pages["Tree_3___Page_4"].right, 13)
-        self.assertEqual(self.pages["Tree_3___Page_5"].left, 14)
-        self.assertEqual(self.pages["Tree_3___Page_5"].right, 15)
+@pytest.mark.django_db(transaction=True)
+def test_page_save__move_branch_left(complex_page_tree):
+    pages = complex_page_tree()
+    assert pages["Homepage"].left == 1
+    assert pages["Homepage"].right == 20
+    assert pages["Tree_1___Page_1"].left == 2
+    assert pages["Tree_1___Page_1"].right == 7
+    assert pages["Tree_1___Page_2"].left == 3
+    assert pages["Tree_1___Page_2"].right == 4
+    assert pages["Tree_1___Page_3"].left == 5
+    assert pages["Tree_1___Page_3"].right == 6
+    assert pages["Tree_2___Page_1"].left == 8
+    assert pages["Tree_2___Page_1"].right == 9
+    assert pages["Tree_3___Page_1"].left == 10
+    assert pages["Tree_3___Page_1"].right == 19
+    assert pages["Tree_3___Page_2"].left == 11
+    assert pages["Tree_3___Page_2"].right == 16
+    assert pages["Tree_3___Page_3"].left == 17
+    assert pages["Tree_3___Page_3"].right == 18
+    assert pages["Tree_3___Page_4"].left == 12
+    assert pages["Tree_3___Page_4"].right == 13
+    assert pages["Tree_3___Page_5"].left == 14
+    assert pages["Tree_3___Page_5"].right == 15
 
-        self.pages["Tree_1___Page_1"].parent = self.pages["Tree_3___Page_1"]
-        self.pages["Tree_1___Page_1"].save()
+    pages["Tree_3___Page_1"].parent = pages["Tree_1___Page_1"]
+    pages["Tree_3___Page_1"].save()
 
-        # Rebuild page dict.
-        self._rebuild_page_dict()
+    # Rebuild page dict.
+    pages = complex_page_tree()
 
-        self.assertEqual(self.pages["Homepage"].left, 1)
-        self.assertEqual(self.pages["Homepage"].right, 20)
-        self.assertEqual(self.pages["Tree_1___Page_1"].left, 13)
-        self.assertEqual(self.pages["Tree_1___Page_1"].right, 18)
-        self.assertEqual(self.pages["Tree_1___Page_2"].left, 14)
-        self.assertEqual(self.pages["Tree_1___Page_2"].right, 15)
-        self.assertEqual(self.pages["Tree_1___Page_3"].left, 16)
-        self.assertEqual(self.pages["Tree_1___Page_3"].right, 17)
-        self.assertEqual(self.pages["Tree_2___Page_1"].left, 2)
-        self.assertEqual(self.pages["Tree_2___Page_1"].right, 3)
-        self.assertEqual(self.pages["Tree_3___Page_1"].left, 4)
-        self.assertEqual(self.pages["Tree_3___Page_1"].right, 19)
-        self.assertEqual(self.pages["Tree_3___Page_2"].left, 5)
-        self.assertEqual(self.pages["Tree_3___Page_2"].right, 10)
-        self.assertEqual(self.pages["Tree_3___Page_3"].left, 11)
-        self.assertEqual(self.pages["Tree_3___Page_3"].right, 12)
-        self.assertEqual(self.pages["Tree_3___Page_4"].left, 6)
-        self.assertEqual(self.pages["Tree_3___Page_4"].right, 7)
-        self.assertEqual(self.pages["Tree_3___Page_5"].left, 8)
-        self.assertEqual(self.pages["Tree_3___Page_5"].right, 9)
+    assert pages["Homepage"].left == 1
+    assert pages["Homepage"].right == 20
+    assert pages["Tree_1___Page_1"].left == 2
+    assert pages["Tree_1___Page_1"].right == 17
+    assert pages["Tree_1___Page_2"].left == 3
+    assert pages["Tree_1___Page_2"].right == 4
+    assert pages["Tree_1___Page_3"].left == 5
+    assert pages["Tree_1___Page_3"].right == 6
+    assert pages["Tree_2___Page_1"].left == 18
+    assert pages["Tree_2___Page_1"].right == 19
+    assert pages["Tree_3___Page_1"].left == 7
+    assert pages["Tree_3___Page_1"].right == 16
+    assert pages["Tree_3___Page_2"].left == 8
+    assert pages["Tree_3___Page_2"].right == 13
+    assert pages["Tree_3___Page_3"].left == 14
+    assert pages["Tree_3___Page_3"].right == 15
+    assert pages["Tree_3___Page_4"].left == 9
+    assert pages["Tree_3___Page_4"].right == 10
+    assert pages["Tree_3___Page_5"].left == 11
+    assert pages["Tree_3___Page_5"].right == 12
 
-    def test_page_delete(self):
-        self.pages["Tree_3___Page_5"].content.delete()
-        self.pages["Tree_3___Page_5"].delete()
 
-        # Rebuild page dict.
-        self._rebuild_page_dict()
+@pytest.mark.django_db(transaction=True)
+def test_page_save__move_branch_right(complex_page_tree):
+    pages = complex_page_tree()
+    assert pages["Homepage"].left == 1
+    assert pages["Homepage"].right == 20
+    assert pages["Tree_1___Page_1"].left == 2
+    assert pages["Tree_1___Page_1"].right == 7
+    assert pages["Tree_1___Page_2"].left == 3
+    assert pages["Tree_1___Page_2"].right == 4
+    assert pages["Tree_1___Page_3"].left == 5
+    assert pages["Tree_1___Page_3"].right == 6
+    assert pages["Tree_2___Page_1"].left == 8
+    assert pages["Tree_2___Page_1"].right == 9
+    assert pages["Tree_3___Page_1"].left == 10
+    assert pages["Tree_3___Page_1"].right == 19
+    assert pages["Tree_3___Page_2"].left == 11
+    assert pages["Tree_3___Page_2"].right == 16
+    assert pages["Tree_3___Page_3"].left == 17
+    assert pages["Tree_3___Page_3"].right == 18
+    assert pages["Tree_3___Page_4"].left == 12
+    assert pages["Tree_3___Page_4"].right == 13
+    assert pages["Tree_3___Page_5"].left == 14
+    assert pages["Tree_3___Page_5"].right == 15
 
-        self.assertEqual(self.pages["Homepage"].left, 1)
-        self.assertEqual(self.pages["Homepage"].right, 18)
-        self.assertEqual(self.pages["Tree_1___Page_1"].left, 2)
-        self.assertEqual(self.pages["Tree_1___Page_1"].right, 7)
-        self.assertEqual(self.pages["Tree_1___Page_2"].left, 3)
-        self.assertEqual(self.pages["Tree_1___Page_2"].right, 4)
-        self.assertEqual(self.pages["Tree_1___Page_3"].left, 5)
-        self.assertEqual(self.pages["Tree_1___Page_3"].right, 6)
-        self.assertEqual(self.pages["Tree_2___Page_1"].left, 8)
-        self.assertEqual(self.pages["Tree_2___Page_1"].right, 9)
-        self.assertEqual(self.pages["Tree_3___Page_1"].left, 10)
-        self.assertEqual(self.pages["Tree_3___Page_1"].right, 17)
-        self.assertEqual(self.pages["Tree_3___Page_2"].left, 11)
-        self.assertEqual(self.pages["Tree_3___Page_2"].right, 14)
-        self.assertEqual(self.pages["Tree_3___Page_3"].left, 15)
-        self.assertEqual(self.pages["Tree_3___Page_3"].right, 16)
-        self.assertEqual(self.pages["Tree_3___Page_4"].left, 12)
-        self.assertEqual(self.pages["Tree_3___Page_4"].right, 13)
+    pages["Tree_1___Page_1"].parent = pages["Tree_3___Page_1"]
+    pages["Tree_1___Page_1"].save()
 
-        with self.assertRaises(KeyError):
-            self.pages["Tree_3___Page_5"]  # pylint:disable=pointless-statement
+    # Rebuild page dict.
+    pages = complex_page_tree()
+
+    assert pages["Homepage"].left == 1
+    assert pages["Homepage"].right == 20
+    assert pages["Tree_1___Page_1"].left == 13
+    assert pages["Tree_1___Page_1"].right == 18
+    assert pages["Tree_1___Page_2"].left == 14
+    assert pages["Tree_1___Page_2"].right == 15
+    assert pages["Tree_1___Page_3"].left == 16
+    assert pages["Tree_1___Page_3"].right == 17
+    assert pages["Tree_2___Page_1"].left == 2
+    assert pages["Tree_2___Page_1"].right == 3
+    assert pages["Tree_3___Page_1"].left == 4
+    assert pages["Tree_3___Page_1"].right == 19
+    assert pages["Tree_3___Page_2"].left == 5
+    assert pages["Tree_3___Page_2"].right == 10
+    assert pages["Tree_3___Page_3"].left == 11
+    assert pages["Tree_3___Page_3"].right == 12
+    assert pages["Tree_3___Page_4"].left == 6
+    assert pages["Tree_3___Page_4"].right == 7
+    assert pages["Tree_3___Page_5"].left == 8
+    assert pages["Tree_3___Page_5"].right == 9
+
+
+@pytest.mark.django_db(transaction=True)
+def test_page_delete(complex_page_tree):
+    pages = complex_page_tree()
+    pages["Tree_3___Page_5"].content.delete()
+    pages["Tree_3___Page_5"].delete()
+
+    # Rebuild page dict.
+    pages = complex_page_tree()
+
+    assert pages["Homepage"].left == 1
+    assert pages["Homepage"].right == 18
+    assert pages["Tree_1___Page_1"].left == 2
+    assert pages["Tree_1___Page_1"].right == 7
+    assert pages["Tree_1___Page_2"].left == 3
+    assert pages["Tree_1___Page_2"].right == 4
+    assert pages["Tree_1___Page_3"].left == 5
+    assert pages["Tree_1___Page_3"].right == 6
+    assert pages["Tree_2___Page_1"].left == 8
+    assert pages["Tree_2___Page_1"].right == 9
+    assert pages["Tree_3___Page_1"].left == 10
+    assert pages["Tree_3___Page_1"].right == 17
+    assert pages["Tree_3___Page_2"].left == 11
+    assert pages["Tree_3___Page_2"].right == 14
+    assert pages["Tree_3___Page_3"].left == 15
+    assert pages["Tree_3___Page_3"].right == 16
+    assert pages["Tree_3___Page_4"].left == 12
+    assert pages["Tree_3___Page_4"].right == 13
+    assert "Tree_3___Page_5" not in pages
 
 
 @pytest.mark.django_db
@@ -310,7 +320,7 @@ def test_contentbase_str():
 @pytest.mark.django_db
 def test_filter_indexable_pages():
     homepage = PageFactory.create_tree(3)
-    assert Page.objects.all().count() == 4
+    assert Page.objects.count() == 4
 
     pages = filter_indexable_pages(Page.objects.all())
     assert len(pages) == 4
@@ -606,7 +616,7 @@ def test_pagemanager_prefetch_children_args():
 def test_pagesitemap_items():
     homepage = PageFactory.create_tree(3)
     sitemap = PageSitemap()
-    assert Page.objects.all().count() == 4
+    assert Page.objects.count() == 4
     assert len(sitemap.items()) == 4
 
     # Turn off indexing on the homepage.

@@ -10,11 +10,56 @@ from tests.testing_app.models import (
     NotRegisteredInAdminModel,
     OnlineBaseModel,
     PageBaseModel,
+    UsageContentBaseModel,
+    UsageContentBaseModelInline,
     UsageModelOne,
+    UsageModelOneInline,
+    UsageModelTwo,
 )
-from uncms.admin import OnlineBaseAdmin, check_inline_for_admin_url
+from uncms.admin import (
+    OnlineBaseAdmin,
+    check_inline_for_admin_url,
+    get_related_objects_admin_urls,
+)
 from uncms.testhelpers.factories import UserFactory
 from uncms.testhelpers.factories.media import MinimalGIFFileFactory
+from uncms.testhelpers.factories.pages import PageFactory
+
+# pylint:disable=redefined-outer-name
+# ^ because of fixtures defined in this module
+
+
+@pytest.fixture
+def test_file(db):
+    file_obj = MinimalGIFFileFactory()
+    yield file_obj
+    file_obj.file.delete(False)
+    file_obj.delete()
+
+
+@pytest.fixture
+def other_test_file(db):
+    file_obj = MinimalGIFFileFactory()
+    yield file_obj
+    file_obj.file.delete(False)
+    file_obj.delete()
+
+
+@pytest.fixture
+def usage_models(db, test_file, other_test_file):
+    test_model_1a = UsageModelOne.objects.create(image=test_file)
+    test_model_1b = UsageModelOne.objects.create(image=test_file)
+    test_model_1a_other = UsageModelOne.objects.create(image=other_test_file)
+    test_model_2a_other = UsageModelTwo.objects.create(image=other_test_file)
+    test_model_2a = UsageModelTwo.objects.create(image=test_file)
+
+    return {
+        "test_model_1a": test_model_1a,
+        "test_model_1b": test_model_1b,
+        "test_model_1a_other": test_model_1a_other,
+        "test_model_2a_other": test_model_2a_other,
+        "test_model_2a": test_model_2a,
+    }
 
 
 @pytest.mark.django_db
@@ -138,3 +183,93 @@ def test_check_inline_for_admin_url_with_null_fk():
 
     # Should return None because the FK field is null
     assert result is None
+
+
+def test_get_related_objects_admin_urls_from_models_with_image(test_file, usage_models):
+    assert get_related_objects_admin_urls(test_file) == [
+        {
+            "title": str(obj),
+            "model_name": obj._meta.verbose_name,
+            "admin_url": reverse(
+                f"admin:testing_app_{obj._meta.model_name}_change",
+                args=[obj.pk],
+            ),
+        }
+        for obj in [
+            usage_models["test_model_1a"],
+            usage_models["test_model_1b"],
+            usage_models["test_model_2a"],
+        ]
+    ]
+
+
+def test_get_related_objects_admin_urls_from_models_with_other_image(
+    other_test_file, usage_models
+):
+    assert get_related_objects_admin_urls(other_test_file) == [
+        {
+            "title": str(obj),
+            "model_name": obj._meta.verbose_name,
+            "admin_url": reverse(
+                f"admin:testing_app_{obj._meta.model_name}_change",
+                args=[obj.pk],
+            ),
+        }
+        for obj in [
+            usage_models["test_model_1a_other"],
+            usage_models["test_model_2a_other"],
+        ]
+    ]
+
+
+def test_get_related_objects_admin_urls_from_contentbase_with_image(test_file):
+    test_page_model = PageFactory(
+        content=UsageContentBaseModel(
+            image=test_file,
+        ),
+    )
+
+    assert get_related_objects_admin_urls(test_file) == [
+        {
+            "title": str(test_page_model.content),
+            "model_name": test_page_model.content._meta.verbose_name,
+            "admin_url": reverse("admin:pages_page_change", args=[test_page_model.pk]),
+        },
+    ]
+
+
+def test_get_related_objects_from_contentbase_inline_with_image(test_file):
+    test_page_model = PageFactory(
+        content=UsageContentBaseModel(),
+    )
+
+    test_content_base_inline = UsageContentBaseModelInline.objects.create(
+        page=test_page_model,
+        image=test_file,
+    )
+
+    assert get_related_objects_admin_urls(test_file) == [
+        {
+            "title": str(test_content_base_inline),
+            "model_name": test_content_base_inline._meta.verbose_name,
+            "admin_url": reverse("admin:pages_page_change", args=[test_page_model.pk]),
+        }
+    ]
+
+
+def test_get_related_objects_admin_urls_from_model_inline_with_image(test_file):
+    test_model_1a = UsageModelOne.objects.create()
+    test_model_1a_inline = UsageModelOneInline.objects.create(
+        parent=test_model_1a, image=test_file
+    )
+
+    assert get_related_objects_admin_urls(test_file) == [
+        {
+            "title": str(test_model_1a_inline),
+            "model_name": test_model_1a_inline._meta.verbose_name,
+            "admin_url": reverse(
+                "admin:testing_app_usagemodelone_change",
+                args=[test_model_1a.pk],
+            ),
+        },
+    ]
