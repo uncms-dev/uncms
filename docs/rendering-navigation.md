@@ -38,7 +38,7 @@ and provides a lot of extension points in its templates in case it doesn't work 
 
 ## Styling with CSS
 
-HTML elements in the navigation are given sensible class names according to the Block-Element-Modifier (BEM) [conventions](convention),
+HTML elements in the navigation are given sensible class names according to the Block-Element-Modifier (BEM) [convention](https://getbem.com/),
 which allows targeting elements by a single HTML class name (mostly).
 
 The CSS selectors you will want to use are these

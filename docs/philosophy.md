@@ -77,6 +77,11 @@ UnCMS will never have documentation generated from the source code,
 because auto-generated documentation is not documentation.
 Comments and docstrings in the UnCMS source code should assist a developer's understanding of the UnCMS source code.
 Documentation should assist a developer's understanding of using UnCMS.
+It is reasonable, however, to add tests for it.
+
+You can't automate the job of writing documentation, but you can automate some of its verification.
+For example, there are [tests](https://github.com/uncms-dev/uncms/blob/develop/tests/test_docs.py) to make sure there are no broken internal links and that all code blocks are formatted properly.
+There is a [test](https://github.com/uncms-dev/uncms/blob/develop/tests/test_conf.py) to ensure that all [configuration options](configuration.md) are documented, and also that no imaginary configuration items are documented.
 
 Ease of writing documentation also matters.
 That is why this documentation uses [Docsify](https://docsify.js.org/).

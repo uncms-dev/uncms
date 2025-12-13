@@ -198,7 +198,7 @@ set this configuration item to `False`.
 * Type: string
 * Default: `'media_library'`
 
-The recommended configuration in this documentation is to register the [media library](media-library.md) URLs under the `'media_library'` namespace.
+The recommended configuration in this documentation is to register the [media library](media-app.md) URLs under the `'media_library'` namespace.
 If you are too smart to copy-and-paste examples from the documentation,
 or otherwise need to use a different namespace for the media library views,
 you may change it with this setting.
@@ -346,7 +346,7 @@ You may want to change this setting if your admin lives at any location other th
 * Type: boolean
 * Default: `True`
 
-The [redirects app](redirects-app.csv) has a handy CSV importer which is useful for initial build-out of a site.
+The [redirects app](redirects-app.md) has a handy CSV importer which is useful for initial build-out of a site.
 It may be less useful later in a site's lifecycle.
 To disable it, set this option to `False`.
 

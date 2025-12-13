@@ -15,7 +15,7 @@ And UnCMS's redirects app has regular expression support and CSV import.
 
 Add `'uncms.redirects'` to your `INSTALLED_APPS`.
 
-Add the redirects middleware to the _end_ of your middleware list, like so (in particular, this should appear after the [pages](pages-app) middleware):
+Add the redirects middleware to the _end_ of your middleware list, like so (in particular, this should appear after the [pages](pages-app.md) middleware):
 
 ```python
 MIDDLEWARE = [
