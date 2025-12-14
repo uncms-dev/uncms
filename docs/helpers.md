@@ -49,7 +49,7 @@ It prepopulates your `title` and `slug` field automatically, and offers the foll
 * `SEO_FIELDS` for SEO controls
 * `OPENGRAPH_FIELDS`, to control OpenGraph fields (used for link previews by Facebook, Mastodon, instant messengers, and others)
 
-The companion `uncms.views.PageDetailView` is a class-based view that takes care of putting `PageBase` fields into the template context so they are seen by UnCMS's [template functions](template-tags.md).
+The companion `uncms.views.PageDetailView` is a class-based view that takes care of putting `PageBase` fields into the template context so they are seen by UnCMS's [template tags](template-tags.md).
 There is also `uncms.views.PageDetailMixin`, which does the same thing but does not inherit from Django's `DetailView`.
 
 Because the Django `DetailView` from which this inherits will check the `slug` kwarg by default, your detail view could be as simple as this:

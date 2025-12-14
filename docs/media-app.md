@@ -62,7 +62,7 @@ In the admin, this is prepopulated from the filename when first uploaded, if no 
 * `file`: A Django `FileField`, which is the file itself
 * `alt_text`: Text that will be used to describe this image to screen readers.
 You should leave this empty for purely decorative images.
-This will be used as a fallback by the [image rendering](rendering-images.md) template function.
+This will be used as a fallback by the [image rendering](rendering-images.md) template tag.
 * `attribution`, `copyright` Additional metadata fields.
 It is up to you how, or if, to render these on the front end of the site.
 

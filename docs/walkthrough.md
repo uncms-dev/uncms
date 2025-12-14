@@ -431,7 +431,7 @@ class ArticleDetailView(PageDetailView):
     model = Article
 ```
 
-`PageDetailView` is a subclass of Django's `DetailView` that takes care of putting the page title, SEO information and all the other `PageBase` metadata into the template context, where it can be accessed by UnCMS's template functions that render them on the page.
+`PageDetailView` is a subclass of Django's `DetailView` that takes care of putting the page title, SEO information and all the other `PageBase` metadata into the template context, where it can be accessed by UnCMS's template tags that render them on the page.
 If you have a `DetailView` for a model that inherits from `PageBase`, you almost certainly want to inherit from `PageDetailView`, but nothing forces you to.
 
 ## Let's reverse some page URLs
