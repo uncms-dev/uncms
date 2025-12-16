@@ -13,27 +13,24 @@ from tests.testing_app.models import MediaTestModel
 from uncms.media.models import FileRefField, Label
 from uncms.testhelpers.factories.media import (
     MINIMAL_GIF_DATA,
-    EmptyFileFactory,
     FileFactory,
-    MinimalGIFFileFactory,
-    SamplePNGFileFactory,
 )
 
 
 @pytest.mark.django_db
 def test_file_str():
-    assert str(EmptyFileFactory(title="Bark")) == "Bark"
+    assert str(FileFactory(empty=True, title="Bark")) == "Bark"
 
 
 @pytest.mark.django_db
 def test_file_is_image():
-    assert SamplePNGFileFactory().is_image() is True
-    assert EmptyFileFactory().is_image() is False
+    assert FileFactory(sample_png=True).is_image() is True
+    assert FileFactory(empty=True).is_image() is False
 
 
 @pytest.mark.django_db
 def test_file_contents():
-    minimal = MinimalGIFFileFactory()
+    minimal = FileFactory(minimal_gif=True)
     assert minimal.contents == MINIMAL_GIF_DATA
     assert isinstance(minimal.contents, bytes)
 
@@ -43,19 +40,19 @@ def test_file_contents():
 
 @pytest.mark.django_db
 def test_file_get_absolute_url():
-    file = EmptyFileFactory()
+    file = FileFactory(empty=True)
     assert file.get_absolute_url() == f"/media/{file.file.name}"
 
 
 @pytest.mark.django_db
 def test_file_get_dimensions():
-    assert EmptyFileFactory().get_dimensions() == (0, 0)
-    assert SamplePNGFileFactory().get_dimensions() == (1920, 1080)
+    assert FileFactory(empty=True).get_dimensions() == (0, 0)
+    assert FileFactory(sample_png=True).get_dimensions() == (1920, 1080)
 
 
 @pytest.mark.django_db
 def test_file_get_admin_thumbnail(admin_client):
-    thumbnail = SamplePNGFileFactory().get_admin_thumbnail()
+    thumbnail = FileFactory(sample_png=True).get_admin_thumbnail()
     assert thumbnail.width == 200
     response = admin_client.get(thumbnail.url)
     assert response.status_code == 302
@@ -67,7 +64,7 @@ def test_file_get_admin_thumbnail(admin_client):
 
 @pytest.mark.django_db()
 def test_file_get_temporary_url(admin_client):
-    file = EmptyFileFactory()
+    file = FileFactory(empty=True)
     url = file.get_temporary_url()
     assert url == f"/library/redirect/{file.pk}/"
     response = admin_client.get(url)
@@ -77,11 +74,11 @@ def test_file_get_temporary_url(admin_client):
 
 @pytest.mark.django_db
 def test_file_width_and_height():
-    minimal = MinimalGIFFileFactory()
+    minimal = FileFactory(minimal_gif=True)
     assert minimal.width == 0
     assert minimal.height == 0
 
-    large = SamplePNGFileFactory()
+    large = FileFactory(sample_png=True)
     assert large.width == 1920
     assert large.height == 1080
 
@@ -94,7 +91,7 @@ def test_file_init():
 @pytest.mark.django_db
 def test_filereffield_formfield():
     obj = MediaTestModel.objects.create(
-        file=MinimalGIFFileFactory(),
+        file=FileFactory(minimal_gif=True),
     )
 
     field = obj._meta.get_field("file")
@@ -108,7 +105,7 @@ def test_filereffield_formfield():
 
 @pytest.mark.django_db
 def test_file_get_thumbnail(client):
-    image = SamplePNGFileFactory()
+    image = FileFactory(sample_png=True)
 
     # tuple of (kwargs, expected height, expected width)
     tests = [
@@ -155,19 +152,19 @@ def test_file_get_thumbnail_on_garbage():
     # programmer's error).
 
     # Test "your code is bad" branch
-    image = SamplePNGFileFactory()
+    image = FileFactory(sample_png=True)
     with pytest.raises(ValueError) as excinfo:
         image.get_thumbnail()
     assert "no dimensions provided" in str(excinfo.value)
 
     # Give it something that isn't an image
-    garbage = EmptyFileFactory()
+    garbage = FileFactory(empty=True)
     thumbnail = garbage.get_thumbnail(width=2)
     assert thumbnail.width == 2
     assert thumbnail.height == 0
 
     # what happens on a 0x0 gif?
-    garbage_gif = MinimalGIFFileFactory()
+    garbage_gif = FileFactory(minimal_gif=True)
     thumbnail = garbage_gif.get_thumbnail(width=10)
     assert thumbnail.width == 10
     assert thumbnail.height == 0
@@ -237,7 +234,7 @@ class MultiFormatSoupParser:
 @pytest.mark.django_db
 def test_file_render_multi_format_obeys_formats(django_assert_num_queries):
     # Basic test: does it output webp and png?
-    image = SamplePNGFileFactory()
+    image = FileFactory(sample_png=True)
     # bonus test: ensure this never uses a database query (you're doing
     # something wrong if you regress on this)
     with django_assert_num_queries(0):
@@ -258,7 +255,7 @@ def test_file_render_multi_format_obeys_formats(django_assert_num_queries):
 def test_file_render_multi_format_obeys_alt_text():
     # Ensure "None" is not displayed as the alt text if nothing has been
     # specified.
-    image = SamplePNGFileFactory(alt_text=None)
+    image = FileFactory(sample_png=True, alt_text=None)
     parsed = MultiFormatSoupParser(image.render_multi_format(width=800, height=600))
     assert parsed.alt_text == ""
 
@@ -286,7 +283,7 @@ def test_file_render_multi_format_obeys_alt_text():
 
 @pytest.mark.django_db
 def test_file_render_multi_format_obeys_lazy():
-    image = SamplePNGFileFactory()
+    image = FileFactory(sample_png=True)
     parsed = MultiFormatSoupParser(image.render_multi_format(width=800, height=600))
     assert parsed.loading_attribute == "lazy"
 
@@ -298,7 +295,7 @@ def test_file_render_multi_format_obeys_lazy():
 
 @pytest.mark.django_db
 def test_file_render_multi_format_obeys_aspect():
-    image = SamplePNGFileFactory()
+    image = FileFactory(sample_png=True)
     parsed = MultiFormatSoupParser(image.render_multi_format(width=960))
     assert parsed.style_attribute == "aspect-ratio: 960 / 540"
 
@@ -308,7 +305,7 @@ def test_file_render_multi_format_obeys_aspect():
 
 @pytest.mark.django_db
 def test_file_render_multi_format_preserves_extra_styles():
-    image = SamplePNGFileFactory()
+    image = FileFactory(sample_png=True)
     parsed = MultiFormatSoupParser(
         image.render_multi_format(
             width=800, height=600, extra_styles="transform: rotate(180deg)"
@@ -332,7 +329,7 @@ def test_file_render_multi_format_preserves_extra_styles():
 
 @pytest.mark.django_db
 def test_file_render_multi_format_preserves_extra_classes():
-    image = SamplePNGFileFactory()
+    image = FileFactory(sample_png=True)
 
     parsed = MultiFormatSoupParser(image.render_multi_format(width=800, height=600))
     assert parsed.classes == ["image__image"]
@@ -345,7 +342,7 @@ def test_file_render_multi_format_preserves_extra_classes():
 
 @pytest.mark.django_db
 def test_file_render_multi_format_on_nonsense():
-    garbage = EmptyFileFactory()
+    garbage = FileFactory(empty=True)
     assert garbage.render_multi_format(width=400, height=200) == ""
 
 

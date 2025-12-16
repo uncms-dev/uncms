@@ -35,7 +35,7 @@ from uncms.pages.templatetags.uncms_pages import (
     og_title,
     page_url,
 )
-from uncms.testhelpers.factories.media import MinimalGIFFileFactory
+from uncms.testhelpers.factories.media import FileFactory
 from uncms.testhelpers.factories.pages import PageFactory
 from uncms.utils import canonicalise_url
 
@@ -464,11 +464,11 @@ def test_meta_description(test_function):
 @pytest.mark.parametrize("test_function", [get_og_image, og_image])
 def test_og_image(test_function):
     # Test getting it from the current object in the context.
-    obj = ImageFieldModel(image=MinimalGIFFileFactory())
+    obj = ImageFieldModel(image=FileFactory(minimal_gif=True))
     # Used to test falling back to a page
-    page = PageFactory(og_image=MinimalGIFFileFactory())
+    page = PageFactory(og_image=FileFactory(minimal_gif=True))
 
-    another_image = MinimalGIFFileFactory()
+    another_image = FileFactory(minimal_gif=True)
 
     request = request_with_pages()
     assert test_function(
@@ -647,7 +647,7 @@ def test_og_image_with_non_file_field():
             self.image = "not_a_file_instance.jpg"  # String, not a File
 
     obj = MockObjectWithNonFileImage()
-    page = PageFactory(og_image=MinimalGIFFileFactory())
+    page = PageFactory(og_image=FileFactory(minimal_gif=True))
     request = request_with_pages()
     context = {"request": request, "object": obj}
 
@@ -664,7 +664,7 @@ def test_og_image_with_photo_field():
 
     class MockObjectWithPhotoField:
         def __init__(self):
-            self.photo = MinimalGIFFileFactory()
+            self.photo = FileFactory(minimal_gif=True)
 
     obj = MockObjectWithPhotoField()
     request = request_with_pages()

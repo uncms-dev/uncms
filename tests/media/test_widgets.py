@@ -4,7 +4,7 @@ from django.contrib import admin
 
 from tests.testing_app.models import ImageFieldModel
 from uncms.media.widgets import ImageThumbnailWidget
-from uncms.testhelpers.factories.media import EmptyFileFactory, SamplePNGFileFactory
+from uncms.testhelpers.factories.media import FileFactory
 
 
 @pytest.mark.django_db
@@ -13,8 +13,8 @@ def test_raw_id_widget_rendering(client):
         soup = BeautifulSoup(html, features="html.parser")
         return soup.find("img")
 
-    image = SamplePNGFileFactory()
-    empty_file = EmptyFileFactory()
+    image = FileFactory(sample_png=True)
+    empty_file = FileFactory(empty=True)
     widget = ImageThumbnailWidget(
         rel=ImageFieldModel._meta.get_field("image").remote_field, admin_site=admin.site
     )

@@ -11,9 +11,7 @@ from PIL import Image
 from uncms.models.base import path_token_generator
 from uncms.testhelpers.factories import UserFactory
 from uncms.testhelpers.factories.media import (
-    EmptyFileFactory,
-    SampleJPEGFileFactory,
-    SamplePNGFileFactory,
+    FileFactory,
 )
 
 
@@ -22,7 +20,7 @@ def test_file_redirect_view(client):
     def is_login_url(url):
         return url.startswith(settings.LOGIN_URL)
 
-    obj = EmptyFileFactory()
+    obj = FileFactory(empty=True)
     url = reverse("media_library:file_redirect", args=[obj.pk])
 
     response = client.get(url)
@@ -85,7 +83,7 @@ def test_image_view(client):  # pylint:disable=too-many-statements
     )
     assert response.status_code == 404
 
-    empty_file = EmptyFileFactory.create()
+    empty_file = FileFactory.create(empty=True)
     url = reverse(
         "media_library:image_view", kwargs=image_view_kwargs(pk=empty_file.pk)
     )
@@ -94,8 +92,8 @@ def test_image_view(client):  # pylint:disable=too-many-statements
     )
     assert response.status_code == 404
 
-    # SamplePNGFileFactory will create a 1920x1080 image.
-    image_file = SamplePNGFileFactory.create()
+    # FileFactory with sample_png trait will create a 1920x1080 image.
+    image_file = FileFactory.create(sample_png=True)
 
     url = reverse(
         "media_library:image_view",
@@ -212,7 +210,7 @@ def test_image_view(client):  # pylint:disable=too-many-statements
     #
     # Try it with a JPEG file. "quality" has no effect on PNGs.
     #
-    jpeg_file = SampleJPEGFileFactory()
+    jpeg_file = FileFactory(sample_jpeg=True)
     url = reverse(
         "media_library:image_view",
         kwargs=image_view_kwargs(pk=jpeg_file.pk, width=640, height=480),

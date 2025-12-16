@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 
 from uncms.jinja2_environment.media import render_image
 from uncms.media.templatetags.uncms_images import image
-from uncms.testhelpers.factories.media import SamplePNGFileFactory
+from uncms.testhelpers.factories.media import FileFactory
 
 
 @pytest.mark.django_db
@@ -13,7 +13,7 @@ def test_image(client, test_func):
     # Deeper tests will be in File.render_multi_format - just do a basic test
     # to ensure it's outputting something that looks like HTML with a
     # non-broken image
-    file = SamplePNGFileFactory()
+    file = FileFactory(sample_png=True)
     html = test_func(file, width=600, height=400)
     soup = BeautifulSoup(html, "html.parser")
 

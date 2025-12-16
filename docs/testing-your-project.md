@@ -26,86 +26,27 @@ class SampleFileFactory(FileFactory):
     file = factory.django.FileField(from_func=lambda: BytesIO(b"Sample"))
 ```
 
-### `uncms.testhelpers.factories.media.EmptyFileFactory`
+`FileFactory` accepts various boolean keyword arguments to create different types of files ("traits", in Factory Boy terms).
 
-`EmptyFileFactory` creates a file object in the [media app](media-app.md) with no contents.
-It is useful when a model requires a file to be present,
-but tests do not particularly care about its contents.
+If you pass `empty=True`, it creates a `File` instance with no contents. This is useful when a model or a test scenario requires a file to be present, but does not care about its contents.
 
-### `uncms.testhelpers.factories.media.SamplePNGFileFactory`
-
-`SamplePNGFileFactory` creates a 1920x1080 PNG file in your media library.
-It is useful for testing models which require a real image, or views which render them.
+For image testing, you can use `sample_png=True`, `sample_jpeg=True`, or `sample_webp=True` to create a 1920x1080 image file in your media library in PNG, JPEG, and WebP formats respectively. These are useful for testing models which require a real image, or views which render them. If you need an SVG file, pass `sample_svg=True` to generate a minimal, valid SVG file. The `minimal_gif` argument will create what I believe to be the smallest viable image file; that is useful if your tests merely require an image to be present.
 
 ```python
 import pytest
-from uncms.testhelpers.factories.media import SamplePNGFileFactory
+from uncms.testhelpers.factories.media import FileFactory
 
 
 @pytest.mark.django_db
-def test_example():
-    test_file = SamplePNGFileFactory()
-    assert test_file.width == 1920
-```
+def test_files():
+    empty_file = FileFactory(empty=True)
+    assert empty_file.is_image() is False
 
-### `uncms.testhelpers.factories.media.SampleJPEGFileFactory`
+    png_file = FileFactory(sample_png=True)
+    assert png_file.width == 1920
 
-`SampleJPEGFileFactory` creates a 1920x1080 JPEG file in your media library.
-
-```python
-import pytest
-from uncms.testhelpers.factories.media import SampleJPEGFileFactory
-
-
-@pytest.mark.django_db
-def test_example():
-    test_file = SampleJPEGFileFactory()
-    assert test_file.width == 1920
-```
-
-### `uncms.testhelpers.factories.media.SampleWebPFileFactory`
-
-`SampleWebPFileFactory` generates a 1920x1080 WebP file in your media library.
-
-```python
-import pytest
-from uncms.testhelpers.factories.media import SampleWebPFileFactory
-
-
-@pytest.mark.django_db
-def test_example():
-    test_file = SampleWebPFileFactory()
-    assert test_file.width == 1920
-```
-
-### `uncms.testhelpers.factories.media.SVGFileFactory`
-
-`SVGFileFactory` generates a minimal, valid SVG file in your media library.
-
-```python
-import pytest
-from uncms.testhelpers.factories.media import SVGFileFactory
-
-
-@pytest.mark.django_db
-def test_example():
-    test_file = SampleWebPFileFactory()
-    assert test_file.file_extension == "svg"
-```
-
-### `uncms.testhelpers.factories.media.MinimalGIFFileFactory`
-
-`MinimalGIFFileFactory` generates the very minimum (that I know of) valid image for use in your media library. It is useful when your model requires an image, but your tests do not particularly care about its contents. It will be slightly faster than using the other example image file factories.
-
-```python
-import pytest
-from uncms.testhelpers.factories.media import MinimalGIFFileFactory
-
-
-@pytest.mark.django_db
-def test_example():
-    test_file = MinimalGIFFileFactory()
-    assert test_file.is_image is True
+    minimal_image = FileFactory(minimal_gif=True)
+    assert minimal_image.is_image() is True
 ```
 
 ### `uncms.testhelpers.factories.pages.PageFactory`
@@ -147,7 +88,7 @@ import pytest
 from uncms.testhelpers.factories.pages import PageFactory
 
 
-@pytest.mark.django_Db
+@pytest.mark.django_db
 def test_example():
     homepage = PageFactory.create_tree(5, 4, 7)
     assert len(homepage.children) == 5

@@ -11,7 +11,7 @@ from uncms.pages.middleware import PageMiddleware, RequestPageManager
 from uncms.pages.models import Page
 from uncms.pages.templatetags.uncms_pages import render_navigation
 from uncms.testhelpers.factories import UserFactory
-from uncms.testhelpers.factories.media import EmptyFileFactory
+from uncms.testhelpers.factories.media import FileFactory
 from uncms.testhelpers.factories.pages import PageFactory
 
 
@@ -353,7 +353,7 @@ def test_pagemiddleware_with_client(client):
     assert response.status_code == 200
 
     # Test the /media/ special case.
-    file = EmptyFileFactory()
+    file = FileFactory(empty=True)
     response = client.get(file.get_absolute_url())
     assert response.status_code == 200
     assert bytes(response.streaming_content) == b""

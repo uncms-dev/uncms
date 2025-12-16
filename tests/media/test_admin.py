@@ -13,13 +13,8 @@ from uncms.media.admin import FileAdmin
 from uncms.media.models import File
 from uncms.testhelpers.factories import AdminRequestFactory, UserFactory
 from uncms.testhelpers.factories.media import (
-    EmptyFileFactory,
     FileFactory,
     LabelFactory,
-    MinimalGIFFileFactory,
-    SampleJPEGFileFactory,
-    SamplePNGFileFactory,
-    SVGFileFactory,
     data_file_path,
 )
 
@@ -45,7 +40,7 @@ def test_fileadminbase_changelist_view():
 def test_fileadmin_add_label_action():
     file_admin = FileAdmin(File, AdminSite())
 
-    obj = EmptyFileFactory()
+    obj = FileFactory(empty=True)
     label = LabelFactory()
     assert obj.labels.count() == 0
 
@@ -77,7 +72,7 @@ def test_fileadmin_get_actions():
 def test_fileadmin_get_preview():
     file_admin = FileAdmin(File, AdminSite())
 
-    obj = SamplePNGFileFactory(title="Kittens")
+    obj = FileFactory(sample_png=True, title="Kittens")
     preview = file_admin.get_preview(obj)
     # We can't do an `assertEqual` here as the generated src URL is dynamic.
     assert preview.startswith(
@@ -89,7 +84,7 @@ def test_fileadmin_get_preview():
     preview = file_admin.get_preview(obj)
     assert preview.startswith('<img class="uncms-thumbnail"')
 
-    obj = SVGFileFactory()
+    obj = FileFactory(sample_svg=True)
     preview = file_admin.get_preview(obj)
     assert preview.startswith('<img class="uncms-thumbnail uncms-thumbnail--svg')
 
@@ -114,8 +109,8 @@ def test_fileadmin_get_size():
 
 @pytest.mark.django_db
 def test_fileadmin_image_list_api_view(client):
-    file_1 = SamplePNGFileFactory()
-    file_2 = SamplePNGFileFactory(alt_text="Alt text test")
+    file_1 = FileFactory(sample_png=True)
+    file_2 = FileFactory(sample_png=True, alt_text="Alt text test")
     user = UserFactory()
     client.force_login(user)
 
@@ -221,7 +216,7 @@ def test_fileadmin_remove_label_action():
     file_admin = FileAdmin(File, AdminSite())
 
     label = LabelFactory()
-    obj = EmptyFileFactory()
+    obj = FileFactory(empty=True)
     assert obj.labels.count() == 0
 
     obj.labels.add(label)
@@ -236,7 +231,7 @@ def test_fileadmin_remove_label_action():
 @pytest.mark.django_db
 def test_fileadmin_response_add():
     file_admin = FileAdmin(File, AdminSite())
-    obj = EmptyFileFactory()
+    obj = FileFactory(empty=True)
 
     request = AdminRequestFactory().get("/")
     # Allow the messages framework to work.
@@ -286,7 +281,7 @@ def test_file_detail_conditionally_shows_fieldsets(client):
     assert response.status_code == 200
     assert has_usage_fieldset(response.context_data) is False
 
-    file = MinimalGIFFileFactory()
+    file = FileFactory(minimal_gif=True)
     response = client.get(reverse("admin:media_file_change", args=[file.pk]))
     assert response.status_code == 200
     assert has_usage_fieldset(response.context_data) is True
@@ -299,9 +294,9 @@ def test_file_list_type_filter(client):
 
     client.force_login(UserFactory(superuser=True))
 
-    sample_jpeg = SampleJPEGFileFactory()
-    sample_png = SamplePNGFileFactory()
-    sample_not_image = EmptyFileFactory()
+    sample_jpeg = FileFactory(sample_jpeg=True)
+    sample_png = FileFactory(sample_png=True)
+    sample_not_image = FileFactory(empty=True)
 
     url = reverse("admin:media_file_changelist")
 

@@ -22,7 +22,7 @@ from uncms.admin import (
     get_related_objects_admin_urls,
 )
 from uncms.testhelpers.factories import UserFactory
-from uncms.testhelpers.factories.media import MinimalGIFFileFactory
+from uncms.testhelpers.factories.media import FileFactory
 from uncms.testhelpers.factories.pages import PageFactory
 
 # pylint:disable=redefined-outer-name
@@ -31,7 +31,7 @@ from uncms.testhelpers.factories.pages import PageFactory
 
 @pytest.fixture
 def test_file(db):
-    file_obj = MinimalGIFFileFactory()
+    file_obj = FileFactory(minimal_gif=True)
     yield file_obj
     file_obj.file.delete(False)
     file_obj.delete()
@@ -39,7 +39,7 @@ def test_file(db):
 
 @pytest.fixture
 def other_test_file(db):
-    file_obj = MinimalGIFFileFactory()
+    file_obj = FileFactory(minimal_gif=True)
     yield file_obj
     file_obj.file.delete(False)
     file_obj.delete()
@@ -100,7 +100,7 @@ def test_onlinebaseadmin_unpublish_selected():
 @pytest.mark.django_db
 def test_quality_control_filter(client):
     client.force_login(UserFactory(superuser=True))
-    image = MinimalGIFFileFactory()
+    image = FileFactory(minimal_gif=True)
 
     defaults = {
         "browser_title": "Browser title",

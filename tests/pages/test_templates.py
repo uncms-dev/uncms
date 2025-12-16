@@ -3,7 +3,7 @@ from django.template.loader import render_to_string
 from django.test import RequestFactory
 
 from uncms.pages.middleware import RequestPageManager
-from uncms.testhelpers.factories.media import MinimalGIFFileFactory
+from uncms.testhelpers.factories.media import FileFactory
 from uncms.testhelpers.factories.pages import PageFactory
 
 
@@ -34,7 +34,7 @@ def test_head_meta_templates_render_identically(use_jinja2):
         "browser_title",
     ]:
         setattr(page, field, "Testing > &")
-    page.og_image = MinimalGIFFileFactory()
+    page.og_image = FileFactory(minimal_gif=True)
     page.save()
 
     request = RequestFactory().get("/")

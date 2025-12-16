@@ -5,13 +5,13 @@ from django.test import override_settings
 
 from uncms.html import clean_all, clean_html, format_html
 from uncms.media.models import File
-from uncms.testhelpers.factories.media import SamplePNGFileFactory
+from uncms.testhelpers.factories.media import FileFactory
 
 
 @pytest.mark.django_db
 def test_format_html():
-    image = SamplePNGFileFactory()
-    image_with_alt = SamplePNGFileFactory(alt_text="Alt text &")
+    image = FileFactory(sample_png=True)
+    image_with_alt = FileFactory(sample_png=True, alt_text="Alt text &")
 
     old_prefix = f"/r/{ContentType.objects.get_for_model(File).id}-"
     new_prefix = "/library/redirect/"

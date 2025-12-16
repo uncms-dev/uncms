@@ -6,7 +6,7 @@ from uncms.media.forms import FileForm, ImageUploadForm, mime_check
 from uncms.testhelpers.factories import UserFactory
 from uncms.testhelpers.factories.media import (
     MINIMAL_GIF_DATA,
-    MinimalGIFFileFactory,
+    FileFactory,
 )
 
 
@@ -154,7 +154,7 @@ def test_fileform_validation_editing_existing_file():
     should be skipped.
     """
     user = UserFactory()
-    existing_file = MinimalGIFFileFactory()
+    existing_file = FileFactory(minimal_gif=True)
 
     # Update metadata only, without changing the file - should skip validation
     form = FileForm(
@@ -268,7 +268,7 @@ def test_imageuploadform_save_with_existing_title():
     Test ImageUploadForm.save() when instance already has a title.
     """
     user = UserFactory()
-    existing_file = MinimalGIFFileFactory(title="Existing title")
+    existing_file = FileFactory(minimal_gif=True, title="Existing title")
 
     form = ImageUploadForm(
         user=user,
