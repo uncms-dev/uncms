@@ -4,11 +4,11 @@ Various tests of Django and Jinja2 template files.
 
 # pylint:disable=redefined-outer-name
 # ^ because of the use of fixtures defined in this file being used in this file
+import importlib.resources
 from dataclasses import dataclass
 from functools import cached_property
 from pathlib import Path
 
-import pkg_resources
 import pytest
 
 
@@ -72,16 +72,10 @@ def test_django_and_jinja_templates_are_identical(django_template, jinja2_templa
     be (e.g. we track indexes in Python, rather than using "loop.index" or
     "forloop.counter" in the templates). This is worthwhile.
     """
-    jinja2_path = pkg_resources.resource_filename("uncms", jinja2_template)
-    django_path = pkg_resources.resource_filename("uncms", django_template)
+    jinja2_path = importlib.resources.files("uncms") / jinja2_template
+    django_path = importlib.resources.files("uncms") / django_template
 
-    with open(jinja2_path, encoding="utf-8") as fd:
-        jinja2_template_code = fd.read()
-
-    with open(django_path, encoding="utf-8") as fd:
-        django_template_code = fd.read()
-
-    assert jinja2_template_code == django_template_code
+    assert jinja2_path.read_text() == django_path.read_text()
 
 
 def test_templates_use_4_space_indentation(all_templates):
@@ -104,8 +98,7 @@ def test_templates_use_4_space_indentation(all_templates):
             # Check if indentation is a multiple of 4
             if indent % 4 != 0:  # pragma: no cover
                 failures.append(
-                    f"{template.path}:{line_num}: "
-                    f"file has indentation of {indent} spaces (not a multiple of 4)\n"
+                    f"{template.path}:{line_num}: file has indentation of {indent} spaces (not a multiple of 4)"
                 )
                 # Only report the first error in a file. If one line is wrong,
                 # there's a good chance that all of the others are wrong too
@@ -130,7 +123,7 @@ def test_templates_have_no_whitespace_only_lines(all_templates):
             # Check if line has whitespace but no actual content
             if not line.strip() and line:  # pragma: no cover
                 failures.append(
-                    f"{template.path}:{line_num}: " f"line contains only whitespace"
+                    f"{template.path}:{line_num}: line contains only whitespace"
                 )
 
     assert not failures, "\n".join(failures)
