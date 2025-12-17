@@ -4,9 +4,9 @@
 {% load static %}
 
 {% block extrahead %}
-  {{ block.super }}
+    {{ block.super }}
 
-  {% if not original %}
-    <script src="{% static 'media/js/prepopulate-title.js' %}" async></script>
-  {% endif %}
+    {% if not original %}
+        <script src="{% static 'media/js/prepopulate-title.js' %}" async></script>
+    {% endif %}
 {% endblock %}

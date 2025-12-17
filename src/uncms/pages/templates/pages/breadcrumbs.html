@@ -1,29 +1,29 @@
 {% if count %}
-  <ul class="{{ class_prefix }}" itemscope itemtype="http://schema.org/BreadcrumbList">
-    {% for breadcrumb in breadcrumbs %}
-      <li
-        class="{{ class_prefix }}__item {% if breadcrumb.last %}{{ class_prefix }}__item--current{% endif %}"
-        itemprop="itemListElement"
-        itemscope
-        itemtype="http://schema.org/ListItem"
-      >
-        {% block item_top %}{% endblock %}
-        {% if breadcrumb.url and not breadcrumb.tail %}
-          <a
-            class="{{ class_prefix }}__item-link"
-            href="{{ breadcrumb.url }}"
-            itemprop="item"
-          >
-            <span class="{{ class_prefix }}__item-text" itemprop="name">{{ breadcrumb.title }}</span>
-          </a>
-        {% else %}
-          <span class="{{ class_prefix }}__item-text" itemprop="name">{{ breadcrumb.title }}</span>
-          <meta property="item" typeof="WebPage" resource="{{ breadcrumb.url }}">
-        {% endif %}
+    <ul class="{{ class_prefix }}" itemscope itemtype="http://schema.org/BreadcrumbList">
+        {% for breadcrumb in breadcrumbs %}
+            <li
+                class="{{ class_prefix }}__item {% if breadcrumb.last %}{{ class_prefix }}__item--current{% endif %}"
+                itemprop="itemListElement"
+                itemscope
+                itemtype="http://schema.org/ListItem"
+            >
+                {% block item_top %}{% endblock %}
+                {% if breadcrumb.url and not breadcrumb.tail %}
+                    <a
+                        class="{{ class_prefix }}__item-link"
+                        href="{{ breadcrumb.url }}"
+                        itemprop="item"
+                    >
+                        <span class="{{ class_prefix }}__item-text" itemprop="name">{{ breadcrumb.title }}</span>
+                    </a>
+                {% else %}
+                    <span class="{{ class_prefix }}__item-text" itemprop="name">{{ breadcrumb.title }}</span>
+                    <meta property="item" typeof="WebPage" resource="{{ breadcrumb.url }}">
+                {% endif %}
 
-        <meta itemprop="position" content="{{ breadcrumb.index }}">
-        {% block item_bottom %}{% endblock %}
-      </li>
-    {% endfor %}
-  </ul>
+                <meta itemprop="position" content="{{ breadcrumb.index }}">
+                {% block item_bottom %}{% endblock %}
+            </li>
+        {% endfor %}
+    </ul>
 {% endif %}

@@ -3,9 +3,9 @@
 {% load static %}
 
 {% block extrahead %}
-  {{ block.super }}
+    {{ block.super }}
 
-  {% if fancy_grid_css %}
-    <link rel="stylesheet" href="{% static 'media/css/media-list.css' %}">
-  {% endif %}
+    {% if fancy_grid_css %}
+        <link rel="stylesheet" href="{% static 'media/css/media-list.css' %}">
+    {% endif %}
 {% endblock %}

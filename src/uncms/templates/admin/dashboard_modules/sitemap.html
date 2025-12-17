@@ -5,11 +5,11 @@
 {% admin_sitemap_entries as sitemap %}
 
 <div class="uncms-sitemap__body" data-cms-sitemap data-sitemap-ajax-url="{% url 'admin:pages_page_sitemap_json' %}">
-  {% if sitemap %}
-    {% include 'admin/dashboard_modules/sitemap_items.html' with items=sitemap.pages %}
-  {% endif %}
+    {% if sitemap %}
+        {% include 'admin/dashboard_modules/sitemap_items.html' with items=sitemap.pages %}
+    {% endif %}
 
-  <noscript>
-    <p>{% translate "Please turn on JavaScript to activate the sitemap." %}</p>
-  </noscript>
+    <noscript>
+        <p>{% translate "Please turn on JavaScript to activate the sitemap." %}</p>
+    </noscript>
 </div>
