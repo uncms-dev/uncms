@@ -4,7 +4,7 @@ from django import urls
 from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
 from django.db import connection, models, transaction
-from django.db.models import F, Q
+from django.db.models import Exists, F, OuterRef, Q
 from django.utils import timezone
 from django.utils.encoding import force_str
 from django.utils.functional import cached_property
@@ -19,50 +19,34 @@ from uncms.models.managers import publication_manager
 class PageManager(OnlineBaseManager):
     """Manager for Page objects."""
 
-    def select_published(self, queryset, page_alias=None):
-        """Selects only published pages."""
+    def select_published(self, queryset):
+        """
+        Selects only published pages whose ancestors are also published.
+        """
+        # This will handle the `is_online` field.
         queryset = super().select_published(queryset)
+        # Round down seconds and microseconds to improve query cacheability;
+        # it will mean that things might take up to a minute to be published.
         now = timezone.now().replace(second=0, microsecond=0)
-        # Perform local filtering.
+
+        # Filter pages based on their own publication dates.
         queryset = queryset.filter(
             Q(publication_date=None) | Q(publication_date__lte=now)
         )
         queryset = queryset.filter(Q(expiry_date=None) | Q(expiry_date__gt=now))
-        # Perform parent ordering.
-        quote_name = connection.ops.quote_name
-        page_alias = page_alias or quote_name("pages_page")
-        queryset = queryset.extra(
-            where=(
-                """
-                NOT EXISTS (
-                    SELECT *
-                    FROM {pages_page} AS {ancestors}
-                    WHERE
-                        {ancestors}.{left} < {page_alias}.{left} AND
-                        {ancestors}.{right} > {page_alias}.{right} AND (
-                            {ancestors}.{is_online} = FALSE OR
-                            {ancestors}.{publication_date} > %s OR
-                            {ancestors}.{expiry_date} <= %s
-                        )
-                )
-            """.format(
-                    page_alias=page_alias,
-                    **dict(
-                        (name, quote_name(name))
-                        for name in (
-                            "pages_page",
-                            "ancestors",
-                            "left",
-                            "right",
-                            "is_online",
-                            "publication_date",
-                            "expiry_date",
-                        )
-                    ),
-                ),
-            ),
-            params=(now, now),
+
+        # Exclude pages with unpublished ancestors. Use Page._base_manager to
+        # avoid recursion through this custom manager.
+        #
+        # Note here that NULL publication/expiry dates won't match __gt or
+        # __lte lookups, so ancestors with NULL dates are correctly
+        # treated as published.
+        unpublished_ancestors = Page._base_manager.filter(
+            left__lt=OuterRef("left"), right__gt=OuterRef("right")
+        ).filter(
+            Q(is_online=False) | Q(publication_date__gt=now) | Q(expiry_date__lte=now)
         )
+        queryset = queryset.filter(~Exists(unpublished_ancestors))
         return queryset
 
     def get_homepage(self, prefetch_depth=0):
@@ -106,7 +90,6 @@ class Page(PageBase):
     )
 
     # Publication fields.
-
     publication_date = models.DateTimeField(
         blank=True,
         null=True,
@@ -264,7 +247,7 @@ class Page(PageBase):
     def save(self, *args, **kwargs):
         # Lock the table. This causes a SELECT FOR UPDATE (on sensible
         # databases) which will cause anything *else* that attempts a similar
-        # lock to fail. As long as all operations that change the page tree
+        # lock to block. As long as all operations that change the page tree
         # also attempt to use a SELECT FOR UPDATE lock, this means that we
         # can't have e.g. two concurrent saves trashing the page tree.
         existing_pages = dict(
@@ -385,13 +368,18 @@ class PageSearchAdapter(PageBaseSearchAdapter):
         )
 
     def get_live_queryset(self):
-        """Selects the live page queryset."""
-        # HACK: Prevents a table name collision in the Django queryset manager.
+        """
+        Selects only those pages which are published and whose ancestors are
+        also all published.
+        """
+        # Disable publication filtering to get base queryset, then apply it manually.
         with publication_manager.select_published(False):
             qs = Page._base_manager.all()
         if publication_manager.select_published_active():
-            qs = Page.objects.select_published(qs, page_alias="U0")
-        # Filter out unindexable pages.
+            qs = Page.objects.select_published(qs)
+        # Filter out unindexable pages - those pages with content that has
+        # robots_index=False defined at the top of the class (not to be
+        # confused with the Page model field of the same name).
         qs = filter_indexable_pages(qs)
         # All done!
         return qs
@@ -412,7 +400,9 @@ def get_registered_content():
 def filter_indexable_pages(queryset):
     """
     Filters the given queryset of pages to only contain ones that should be
-    indexed by search engines.
+    indexed by search engines according to the `robots_index` field of the
+    page and whether the content type has a truthy value for the
+    `robots_index` attribute.
     """
     return queryset.filter(
         robots_index=True,
