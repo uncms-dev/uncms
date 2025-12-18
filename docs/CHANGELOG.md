@@ -3,9 +3,10 @@
 ## Next release
 
 * Saves and deletes now use a new database-agnostic locking mechanism using a sentinel row to properly serializes all tree modifications. That rules out page-tree-trashing by concurrent requests forever (a problem that was known to happen very rarely with [UnCMS's ancestor](history.md), though it has never been seen with UnCMS).
+* The test suite now passes with a MySQL/MariaDB database, so those databases can be considered to be supported.
 * Various [test factories](testing-your-project.md) have been retired and replaced with traits for `FileFactory`.
 * The in-browser image editor (inherited from UnCMS's ancestor) has been retired. It worked poorly on large files and it was a giant pile of vendored JS that hadn't been updated since 2019 and which I have little interest in keeping updated. Some day a simpler replacement giving the basic crop/rotate operations that this provided might be implemented in a vastly simpler way (see [#13](https://github.com/uncms-dev/uncms/issues/13), but that day is not today.
-* It's not a user-facing change, but UnCMS now has 100% line and branch test coverage.
+* It's not a user-facing change, but UnCMS now has 100% line and branch test coverage. That allowed for MySQL support above; "tests pass" is, at least for database backends, now almost certainly the same thing as "it works".
 
 ## 0.0.13
 
