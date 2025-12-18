@@ -15,8 +15,9 @@ In the years since I left Onespacemedia, I occasionally found myself needing som
 Over a period of some time, I ported it to a modern LTS version of Django, removed a pile of features, and added a few features that are useful for most projects.
 I released this work publicly as a Christmas present to the world on December 25, 2022.
 
-The following authors have not worked on UnCMS under its current name,
-but the existence of UnCMS certainly owes a debt to every one of them.
+The following people have not worked on UnCMS under its current name,
+but they were authors of its ancestor projects;
+the existence of UnCMS certainly owes a debt to all of them.
 
 * Aidan Currah
 * Dan Gamble
