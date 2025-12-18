@@ -1,9 +1,11 @@
 """Core models used by UnCMS."""
 
+from contextlib import contextmanager
+
 from django import urls
 from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
-from django.db import connection, models, transaction
+from django.db import models, transaction
 from django.db.models import Exists, F, OuterRef, Q
 from django.utils import timezone
 from django.utils.encoding import force_str
@@ -14,6 +16,54 @@ from reversion.models import Version
 from uncms import sitemaps
 from uncms.models import OnlineBaseManager, PageBase, PageBaseSearchAdapter
 from uncms.models.managers import publication_manager
+
+
+@contextmanager
+def page_tree_lock():
+    """
+    Acquires an exclusive lock on the page tree structure.
+
+    This must be used during any operation that modifies the left/right
+    values of pages in the tree. It ensures that only one transaction can
+    modify the tree structure at a time.
+
+    The lock is implemented via a sentinel row (via the PageTreeLock model)
+    that all tree-modifying operations must lock with select_for_update().
+    This provides a database-agnostic way to serialize tree modifications; it
+    is better than supporting each individual database's table-lock syntax.
+
+    This automatically wraps execution in a transaction.
+
+    Note that you'll never have to use this decorator/context manager manually,
+    because the methods on `Page` that need it will be decorated with it.
+    """
+    with transaction.atomic():
+        lock, _ = PageTreeLock.objects.select_for_update().get_or_create(id=1)
+        yield lock
+
+
+class PageTreeLock(models.Model):
+    """
+    Singleton model to provide exclusive locking for page tree operations.
+
+    This model contains a single row that must be locked with select_for_update()
+    before any operation that modifies the page tree structure (left/right values).
+    This ensures that concurrent page saves cannot corrupt the tree.
+    """
+
+    id = models.IntegerField(
+        primary_key=True,
+        default=1,
+    )
+
+    class Meta:
+        constraints = [
+            # This guarantees that exactly one PageTreeLock can exist.
+            models.CheckConstraint(
+                condition=Q(id=1),
+                name="pages_pagetreelock_singleton",
+            ),
+        ]
 
 
 class PageManager(OnlineBaseManager):
@@ -243,18 +293,12 @@ class Page(PageBase):
             right=F("right") + branch_width,
         )
 
-    @transaction.atomic
+    @page_tree_lock()
     def save(self, *args, **kwargs):
-        # Lock the table. This causes a SELECT FOR UPDATE (on sensible
-        # databases) which will cause anything *else* that attempts a similar
-        # lock to block. As long as all operations that change the page tree
-        # also attempt to use a SELECT FOR UPDATE lock, this means that we
-        # can't have e.g. two concurrent saves trashing the page tree.
+        # Get snapshot of current tree state.
         existing_pages = dict(
             (page["id"], page)
-            for page in Page.objects.select_for_update().values(
-                "id", "parent_id", "left", "right"
-            )
+            for page in Page.objects.values("id", "parent_id", "left", "right")
         )
 
         if self.left is None or self.right is None:
@@ -320,11 +364,11 @@ class Page(PageBase):
         # Now actually save it!
         super().save(*args, **kwargs)
 
-    @transaction.atomic
+    @page_tree_lock()
     def delete(self, *args, **kwargs):
-        """Deletes the page."""
-        # Lock entire table.
-        list(Page.objects.all().select_for_update().values_list("left", "right"))
+        """
+        Deletes the page, and handles rewriting of the page tree.
+        """
         super().delete(*args, **kwargs)
         # Update the entire tree.
         self._excise_branch()
