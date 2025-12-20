@@ -12,7 +12,43 @@ Publication workflows that require having draft versions and published versions 
 And features that are not useful for the overwhelming majority of projects are best implemented in your project,
 not in UnCMS.
 
+## Bootstrapping a test environment
+
+You will need a recent version of Python installed.
+If you wish to work on CSS or JS (and get the appropriate linters & formatters), you will need [nvm](https://github.com/nvm-sh/nvm).
+
+To bootstrap:
+
+```bash
+./scripts/bootstrap-test.sh
+```
+
+The bootstrap script can take the following arguments:
+
+* `--python [version]`: Python executable to build a virtual environment with (defaults to "python3")
+* `--no-frontend`: don't initialise the Node/NPM environment (I don't blame you)
+
+## Formatting
+
+[Black](https://github.com/psf/black) is correct.
+I fought against it myself for the longest time.
+It won in the end.
+Conflicts between it and any linter (like flake8, which is used in UnCMS) are symptoms of those linters being wrong.
+As I write this there are two `fmt:off` directives in the code, and I will likely not add any more.
+
 ## Testing
+
+You can run all the tests and linters with a handy shell script:
+
+```bash
+./scripts/test.sh
+```
+
+Or just the Python tests:
+
+```bash
+pytest tests/
+```
 
 UnCMS has 100% line and branch coverage, and must continue to stay that way.
 That includes the `tests/` directory; requiring coverage there is a good way of finding dead test helper code.
@@ -22,6 +58,9 @@ You should write new tests as pytest test functions.
 Experience with test classes shows that they tend to smoosh together too many responsibilities.
 If you are changing an existing test which is part of a test class,
 it might be best to rewrite that test as a test function.
+
+Warnings are errors in the tests.
+It is usually best not to mute those warnings; they usually indicate problems that need to be fixed.
 
 ### Writing tests
 
