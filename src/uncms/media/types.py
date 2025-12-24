@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 
 @dataclass
@@ -26,9 +26,9 @@ class Thumbnail:
         return self.width / self.height
 
 
+@dataclass
 class ThumbnailGroup:
-    def __init__(self):
-        self.sizes = []
+    sizes: list = field(default_factory=list)
 
     def add(self, thumbnail):
         if not any(existing.width == thumbnail.width for existing in self.sizes):
@@ -42,6 +42,7 @@ class ThumbnailGroup:
         return ", ".join([f"{size.url} {size.width}w" for size in self.sizes])
 
 
+@dataclass
 class MultiThumbnail:
     """
     MultiThumbnail is a tiny dataclass that simplifies gathering multiple
@@ -55,6 +56,8 @@ class MultiThumbnail:
     code in File.render_multisize.
     """
 
+    formats: OrderedDict = field(default_factory=OrderedDict)
+
     def __init__(self):
         self.formats = OrderedDict()
 
@@ -67,6 +70,7 @@ class MultiThumbnail:
         """
         Tiny helper to expose formats.items() as a property. This permits
         using byte-for-byte exactly the same image template code for Django
-        templates as Jinja2.
+        templates as Jinja2 (because Django does not have the parentheses for
+        a function call).
         """
         return self.formats.items()
