@@ -170,10 +170,8 @@ def test_file_get_thumbnail_on_garbage():
     assert thumbnail.height == 0
 
 
-@pytest.mark.django_db
 def test_label_str():
-    obj = Label.objects.create(name="Foo")
-    assert str(obj) == "Foo"
+    assert str(Label(name="Foo")) == "Foo"
 
 
 #
