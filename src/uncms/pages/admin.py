@@ -435,10 +435,10 @@ class PageAdmin(PageBaseAdmin):
         """Checks whether the user can edits pages and at least one content model."""
         if not super().has_add_permission(request):
             return False
-        for content_model in get_registered_content():
-            if self.has_add_content_permission(request, content_model):
-                return True
-        return False
+        return any(
+            self.has_add_content_permission(request, content_model)
+            for content_model in get_registered_content()
+        )
 
     def has_change_permission(self, request, obj=None):
         """Checks whether the user can edit the page and associated content model."""

@@ -79,7 +79,11 @@ filterwarnings = [
 ]
 
 [tool.pylint.main]
-load-plugins = ["pylint.extensions.bad_builtin", "pylint.extensions.check_elif"]
+load-plugins = [
+    "pylint.extensions.bad_builtin",
+    "pylint.extensions.check_elif",
+    "pylint.extensions.for_any_all",
+]
 persistent = false
 jobs = 0
 score = false
