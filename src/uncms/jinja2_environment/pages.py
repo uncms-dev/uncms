@@ -55,6 +55,7 @@ PAGES_GLOBALS = {
         "get_og_title",
         "get_og_image",
         "get_og_description",
+        "get_page_url",
         "render_navigation",
     ]
 }
@@ -62,4 +63,3 @@ PAGES_GLOBALS = {
 PAGES_GLOBALS["get_breadcrumbs"] = get_breadcrumbs
 PAGES_GLOBALS["render_breadcrumbs"] = render_breadcrumbs
 PAGES_GLOBALS["render_title"] = render_title
-PAGES_GLOBALS["get_page_url"] = pages_common.get_page_url

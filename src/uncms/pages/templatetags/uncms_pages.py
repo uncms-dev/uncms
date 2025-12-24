@@ -132,11 +132,11 @@ def og_title(context):
     return get_og_title(context)
 
 
-@register.simple_tag
+@register.simple_tag(takes_context=True)
 def page_url(
-    page, view_func=None, *args, **kwargs
+    context, page, view_func=None, *args, **kwargs
 ):  # pylint:disable=keyword-arg-before-vararg
-    return get_page_url(page, view_func=view_func, *args, **kwargs)
+    return get_page_url(context, page, view_func=view_func, *args, **kwargs)
 
 
 @register.inclusion_tag("pages/title.html", takes_context=True)

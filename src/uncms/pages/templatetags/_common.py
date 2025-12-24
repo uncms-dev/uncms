@@ -124,30 +124,31 @@ def get_breadcrumbs_context(
 
 
 def get_page_url(
-    page, view_func=None, *args, **kwargs
+    context, page, view_func=None, *args, **kwargs
 ):  # pylint:disable=keyword-arg-before-vararg
     """
     Returns the URL of the given view func in the given page.
     """
     url = None
     page_model = get_page_model()
+    # If we're given a page ID or a page, get that page from `request.pages`.
+    # It'll already have its parents prefetched which optimises
+    # `get_absolute_url`. Note that there's a good chance that this is already
+    # coming from e.g. `request.pages.current` already, but we can't tell that
+    # from where we're sitting (though we could do a micro-optimisation by
+    # setting a magic attribute on each Page in RequestPageManager to dodge
+    # this).
+    if isinstance(page, int | page_model):
+        page = context["request"].pages.get_page(page)
 
-    if isinstance(page, int):
-        try:
-            page = page_model.objects.get(pk=page)
-        except page_model.DoesNotExist:
-            url = "#"
-            page = None
-    if page is None:
-        url = "#"
+    if not page:
+        return "#"
+
+    if view_func is None:
+        url = page.get_absolute_url()
     else:
-        # Get the page URL.
-        if view_func is None:
-            url = page.get_absolute_url()
-        else:
-            url = page.reverse(view_func, args, kwargs)
-    # Return the value, or set as a context variable as appropriate.
-    return escape(url)
+        url = page.reverse(view_func, args=args, kwargs=kwargs)
+    return url
 
 
 # Page widgets.

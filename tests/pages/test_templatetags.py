@@ -549,11 +549,12 @@ def test_og_title(test_function):
 @pytest.mark.parametrize("test_function", [get_page_url, page_url])
 def test_page_url(test_function):
     page = PageFactory(content=TemplateTagTestPage())
-    assert test_function(page) == "/"
-    assert test_function(page.pk) == "/"
-    assert test_function(-1) == "#"
-    assert test_function(None) == "#"
-    assert test_function(page.pk, "detail", slug="subpage") == "/subpage/"
+    context = {"request": request_with_pages()}
+    assert test_function(context, page) == "/"
+    assert test_function(context, page.pk) == "/"
+    assert test_function(context, -1) == "#"
+    assert test_function(context, None) == "#"
+    assert test_function(context, page.pk, "detail", slug="subpage") == "/subpage/"
 
 
 @pytest.mark.django_db
