@@ -2,7 +2,6 @@ from functools import partial
 
 from django.contrib import admin
 from django.contrib.admin.views.main import IS_POPUP_VAR
-from django.http import HttpResponseForbidden, JsonResponse
 from django.template.defaultfilters import filesizeformat
 from django.template.loader import render_to_string
 from django.urls import path
@@ -13,8 +12,9 @@ from watson.admin import SearchAdmin
 
 from uncms.admin import get_related_objects_admin_urls
 from uncms.conf import defaults
+from uncms.media.admin_views import EditorImageUploadAPIView, ImageListAPIView
 from uncms.media.filetypes import IMAGE_DB_QUERY
-from uncms.media.forms import FileForm, ImageUploadForm
+from uncms.media.forms import FileForm
 from uncms.media.models import File, Label
 
 
@@ -203,7 +203,7 @@ class FileAdmin(VersionAdmin, SearchAdmin):
         new_urls = [
             path(
                 "upload-api/",
-                self.admin_site.admin_view(self.image_upload_api_view),
+                self.admin_site.admin_view(self.editor_image_upload_api_view),
                 name="media_file_image_upload_api",
             ),
             path(
@@ -216,43 +216,17 @@ class FileAdmin(VersionAdmin, SearchAdmin):
         return new_urls + urls
 
     def image_list_api_view(self, request):
-        if not self.has_view_permission(request):
-            return HttpResponseForbidden("Forbidden")
+        """
+        An image list API view for the editor; a thin wrapper around
+        ImageListAPIView.
+        """
+        view = ImageListAPIView.as_view()
+        return view(request, model_admin=self)
 
-        response = JsonResponse(
-            [
-                {
-                    "title": obj.title,
-                    "url": obj.get_temporary_url(),
-                    "thumbnail": obj.get_admin_thumbnail().url,
-                    "altText": obj.alt_text,
-                }
-                for obj in self.get_queryset(request).filter(IMAGE_DB_QUERY)
-            ],
-            safe=False,
-        )
-        return response
-
-    def image_upload_api_view(self, request):
-        if not self.has_add_permission(request):
-            return HttpResponseForbidden(b"Forbidden")
-        form = ImageUploadForm(
-            data=request.POST, files=request.FILES, user=request.user
-        )
-        if not form.is_valid():
-            # it'd make more sense to return a status code here, but the
-            # Trumbowyg upload plugin just wants a success true/false key
-            return JsonResponse(
-                {
-                    "success": False,
-                    "detail": form.errors.get_json_data(),
-                }
-            )
-
-        form.save()
-        return JsonResponse(
-            {
-                "success": True,
-                "file": form.instance.get_temporary_url(),
-            }
-        )
+    def editor_image_upload_api_view(self, request):
+        """
+        Thin wrapper around EditorImageUploadAPIView which passes in this
+        ModelAdmin.
+        """
+        view = EditorImageUploadAPIView.as_view()
+        return view(request, model_admin=self)
