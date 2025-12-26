@@ -129,6 +129,18 @@ disable = [
   "wrong-import-order",
 ]
 enable = ["useless-suppression"]
+defining-attr-methods = [
+    # These are the defaults to prevent the "attribute-defined-outside-init"
+    # warning.
+    "__init__",
+    "__new__",
+    "setUp",
+    "asyncSetUp",
+    "__post_init__",
+    # But we add this; Django's `dispatch` method is the conventional place to
+    # set attributes on class-based views.
+    "dispatch"
+]
 
 [tool.pylint.typecheck]
 ignore-mixin-members = true

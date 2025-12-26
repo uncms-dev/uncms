@@ -13,7 +13,6 @@ class ImageListAPIView(View):
     """
 
     def dispatch(self, request, *args, **kwargs):
-        # pylint:disable-next=attribute-defined-outside-init
         self.model_admin = kwargs["model_admin"]
         if not self.model_admin.has_view_permission(request):
             return HttpResponseForbidden("Forbidden")
@@ -45,7 +44,6 @@ class EditorImageUploadAPIView(View):
     """
 
     def dispatch(self, request, *args, **kwargs):
-        # pylint:disable-next=attribute-defined-outside-init
         self.model_admin = kwargs["model_admin"]
         if not self.model_admin.has_add_permission(request):
             return HttpResponseForbidden(b"Forbidden")
