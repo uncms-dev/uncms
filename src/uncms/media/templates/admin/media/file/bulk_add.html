@@ -1,0 +1,61 @@
+{% extends "admin/base_site.html" %}
+
+{% load admin_urls %}
+{% load i18n %}
+{% load static %}
+
+{% block extrahead %}
+    {{ block.super }}
+
+    <link rel="stylesheet" href="{% static 'media/css/bulk-add.css' %}">
+    <script src="{% static 'media/js/bulk-add.js' %}" async></script>
+{% endblock %}
+
+{% block breadcrumbs %}
+    <div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% translate 'Home' %}</a>
+    &rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
+    &rsaquo; {% if has_view_permission %}<a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>{% else %}{{ opts.verbose_name_plural|capfirst }}{% endif %}
+    &rsaquo; {% translate "Bulk upload" %}
+    </div>
+{% endblock %}
+
+{% block content %}
+    <div class="bulk-upload" data-upload-url="{{ upload_api_url }}">
+        <div class="bulk-upload__dropzone">
+            <input type="file" name="files" id="id_files" class="bulk-upload__input" multiple accept="*/*">
+            <label for="id_files" class="bulk-upload__label">
+                <svg class="bulk-upload__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="17 8 12 3 7 8"></polyline>
+                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+                <span class="bulk-upload__text">
+                    <span class="bulk-upload__text-highlight">{% translate "Choose files" %}</span> {% translate "or drag them here" %}
+                </span>
+                <span class="bulk-upload__hint">{% translate "Files will be uploaded immediately" %}</span>
+            </label>
+        </div>
+
+        <div class="bulk-upload__file-list"></div>
+
+        <template id="bulk-upload-file-template">
+            <div class="bulk-upload__file-item">
+                <svg class="bulk-upload__file-thumbnail bulk-upload__file-thumbnail--icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+                    <polyline points="13 2 13 9 20 9"></polyline>
+                </svg>
+                <div class="bulk-upload__file-info">
+                    <span class="bulk-upload__file-name"></span>
+                    <span class="bulk-upload__file-size"></span>
+                    <div class="bulk-upload__file-status" hidden></div>
+                    <progress class="bulk-upload__file-progress" max="100" value="0"></progress>
+                </div>
+                <div class="bulk-upload__file-actions">
+                    <a href="" class="bulk-upload__file-edit" target="_blank" hidden>{% translate "Edit" %}</a>
+                    <button type="button" class="bulk-upload__file-cancel">{% translate "Cancel" %}</button>
+                </div>
+            </div>
+        </template>
+    </div>
+{% endblock %}

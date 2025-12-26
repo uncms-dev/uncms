@@ -117,6 +117,18 @@ class ImageOrSVGRefField(RestrictedFileRefField):
     allowed_extensions = IMAGE_FILE_EXTENSIONS + ["svg"]
 ```
 
+## Bulk uploading
+
+As a convenience for populating a site, large numbers of files can be uploaded with the JS-based bulk uploader in the admin.
+
+![A screenshot of the bulk uploader interface.](images/bulk-upload.png)
+
+It's accessible from a link on the "add file" page.
+It allows dragging and dropping any number of files onto the uploader.
+The title of files will be automatically populated from the file name.
+
+If you wish, you can disable this with the `MEDIA_BULK_UPLOAD_ENABLED` [configuration item](configuration.md).
+
 ## Next steps
 
 Learn about [rendering images](rendering-images.md) from your library.

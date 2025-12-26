@@ -2,9 +2,11 @@ from functools import partial
 
 from django.contrib import admin
 from django.contrib.admin.views.main import IS_POPUP_VAR
+from django.http import HttpResponseForbidden
+from django.shortcuts import render
 from django.template.defaultfilters import filesizeformat
 from django.template.loader import render_to_string
-from django.urls import path
+from django.urls import path, reverse
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 from reversion.admin import VersionAdmin
@@ -12,7 +14,11 @@ from watson.admin import SearchAdmin
 
 from uncms.admin import get_related_objects_admin_urls
 from uncms.conf import defaults
-from uncms.media.admin_views import EditorImageUploadAPIView, ImageListAPIView
+from uncms.media.admin_views import (
+    BulkUploadAPIView,
+    EditorImageUploadAPIView,
+    ImageListAPIView,
+)
 from uncms.media.filetypes import IMAGE_DB_QUERY
 from uncms.media.forms import FileForm
 from uncms.media.models import File, Label
@@ -188,6 +194,18 @@ class FileAdmin(VersionAdmin, SearchAdmin):
             },
         )
 
+    def add_view(self, request, form_url="", extra_context=None):
+        """
+        Override of the change view which puts the "can bulk upload" flag in
+        the template context.
+        """
+        extra_context = extra_context or {}
+        extra_context["can_bulk_add"] = self.can_bulk_add(request)
+        return super().add_view(request, form_url, extra_context)
+
+    def can_bulk_add(self, request):
+        return defaults.MEDIA_BULK_UPLOAD_ENABLED and self.has_add_permission(request)
+
     def changelist_view(self, request, extra_context=None):
         """Renders the change list."""
         context = extra_context or {}
@@ -202,9 +220,19 @@ class FileAdmin(VersionAdmin, SearchAdmin):
 
         new_urls = [
             path(
+                "add/bulk/",
+                self.admin_site.admin_view(self.bulk_add_view),
+                name="media_file_image_bulk_add",
+            ),
+            path(
                 "upload-api/",
                 self.admin_site.admin_view(self.editor_image_upload_api_view),
                 name="media_file_image_upload_api",
+            ),
+            path(
+                "bulk-upload-api/",
+                self.admin_site.admin_view(self.bulk_add_api_view),
+                name="media_file_bulk_upload_api",
             ),
             path(
                 "image-list-api/",
@@ -214,6 +242,29 @@ class FileAdmin(VersionAdmin, SearchAdmin):
         ]
 
         return new_urls + urls
+
+    def bulk_add_view(self, request):
+        if not self.can_bulk_add(request):
+            return HttpResponseForbidden("Forbidden")
+
+        context = self.admin_site.each_context(request)
+        context.update(
+            {
+                "has_view_permission": self.has_view_permission(request),
+                "opts": self.opts,
+                "title": _("Bulk upload"),
+                "upload_api_url": reverse("admin:media_file_bulk_upload_api"),
+            }
+        )
+        return render(request, "admin/media/file/bulk_add.html", context)
+
+    def bulk_add_api_view(self, request):
+        """
+        The API used by the bulk upload view; a thin wrapper around
+        BulkUploadAPIView.
+        """
+        view = BulkUploadAPIView.as_view()
+        return view(request, model_admin=self)
 
     def image_list_api_view(self, request):
         """

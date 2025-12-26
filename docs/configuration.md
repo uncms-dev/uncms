@@ -132,6 +132,15 @@ WebP versions will be output in a `<source>` element, for browsers that support 
 This is a Web-optimised format supported by almost all browsers and gives substantial size reductions over PNG and JPEG.
 To turn this off for whatever reason, set this to `False`.
 
+## `MEDIA_BULK_UPLOAD_ENABLED`
+
+* Type: boolean
+* Default: `True`
+
+Enables or disables the bulk upload functionality in the [media app](media-app.md).
+Disabling this provides no security, as the same users have permissions to upload files anyway;
+this only makes uploading large numbers of files less easy.
+
 ## `MEDIA_FILE_MODEL`
 
 * Type: string (dotted name of Django model)

@@ -10,3 +10,17 @@
         <script src="{% static 'media/js/prepopulate-title.js' %}" async></script>
     {% endif %}
 {% endblock %}
+
+{% block content %}
+    {% if can_bulk_add and add %}
+        <p>
+            {% url "admin:media_file_image_bulk_add" as bulk_add_url %}
+            {% blocktranslate %}
+                To quickly upload many files, use the
+                <a href="{{ bulk_add_url }}">bulk upload form</a>.
+            {% endblocktranslate %}
+        </p>
+    {% endif %}
+
+    {{ block.super }}
+{% endblock %}

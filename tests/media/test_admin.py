@@ -321,3 +321,192 @@ def test_media_get_form(client):
     response = client.get(reverse("admin:media_file_add"))
     assert response.status_code == 200
     assert response.context_data["adminform"].form.user == user
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("give_view_permission", [True, False])
+def test_bulk_add_view_with_add_permission(client, give_view_permission):
+    """
+    Test that staff users with the correct permissions can see the bulk upload
+    page.
+    """
+    permissions = ["media.add_file"]
+    if give_view_permission:
+        permissions.append("media.view_file")
+    user = UserFactory(is_staff=True, permissions=permissions)
+    client.force_login(user)
+    url = reverse("admin:media_file_image_bulk_add")
+
+    response = client.get(url)
+    assert response.status_code == 200
+    assert response.context["title"] == "Bulk upload"
+    assert "opts" in response.context
+    assert response.context["has_view_permission"] is give_view_permission
+    assert response.context["upload_api_url"] == "/admin/media/file/bulk-upload-api/"
+
+
+@pytest.mark.django_db
+def test_bulk_add_view_non_staff(client):
+    """
+    Test that non-staff users should be redirected to the login page when
+    accessing the bulk upload page.
+    """
+    user = UserFactory()
+    client.force_login(user)
+
+    response = client.get(reverse("admin:media_file_image_bulk_add"))
+    assert response.status_code == 302
+    assert response["Location"].startswith("/admin/login/")
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "settings_overrides, user_permissions",
+    [
+        # User has the correct permissions, but bulk uploading is disabled.
+        ({"UNCMS": {"MEDIA_BULK_UPLOAD_ENABLED": False}}, ["media.add_file"]),
+        # Bulk uploading is disabled *and* user does not have the correct
+        # permissions.
+        ({"UNCMS": {"MEDIA_BULK_UPLOAD_ENABLED": False}}, []),
+        # Bulk uploading is enabled, but user does not have the correct
+        # permissions.
+        ({"UNCMS": {}}, []),
+    ],
+)
+def test_bulk_add_view_disabled(client, settings_overrides, user_permissions):
+    """
+    Test that the the bulk add view returns a 403 when bulk upload is disabled in
+    settings or when the user does not have the correct permissions.
+    """
+    user = UserFactory(is_staff=True, permissions=user_permissions)
+    client.force_login(user)
+
+    with override_settings(**settings_overrides):
+        response = client.get(reverse("admin:media_file_image_bulk_add"))
+    assert response.status_code == 403
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("give_view_permission", [True, False])
+@pytest.mark.parametrize("image_upload", [True, False])
+@override_settings(UNCMS={"MEDIA_UPLOAD_ALLOWED_EXTENSIONS": ["txt"]})
+def test_bulk_add_api_view(client, give_view_permission, image_upload):
+    """
+    Test successful file upload via the bulk upload API.
+    """
+    permissions = ["media.add_file"]
+    if give_view_permission:
+        permissions.append("media.view_file")
+
+    user = UserFactory(is_staff=True, permissions=permissions)
+    client.force_login(user)
+
+    if image_upload:
+        filename = "1920x1080.png"
+    else:
+        filename = "text-file.txt"
+
+    with open(data_file_path(filename), "rb") as fd:
+        data = {"file": fd}
+        response = client.post(reverse("admin:media_file_bulk_upload_api"), data=data)
+
+    assert response.status_code == 200
+
+    latest_file = File.objects.order_by("-id").first()
+
+    response_json = response.json()
+    if image_upload:
+        assert response_json["size"] == 7940
+        assert response_json["sizeFormatted"] == "7.8\xa0KB"
+        assert latest_file.title == "1920x1080"
+        # Make sure the thumbnail URL is a redirect, which redirects to a
+        # thing which exists.
+        thumbnail_response = client.get(response_json["thumbnail"])
+        assert thumbnail_response.status_code == 302
+        assert client.get(thumbnail_response.headers["Location"]).status_code == 200
+    else:
+        assert response_json["size"] == 5
+        assert response_json["sizeFormatted"] == "5\xa0bytes"
+        assert latest_file.title == "text-file"
+        assert response_json["thumbnail"] is None
+
+    if give_view_permission:
+        assert (
+            response_json["adminUrl"] == f"/admin/media/file/{latest_file.pk}/change/"
+        )
+    else:
+        assert "adminUrl" not in response_json
+
+    assert File.objects.count() == 1
+    assert list(latest_file.labels.values_list("name", flat=True)) == ["Bulk upload"]
+
+
+@pytest.mark.django_db
+def test_bulk_add_api_view_non_staff(client):
+    """
+    Test that non-staff users are redirected to login when accessing the bulk
+    API upload view.
+    """
+    user = UserFactory()
+    client.force_login(user)
+
+    with open(data_file_path("1920x1080.png"), "rb") as fd:
+        response = client.post(
+            reverse("admin:media_file_bulk_upload_api"), data={"file": fd}
+        )
+
+    assert response.status_code == 302
+    assert response["Location"].startswith("/admin/login/")
+    assert File.objects.count() == 0
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "settings_overrides, user_permissions",
+    [
+        # User has the correct permissions, but bulk uploading is disabled.
+        ({"UNCMS": {"MEDIA_BULK_UPLOAD_ENABLED": False}}, ["media.add_file"]),
+        # Bulk uploading is disabled *and* user does not have the correct
+        # permissions.
+        ({"UNCMS": {"MEDIA_BULK_UPLOAD_ENABLED": False}}, []),
+        # Bulk uploading is enabled, but user does not have the correct
+        # permissions.
+        ({"UNCMS": {}}, []),
+    ],
+)
+def test_bulk_add_api_view_staff_with_bulk_upload_not_allowed(
+    client, settings_overrides, user_permissions
+):
+    """
+    Test that we get a 403 on the bulk upload API in these cases:
+    * when the user is a staff user without the add permission
+    * when MEDIA_BULK_UPLOAD_ENABLED is False
+    """
+    user = UserFactory(is_staff=True, permissions=user_permissions)
+    client.force_login(user)
+
+    with override_settings(**settings_overrides), open(
+        data_file_path("1920x1080.png"), "rb"
+    ) as fd:
+        response = client.post(
+            reverse("admin:media_file_bulk_upload_api"), data={"file": fd}
+        )
+
+    assert response.status_code == 403
+    assert response.content == b"Forbidden"
+    assert File.objects.count() == 0
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("data", [{}, {"file": "not a file"}])
+def test_bulk_add_api_view_missing_file(client, data):
+    """
+    Test bulk upload API view with missing `file` field. This branch is
+    defensive and should never be seen in normal use.
+    """
+    user = UserFactory(is_staff=True, permissions=["media.add_file"])
+    client.force_login(user)
+
+    response = client.post(reverse("admin:media_file_bulk_upload_api"), data=data)
+    assert response.status_code == 400
+    assert response.json()["error"] == "This field is required."

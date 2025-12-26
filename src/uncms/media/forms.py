@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 
 import magic
 from django import forms
@@ -26,12 +27,7 @@ def mime_check(file):
     return True
 
 
-class FileForm(forms.ModelForm):
-    class Meta:
-        # make swappable
-        model = apps.get_model(defaults.MEDIA_FILE_MODEL)
-        fields = ["title", "file", "attribution", "copyright", "alt_text", "labels"]
-
+class FileCleaningFormMixin:
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop("user")
         super().__init__(*args, **kwargs)
@@ -106,7 +102,60 @@ class FileForm(forms.ModelForm):
         )
 
 
-class ImageUploadForm(FileForm):
+class FileUploadAPIFormMixin:
+    """
+    A mixin for the forms used in admin API views, providing helpers for
+    guessing a title.
+    """
+
+    @cached_property
+    def alt_text_max_length(self):
+        """
+        Returns the max_length of the `alt_text` field; this avoids
+        hard-coding the max_length in more than one place if it ever changes.
+        """
+        return self.file_meta.get_field("alt_text").max_length
+
+    @cached_property
+    def file_meta(self):
+        return apps.get_model(defaults.MEDIA_FILE_MODEL)._meta
+
+    @cached_property
+    def title_max_length(self) -> int:
+        """
+        Returns the max_length of the `title` field; this avoids hard-coding
+        the max_length in more than one place if it ever changes.
+        """
+        return self.file_meta.get_field("title").max_length
+
+    def truncate_alt(self, alt_text: str) -> str:
+        """
+        Truncates a name to the appropriate max_length for the `alt_text`
+        field.
+        """
+        return alt_text[: self.alt_text_max_length]
+
+    def truncate_title(self, title: str) -> str:
+        """
+        Truncates a name to the appropriate max_length for the `title` field.
+        """
+        return title[: self.title_max_length]
+
+    def title_from_file(self, file):
+        """
+        Returns a guessed title from an uploaded file.
+        """
+        return self.truncate_title(os.path.splitext(file.name)[0]) or "[unset]"
+
+
+class FileForm(FileCleaningFormMixin, forms.ModelForm):
+    class Meta:
+        # make swappable
+        model = apps.get_model(defaults.MEDIA_FILE_MODEL)
+        fields = ["title", "file", "attribution", "copyright", "alt_text", "labels"]
+
+
+class ImageUploadForm(FileUploadAPIFormMixin, FileForm):
     """
     A variant of FileForm which only permits uploading images. This is
     intended for use with the admin WYSIWYG upload view.
@@ -133,21 +182,25 @@ class ImageUploadForm(FileForm):
         return super().clean_file()
 
     def save(self, commit=True):
-        file_meta = apps.get_model(defaults.MEDIA_FILE_MODEL)._meta
-        title_max_length = file_meta.get_field("title").max_length
-        alt_max_length = file_meta.get_field("alt_text").max_length
-
         if not self.instance.title:
-            if self.cleaned_data.get("alt"):
-                self.instance.title = self.cleaned_data["alt"][:title_max_length]
+            if alt_text := self.cleaned_data.get("alt"):
+                self.instance.title = self.truncate_title(alt_text)
             else:
-                self.instance.title = os.path.splitext(self.cleaned_data["file"].name)[
-                    0
-                ][:title_max_length]
+                self.instance.title = self.title_from_file(self.cleaned_data["file"])
 
-        self.instance.alt_text = self.cleaned_data.get("alt", "")[:alt_max_length]
+        self.instance.alt_text = self.truncate_alt(self.cleaned_data.get("alt", ""))
 
         return super().save(commit=commit)
 
     class Meta(FileForm.Meta):
         fields = ["file"]
+
+
+class BulkUploadForm(FileUploadAPIFormMixin, FileCleaningFormMixin, forms.ModelForm):
+    class Meta:
+        model = apps.get_model(defaults.MEDIA_FILE_MODEL)
+        fields = ["file"]
+
+    def save(self, commit=True):
+        self.instance.title = self.title_from_file(self.cleaned_data["file"])
+        return super().save(commit=commit)

@@ -25,6 +25,7 @@ class AppSettings:
         "IMAGE_CLASS_PREFIX": "image",
         "IMAGE_TEMPLATE": "media/multi_format_image.html",
         "IMAGE_USE_WEBP": True,
+        "MEDIA_BULK_UPLOAD_ENABLED": True,
         "MEDIA_FILE_MODEL": "media.File",
         "MEDIA_LIST_GRID_VIEW": True,
         "MEDIA_UPLOAD_ALLOWED_EXTENSIONS": [],

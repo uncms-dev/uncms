@@ -1,8 +1,15 @@
 from django.http import HttpResponseForbidden, JsonResponse
+from django.template.defaultfilters import filesizeformat
 from django.views.generic import View
 
+from uncms.admin import get_admin_url
 from uncms.media.filetypes import IMAGE_DB_QUERY
-from uncms.media.forms import ImageUploadForm
+from uncms.media.forms import BulkUploadForm, ImageUploadForm
+from uncms.media.models import Label
+
+# Label name for files uploaded via bulk upload interface.
+# Not translated to avoid different labels per admin language.
+BULK_UPLOAD_LABEL_NAME = "Bulk upload"
 
 
 class ImageListAPIView(View):
@@ -15,7 +22,7 @@ class ImageListAPIView(View):
     def dispatch(self, request, *args, **kwargs):
         self.model_admin = kwargs["model_admin"]
         if not self.model_admin.has_view_permission(request):
-            return HttpResponseForbidden("Forbidden")
+            return HttpResponseForbidden(b"Forbidden")
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
@@ -68,3 +75,62 @@ class EditorImageUploadAPIView(View):
                 "file": form.instance.get_temporary_url(),
             }
         )
+
+
+class BulkUploadAPIView(View):
+    """
+    A view for uploading individual files as part of the bulk upload interface.
+    This differs from the EditorImageUploadAPIView because the response can
+    be formatted as we want it to be, and it also guesses a title for the
+    image.
+    """
+
+    http_method_names = ["post"]
+
+    def dispatch(self, request, *args, **kwargs):
+        self.model_admin = kwargs["model_admin"]
+        if not self.model_admin.can_bulk_add(request):
+            return HttpResponseForbidden(b"Forbidden")
+        return super().dispatch(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        form = BulkUploadForm(data=request.POST, files=request.FILES, user=request.user)
+        if not form.is_valid():
+            errors = form.errors.as_data()
+            # Extract all error messages from all fields into a flat list.
+            error_messages = [
+                msg
+                for field_errors in errors.values()
+                for error in field_errors
+                for msg in error.messages
+            ]
+
+            return JsonResponse(
+                {
+                    "error": (
+                        " ".join(error_messages) if error_messages else "Invalid file"
+                    )
+                },
+                status=400,
+            )
+
+        instance = form.save()
+        instance.labels.add(Label.objects.get_or_create(name=BULK_UPLOAD_LABEL_NAME)[0])
+
+        file_size = instance.file.size
+
+        response = {
+            "name": instance.title,
+            "size": file_size,
+            "sizeFormatted": filesizeformat(file_size),
+        }
+
+        if instance.is_image():
+            response["thumbnail"] = instance.get_admin_thumbnail().url
+        else:
+            response["thumbnail"] = None
+
+        if self.model_admin.has_view_permission(request, obj=instance):
+            response["adminUrl"] = get_admin_url(instance)
+
+        return JsonResponse(response)
