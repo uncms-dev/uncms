@@ -1,6 +1,6 @@
 # Changelog
 
-## Next release
+## 0.0.14
 
 * Saves and deletes now use a new database-agnostic locking mechanism using a sentinel row to properly serializes all tree modifications. That rules out page-tree-trashing by concurrent requests forever (a problem that was known to happen very rarely with [UnCMS's ancestor](history.md), though it has never been seen with UnCMS).
 * There is now a bulk file uploader for files in the [media app](media-app.md).
