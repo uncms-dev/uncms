@@ -15,18 +15,32 @@ not in UnCMS.
 ## Bootstrapping a test environment
 
 You will need a recent version of Python installed.
-If you wish to work on CSS or JS (and get the appropriate linters & formatters), you will need [nvm](https://github.com/nvm-sh/nvm).
+If you wish to work on CSS or JS, you will need [nvm](https://github.com/nvm-sh/nvm).
+Note that this is only needed for the linters and formatters; there is no frontend build system.
 
-To bootstrap:
+To bootstrap Python:
 
 ```bash
-./scripts/bootstrap-test.sh
+make python-bootstrap
 ```
 
-The bootstrap script can take the following arguments:
+To bootstrap the Node environment:
 
-* `--python [version]`: Python executable to build a virtual environment with (defaults to "python3")
-* `--no-frontend`: don't initialise the Node/NPM environment (I don't blame you)
+```bash
+make node-bootstrap
+```
+
+To do both:
+
+```bash
+make bootstrap
+```
+
+The bootstrap recipe in your makefile can take `PYTHON` as an argument, to force a certain version of Python:
+
+```bash
+make bootstrap PYTHON=python3.14
+```
 
 ## Formatting
 
