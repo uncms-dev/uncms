@@ -61,7 +61,6 @@ To work around this, you will want to wrap it in Watson's `search.update_index` 
 ```python
 from watson import search
 
-
 with search.update_index():
     new_page = Page(
         # your page creation fields here

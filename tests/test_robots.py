@@ -34,82 +34,52 @@ def test_useragentrule_get_text():
 
     for path in roots:
         rule = robots.UserAgentRule(agent="Megabot 9000", allow=path)
-        assert (
-            rule.get_text()
-            == dedent(
-                """
+        assert rule.get_text() == dedent("""
             User-agent: Megabot 9000
             Allow: /
-        """
-            ).strip()
-        )
+        """).strip()
 
         for subpath in subpaths:
             rule = robots.UserAgentRule(
                 agent="Megabot 9000", allow=path, disallow=subpath
             )
-            assert (
-                rule.get_text()
-                == dedent(
-                    """
+            assert rule.get_text() == dedent("""
                 User-agent: Megabot 9000
                 Allow: /
                 Disallow: /admin/
-            """
-                ).strip()
-            )
+            """).strip()
 
     for subpath in subpaths:
         rule = robots.UserAgentRule(agent="Megabot 9000", disallow=subpath)
-        assert (
-            rule.get_text()
-            == dedent(
-                """
+        assert rule.get_text() == dedent("""
             User-agent: Megabot 9000
             Disallow: /admin/
-        """
-            ).strip()
-        )
+        """).strip()
 
     rule = robots.UserAgentRule(
         agent="Megabot 9000", allow="/", disallow="/admin/", comment="Testing"
     )
-    assert (
-        rule.get_text()
-        == dedent(
-            """
+    assert rule.get_text() == dedent("""
         # Testing
         User-agent: Megabot 9000
         Allow: /
         Disallow: /admin/
-    """
-        ).strip()
-    )
+    """).strip()
 
     # Check that it works when specifying multiple user agents.
     rule = robots.UserAgentRule(agent=["Megabot 9000", "Turbotron 9001"], disallow="/")
-    assert (
-        rule.get_text()
-        == dedent(
-            """
+    assert rule.get_text() == dedent("""
         User-agent: Megabot 9000
         User-agent: Turbotron 9001
         Disallow: /
-    """
-        ).strip()
-    )
+    """).strip()
 
     # Make sure the crawl_delay branch works.
     rule = robots.UserAgentRule(agent="Megabot 9000", crawl_delay=5)
-    assert (
-        rule.get_text()
-        == dedent(
-            """
+    assert rule.get_text() == dedent("""
         User-agent: Megabot 9000
         Crawl-delay: 5
-    """
-        ).strip()
-    )
+    """).strip()
 
 
 def test_robotstxtview_empty():
@@ -147,10 +117,7 @@ def test_robotstxtview_with_robots():
     response = TestRobotsTxtView.as_view()(request)
     assert response.status_code == 200
     assert response["Content-Type"] == "text/plain; charset=utf-8"
-    assert (
-        response.content.decode("utf8")
-        == dedent(
-            """
+    assert response.content.decode("utf8") == dedent("""
         User-agent: Megabot 9000
         Allow: /
         Disallow: /admin/
@@ -158,9 +125,7 @@ def test_robotstxtview_with_robots():
         # Go away
         User-agent: Turbotron 9001
         Disallow: /
-        """
-        ).lstrip()
-    )
+        """).lstrip()
 
 
 def test_robotstxtview_sitemaps():
@@ -171,14 +136,9 @@ def test_robotstxtview_sitemaps():
     response = TestRobotsTxtView.as_view()(request)
     assert response.status_code == 200
     assert response["Content-Type"] == "text/plain; charset=utf-8"
-    assert (
-        response.content.decode("utf8")
-        == dedent(
-            """
+    assert response.content.decode("utf8") == dedent("""
         Sitemap: https://example.com/sitemap.xml
-        """
-        ).lstrip()
-    )
+        """).lstrip()
 
 
 def test_robotstxtview_with_everything():
@@ -203,10 +163,7 @@ def test_robotstxtview_with_everything():
     response = TestRobotsTxtView.as_view()(request)
     assert response.status_code == 200
     assert response["Content-Type"] == "text/plain; charset=utf-8"
-    assert (
-        response.content.decode("utf8")
-        == dedent(
-            """
+    assert response.content.decode("utf8") == dedent("""
         User-agent: Megabot 9000
         Allow: /
         Disallow: /admin/
@@ -217,6 +174,4 @@ def test_robotstxtview_with_everything():
 
         Sitemap: https://example.com/sitemap.xml
         Sitemap: https://example.com/sitemap-pages.xml
-        """
-        ).lstrip()
-    )
+        """).lstrip()
